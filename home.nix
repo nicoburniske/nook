@@ -330,8 +330,17 @@ in {
     };
   };
 
-  # Basic packages that were in your macOS home config
+  # Personal packages (moved from configuration.nix for better organization)
   home.packages = with pkgs; [
+    # Personal applications
+    ghostty
+    helix
+    yazi
+    opencode
+    gh
+    zoxide
+    
+    # Development tools
     ripgrep
     fzf
     lazygit
