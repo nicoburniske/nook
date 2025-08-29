@@ -95,7 +95,7 @@
      helix
      git
      yazi	
-     kitty
+     ghostty
      wl-clipboard
      opencode
      gh

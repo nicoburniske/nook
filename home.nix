@@ -203,7 +203,6 @@ in {
   };
 
   # Hyprland configuration with home-manager
-  programs.kitty.enable = true; # required for the default Hyprland config
   
   wayland.windowManager.hyprland = {
     enable = true;
@@ -215,15 +214,15 @@ in {
     systemd.variables = ["--all"];
     
     settings = {
-      "$mod" = "SUPER";
+      "$mod" = "alt";
       
       # Basic keybinds
       bind = [
-        "$mod, Return, exec, kitty"
+        "$mod, Return, exec, ghostty"
         "$mod, Q, killactive"
         "$mod, M, exit"
         "$mod, F, togglefloating"
-        "$mod, R, exec, rofi -show drun"
+        "$mod, Space, exec, rofi -show drun"
         
         # Move focus
         "$mod, H, movefocus, l"
@@ -299,6 +298,35 @@ in {
       misc = {
         force_default_wallpaper = -1;
       };
+    };
+  };
+
+  # Ghostty terminal configuration (ported from macOS config)
+  programs.ghostty = {
+    enable = true;
+
+    settings = {
+      shell-integration-features = "no-cursor,no-title";
+      gtk-titlebar = false;
+      gtk-single-instance = true;
+      adjust-cursor-thickness = 5;
+
+      font-size = 13;
+
+      window-title-font-family = "Berkeley Mono";
+
+      window-theme = "auto";
+      window-decoration = "none";
+      window-padding-balance = true;
+      window-padding-x = 5;
+      window-padding-y = 0;
+      window-padding-color = "extend";
+
+      scrollback-limit = 104857600;
+
+      keybind = [
+        "shift+enter=text:\\n"
+      ];
     };
   };
 
