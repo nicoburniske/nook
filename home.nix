@@ -202,7 +202,9 @@ in {
     };
   };
 
-  # Hyprland configuration with home-manager
+  programs.rofi = {
+    enable = true;
+  };
   
   wayland.windowManager.hyprland = {
     enable = true;
@@ -216,7 +218,6 @@ in {
     settings = {
       "$mod" = "alt";
       
-      # Basic keybinds
       bind = [
         "$mod, Return, exec, ghostty"
         "$mod, Q, killactive"
@@ -224,13 +225,11 @@ in {
         "$mod, F, togglefloating"
         "$mod, Space, exec, rofi -show drun"
         
-        # Move focus
         "$mod, H, movefocus, l"
         "$mod, L, movefocus, r"
         "$mod, K, movefocus, u"
         "$mod, J, movefocus, d"
         
-        # Workspaces
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
@@ -242,7 +241,6 @@ in {
         "$mod, 9, workspace, 9"
         "$mod, 0, workspace, 10"
         
-        # Move active window to a workspace
         "$mod SHIFT, 1, movetoworkspace, 1"
         "$mod SHIFT, 2, movetoworkspace, 2"
         "$mod SHIFT, 3, movetoworkspace, 3"
