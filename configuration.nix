@@ -5,11 +5,17 @@
 { config, lib, pkgs, ... }:
 
 {
+  # Enable flakes
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ./apple-silicon-support
     ];
+
+  # Specify path to peripheral firmware files for pure evaluation
+  hardware.asahi.peripheralFirmwareDirectory = ./firmware;
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
