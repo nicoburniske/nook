@@ -292,7 +292,7 @@ in {
       share = false;
     };
 
-    initExtra = ''
+    initContent = ''
       WORDCHARS=''${WORDCHARS//[\/]}
 
       bindkey '^I'   complete-word
@@ -480,6 +480,9 @@ in {
 
   # Personal packages (moved from configuration.nix for better organization)
   home.packages = with pkgs; [
+    # Fonts
+    nerd-fonts.jetbrains-mono
+    
     # Terminal and multiplexer
     zellij
     
@@ -499,7 +502,6 @@ in {
     btop
     tokei
     just
-    rust-analyzer
     nil
     marksman
     
