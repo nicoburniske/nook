@@ -11,9 +11,6 @@
       ./apple-silicon-support
     ];
 
-  # Enable flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = false;
@@ -75,32 +72,28 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with 'passwd'.
+  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nico = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ]; # Enable 'sudo' for the user.
-    shell = pkgs.zsh;  # Set zsh as default shell
+    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
   };
 
   programs.firefox.enable = true;
   programs.hyprland = {
     enable = true;
   };
-  
-  # Enable zsh system-wide
-  programs.zsh.enable = true;
 
   # List packages installed in system profile.
-  # Keep only system-level packages here, user packages go in home.nix
+  # You can use https://search.nixos.org/ to find more packages (and options).
   environment.systemPackages = with pkgs; [
-     git  # Needed for flakes
-     helix  # Keep as system-wide for now (we'll move to home-manager later)
+     helix
+     git
+     yazi	
      kitty
      wl-clipboard
      opencode
      gh
-     
-     # Hyprland related
+
      waybar
      rofi-wayland
   ];
@@ -149,3 +142,4 @@
   system.stateVersion = "25.11"; # Did you read the comment?
 
 }
+
