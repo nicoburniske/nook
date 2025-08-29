@@ -94,6 +94,7 @@
   environment.systemPackages = with pkgs; [
      git
      wl-clipboard
+     just
 
      waybar
      rofi-wayland
