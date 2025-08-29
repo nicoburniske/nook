@@ -99,6 +99,7 @@
      wl-clipboard
      opencode
      gh
+     zoxide
 
      waybar
      rofi-wayland
