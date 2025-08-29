@@ -2,7 +2,7 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, apple-silicon, ... }:
 
 {
   # Enable flakes
@@ -11,7 +11,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./apple-silicon-support
+      apple-silicon.nixosModules.apple-silicon-support
     ];
 
   # Specify path to peripheral firmware files for pure evaluation
