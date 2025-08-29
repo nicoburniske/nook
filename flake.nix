@@ -29,7 +29,7 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
           home-manager.users.nico = import ./home.nix;
-          home-manager.sharedModules = [ stylix.homeManagerModules.stylix ];
+          home-manager.sharedModules = [ stylix.homeModules.stylix ];
         }
       ];
     };
