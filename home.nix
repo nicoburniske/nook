@@ -214,7 +214,6 @@ in {
     # Import systemd environment variables for proper service integration
     systemd.variables = ["--all"];
     
-    # Basic configuration
     settings = {
       "$mod" = "SUPER";
       
@@ -257,13 +256,11 @@ in {
         "$mod SHIFT, 0, movetoworkspace, 10"
       ];
       
-      # Mouse bindings
       bindm = [
         "$mod, mouse:272, movewindow"
         "$mod, mouse:273, resizewindow"
       ];
       
-      # Basic input configuration
       input = {
         kb_layout = "us";
         follow_mouse = 1;
@@ -273,7 +270,6 @@ in {
         sensitivity = 0;
       };
       
-      # General settings
       general = {
         gaps_in = 5;
         gaps_out = 20;
@@ -281,19 +277,7 @@ in {
         layout = "dwindle";
         resize_on_border = true;
       };
-      
-      decoration = {
-        rounding = 10;
-        blur = {
-          enabled = true;
-          size = 3;
-          passes = 1;
-        };
-        drop_shadow = true;
-        shadow_range = 4;
-        shadow_render_power = 3;
-      };
-      
+     
       animations = {
         enabled = true;
         bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
