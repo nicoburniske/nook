@@ -22,12 +22,14 @@ in {
   # Enable dconf for GNOME settings
   dconf.enable = true;
 
+  # Enable fontconfig for font fallback configuration
+  fonts.fontconfig.enable = true;
+
   # Stylix theming - apply default theme (Gruvbox Dark Hard)
   stylix = lib.mkMerge [
     (lib.mkDefault (builtins.head themeDefinitions.themes).stylix)
   ];
 
-  # Zoxide shell integration (fixing the z command issue)
   programs.zoxide = {
     enable = true;
     enableBashIntegration = true;
@@ -97,7 +99,6 @@ in {
     };
   };
 
-  # Basic git configuration (simplified from macOS config)
   programs.git = {
     enable = true;
     userName = "Nico Burniske";
@@ -416,7 +417,6 @@ in {
     };
   };
 
-  # Ghostty terminal configuration (ported from macOS config)
   programs.ghostty = {
     enable = true;
 
@@ -473,45 +473,25 @@ in {
     }"
   '';
 
-  # Personal packages (moved from configuration.nix for better organization)
   home.packages = with pkgs; [
-    # Fonts
     nerd-fonts.jetbrains-mono
     
-    # Terminal and multiplexer
-    zellij
-    
-    # Personal applications
-    ghostty
-    helix
-    yazi
     opencode
-    gh
-    zoxide
     
-    # Development tools
     ripgrep
-    fzf
     lazygit
     delta
     btop
     tokei
-    just
     nil
     marksman
-    
-    # Additional development tools
     bun
     ffmpeg
-    curl
-    samply
-    yq-go
     lua-language-server
     rustup
     scooter
     cmake
     
-    # Session management script
     (writeShellScriptBin "zj" ''
       #!/usr/bin/env bash
       sessions=$(zellij list-sessions -n 2>/dev/null | grep -v "EXITED")
