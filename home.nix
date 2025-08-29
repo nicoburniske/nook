@@ -252,16 +252,14 @@ in {
     };
   };
 
-  # FZF configuration
   programs.fzf = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false;
     defaultOptions = [
       "--style=full"
     ];
   };
 
-  # Zsh shell configuration
   programs.zsh = {
     enable = true;
 
@@ -298,7 +296,6 @@ in {
       bindkey '^I'   complete-word
       bindkey '^[[Z' autosuggest-accept
 
-      export PATH=~/.opencode/bin:$PATH
       export PATH=~/.cargo/bin:$PATH
 
       function yy() {
@@ -430,8 +427,6 @@ in {
       adjust-cursor-thickness = 5;
 
       font-size = 13;
-
-      window-title-font-family = "Berkeley Mono";
 
       window-theme = "auto";
       window-decoration = "none";

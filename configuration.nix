@@ -81,8 +81,11 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nico = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" ]; # Enable 'sudo' for the user.
   };
+
+  users.defaultUserShell = pkgs.zsh;
+  programs.zsh.enable = true;
 
   programs.firefox.enable = true;
   programs.hyprland = {
