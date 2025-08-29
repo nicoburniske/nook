@@ -337,7 +337,8 @@ in {
       "$mod" = "alt";
       
       bind = [
-        "$mod, Return, exec, ghostty"
+        "$mod, t, exec, ghostty"
+        "$mod, Return, fullscreen, 1"
         "$mod, Q, killactive"
         "$mod, M, exit"
         "$mod, F, togglefloating"
