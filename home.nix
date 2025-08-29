@@ -15,8 +15,13 @@ in {
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+  # Enable dconf for GNOME settings
+  dconf.enable = true;
+
   # Stylix theming - apply default theme (Gruvbox Dark Hard)
-  stylix = lib.mkDefault (builtins.head themeDefinitions.themes).stylix;
+  stylix = lib.mkMerge [
+    (lib.mkDefault (builtins.head themeDefinitions.themes).stylix)
+  ];
 
   # Zoxide shell integration (fixing the z command issue)
   programs.zoxide = {

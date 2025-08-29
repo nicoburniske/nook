@@ -20,15 +20,15 @@
   outputs = { self, nixpkgs, apple-silicon, home-manager, stylix }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
-      specialArgs = { inherit apple-silicon; };
+      specialArgs = { inherit apple-silicon stylix; };
       modules = [
         ./configuration.nix
         home-manager.nixosModules.home-manager
-        stylix.homeManagerModules.stylix
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.nico = import ./home.nix;
+          home-manager.sharedModules = [ stylix.homeManagerModules.stylix ];
         }
       ];
     };
