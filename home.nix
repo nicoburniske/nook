@@ -9,6 +9,7 @@ in {
     ./waybar.nix
     ./starship.nix
     ./swaylock.nix
+    ./walker.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should manage.
   home.username = "nico";
@@ -125,74 +126,7 @@ in {
     };
   };
 
-  services.walker = {
-    enable = true;
-    
-    settings = {
-      force_keyboard_focus = true;
-      theme = "stylix";
-      providers = {
-        default = [ "desktopapplications" ];
-        prefixes = [
-          { prefix = "?"; provider = "websearch"; }
-        ];
-      };
-      keybinds = {
-        close = "Escape";
-        next = "Down";
-        previous = "Up";
-        toggle_exact = "Ctrl-e";
-        resume_last_query = "Ctrl-r";
-      };
-    };
-  };
 
-  # Walker theme based on stylix colors
-  xdg.configFile."walker/themes/stylix.css" = {
-    text = with config.lib.stylix.colors; ''
-      * {
-        font-family: ${config.stylix.fonts.monospace.name};
-        font-size: ${toString config.stylix.fonts.sizes.desktop}px;
-      }
-      
-      #window {
-        background-color: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.95);
-        border: 2px solid #${base05};
-        border-radius: 8px;
-        padding: 0;
-      }
-      
-      #input {
-        background-color: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.8);
-        color: #${base05};
-        padding: 12px;
-        border: none;
-        border-bottom: 1px solid #${base03};
-      }
-      
-      #list {
-        background-color: transparent;
-        padding: 8px;
-      }
-      
-      #list row {
-        padding: 8px 12px;
-        color: #${base04};
-        border-radius: 4px;
-        margin: 2px 0;
-      }
-      
-      #list row:selected {
-        background-color: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.8);
-        color: #${base05};
-      }
-      
-      #list row:hover {
-        background-color: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.6);
-        color: #${base05};
-      }
-    '';
-  };
 
   # Yazi file manager configuration
   programs.yazi = {
