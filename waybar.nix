@@ -67,10 +67,13 @@
       };
     };
     
-    style = with config.lib.stylix.colors; ''
+    style = with config.lib.stylix.colors; 
+    let
+      fontSize = toString config.stylix.fonts.sizes.desktop;
+    in ''
       * {
         font-family: ${config.stylix.fonts.monospace.name};
-        font-size: 13px;
+        font-size: ${fontSize}px;
         min-height: 0;
         border: none;
         border-radius: 0;
@@ -95,7 +98,7 @@
         margin: 5px 2px;
         border-radius: 5px;
         border: 1px solid transparent;
-        font-size: 11px;
+        font-size: ${fontSize}px;
         min-width: 20px;
       }
       
@@ -119,7 +122,7 @@
         color: #${base03};
         background: transparent;
         padding: 0 8px;
-        font-size: 14px;
+        font-size: ${fontSize}px;
       }
       
       #window {
@@ -136,7 +139,7 @@
         margin: 5px 4px;
         border-radius: 9px;
         font-weight: normal;
-        font-size: 11px;
+        font-size: ${fontSize}px;
       }
       
       #cpu,
@@ -148,7 +151,7 @@
         margin: 5px 2px;
         border-radius: 9px;
         font-weight: normal;
-        font-size: 11px;
+        font-size: ${fontSize}px;
       }
       
       #battery.warning {
