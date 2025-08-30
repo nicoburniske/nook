@@ -457,16 +457,9 @@ in {
       
       SPECIALISATION_PATH="/nix/var/nix/profiles/system/specialisation"
       
-      # Check if specialisations directory exists
-      if [ ! -d "$SPECIALISATION_PATH" ]; then
-        notify-send "No specialisations found" "Theme switching not available"
-        exit 1
-      fi
-      
       themes=$(ls -1 "$SPECIALISATION_PATH" 2>/dev/null || echo "")
       
       if [ -z "$themes" ]; then
-        notify-send "No themes found" "No theme specialisations available"
         exit 1
       fi
       
@@ -480,10 +473,7 @@ in {
         if [ -x "$SPECIALISATION_PATH/$selected/bin/switch-to-configuration" ]; then
           echo "Switching to $selected theme..."
           sudo "$SPECIALISATION_PATH/$selected/bin/switch-to-configuration" switch
-          
-          notify-send "Theme Switched" "Successfully switched to $selected theme"
         else
-          notify-send "Error" "Cannot activate $selected theme"
           exit 1
         fi
       fi
