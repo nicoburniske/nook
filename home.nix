@@ -341,8 +341,11 @@ in {
         "$mod, F, togglefloating"
         "$mod, Space, exec, anyrun"
         
-        ",XF86MonBrightnessDown,exec,brightnessctl set 5%-"
-        ",XF86MonBrightnessUp,exec,brightnessctl set 5%+"        
+        ",xf86monbrightnessup, exec, brightnessctl set 5%+"
+        ",xf86monbrightnessdown, exec, brightnessctl set 5%-"
+        ",xf86audioraisevolume, exec, wpctl set-volume -l 1.0 @DEFAULT_SINK@ 5%+"
+        ",xf86audiolowervolume, exec, wpctl set-volume -l 1.0 @DEFAULT_SINK@ 5%-"
+        ",xf86audiomute, exec, wpctl set-mute @DEFAULT_SINK@ toggle"
 
         "$mod, H, movefocus, l"
         "$mod, L, movefocus, r"
