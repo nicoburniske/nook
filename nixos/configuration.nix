@@ -7,7 +7,7 @@
   lib,
   ...
 }: let
-  themeDefinitions = import ./stylix.nix {inherit pkgs lib;};
+  themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
 in {
   # Enable flakes
   nix.settings.experimental-features = ["nix-command" "flakes"];

@@ -42,7 +42,9 @@
         space = {
           q = ":quit";
           w = ":write";
-          l = ":sh if [ '%{selection_line_start}' != '%{selection_line_end}' ]; then printf '%{buffer_name}:%{selection_line_start}-%{selection_line_end}'; else printf '%{buffer_name}:%{cursor_line}'; fi | wl-copy";
+          l = let
+            clipboard = if pkgs.stdenv.isDarwin then "pbcopy" else "wl-copy";
+          in ":sh if [ '%{selection_line_start}' != '%{selection_line_end}' ]; then printf '%{buffer_name}:%{selection_line_start}-%{selection_line_end}'; else printf '%{buffer_name}:%{cursor_line}'; fi | ${clipboard}";
         };
       };
 

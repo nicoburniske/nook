@@ -3,7 +3,7 @@ pkgs.stdenv.mkDerivation {
   pname = "berkeley-mono";
   version = "1.0";
 
-  src = ./fonts/BerkeleyMono;
+  src = ../assets/fonts/BerkeleyMono;
 
   installPhase = ''
     mkdir -p $out/share/fonts/opentype
