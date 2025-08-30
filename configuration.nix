@@ -23,7 +23,10 @@
   };
 
   hardware = {
-    asahi.peripheralFirmwareDirectory = ./firmware;
+    asahi = {
+      peripheralFirmwareDirectory = ./firmware;
+      setupAsahiSound = true;
+    };
     graphics.enable = true;
   };
 
