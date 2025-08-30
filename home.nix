@@ -340,6 +340,7 @@ in {
         "$mod, M, exit"
         "$mod, F, togglefloating"
         "$mod, Space, exec, anyrun"
+        "CTRL $mod, L, exec, swaylock"
         
         ",xf86monbrightnessup, exec, brightnessctl set 5%+"
         ",xf86monbrightnessdown, exec, brightnessctl set 5%-"
@@ -424,7 +425,26 @@ in {
     };
   };
 
-  programs.ghostty = {
+
+  programs.swaylock.package = pkgs.swaylock-effects;
+  programs.swaylock = {
+    enable = true;
+
+    settings = {
+      font-size = 24;
+      show-failed-attempts = true;
+      indicator = true;
+
+      effect-blur="7x5";
+      effect-vignette="0.5:0.5";
+
+      clock = true;
+      datestr="%a, %B %e";
+      timestr="%I:%M %p";
+    };
+  };
+
+    programs.ghostty = {
     enable = true;
 
     settings = {
