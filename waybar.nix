@@ -9,7 +9,7 @@
         layer = "top";
         position = "top";
         height = 32;
-        margin = "0 10 0 10";
+
         
         modules-left = [ "hyprland/workspaces" "custom/separator" "hyprland/window" ];
         modules-center = [ ];
@@ -82,7 +82,6 @@
       window#waybar {
         background: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.95);
         color: #${base04};
-        padding: 0 10px;
       }
       
       #workspaces {
@@ -136,7 +135,7 @@
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
         color: #${base04};
         padding: 0 8px;
-        margin: 5px 4px;
+        margin: 5px 2px;
         border-radius: 9px;
         font-weight: normal;
         font-size: ${fontSize}px;
@@ -174,11 +173,11 @@
       }
       
       .modules-left {
-        margin-left: 0;
+        margin-left: 10px;
       }
       
       .modules-right {
-        margin-right: 0;
+        margin-right: 10px;
       }
       
       tooltip {
