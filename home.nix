@@ -288,6 +288,8 @@ in {
         
         ",xf86monbrightnessup, exec, brightnessctl set 5%+"
         ",xf86monbrightnessdown, exec, brightnessctl set 5%-"
+        "SHIFT,xf86monbrightnessup, exec, brightnessctl --device='kbd_backlight' set 5%+"
+        "SHIFT,xf86monbrightnessdown, exec, brightnessctl --device='kbd_backlight' set 5%-"
         ",xf86audioraisevolume, exec, wpctl set-volume -l 1.0 @DEFAULT_SINK@ 5%+"
         ",xf86audiolowervolume, exec, wpctl set-volume -l 1.0 @DEFAULT_SINK@ 5%-"
         ",xf86audiomute, exec, wpctl set-mute @DEFAULT_SINK@ toggle"
