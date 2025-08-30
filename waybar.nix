@@ -13,7 +13,7 @@
         
         modules-left = [ "hyprland/workspaces" "custom/separator" "hyprland/window" ];
         modules-center = [ ];
-        modules-right = [ "cpu" "battery" "custom/clock" ];
+        modules-right = [ "custom/theme" "cpu" "battery" "custom/clock" ];
         
         "hyprland/workspaces" = {
           disable-scroll = false;
@@ -140,6 +140,20 @@
         border-radius: 9px;
         font-weight: normal;
         font-size: ${fontSize}px;
+      }
+      
+      #custom-theme {
+        background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
+        color: #${base04};
+        padding: 0 8px;
+        margin: 5px 2px;
+        border-radius: 9px;
+        font-size: ${fontSize}px;
+      }
+      
+      #custom-theme:hover {
+        background: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.7);
+        color: #${base05};
       }
       
       #cpu,
