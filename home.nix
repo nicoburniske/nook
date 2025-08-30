@@ -6,6 +6,7 @@ in {
   imports = [
     ./zellij.nix
     ./helix.nix
+    ./waybar.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should manage.
   home.username = "nico";
@@ -334,6 +335,10 @@ in {
     systemd.variables = ["--all"];
     
     settings = {
+      exec-once = [
+        "waybar"
+      ];
+      
       "$mod" = "alt";
       
       bind = [
