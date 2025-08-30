@@ -92,22 +92,37 @@
     };
     
     # Standalone home-manager configurations for faster rebuilds
-    homeConfigurations = {
-      "nico@nixos" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-linux;
-        modules = [
-          ./nixos/home.nix
-          stylix.homeModules.stylix
-        ];
+    homeConfigurations = let
+      mkHomeConfig = system: homeModule: extraModules: 
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.${system};
+          modules = [
+            homeModule
+            stylix.homeModules.stylix
+          ] ++ extraModules;
+        };
+      
+      # Load theme definitions
+      themeDefinitions = import ./common/stylix.nix { 
+        pkgs = nixpkgs.legacyPackages.aarch64-linux; 
+        lib = nixpkgs.lib;
       };
       
-      "nico@macos" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        modules = [
-          ./macos/home.nix
-          stylix.homeModules.stylix
-        ];
-      };
-    };
+      # Generate theme-specific configurations
+      mkThemeConfigs = system: homeModule: 
+        builtins.listToAttrs (
+          map (theme: {
+            name = "nico@${if system == "aarch64-linux" then "nixos" else "macos"}-${theme.stylix.override.slug}";
+            value = mkHomeConfig system homeModule [
+              { stylix = nixpkgs.lib.mkForce theme.stylix; }
+            ];
+          }) themeDefinitions.themes
+        );
+    in {
+      # Default configurations
+      "nico@nixos" = mkHomeConfig "aarch64-linux" ./nixos/home.nix [];
+      "nico@macos" = mkHomeConfig "aarch64-darwin" ./macos/home.nix [];
+    } // (mkThemeConfigs "aarch64-linux" ./nixos/home.nix)
+      // (mkThemeConfigs "aarch64-darwin" ./macos/home.nix);
   };
 }

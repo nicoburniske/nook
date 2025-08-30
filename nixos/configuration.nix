@@ -164,18 +164,4 @@ in {
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "25.11"; # Did you read the comment?
 
-  # Theme specialisations
-  specialisation = builtins.listToAttrs (
-    map (theme: {
-      name = theme.stylix.override.slug;
-      value = {
-        configuration = {
-          home-manager.users.nico = {lib, ...}: {
-            stylix = lib.mkForce theme.stylix;
-          };
-        };
-      };
-    })
-    themeDefinitions.themes
-  );
 }
