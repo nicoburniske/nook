@@ -9,7 +9,8 @@
       mainBar = {
         layer = "top";
         position = "top";
-        height = 38;
+        height = 32;
+        margin = "0 10 0 10";
         
         # Left: workspaces + window, Right: minimal system info, Center: empty (notch)
         modules-left = [ "hyprland/workspaces" "custom/separator" "hyprland/window" ];
@@ -97,8 +98,8 @@
       #workspaces button {
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
         color: #${base04};
-        padding: 4px 8px;
-        margin: 4px 2px;
+        padding: 2px 8px;
+        margin: 2px 2px;
         border-radius: 5px;
         border: 1px solid transparent;
         font-size: 12px;
@@ -139,7 +140,7 @@
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
         color: #${base04};
         padding: 0 8px;
-        margin: 4px 4px;
+        margin: 2px 4px;
         border-radius: 9px;
         font-weight: normal;
         font-size: 12px;
@@ -151,7 +152,7 @@
         border: 1px solid #${base03};
         color: #${base04};
         padding: 0 8px;
-        margin: 4px 2px;
+        margin: 2px 2px;
         border-radius: 9px;
         font-weight: normal;
         font-size: 12px;
