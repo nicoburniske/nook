@@ -1,10 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, ... }:
 
 {
   programs.waybar = {
     enable = true;
     
-    # Waybar settings configuration
     settings = {
       mainBar = {
         layer = "top";
@@ -12,12 +11,10 @@
         height = 32;
         margin = "0 10 0 10";
         
-        # Left: workspaces + window, Right: minimal system info, Center: empty (notch)
         modules-left = [ "hyprland/workspaces" "custom/separator" "hyprland/window" ];
         modules-center = [ ];
         modules-right = [ "cpu" "battery" "custom/clock" ];
         
-        # Hyprland modules configuration
         "hyprland/workspaces" = {
           disable-scroll = false;
           all-outputs = true;
@@ -37,15 +34,13 @@
           max-length = 50;
         };
         
-        # Simple separator like sketchybar's divider
         "custom/separator" = {
           format = "│";
           tooltip = false;
         };
         
-        # Minimal system info modules - matching sketchybar style
         cpu = {
-          format = "󰻠 {usage:02}%";  # Using nerd font equivalent of SF Symbol
+          format = "󰻠 {usage:02}%"; 
           tooltip = false;
           interval = 5;
         };
@@ -58,13 +53,12 @@
             warning = 10;
           };
           format = "{icon} {capacity}%";
-          format-charging = "󰂄 {capacity}%";  # Charging icon
+          format-charging = "󰂄 {capacity}%";  
           format-plugged = "󰂄 {capacity}%";
-          format-icons = ["󰂎" "󰁻" "󰁾" "󰂀" "󰁹"];  # Battery level icons
+          format-icons = ["󰂎" "󰁻" "󰁾" "󰂀" "󰁹"];
           tooltip = false;
         };
         
-        # Custom clock module with lowercase formatting like sketchybar
         "custom/clock" = {
           exec = "date '+%a %b %d %H:%M' | tr '[:upper:]' '[:lower:]'";
           interval = 10;
@@ -73,7 +67,6 @@
       };
     };
     
-    # Minimal style inspired by sketchybar - muted and clean
     style = with config.lib.stylix.colors; ''
       * {
         font-family: ${config.stylix.fonts.monospace.name};
