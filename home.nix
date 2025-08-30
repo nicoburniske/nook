@@ -125,62 +125,71 @@ in {
     };
   };
 
-  programs.anyrun = {
+  services.walker = {
     enable = true;
+    
+    settings = {
+      force_keyboard_focus = true;
+      theme = "stylix";
+      providers = {
+        default = [ "desktopapplications" ];
+        prefixes = [
+          { prefix = "?"; provider = "websearch"; }
+        ];
+      };
+      keybinds = {
+        close = "Escape";
+        next = "Down";
+        previous = "Up";
+        toggle_exact = "Ctrl-e";
+        resume_last_query = "Ctrl-r";
+      };
+    };
+  };
 
-    config.width = { fraction = 0.5; };
-    config.hidePluginInfo = true;
-
-    config.plugins = [
-      "${pkgs.anyrun}/lib/libapplications.so"
-    ];
-
-    # Websearch plugin config
-    extraConfigFiles."websearch.ron".text = ''
-      Config(
-        prefix: "?",
-        engines: [DuckDuckGo]
-      )
-    '';
-
-    # CSS theming with stylix base16 colors
-    extraCss = with config.lib.stylix.colors; ''
+  # Walker theme based on stylix colors
+  xdg.configFile."walker/themes/stylix.css" = {
+    text = with config.lib.stylix.colors; ''
       * {
-        all: unset;
-        border-radius: 0;
+        font-family: ${config.stylix.fonts.monospace.name};
+        font-size: ${toString config.stylix.fonts.sizes.desktop}px;
       }
-
+      
       #window {
-        background: rgba(0, 0, 0, 0);
-        padding: 48px;
-      }
-
-      box#main {
-        margin: 48px;
-        padding: 24px;
-        background-color: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.8);
-        box-shadow: 0 0 2px 1px rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.90);
+        background-color: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.95);
         border: 2px solid #${base05};
+        border-radius: 8px;
+        padding: 0;
       }
-
-      #entry {
-        border-bottom: 2px solid #${base05};
-        margin-bottom: 12px;
-        padding: 6px;
-        font-family: monospace;
+      
+      #input {
+        background-color: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.8);
+        color: #${base05};
+        padding: 12px;
+        border: none;
+        border-bottom: 1px solid #${base03};
       }
-
-      #match {
-        padding: 4px;
+      
+      #list {
+        background-color: transparent;
+        padding: 8px;
       }
-
-      #match:selected,
-      #match:hover {
-        background-color: rgba(${base05-rgb-r}, ${base05-rgb-g}, ${base05-rgb-b}, 0.2);
+      
+      #list row {
+        padding: 8px 12px;
+        color: #${base04};
+        border-radius: 4px;
+        margin: 2px 0;
       }
-
-      label#match-title {
-        font-weight: bold;
+      
+      #list row:selected {
+        background-color: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.8);
+        color: #${base05};
+      }
+      
+      #list row:hover {
+        background-color: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.6);
+        color: #${base05};
       }
     '';
   };
@@ -340,7 +349,7 @@ in {
         "$mod, Q, killactive"
         "$mod, M, exit"
         "$mod, F, togglefloating"
-        "$mod, Space, exec, anyrun"
+        "$mod, Space, exec, walker"
         "CTRL $mod, L, exec, swaylock"
         
         ",xf86monbrightnessup, exec, brightnessctl set 5%+"
