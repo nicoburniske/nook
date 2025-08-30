@@ -43,9 +43,6 @@ in {
 
   # Linux-specific packages
   home.packages = with pkgs; [
-    # Theme switcher script - commented out for now, will revisit for home-manager based solution
-    # (writeShellScriptBin "theme-switch" ''
-    #   ...
-    # '')
+    # Additional Linux-specific packages can go here
   ];
 }
