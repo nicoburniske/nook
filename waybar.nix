@@ -11,10 +11,10 @@
         position = "top";
         height = 38;
         
-        # Minimal left-only layout like sketchybar
+        # Left: workspaces + window, Right: minimal system info, Center: empty (notch)
         modules-left = [ "hyprland/workspaces" "custom/separator" "hyprland/window" ];
         modules-center = [ ];
-        modules-right = [ ];
+        modules-right = [ "cpu" "battery" "custom/clock" ];
         
         # Hyprland modules configuration
         "hyprland/workspaces" = {
@@ -39,6 +39,34 @@
         # Simple separator like sketchybar's divider
         "custom/separator" = {
           format = "│";
+          tooltip = false;
+        };
+        
+        # Minimal system info modules - matching sketchybar style
+        cpu = {
+          format = "󰻠 {usage:02}%";  # Using nerd font equivalent of SF Symbol
+          tooltip = false;
+          interval = 5;
+        };
+        
+        battery = {
+          states = {
+            good = 90;
+            medium = 60;
+            low = 30;
+            warning = 10;
+          };
+          format = "{icon} {capacity}%";
+          format-charging = "󰂄 {capacity}%";  # Charging icon
+          format-plugged = "󰂄 {capacity}%";
+          format-icons = ["󰂎" "󰁻" "󰁾" "󰂀" "󰁹"];  # Battery level icons
+          tooltip = false;
+        };
+        
+        # Custom clock module with lowercase formatting like sketchybar
+        "custom/clock" = {
+          exec = "date '+%a %b %d %H:%M' | tr '[:upper:]' '[:lower:]'";
+          interval = 10;
           tooltip = false;
         };
       };
@@ -107,8 +135,39 @@
         font-weight: normal;
       }
       
+      #custom-clock {
+        background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
+        color: #${base04};
+        padding: 0 8px;
+        margin: 4px 4px;
+        border-radius: 9px;
+        font-weight: normal;
+        font-size: 12px;
+      }
+      
+      #cpu,
+      #battery {
+        background: transparent;
+        border: 1px solid #${base03};
+        color: #${base04};
+        padding: 0 8px;
+        margin: 4px 2px;
+        border-radius: 9px;
+        font-weight: normal;
+        font-size: 12px;
+      }
+      
+      #battery.warning {
+        color: #${base08};
+        border-color: #${base08};
+      }
+      
       .modules-left {
         margin-left: 0;
+      }
+      
+      .modules-right {
+        margin-right: 0;
       }
       
       tooltip {
