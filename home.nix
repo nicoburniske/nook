@@ -424,8 +424,6 @@ in {
       gtk-single-instance = true;
       adjust-cursor-thickness = 5;
 
-      font-size = 13;
-
       window-theme = "auto";
       window-decoration = "none";
       window-padding-balance = true;
