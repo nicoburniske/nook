@@ -1,7 +1,6 @@
 {
-  config,
-  pkgs,
   lib,
+  pkgs,
   ...
 }: {
   programs.helix = {
@@ -126,4 +125,10 @@
       zellij action close-pane
     '')
   ];
+  
+  # Export activation hook for helix reload
+  home.activation.reloadHelix = lib.hm.dag.entryAfter ["linkGeneration"] ''
+    echo "reloading helix config"
+    /usr/bin/pkill -USR1 hx || true
+  '';
 }
