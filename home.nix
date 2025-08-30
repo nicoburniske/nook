@@ -504,6 +504,7 @@ in {
     rustup
     scooter
     cmake
+    neofetch
     
     (writeShellScriptBin "zj" ''
       #!/usr/bin/env bash
