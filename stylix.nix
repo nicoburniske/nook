@@ -18,8 +18,8 @@
     };
 
     emoji = {
-      package = pkgs.noto-fonts-emoji;
-      name = "Noto Color Emoji";
+      package = pkgs.nerd-fonts.symbols-only;
+      name = "Symbols Nerd Font";
     };
 
     sizes = {
