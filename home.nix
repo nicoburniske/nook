@@ -188,8 +188,64 @@ in {
     };
   };
 
-  programs.rofi = {
+  programs.anyrun = {
     enable = true;
+
+    config.width = { fraction = 0.5; };
+    config.hidePluginInfo = true;
+
+    config.plugins = [
+      "${pkgs.anyrun}/lib/libapplications.so"
+    ];
+
+    # Websearch plugin config
+    extraConfigFiles."websearch.ron".text = ''
+      Config(
+        prefix: "?",
+        engines: [DuckDuckGo]
+      )
+    '';
+
+    # CSS theming with stylix base16 colors
+    extraCss = with config.lib.stylix.colors; ''
+      * {
+        all: unset;
+        border-radius: 0;
+      }
+
+      #window {
+        background: rgba(0, 0, 0, 0);
+        padding: 48px;
+      }
+
+      box#main {
+        margin: 48px;
+        padding: 24px;
+        background-color: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.8);
+        box-shadow: 0 0 2px 1px rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.90);
+        border: 2px solid #${base05};
+      }
+
+      #entry {
+        border-bottom: 2px solid #${base05};
+        margin-bottom: 12px;
+        padding: 6px;
+        font-family: monospace;
+      }
+
+      #match {
+        padding: 4px;
+      }
+
+      #match:selected,
+      #match:hover {
+        background-color: rgba(${base05-rgb-r}, ${base05-rgb-g}, ${base05-rgb-b}, 0.2);
+      }
+
+      label#match-title {
+        font-weight: bold;
+      }
+    '';
   };
 
   # Yazi file manager configuration
@@ -347,7 +403,7 @@ in {
         "$mod, Q, killactive"
         "$mod, M, exit"
         "$mod, F, togglefloating"
-        "$mod, Space, exec, rofi -show drun"
+        "$mod, Space, exec, anyrun"
         
         "$mod, H, movefocus, l"
         "$mod, L, movefocus, r"
