@@ -184,7 +184,7 @@ in {
   };
 
   xdg.configFile."zellij/layouts/default.kdl" = {
-    text =''
+    text = ''
       layout {
           pane
           pane size=1 borderless=true {

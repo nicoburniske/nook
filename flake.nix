@@ -17,10 +17,16 @@
     };
   };
 
-  outputs = { self, nixpkgs, apple-silicon, home-manager, stylix }: {
+  outputs = {
+    self,
+    nixpkgs,
+    apple-silicon,
+    home-manager,
+    stylix,
+  }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
-      specialArgs = { inherit apple-silicon stylix; };
+      specialArgs = {inherit apple-silicon stylix;};
       modules = [
         ./configuration.nix
         home-manager.nixosModules.home-manager
@@ -29,7 +35,7 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
           home-manager.users.nico = import ./home.nix;
-          home-manager.sharedModules = [ stylix.homeModules.stylix ];
+          home-manager.sharedModules = [stylix.homeModules.stylix];
         }
       ];
     };

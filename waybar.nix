@@ -1,20 +1,17 @@
-{ config, ... }:
-
-{
+{config, ...}: {
   programs.waybar = {
     enable = true;
-    
+
     settings = {
       mainBar = {
         layer = "top";
         position = "top";
         height = 32;
 
-        
-        modules-left = [ "hyprland/workspaces" "custom/separator" "hyprland/window" ];
-        modules-center = [ ];
-        modules-right = [ "custom/theme" "cpu" "battery" "custom/clock" ];
-        
+        modules-left = ["hyprland/workspaces" "custom/separator" "hyprland/window"];
+        modules-center = [];
+        modules-right = ["custom/theme" "cpu" "battery" "custom/clock"];
+
         "hyprland/workspaces" = {
           disable-scroll = false;
           all-outputs = true;
@@ -27,24 +24,24 @@
             default = "";
           };
         };
-        
+
         "hyprland/window" = {
           format = "{}";
           separate-outputs = true;
           max-length = 50;
         };
-        
+
         "custom/separator" = {
           format = "│";
           tooltip = false;
         };
-        
+
         cpu = {
-          format = " {usage:02}%"; 
+          format = " {usage:02}%";
           tooltip = false;
           interval = 5;
         };
-        
+
         battery = {
           states = {
             good = 90;
@@ -53,12 +50,12 @@
             warning = 10;
           };
           format = "{icon} {capacity}%";
-          format-charging = "󰂄 {capacity}%";  
+          format-charging = "󰂄 {capacity}%";
           format-plugged = "󰂄 {capacity}%";
           format-icons = ["󰂎" "󰁻" "󰁾" "󰂀" "󰁹"];
           tooltip = false;
         };
-        
+
         "custom/clock" = {
           exec = "date '+%a %b %d %H:%M' | tr '[:upper:]' '[:lower:]'";
           interval = 10;
@@ -66,9 +63,8 @@
         };
       };
     };
-    
-    style = with config.lib.stylix.colors; 
-    let
+
+    style = with config.lib.stylix.colors; let
       fontSize = toString config.stylix.fonts.sizes.desktop;
     in ''
       * {
@@ -78,18 +74,18 @@
         border: none;
         border-radius: 0;
       }
-      
+
       window#waybar {
         background: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.95);
         color: #${base04};
       }
-      
+
       #workspaces {
         background: transparent;
         margin: 0;
         padding: 0;
       }
-      
+
       #workspaces button {
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
         color: #${base04};
@@ -100,37 +96,37 @@
         font-size: ${fontSize}px;
         min-width: 20px;
       }
-      
+
       #workspaces button:hover {
         background: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.7);
         color: #${base05};
       }
-      
+
       #workspaces button.active {
         background: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.8);
         color: #${base05};
         border: 1px solid rgba(${base0D-rgb-r}, ${base0D-rgb-g}, ${base0D-rgb-b}, 0.5);
       }
-      
+
       #workspaces button.urgent {
         background: rgba(${base08-rgb-r}, ${base08-rgb-g}, ${base08-rgb-b}, 0.8);
         color: #${base00};
       }
-      
+
       #custom-separator {
         color: #${base03};
         background: transparent;
         padding: 0 8px;
         font-size: ${fontSize}px;
       }
-      
+
       #window {
         background: transparent;
         color: #${base05};
         padding: 0 4px;
         font-weight: normal;
       }
-      
+
       #custom-clock {
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
         color: #${base05};
@@ -140,7 +136,7 @@
         font-weight: normal;
         font-size: ${fontSize}px;
       }
-      
+
       #custom-theme {
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
         color: #${base05};
@@ -149,12 +145,12 @@
         border-radius: 9px;
         font-size: ${fontSize}px;
       }
-      
+
       #custom-theme:hover {
         background: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.7);
         color: #${base05};
       }
-      
+
       #cpu,
       #battery {
         background: transparent;
@@ -166,20 +162,20 @@
         font-weight: normal;
         font-size: ${fontSize}px;
       }
-      
+
       #battery.warning {
         color: #${base08};
         border-color: #${base08};
       }
-      
+
       .modules-left {
         margin-left: 10px;
       }
-      
+
       .modules-right {
         margin-right: 10px;
       }
-      
+
       tooltip {
         background: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.9);
         color: #${base05};
