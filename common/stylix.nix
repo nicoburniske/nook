@@ -37,7 +37,7 @@ in {
         base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
         override = {slug = "gruvbox-dark";};
         polarity = "dark";
-        image = ./wallpapers/dark-evangelion.png;
+        image = ../assets/wallpapers/dark-evangelion.png;
         fonts = baseFonts;
       };
     }
@@ -48,7 +48,7 @@ in {
         base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-light-hard.yaml";
         override = {slug = "gruvbox-light-hard";};
         polarity = "light";
-        image = ./wallpapers/falling.jpg;
+        image = ../assets/wallpapers/falling.jpg;
         fonts = baseFonts;
       };
     }
@@ -59,7 +59,7 @@ in {
         base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
         override = {slug = "catppuccin-mocha";};
         polarity = "dark";
-        image = ./wallpapers/frozen.png;
+        image = ../assets/wallpapers/frozen.png;
         fonts = baseFonts;
       };
     }
@@ -90,7 +90,7 @@ in {
         };
         override = {slug = "modus-operandi";};
         polarity = "light";
-        image = ./wallpapers/light-porsche.png;
+        image = ../assets/wallpapers/light-porsche.png;
         fonts = baseFonts;
       };
     }
