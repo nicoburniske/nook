@@ -19,6 +19,7 @@
     consoleLogLevel = 0;
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = false;
+    kernelParams = [ "apple_dcp.show_notch=1" ];
   };
 
   hardware = {
