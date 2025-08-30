@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 # just inline stylix theme
@@ -192,6 +193,28 @@ in {
       }
     '';
   };
+  home.packages = with pkgs; [
+    zellij
+    (writeShellScriptBin "zj" ''
+      #!/usr/bin/env bash
+      sessions=$(zellij list-sessions -n 2>/dev/null | grep -v "EXITED")
+
+      if [ -z "$sessions" ]; then
+        echo "No active sessions"
+        exit 1
+      fi
+
+      selected=$(echo "$sessions" | fzf \
+        --header="Switch Session" \
+        --height=100% \
+        --layout=reverse)
+
+      if [ -n "$selected" ]; then
+        session_name=$(echo "$selected" | awk '{print $1}')
+        zellij attach "$session_name"
+      fi
+    '')
+  ];
 
   # Always ensure config.kdl is a real file (not symlink) for runtime reloading
   home.activation.zellijConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
