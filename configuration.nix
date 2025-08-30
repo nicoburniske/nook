@@ -1,27 +1,29 @@
 # Edit this configuration file to define what should be installed on
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
-{ pkgs, apple-silicon, lib, ... }:
-let
-  themeDefinitions = import ./stylix.nix { inherit pkgs lib; };
-in
 {
+  pkgs,
+  apple-silicon,
+  lib,
+  ...
+}: let
+  themeDefinitions = import ./stylix.nix {inherit pkgs lib;};
+in {
   # Enable flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      apple-silicon.nixosModules.apple-silicon-support
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    apple-silicon.nixosModules.apple-silicon-support
+  ];
 
   # Use the systemd-boot EFI boot loader.
-  boot= {
+  boot = {
     consoleLogLevel = 0;
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = false;
-    kernelParams = [ "apple_dcp.show_notch=1" ];
+    kernelParams = ["apple_dcp.show_notch=1"];
   };
 
   hardware = {
@@ -39,8 +41,8 @@ in
   # Configure network connections interactively with nmcli or nmtui.
   networking.networkmanager.enable = true;
   networking.wireless.iwd = {
-     enable = true;
-     settings.General.EnableNetworkConfiguration = true;
+    enable = true;
+    settings.General.EnableNetworkConfiguration = true;
   };
   # Set your time zone.
   # time.timeZone = "Europe/Amsterdam";
@@ -62,14 +64,14 @@ in
 
   services.interception-tools = {
     enable = true;
-    plugins = [ pkgs.interception-tools-plugins.caps2esc ];
+    plugins = [pkgs.interception-tools-plugins.caps2esc];
     udevmonConfig = ''
       - JOB: "${pkgs.interception-tools}/bin/intercept -g $DEVNODE | ${pkgs.interception-tools-plugins.caps2esc}/bin/caps2esc | ${pkgs.interception-tools}/bin/uinput -d $DEVNODE"
         DEVICE:
           EVENTS:
             EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
     '';
-  }; 
+  };
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
@@ -113,10 +115,10 @@ in
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
   environment.systemPackages = with pkgs; [
-     git
-     wl-clipboard
-     just
-     brightnessctl
+    git
+    wl-clipboard
+    just
+    brightnessctl
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -168,7 +170,7 @@ in
       name = theme.stylix.override.slug;
       value = {
         configuration = {
-          home-manager.users.nico = { lib, ... }: {
+          home-manager.users.nico = {lib, ...}: {
             stylix = lib.mkForce theme.stylix;
           };
         };
@@ -177,4 +179,3 @@ in
     themeDefinitions.themes
   );
 }
-

@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
-
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   themeDefinitions = import ./stylix.nix {inherit pkgs lib;};
 in {
   imports = [
@@ -72,7 +75,8 @@ in {
             if config.stylix.polarity == "dark"
             then "dark"
             else "light"
-          }" = true;
+          }" =
+            true;
 
           file-style = "#${base05} bold";
           file-decoration-style = "#${base0A} ul";
@@ -125,8 +129,6 @@ in {
       };
     };
   };
-
-
 
   # Yazi file manager configuration
   programs.yazi = {
@@ -260,23 +262,23 @@ in {
       lg = "lazygit";
     };
   };
-  
+
   wayland.windowManager.hyprland = {
     enable = true;
     # Use packages from NixOS module to avoid version conflicts
     package = null;
     portalPackage = null;
-    
+
     # Import systemd environment variables for proper service integration
     systemd.variables = ["--all"];
-    
+
     settings = {
       exec-once = [
         "waybar"
       ];
-      
+
       "$mod" = "alt";
-      
+
       bind = [
         "$mod, t, exec, ghostty"
         "$mod, Return, fullscreen, 1"
@@ -285,7 +287,7 @@ in {
         "$mod, F, togglefloating"
         "$mod, Space, exec, walker"
         "CTRL $mod, L, exec, swaylock"
-        
+
         ",xf86monbrightnessup, exec, brightnessctl set 5%+"
         ",xf86monbrightnessdown, exec, brightnessctl set 5%-"
         "SHIFT,xf86monbrightnessup, exec, brightnessctl --device='kbd_backlight' set 5%+"
@@ -298,7 +300,7 @@ in {
         "$mod, L, movefocus, r"
         "$mod, K, movefocus, u"
         "$mod, J, movefocus, d"
-        
+
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
@@ -309,7 +311,7 @@ in {
         "$mod, 8, workspace, 8"
         "$mod, 9, workspace, 9"
         "$mod, 0, workspace, 10"
-        
+
         "$mod SHIFT, 1, movetoworkspace, 1"
         "$mod SHIFT, 2, movetoworkspace, 2"
         "$mod SHIFT, 3, movetoworkspace, 3"
@@ -321,12 +323,12 @@ in {
         "$mod SHIFT, 9, movetoworkspace, 9"
         "$mod SHIFT, 0, movetoworkspace, 10"
       ];
-      
+
       bindm = [
         "$mod, mouse:272, movewindow"
         "$mod, mouse:273, resizewindow"
       ];
-      
+
       input = {
         kb_layout = "us";
         follow_mouse = 1;
@@ -338,7 +340,7 @@ in {
         repeat_delay = 300;
         repeat_rate = 50;
       };
-      
+
       general = {
         gaps_in = 5;
         gaps_out = 20;
@@ -346,7 +348,7 @@ in {
         layout = "dwindle";
         resize_on_border = true;
       };
-     
+
       animations = {
         enabled = true;
         bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
@@ -359,22 +361,19 @@ in {
           "workspaces, 1, 6, default"
         ];
       };
-      
+
       dwindle = {
         pseudotile = true;
         preserve_split = true;
       };
-      
+
       misc = {
         force_default_wallpaper = -1;
       };
     };
   };
 
-
-
-
-    programs.ghostty = {
+  programs.ghostty = {
     enable = true;
 
     settings = {
@@ -398,7 +397,6 @@ in {
     };
   };
 
-  
   programs.opencode = {
     enable = true;
     settings = {
@@ -420,7 +418,7 @@ in {
         pager: delta --true-color=never --paging=never --line-numbers
   '';
 
-  # Scooter configuration  
+  # Scooter configuration
   xdg.configFile."scooter/config.toml".text = ''
     [editor_open]
     # Close the floating pane first, then open the file in helix
@@ -451,25 +449,25 @@ in {
     scooter
     cmake
     neofetch
-    
+
     # Theme switcher script using walker dmenu + NixOS specialisations
     (writeShellScriptBin "theme-switch" ''
       #!/usr/bin/env bash
       set -euo pipefail
-      
+
       SPECIALISATION_PATH="/nix/var/nix/profiles/system/specialisation"
-      
+
       themes=$(ls -1 "$SPECIALISATION_PATH" 2>/dev/null || echo "")
-      
+
       if [ -z "$themes" ]; then
         exit 1
       fi
-      
+
       # Use walker in dmenu mode for selection
       selected=$(echo "$themes" | ${pkgs.walker}/bin/walker \
         --dmenu \
         -p "Select theme:")
-      
+
       # Switch to selected theme using NixOS specialisation system
       if [ -n "$selected" ]; then
         if [ -x "$SPECIALISATION_PATH/$selected/bin/switch-to-configuration" ]; then
@@ -481,5 +479,4 @@ in {
       fi
     '')
   ];
-
 }

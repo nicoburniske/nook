@@ -125,7 +125,7 @@
       zellij action close-pane
     '')
   ];
-  
+
   # Export activation hook for helix reload
   home.activation.reloadHelix = lib.hm.dag.entryAfter ["linkGeneration"] ''
     echo "reloading helix config"
