@@ -341,6 +341,9 @@ in {
         "$mod, F, togglefloating"
         "$mod, Space, exec, anyrun"
         
+        ",XF86MonBrightnessDown,exec,brightnessctl set 5%-"
+        ",XF86MonBrightnessUp,exec,brightnessctl set 5%+"        
+
         "$mod, H, movefocus, l"
         "$mod, L, movefocus, r"
         "$mod, K, movefocus, u"
