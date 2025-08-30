@@ -40,7 +40,7 @@
         };
         
         cpu = {
-          format = "󰻠 {usage:02}%"; 
+          format = " {usage:02}%"; 
           tooltip = false;
           interval = 5;
         };
@@ -72,7 +72,7 @@
       fontSize = toString config.stylix.fonts.sizes.desktop;
     in ''
       * {
-        font-family: ${config.stylix.fonts.monospace.name};
+        font-family: ${config.stylix.fonts.monospace.name}, ${config.stylix.fonts.emoji.name};
         font-size: ${fontSize}px;
         min-height: 0;
         border: none;
