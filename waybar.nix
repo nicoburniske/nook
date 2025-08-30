@@ -102,7 +102,7 @@
         margin: 2px 2px;
         border-radius: 5px;
         border: 1px solid transparent;
-        font-size: 12px;
+        font-size: 11px;
         min-width: 20px;
       }
       
@@ -143,7 +143,7 @@
         margin: 2px 4px;
         border-radius: 9px;
         font-weight: normal;
-        font-size: 12px;
+        font-size: 11px;
       }
       
       #cpu,
@@ -155,7 +155,7 @@
         margin: 2px 2px;
         border-radius: 9px;
         font-weight: normal;
-        font-size: 12px;
+        font-size: 11px;
       }
       
       #battery.warning {
