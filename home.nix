@@ -449,6 +449,14 @@ in {
     };
   };
 
+  
+  programs.opencode = {
+    enable = true;
+    settings = {
+      autoupdate = false;
+    };
+  };
+
   # Cargo configuration
   home.file.".cargo/config.toml".text = ''
     [net]
@@ -482,7 +490,6 @@ in {
   home.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
     
-    opencode
     
     ripgrep
     lazygit
