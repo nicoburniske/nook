@@ -126,14 +126,14 @@
       
       #window {
         background: transparent;
-        color: #${base04};
+        color: #${base05};
         padding: 0 4px;
         font-weight: normal;
       }
       
       #custom-clock {
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
-        color: #${base04};
+        color: #${base05};
         padding: 0 8px;
         margin: 5px 2px;
         border-radius: 9px;
@@ -143,7 +143,7 @@
       
       #custom-theme {
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
-        color: #${base04};
+        color: #${base05};
         padding: 0 8px;
         margin: 5px 2px;
         border-radius: 9px;
@@ -159,7 +159,7 @@
       #battery {
         background: transparent;
         border: 1px solid #${base03};
-        color: #${base04};
+        color: #${base05};
         padding: 0 8px;
         margin: 5px 2px;
         border-radius: 9px;
