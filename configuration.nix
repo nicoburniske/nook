@@ -14,12 +14,17 @@
       apple-silicon.nixosModules.apple-silicon-support
     ];
 
-  # Specify path to peripheral firmware files for pure evaluation
-  hardware.asahi.peripheralFirmwareDirectory = ./firmware;
-
   # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = false;
+  boot= {
+    consoleLogLevel = 0;
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = false;
+  };
+
+  hardware = {
+    asahi.peripheralFirmwareDirectory = ./firmware;
+    graphics.enable = true;
+  };
 
   # networking.hostName = "nixos"; # Define your hostname.
   #
@@ -81,7 +86,14 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nico = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ]; # Enable 'sudo' for the user.
+    extraGroups = [
+      "wheel"
+      "audio"
+      "video"
+      "render"
+      "input"
+      "networkmanager"
+    ];
   };
 
   users.defaultUserShell = pkgs.zsh;
