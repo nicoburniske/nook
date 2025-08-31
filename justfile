@@ -16,30 +16,22 @@ home:
 system:
     #!/usr/bin/env bash
     if [[ "$(uname)" == "Darwin" ]]; then
-        darwin-rebuild switch --flake .#fuji
+        sudo darwin-rebuild switch --flake .#fuji
     else
-        nixos-rebuild switch --flake .#snowflake
-    fi
-
-check:
-    #!/usr/bin/env bash
-    if [[ "$(uname)" == "Darwin" ]]; then
-        darwin-rebuild build --flake .#fuji --dry-run
-    else
-        nixos-rebuild build --flake .#snowflake --dry-run
+        sudo nixos-rebuild switch --flake .#snowflake
     fi
 
 darwin:
-    darwin-rebuild switch --flake .#fuji
+    sudo darwin-rebuild switch --flake .#fuji
 
 darwin-check:
-    darwin-rebuild build --flake .#fuji --dry-run
+    sudo darwin-rebuild build --flake .#fuji --dry-run
 
 nixos:
-    nixos-rebuild switch --flake .#snowflake
+    sudo nixos-rebuild switch --flake .#snowflake
 
 nixos-check:
-    nixos-rebuild build --flake .#snowflake --dry-run
+    sudo nixos-rebuild build --flake .#snowflake --dry-run
 
 update:
     nix flake update
