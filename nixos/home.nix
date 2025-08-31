@@ -18,6 +18,7 @@ in {
     ../common/cargo.nix
     ../common/scooter.nix
     ../common/packages.nix
+    ../common/theme-switcher.nix
     
     # Linux-specific modules
     ./modules/hyprland.nix
@@ -45,6 +46,7 @@ in {
   home.packages = with pkgs; [
     # Additional Linux-specific packages can go here
     qbittorrent
+    vlc
   ];
 
   # Theme specialisations
