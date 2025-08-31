@@ -4,7 +4,6 @@
 {
   pkgs,
   apple-silicon,
-  lib,
   ...
 }: {
   # Enable flakes
@@ -16,7 +15,6 @@
     apple-silicon.nixosModules.apple-silicon-support
   ];
 
-  # Use the systemd-boot EFI boot loader.
   boot = {
     consoleLogLevel = 0;
     loader.systemd-boot.enable = true;
@@ -33,7 +31,6 @@
   };
 
   # networking.hostName = "nixos"; # Define your hostname.
-  #
   networking.nameservers = ["1.1.1.1" "9.9.9.9"];
 
   # Configure network connections interactively with nmcli or nmtui.
@@ -42,8 +39,8 @@
     enable = true;
     settings.General.EnableNetworkConfiguration = true;
   };
-  # Set your time zone.
-  # time.timeZone = "Europe/Amsterdam";
+
+  time.timeZone = "America/New_York";
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -71,10 +68,6 @@
     '';
   };
 
-  # Configure keymap in X11
-  # services.xserver.xkb.layout = "us";
-  # services.xserver.xkb.options = "eurosign:e,caps:escape";
-
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
@@ -100,25 +93,20 @@
       "input"
       "networkmanager"
     ];
+    shell = pkgs.zsh;
   };
 
-  users.defaultUserShell = pkgs.zsh;
-
-  programs.firefox.enable = true;
   programs.hyprland = {
     enable = true;
   };
   
-  # Enable zsh system-wide
   programs.zsh.enable = true;
 
   # List packages installed in system profile.
   # Keep only system-level packages here, user packages go in home.nix
   environment.systemPackages = with pkgs; [
     git
-    wl-clipboard
     just
-    brightnessctl
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
