@@ -11,17 +11,17 @@ clean:
 home:
     #!/usr/bin/env bash
     if [[ "$(uname)" == "Darwin" ]]; then
-        home-manager switch --flake .#nico@macos
+        nix run home-manager -- switch --flake .#nico@macos
     else
-        home-manager switch --flake .#nico@nixos
+        nix run home-manager -- switch --flake .#nico@nixos
     fi
 
 home-build:
     #!/usr/bin/env bash
     if [[ "$(uname)" == "Darwin" ]]; then
-        home-manager build --flake .#nico@macos
+        nix run home-manager -- build --flake .#nico@macos
     else
-        home-manager build --flake .#nico@nixos
+        nix run home-manager -- build --flake .#nico@nixos
     fi
 
 # System-specific recipes (detect platform automatically)
