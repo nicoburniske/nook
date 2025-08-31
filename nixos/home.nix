@@ -43,6 +43,7 @@ in {
   ];
 
   home.packages = with pkgs; [
+    firefox
     qbittorrent
     vlc
     wl-clipboard
