@@ -9,6 +9,27 @@
     systemd.variables = ["--all"];
 
     settings = {
+      # HiDPI Configuration - Fix for GTK apps appearing too large
+      monitor = [
+        # Adjust this to your monitor: name,resolution@refresh,position,scale
+        # Use `hyprctl monitors` to get your monitor name
+        ",preferred,auto,2"  # Auto-detect, 2x scaling
+      ];
+      
+      # # Critical environment variables to prevent GTK double-scaling
+      env = [
+        "GDK_SCALE,1"         # Prevents GTK from scaling (Hyprland handles it)
+        "GDK_DPI_SCALE,1"     # Also prevents GTK DPI scaling
+        "XCURSOR_SIZE,24"     # Cursor size for 2x scaling (use 32 for 2.5x, etc.)
+        "QT_AUTO_SCREEN_SCALE_FACTOR,1"  # Qt apps scaling
+        "QT_SCALE_FACTOR,1"   # Qt scale factor
+      ];
+      
+      # Prevent XWayland apps from scaling twice
+      xwayland = {
+        force_zero_scaling = true;
+      };
+      
       exec-once = [
         "waybar"
       ];
