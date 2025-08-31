@@ -9,12 +9,9 @@
     systemd.variables = ["--all"];
 
     settings = {
-      # Monitor configuration for MacBook 16 M1 Max (3456x2234)
-      # eDP-1 is the internal display
-      # Scale of 1.5 gives effective resolution of 2304x1489 (good balance)
+      # MacBook 16 M1 Max
       monitor = [
-        "eDP-1, 3456x2234@60, 0x0, 1.5"
-        # Fallback for any other monitors
+        "eDP-1, 3456x2234@60, 0x0, 1.6"
         ", preferred, auto, 1"
       ];
 
