@@ -139,4 +139,17 @@ in {
       };
     };
   };
+
+  # Theme specialisations
+  specialisation = builtins.listToAttrs (
+    map (theme: {
+      name = theme.stylix.override.slug;
+      value = {
+        configuration = {
+          stylix = lib.mkForce theme.stylix;
+        };
+      };
+    })
+    themeDefinitions.themes
+  );
 }

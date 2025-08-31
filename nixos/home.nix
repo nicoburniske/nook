@@ -45,4 +45,17 @@ in {
   home.packages = with pkgs; [
     # Additional Linux-specific packages can go here
   ];
+
+  # Theme specialisations
+  specialisation = builtins.listToAttrs (
+    map (theme: {
+      name = theme.stylix.override.slug;
+      value = {
+        configuration = {
+          stylix = lib.mkForce theme.stylix;
+        };
+      };
+    })
+    themeDefinitions.themes
+  );
 }
