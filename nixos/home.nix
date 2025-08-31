@@ -1,9 +1,8 @@
-{ config, pkgs, lib, ... }: 
+{ pkgs, lib, ... }: 
 let
   themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
 in {
   imports = [
-    # Common configurations
     ../common/git.nix
     ../common/helix.nix
     ../common/starship.nix
@@ -20,7 +19,6 @@ in {
     ../common/packages.nix
     ../common/theme-switcher.nix
     
-    # Linux-specific modules
     ./modules/hyprland.nix
     ./modules/waybar.nix
     ./modules/swaylock.nix
@@ -32,6 +30,7 @@ in {
   home.stateVersion = "24.05";
   
   programs.home-manager.enable = true;
+  programs.zsh.enable = true;
   
   # Enable dconf for GNOME settings
   dconf.enable = true;
@@ -42,14 +41,14 @@ in {
     (lib.mkDefault (builtins.head themeDefinitions.themes).stylix)
   ];
 
-  # Linux-specific packages
   home.packages = with pkgs; [
-    # Additional Linux-specific packages can go here
     qbittorrent
     vlc
+    wl-clipboard
+    brightnessctl
+    firefox
   ];
 
-  # Theme specialisations
   specialisation = builtins.listToAttrs (
     map (theme: {
       name = theme.stylix.override.slug;
