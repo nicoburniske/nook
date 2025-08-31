@@ -29,7 +29,7 @@
       share = false;
     };
 
-    initExtra = ''
+    initContent = ''
       WORDCHARS=''${WORDCHARS//[\/]}
 
       bindkey '^I'   complete-word
