@@ -18,6 +18,7 @@ in {
     ../common/scooter.nix
     ../common/packages.nix
     ../common/theme-switcher.nix
+    ../common/zen-browser.nix
     
     ./modules/hyprland.nix
     ./modules/waybar.nix
@@ -46,7 +47,6 @@ in {
     vlc
     wl-clipboard
     brightnessctl
-    firefox
   ];
 
   specialisation = builtins.listToAttrs (

@@ -38,6 +38,11 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+    
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs@{ 
@@ -50,6 +55,7 @@
     nix-homebrew,
     homebrew-core,
     homebrew-cask,
+    zen-browser,
     ... 
   }: {
     # NixOS configuration
@@ -64,7 +70,10 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
           home-manager.users.nico = import ./nixos/home.nix;
-          home-manager.sharedModules = [stylix.homeModules.stylix];
+          home-manager.sharedModules = [
+            stylix.homeModules.stylix
+            zen-browser.homeModules.twilight
+          ];
         }
       ];
     };
@@ -97,6 +106,7 @@
         modules = [
           ./nixos/home.nix
           stylix.homeModules.stylix
+          zen-browser.homeModules.twilight
         ];
       };
       
