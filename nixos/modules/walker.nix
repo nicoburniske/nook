@@ -5,7 +5,11 @@
     settings = {
       force_keyboard_focus = true;
 
-      # Window sizing and constraints like omarchy
+      keybinds = {
+        next = "ctrl+n";
+        previous = "ctrl+p";
+      };
+
       ui.window.box = {
         width = 664;
         min_width = 664;
