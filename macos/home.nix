@@ -53,6 +53,7 @@ in {
     ../common/cargo.nix
     ../common/scooter.nix
     ../common/packages.nix
+    ../common/theme-switcher.nix
     
     # macOS-specific modules
     ./sketchybar
