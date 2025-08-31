@@ -16,7 +16,8 @@
       "$mod" = "alt";
 
       bind = [
-        "$mod, t, exec, ghostty"
+        "$mod, g, exec, ghostty"
+        "$mod, t, exec, theme-switch"
         "$mod, Return, fullscreen, 1"
         "$mod, Q, killactive"
         "$mod, M, exit"
