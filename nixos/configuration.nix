@@ -4,6 +4,7 @@
 {
   pkgs,
   apple-silicon,
+  hyprland,
   ...
 }: {
   # Enable flakes
@@ -109,6 +110,7 @@
 
   programs.hyprland = {
     enable = true;
+    package = hyprland.packages.${pkgs.system}.hyprland;
   };
   
   programs.zsh.enable = true;

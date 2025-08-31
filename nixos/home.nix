@@ -43,6 +43,9 @@ in {
   ];
 
   home.packages = with pkgs; [
+    kitty
+    wezterm
+    alacritty
     firefox
     qbittorrent
     vlc

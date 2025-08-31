@@ -16,6 +16,11 @@
     };
     
     # NixOS-specific
+    hyprland = {
+      url = "github:hyprwm/Hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     apple-silicon = {
       url = "github:nix-community/nixos-apple-silicon";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -50,6 +55,7 @@
     nixpkgs, 
     home-manager,
     stylix,
+    hyprland,
     apple-silicon,
     nix-darwin,
     nix-homebrew,
@@ -61,7 +67,7 @@
     # NixOS configuration
     nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
-      specialArgs = { inherit inputs apple-silicon stylix; };
+      specialArgs = { inherit inputs apple-silicon stylix hyprland; };
       modules = [
         ./nixos/configuration.nix
         ./nixos/hardware-configuration.nix
