@@ -49,7 +49,6 @@ in {
       "coolterm"
       "ghostty"
       "zed"
-      "firefox"
       "docker-desktop"
       "zen"
       "iina"
