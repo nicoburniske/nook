@@ -9,25 +9,20 @@
     systemd.variables = ["--all"];
 
     settings = {
-      # HiDPI Configuration - Fix for GTK apps appearing too large
+      # Monitor configuration for MacBook 16 M1 Max (3456x2234)
+      # eDP-1 is the internal display
+      # Scale of 1.5 gives effective resolution of 2304x1489 (good balance)
       monitor = [
-        # Adjust this to your monitor: name,resolution@refresh,position,scale
-        # Use `hyprctl monitors` to get your monitor name
-        ",preferred,auto,2"  # Auto-detect, 2x scaling
+        "eDP-1, 3456x2234@60, 0x0, 1.5"
+        # Fallback for any other monitors
+        ", preferred, auto, 1"
       ];
+
+      xwayland.force_zero_scaling = true;      
       
-      # # Critical environment variables to prevent GTK double-scaling
-      env = [
-        "GDK_SCALE,1"         # Prevents GTK from scaling (Hyprland handles it)
-        "GDK_DPI_SCALE,1"     # Also prevents GTK DPI scaling
-        "XCURSOR_SIZE,24"     # Cursor size for 2x scaling (use 32 for 2.5x, etc.)
-        "QT_AUTO_SCREEN_SCALE_FACTOR,1"  # Qt apps scaling
-        "QT_SCALE_FACTOR,1"   # Qt scale factor
-      ];
-      
-      # Prevent XWayland apps from scaling twice
-      xwayland = {
-        force_zero_scaling = true;
+      # Allow arbitrary scaling values (disable the "clean divisor" check)
+      debug = {
+        disable_scale_checks = true;
       };
       
       exec-once = [
