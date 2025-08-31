@@ -6,9 +6,7 @@
   apple-silicon,
   lib,
   ...
-}: let
-  themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
-in {
+}: {
   # Enable flakes
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
@@ -17,9 +15,6 @@ in {
     ./hardware-configuration.nix
     apple-silicon.nixosModules.apple-silicon-support
   ];
-
-  # Enable flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Use the systemd-boot EFI boot loader.
   boot = {
@@ -108,7 +103,6 @@ in {
   };
 
   users.defaultUserShell = pkgs.zsh;
-  programs.zsh.enable = true;
 
   programs.firefox.enable = true;
   programs.hyprland = {
