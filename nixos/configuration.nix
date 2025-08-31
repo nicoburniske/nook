@@ -28,6 +28,15 @@
       setupAsahiSound = true;
     };
     graphics.enable = true;
+    
+    bluetooth.enable = true;
+    bluetooth.powerOnBoot = true;
+    bluetooth.settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+        Experimental = true;
+      };
+    };
   };
 
   # networking.hostName = "nixos"; # Define your hostname.
@@ -67,6 +76,8 @@
             EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
     '';
   };
+
+  services.blueman.enable = true;
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
