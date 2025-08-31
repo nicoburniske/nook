@@ -44,6 +44,7 @@ in {
   # Linux-specific packages
   home.packages = with pkgs; [
     # Additional Linux-specific packages can go here
+    qbittorrent
   ];
 
   # Theme specialisations
