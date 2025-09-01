@@ -22,7 +22,6 @@ in {
     
     ./modules/hyprland.nix
     ./modules/waybar.nix
-    ./modules/swaylock.nix
     ./modules/walker.nix
   ];
 
