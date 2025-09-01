@@ -1,4 +1,9 @@
-{ config, ... }: {
+{ config, pkgs, ... }: {
+
+  home.packages = [
+    pkgs.hyprshot    
+  ];
+
   programs.hyprlock = {
     enable = true;
     
@@ -101,6 +106,9 @@
         "$mod, F, togglefloating"
         "$mod, Space, exec, walker"
         "CTRL $mod, L, exec, hyprlock"
+
+        "$mod, P, exec, hyprshot -m output -o ~/screenshots"
+        "$mod SHIFT, P, exec, hyprshot -m region -o ~/screenshots"
 
         ",xf86monbrightnessup, exec, brightnessctl set 5%+"
         ",xf86monbrightnessdown, exec, brightnessctl set 5%-"
