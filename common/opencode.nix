@@ -1,9 +1,8 @@
-{ inputs, pkgs, ... }: {
+{ ... }: {
   programs.opencode = {
     enable = true;
-    package = inputs.opencode-flake.packages.${pkgs.system}.default;
     settings = {
-      autoupdate = false;
+      autoupdate = true;
     };
   };
 }

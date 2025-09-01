@@ -24,11 +24,6 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    opencode-flake = {
-      url = "github:mikael-lindstrom/opencode-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     
     # nixos
     hyprland = {
@@ -73,7 +68,6 @@
     homebrew-core,
     homebrew-cask,
     zen-browser,
-    opencode-flake,
     ... 
   }: {
     nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
@@ -90,7 +84,6 @@
         {
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
-          home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.users.nico = import ./nixos/home.nix;
           home-manager.sharedModules = [
             stylix.homeModules.stylix
@@ -109,7 +102,6 @@
         {
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
-          home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.users.nicoburniske = import ./macos/home.nix;
           home-manager.sharedModules = [
             stylix.homeModules.stylix
