@@ -652,6 +652,26 @@
         "type": "github"
       }
     },
+    "nix-ld": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1756133168,
+        "narHash": "sha256-yvehjJD0TqfixoAJLb2SHWGMULQ312h7MsIM47iKgSg=",
+        "owner": "Mic92",
+        "repo": "nix-ld",
+        "rev": "ba0e76d84d88cc4fc65d589fb4c3c7a609990433",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "nix-ld",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1756536218,
@@ -761,6 +781,7 @@
         "hyprland": "hyprland",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
+        "nix-ld": "nix-ld",
         "nixpkgs": "nixpkgs",
         "opencode-flake": "opencode-flake",
         "stylix": "stylix",

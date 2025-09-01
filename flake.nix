@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
     
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -11,6 +12,11 @@
     
     stylix = {
       url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-ld = {
+      url = "github:Mic92/nix-ld";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -58,6 +64,7 @@
     self, 
     nixpkgs, 
     home-manager,
+    nix-ld,
     stylix,
     hyprland,
     apple-silicon,
@@ -75,7 +82,11 @@
       modules = [
         ./nixos/configuration.nix
         ./nixos/hardware-configuration.nix
+        nix-ld.nixosModules.nix-ld
         home-manager.nixosModules.home-manager
+        {
+          programs.nix-ld.dev.enable = true;    
+        }
         {
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
