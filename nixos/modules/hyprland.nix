@@ -85,6 +85,7 @@
         touchpad = {
           natural_scroll = true;
           scroll_factor = 0.8;
+          tap-to-click = false;
         };
         sensitivity = 0;
         repeat_delay = 300;
