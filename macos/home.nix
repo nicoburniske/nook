@@ -36,7 +36,8 @@ let
   in "${pkgs.jankyborders}/bin/borders ${lib.concatStringsSep " " settings}";
 in {
   imports = [
-    # Common configurations
+    ../common/packages.nix
+
     ../common/git.nix
     ../common/helix.nix
     ../common/starship.nix
@@ -50,10 +51,8 @@ in {
     ../common/lazygit.nix
     ../common/cargo.nix
     ../common/scooter.nix
-    ../common/packages.nix
     ../common/theme-switcher.nix
     
-    # macOS-specific modules
     ./sketchybar
     ./hammerspoon
   ];
@@ -68,12 +67,11 @@ in {
 
   stylix = lib.mkDefault (builtins.head themeDefinitions.themes).stylix;
 
-  # macOS-specific packages
   home.packages = with pkgs; [
     nowplaying-cli
     yq-go
-    gh
-    just
+
+    # envoy 
     flutter335
     rust-bindgen
     cocoapods
@@ -104,7 +102,14 @@ in {
     };
   };
 
-  # Theme specialisations
+  home.activation.applyTheme = lib.hm.dag.entryAfter ["linkGeneration"] ''
+    ${macosTheme}
+    echo "reloading sketchybar"
+    ${pkgs.sketchybar}/bin/sketchybar --reload || true
+    echo "reloading jankyborders"
+    ${jankybordersCmd} || true
+  '';
+
   specialisation = builtins.listToAttrs (
     map (theme: {
       name = theme.stylix.override.slug;
