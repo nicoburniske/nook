@@ -129,8 +129,11 @@
   ];
 
   # Export activation hook for helix reload
-  home.activation.reloadHelix = lib.hm.dag.entryAfter ["linkGeneration"] ''
-    echo "reloading helix config"
-    ${pkgs.procps}/bin/pkill -USR1 hx || true
-  '';
+  home.activation.reloadHelix = let
+    pkill = if pkgs.stdenv.isDarwin then "/usr/bin/pkill" else "${pkgs.procps}/bin/pkill";
+  in 
+    lib.hm.dag.entryAfter ["linkGeneration"] ''
+      echo "reloading helix config"
+      ${pkill} -USR1 hx || true
+    '';
 }
