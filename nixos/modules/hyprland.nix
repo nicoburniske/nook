@@ -25,8 +25,8 @@
 
       background = {
         monitor = "";
-        blur_passes = 3;
-        blur_size = 10;
+        blur_passes = 1;
+        blur_size = 4;
         noise = 0.01;
         contrast = 0.9;
         brightness = 0.8;
