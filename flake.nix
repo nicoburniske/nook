@@ -119,24 +119,5 @@
         }
       ];
     };
-    
-    homeConfigurations = {
-      "nico@nixos" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-linux;
-        modules = [
-          ./nixos/home.nix
-          stylix.homeModules.stylix
-          zen-browser.homeModules.twilight
-        ];
-      };
-      
-      "nicoburniske@macos" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        modules = [
-          ./macos/home.nix
-          stylix.homeModules.stylix
-        ];
-      };
-    };
   };
 }

@@ -22,8 +22,7 @@ in {
 
     "sketchybar/config.json" = let
       formatColor = color: "0xFF${color}";
-    in {
-      text = builtins.toJSON {
+      configData = {
         theme = {
           bar = formatColor config.lib.stylix.colors.base00;
           bar_border = formatColor config.lib.stylix.colors.base00;
@@ -46,6 +45,8 @@ in {
         icon_width = 36;
         flake_root = "${config.home.homeDirectory}/env";
       };
+    in {
+      text = builtins.toJSON configData;
     };
 
     "sketchybar/sketchybarrc" = {
