@@ -36,8 +36,6 @@ let
   in "${pkgs.jankyborders}/bin/borders ${lib.concatStringsSep " " settings}";
 in {
   imports = [
-    ./flake-root.nix
-    
     # Common configurations
     ../common/git.nix
     ../common/helix.nix
@@ -79,41 +77,6 @@ in {
     flutter335
     rust-bindgen
     cocoapods
-    
-    # Yazi file picker helper for Helix
-    (writeShellScriptBin "yz-fp" ''
-      #!/usr/bin/env bash
-      zellij action toggle-floating-panes
-      zellij action write 27 # send escape key
-      for selected_file in "$@"
-      do
-        zellij action write-chars ":open $selected_file"
-        zellij action write 13 # send enter key
-      done
-      zellij action toggle-floating-panes
-      zellij action close-pane
-    '')
-    
-    # Zellij session switcher
-    (writeShellScriptBin "zj" ''
-      #!/usr/bin/env bash
-      sessions=$(zellij list-sessions -n 2>/dev/null | grep -v "EXITED")
-
-      if [ -z "$sessions" ]; then
-        echo "No active sessions"
-        exit 1
-      fi
-
-      selected=$(echo "$sessions" | fzf \
-        --header="Switch Session" \
-        --height=100% \
-        --layout=reverse)
-
-      if [ -n "$selected" ]; then
-        session_name=$(echo "$selected" | awk '{print $1}')
-        zellij attach "$session_name"
-      fi
-    '')
   ];
 
   launchd.agents."set-macos-theme" = wait4Path {

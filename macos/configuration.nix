@@ -54,7 +54,6 @@ in {
       "iina"
       "discord"
       "roam"
-      "qbittorrent"
       "keepassxc"
       "mullvad-vpn"
       "sparrow"
