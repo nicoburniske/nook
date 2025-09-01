@@ -4,7 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     
-    # Cross-platform
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,8 +13,13 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     
-    # NixOS-specific
+    # nixos
     hyprland = {
       url = "github:hyprwm/Hyprland";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,11 +47,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    
-    zen-browser = {
-      url = "github:0xc000022070/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = inputs@{ 
@@ -64,7 +63,6 @@
     zen-browser,
     ... 
   }: {
-    # NixOS configuration
     nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       specialArgs = { inherit inputs apple-silicon stylix hyprland; };
@@ -84,7 +82,6 @@
       ];
     };
     
-    # Darwin configuration
     darwinConfigurations.fuji = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
       modules = [
@@ -105,7 +102,6 @@
       ];
     };
     
-    # Standalone home-manager configurations for faster rebuilds
     homeConfigurations = {
       "nico@nixos" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
