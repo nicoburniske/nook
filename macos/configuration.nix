@@ -3,12 +3,12 @@
   pkgs,
   ...
 }: let
-  homeDir = config.users.users.nico.home;
+  homeDir = config.users.users.nicoburniske.home;
 in {
   networking.hostName = "fuji";
   networking.computerName = "fuji";
   system.stateVersion = 4;
-  system.primaryUser = "nico";
+  system.primaryUser = "nicoburniske";
   nixpkgs.hostPlatform = "aarch64-darwin";
 
   nix = {
@@ -20,9 +20,9 @@ in {
 
   nixpkgs.config.allowUnfree = true;
 
-  users.users.nico = {
-    name = "nico";
-    home = "/Users/nico";
+  users.users.nicoburniske = {
+    name = "nicoburniske";
+    home = "/Users/nicoburniske";
   };
 
   environment.variables = {

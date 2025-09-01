@@ -57,8 +57,8 @@ in {
     ./hammerspoon
   ];
 
-  home.username = "nico";
-  home.homeDirectory = "/Users/nico";
+  home.username = "nicoburniske";
+  home.homeDirectory = "/Users/nicoburniske";
   home.stateVersion = "24.05";
 
   programs.home-manager.enable = true;
