@@ -1,4 +1,71 @@
-{ ... }: {
+{ config, ... }: {
+  programs.hyprlock = {
+    enable = true;
+    
+    settings = {
+      general = {
+        hide_cursor = true;
+        immediate_render = true;
+        fail_timeout = 3000;
+      };
+
+      auth = {
+        pam.enabled = true;
+      };
+
+      animations = {
+        enabled = true;
+        bezier = "linear, 1, 1, 0, 0";
+        animation = [
+          "fadeIn, 1, 1.5, linear"
+          "fadeOut, 1, 1.5, linear"
+          "inputFieldDots, 1, 2, linear"
+        ];
+      };
+
+      background = {
+        monitor = "";
+        blur_passes = 3;
+        blur_size = 10;
+        noise = 0.01;
+        contrast = 0.9;
+        brightness = 0.8;
+        vibrancy = 0.15;
+      };
+
+      # Date and time label
+      label = {
+        monitor = "";
+        text = ''cmd[update:1000] echo "$(date +%H:%M | tr '[:upper:]' '[:lower:]')<br/><span font_size='small'>$(date '+%a %b %d' | tr '[:upper:]' '[:lower:]')</span>"'';
+        text_align = "center";
+        color = "rgb(${config.lib.stylix.colors.base05})";
+        font_size = 48;
+        font_family = config.stylix.fonts.serif.name;
+        position = "0, 150";
+        halign = "center";
+        valign = "center";
+      };
+
+      # Minimalist input field
+      input-field = {
+        monitor = "";
+        size = "300, 50";
+        outline_thickness = 2;
+        dots_size = 0.2;
+        dots_spacing = 0.3;
+        dots_center = true;
+        fade_on_empty = false;
+        fade_timeout = 3000;
+        placeholder_text = "";
+        hide_input = false;
+        rounding = 25;
+        position = "0, -50";
+        halign = "center";
+        valign = "center";
+      };
+    };
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
     # Use packages from NixOS module to avoid version conflicts
@@ -36,7 +103,7 @@
         "$mod, M, exit"
         "$mod, F, togglefloating"
         "$mod, Space, exec, walker"
-        "CTRL $mod, L, exec, swaylock"
+        "CTRL $mod, L, exec, hyprlock"
 
         ",xf86monbrightnessup, exec, brightnessctl set 5%+"
         ",xf86monbrightnessdown, exec, brightnessctl set 5%-"
