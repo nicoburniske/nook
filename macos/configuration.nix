@@ -159,6 +159,6 @@ in {
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
-    (import ./berkeley-mono.nix {inherit pkgs;})
+    (import ../common/berkeley-mono.nix {inherit pkgs;})
   ];
 }

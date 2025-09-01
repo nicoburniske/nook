@@ -1,5 +1,7 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
+    just
+    gh
     ripgrep
     lazygit
     delta
