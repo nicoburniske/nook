@@ -25,7 +25,7 @@
 
       background = {
         monitor = "";
-        blur_passes = 1;
+        blur_passes = 2;
         blur_size = 4;
         noise = 0.01;
         contrast = 0.9;
@@ -46,20 +46,17 @@
         valign = "center";
       };
 
-      # Minimalist input field
       input-field = {
         monitor = "";
-        size = "300, 50";
-        outline_thickness = 2;
+        size = "400, 70";
+        outline_thickness = 6;
         dots_size = 0.2;
         dots_spacing = 0.3;
         dots_center = true;
         fade_on_empty = false;
         fade_timeout = 3000;
         placeholder_text = "";
-        hide_input = false;
-        rounding = 25;
-        position = "0, -50";
+        hide_input = true;
         halign = "center";
         valign = "center";
       };
