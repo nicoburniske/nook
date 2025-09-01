@@ -5,6 +5,7 @@ local M = {}
 local function getThemes()
   local themes = {}
   local specDir = os.getenv("HOME") .. "/specialisation"
+
   local handle = io.popen('ls -1 "' .. specDir .. '" 2>/dev/null')
   if handle then
     for theme in handle:lines() do
@@ -15,6 +16,7 @@ local function getThemes()
     end
     handle:close()
   end
+
   return themes
 end
 
@@ -24,7 +26,21 @@ local function switchTheme(choice)
   end
 
   local theme = choice.text
+  local specDir = os.getenv("HOME") .. "/specialisation"
+  local activatePath = specDir .. "/" .. theme .. "/activate"
+
   log.i("Switching to theme: " .. theme)
+
+  local file = io.open(activatePath, "r")
+  if not file then
+    log.e("Activate script not found: " .. activatePath)
+    hs.notify.new({
+      title = "Theme Switcher",
+      informativeText = "Theme '" .. theme .. "' not found"
+    }):send()
+    return
+  end
+  file:close()
 
   hs.notify.new({
     title = "Theme Switcher",
@@ -53,7 +69,7 @@ local function switchTheme(choice)
         }):send()
       end
     end,
-    { "-c", "/etc/profiles/per-user/nicoburniske/bin/theme-switch '" .. theme .. "' 2>&1" }
+    { "-c", activatePath }
   )
 
   task:start()

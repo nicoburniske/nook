@@ -67,7 +67,6 @@ require("items.sleep")
 require("items.clock")
 require("items.battery")
 require("items.cpu")
-require("items.theme")
 require("items.caffeinate")
 require("items.volume")
 
