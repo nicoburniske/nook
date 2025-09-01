@@ -44,7 +44,6 @@ in {
   home.packages = with pkgs; [
     brave
     firefox
-    qbittorrent
     vlc
     wl-clipboard
     brightnessctl

@@ -16,5 +16,6 @@
     scooter
     cmake
     neofetch
+    qbittorrent
   ];
 }
