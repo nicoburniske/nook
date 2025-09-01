@@ -91,7 +91,7 @@
           nix-homebrew = {
             enable = true;
             enableRosetta = true;
-            user = "nico";
+            user = "nicoburniske";
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
@@ -112,7 +112,7 @@
         ];
       };
       
-      "nico@macos" = home-manager.lib.homeManagerConfiguration {
+      "nicoburniske@macos" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         modules = [
           ./macos/home.nix
