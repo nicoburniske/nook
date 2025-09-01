@@ -77,9 +77,6 @@ in {
         "/Applications/Hammerspoon.app/Contents/MacOS/Hammerspoon"
         "-n"
       ];
-      EnvironmentVariables = {
-        PATH = "${config.environment.systemPath}";
-      };
       RunAtLoad = true;
       KeepAlive = true;
       StandardOutPath = "/tmp/hammerspoon.out.log";
