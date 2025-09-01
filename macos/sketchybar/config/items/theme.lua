@@ -40,50 +40,50 @@ local function update_theme_icon()
   })
 end
 
-for _, theme in ipairs(state.THEMES) do
-  log("Creating popup item for theme_trigger: " .. theme.slug)
-  local popup_item = sbar.add("item", "theme.popup." .. theme.slug, {
-    position = "popup.theme",
-    width = 200,
-    icon = {
-      string = theme_icon(theme.polarity),
-      padding_right = 8,
-    },
-    label = {
-      string = theme.slug,
-      padding_left = 0,
-    },
-    background = {
-      color = state.THEME.background,
-      corner_radius = 4,
-      height = 24,
-      padding_left = 4,
-      padding_right = 4,
-    },
-  })
-  popup_item:subscribe("mouse.clicked", function(env)
-    log("Theme selected: " .. theme.slug)
-    theme_trigger:set({ popup = { drawing = false } })
-    os.execute(
-      state.FLAKE_ROOT .. "/result/specialisation/" .. theme.slug .. "/activate" .. "> /tmp/theme-switch.log 2>&1 &"
-    )
-    sbar.exec("sleep 5", function()
-      update_theme_icon()
-    end)
-  end)
+-- for _, theme in ipairs(state.THEMES) do
+--   log("Creating popup item for theme_trigger: " .. theme.slug)
+--   local popup_item = sbar.add("item", "theme.popup." .. theme.slug, {
+--     position = "popup.theme",
+--     width = 200,
+--     icon = {
+--       string = theme_icon(theme.polarity),
+--       padding_right = 8,
+--     },
+--     label = {
+--       string = theme.slug,
+--       padding_left = 0,
+--     },
+--     background = {
+--       color = state.THEME.background,
+--       corner_radius = 4,
+--       height = 24,
+--       padding_left = 4,
+--       padding_right = 4,
+--     },
+--   })
+--   popup_item:subscribe("mouse.clicked", function(env)
+--     log("Theme selected: " .. theme.slug)
+--     theme_trigger:set({ popup = { drawing = false } })
+--     os.execute(
+--       state.FLAKE_ROOT .. "/result/specialisation/" .. theme.slug .. "/activate" .. "> /tmp/theme-switch.log 2>&1 &"
+--     )
+--     sbar.exec("sleep 5", function()
+--       update_theme_icon()
+--     end)
+--   end)
 
-  popup_item:subscribe("mouse.entered", function(env)
-    popup_item:set({
-      background = { color = state.THEME.highlight },
-    })
-  end)
+--   popup_item:subscribe("mouse.entered", function(env)
+--     popup_item:set({
+--       background = { color = state.THEME.highlight },
+--     })
+--   end)
 
-  popup_item:subscribe("mouse.exited", function(env)
-    popup_item:set({
-      background = { color = state.THEME.background },
-    })
-  end)
-end
+--   popup_item:subscribe("mouse.exited", function(env)
+--     popup_item:set({
+--       background = { color = state.THEME.background },
+--     })
+--   end)
+-- end
 
 theme_trigger:subscribe({
   "mouse.exited",

@@ -21,7 +21,6 @@ in {
     };
 
     "sketchybar/config.json" = let
-      themeDefinitions = import ../stylix.nix {inherit pkgs lib;};
       formatColor = color: "0xFF${color}";
     in {
       text = builtins.toJSON {
@@ -41,12 +40,6 @@ in {
           is_dark = config.stylix.polarity == "dark";
           name = config.stylix.base16Scheme.scheme or config.stylix.base16Scheme.name or "Unknown";
         };
-        themes =
-          map (theme: {
-            slug = theme.stylix.override.slug;
-            polarity = theme.stylix.polarity;
-          })
-          themeDefinitions.themes;
         font = config.stylix.fonts.monospace.name;
         icon_font = "JetBrainsMono Nerd Font";
         paddings = 4;

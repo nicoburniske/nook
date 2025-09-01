@@ -77,12 +77,15 @@ in {
     cocoapods
   ];
 
-  launchd.agents."set-macos-theme" = wait4Path {
-    command = toString (pkgs.writeShellScript "set-macos-theme" macosTheme);
-    serviceConfig = {
-      RunAtLoad = true;
-      StandardOutPath = "/tmp/theme.log";
-      StandardErrorPath = "/tmp/theme.err.log";
+  launchd.agents."set-macos-theme" = {
+    enable = true;
+    config = wait4Path {
+      command = toString (pkgs.writeShellScript "set-macos-theme" macosTheme);
+      serviceConfig = {
+        RunAtLoad = true;
+        StandardOutPath = "/tmp/theme.log";
+        StandardErrorPath = "/tmp/theme.err.log";
+      };
     };
   };
 

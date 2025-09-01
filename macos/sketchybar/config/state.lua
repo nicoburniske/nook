@@ -19,7 +19,6 @@ function M.load()
   local config = cjson.decode(content)
 
   M.THEME = config.theme
-  M.THEMES = config.themes
   M.FONT = config.font
   M.ICON_FONT = config.icon_font
   M.PADDINGS = config.paddings
