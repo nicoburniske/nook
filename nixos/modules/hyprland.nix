@@ -150,6 +150,7 @@
           natural_scroll = true;
           scroll_factor = 0.8;
           tap-to-click = false;
+          clickfinger_behavior = 1;
         };
         sensitivity = 0;
         repeat_delay = 300;
