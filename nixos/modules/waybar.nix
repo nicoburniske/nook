@@ -42,18 +42,22 @@
           interval = 5;
         };
 
-        battery = {
-          states = {
-            good = 90;
-            medium = 60;
-            low = 30;
-            warning = 10;
-          };
-          format = "{icon} {capacity}%";
-          format-charging = "󰂄 {capacity}%";
-          format-plugged = "󰂄 {capacity}%";
-          format-icons = ["󰂎" "󰁻" "󰁾" "󰂀" "󰁹"];
-          tooltip = false;
+        battery= {
+            format = "{icon} {capacity}%";
+            format-icons = {
+              default = ["󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+            };
+            format-charging = "󰂄 {capacity}%";
+            format-plugged = "󰂄 {capacity}%";
+            format-full = "󰂅";
+            tooltip-format-discharging= "{power:>1.0f}W↓ {capacity}%";
+            tooltip-format-charging= "{power:>1.0f}W↑ {capacity}%";
+
+            interval= 5;
+            states= {
+              warning= 20;
+              critical= 10;
+            };
         };
 
         "custom/clock" = {
@@ -62,40 +66,39 @@
           tooltip = false;
         };
 
-        pulseaudio = {
-          format = "{icon} {volume}%";
-          format-muted = "󰝟 muted";
-          format-icons = {
-            default = ["" "" ""];
+        pulseaudio= {
+          format= "{icon}";
+          on-click= "ghostty --class=Wiremix -e wiremix";
+          tooltip-format = "Playing at {volume}%";
+          scroll-step= 5;
+          format-muted= "󰝟";
+          format-icons= {
+            "default"= ["" "" ""];
           };
-          on-click = "wpctl set-mute @DEFAULT_SINK@ toggle";
-          on-click-right = "pavucontrol";
-          scroll-step = 5;
-          tooltip = true;
-          tooltip-format = "{desc} • {volume}%";
         };
 
-        network = {
-          format-wifi = " {signalStrength}%";
-          format-ethernet = "󰈀";
-          format-disconnected = "󰖪";
-          tooltip-format-wifi = "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
-          tooltip-format-ethernet = "{ifname}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
-          tooltip-format-disconnected = "Disconnected";
-          interval = 3;
-          on-click = "nm-connection-editor";
+        network= {
+            format-icons= ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
+            format= "{icon}";
+            format-wifi= "{icon}";
+            format-ethernet= "󰀂";
+            format-disconnected= "󰖪";
+            tooltip-format-wifi= "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
+            tooltip-format-ethernet= "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
+            tooltip-format-disconnected= "disconnected";
+            interval= 3;
+            spacing= 1;
         };
 
-        bluetooth = {
-          format = "";
+        bluetooth= {
+          format = "";
           format-disabled = "󰂲";
-          format-connected = " {num_connections}";
-          tooltip-format = "{controller_alias}\t{controller_address}";
-          tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
-          tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
+          format-connected = "";
+          tooltip-format = "devices connected= {num_connections}";
           on-click = "blueman-manager";
         };
 
+    
         tray = {
           icon-size = 14;
           spacing = 8;
@@ -105,6 +108,7 @@
 
     style = with config.lib.stylix.colors; let
       fontSize = toString config.stylix.fonts.sizes.desktop;
+      borderRadius = "12px";
     in ''
       * {
         font-family: ${config.stylix.fonts.monospace.name}, ${config.stylix.fonts.emoji.name};
@@ -130,7 +134,7 @@
         color: #${base04};
         padding: 0 8px;
         margin: 5px 2px;
-        border-radius: 5px;
+        border-radius: ${borderRadius};
         border: 1px solid transparent;
         font-size: ${fontSize}px;
         min-width: 20px;
@@ -171,22 +175,30 @@
         color: #${base05};
         padding: 0 8px;
         margin: 5px 2px;
-        border-radius: 9px;
+        border-radius: ${borderRadius};
         font-weight: normal;
         font-size: ${fontSize}px;
       }
 
       #cpu,
-      #battery,
-      #pulseaudio,
-      #network,
-      #bluetooth {
+      #battery {
         background: transparent;
         border: 1px solid #${base03};
         color: #${base05};
         padding: 0 8px;
         margin: 5px 2px;
-        border-radius: 9px;
+        border-radius: ${borderRadius};
+        font-weight: normal;
+        font-size: ${fontSize}px;
+      }
+
+      #pulseaudio,
+      #network,
+      #bluetooth {
+        background: transparent;
+        color: #${base05};
+        padding: 0 8px;
+        margin: 5px 2px;
         font-weight: normal;
         font-size: ${fontSize}px;
       }
@@ -236,7 +248,7 @@
         background: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.9);
         color: #${base05};
         border: 1px solid rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.5);
-        border-radius: 5px;
+        border-radius: ${borderRadius};
       }
     '';
   };
