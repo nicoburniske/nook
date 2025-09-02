@@ -10,7 +10,7 @@
 
         modules-left = ["hyprland/workspaces" "custom/separator" "hyprland/window"];
         modules-center = [];
-        modules-right = ["custom/theme" "cpu" "battery" "custom/clock"];
+        modules-right = ["tray" "bluetooth" "network" "pulseaudio" "cpu" "battery" "custom/clock"];
 
         "hyprland/workspaces" = {
           disable-scroll = false;
@@ -60,6 +60,45 @@
           exec = "date '+%a %b %d %H:%M' | tr '[:upper:]' '[:lower:]'";
           interval = 10;
           tooltip = false;
+        };
+
+        pulseaudio = {
+          format = "{icon} {volume}%";
+          format-muted = "󰝟 muted";
+          format-icons = {
+            default = ["" "" ""];
+          };
+          on-click = "wpctl set-mute @DEFAULT_SINK@ toggle";
+          on-click-right = "pavucontrol";
+          scroll-step = 5;
+          tooltip = true;
+          tooltip-format = "{desc} • {volume}%";
+        };
+
+        network = {
+          format-wifi = " {signalStrength}%";
+          format-ethernet = "󰈀";
+          format-disconnected = "󰖪";
+          tooltip-format-wifi = "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
+          tooltip-format-ethernet = "{ifname}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
+          tooltip-format-disconnected = "Disconnected";
+          interval = 3;
+          on-click = "nm-connection-editor";
+        };
+
+        bluetooth = {
+          format = "";
+          format-disabled = "󰂲";
+          format-connected = " {num_connections}";
+          tooltip-format = "{controller_alias}\t{controller_address}";
+          tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
+          tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
+          on-click = "blueman-manager";
+        };
+
+        tray = {
+          icon-size = 14;
+          spacing = 8;
         };
       };
     };
@@ -137,22 +176,11 @@
         font-size: ${fontSize}px;
       }
 
-      #custom-theme {
-        background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
-        color: #${base05};
-        padding: 0 8px;
-        margin: 5px 2px;
-        border-radius: 9px;
-        font-size: ${fontSize}px;
-      }
-
-      #custom-theme:hover {
-        background: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.7);
-        color: #${base05};
-      }
-
       #cpu,
-      #battery {
+      #battery,
+      #pulseaudio,
+      #network,
+      #bluetooth {
         background: transparent;
         border: 1px solid #${base03};
         color: #${base05};
@@ -161,6 +189,34 @@
         border-radius: 9px;
         font-weight: normal;
         font-size: ${fontSize}px;
+      }
+
+      #pulseaudio.muted {
+        color: #${base03};
+      }
+
+      #network.disconnected {
+        color: #${base08};
+        border-color: #${base08};
+      }
+
+      #bluetooth.disabled {
+        color: #${base03};
+      }
+
+      #tray {
+        background: transparent;
+        padding: 0 4px;
+        margin: 5px 2px;
+      }
+
+      #tray > .passive {
+        -gtk-icon-effect: dim;
+      }
+
+      #tray > .needs-attention {
+        -gtk-icon-effect: highlight;
+        background-color: #${base08};
       }
 
       #battery.warning {
