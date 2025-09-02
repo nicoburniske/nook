@@ -21,6 +21,14 @@
         pager = "delta";
         editor = "hx";
       };
+      url = {
+        "git@github.com:" = {
+          insteadOf = "https://github.com/";
+        };
+        "https://github.com/rust-lang/crates.io-index" = {
+          insteadOf = "https://github.com/rust-lang/crates.io-index";
+        };
+      };
       delta = {
         navigate = true;
         side-by-side = true;
