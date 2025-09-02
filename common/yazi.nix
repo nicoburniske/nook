@@ -25,6 +25,10 @@
         ];
       };
 
+      tasks = {
+        image_bound = [0 0];
+      };
+
       open = {
         rules = [
           {
