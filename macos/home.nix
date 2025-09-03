@@ -33,6 +33,7 @@ let
       "style=round"
       "hidpi=on"
     ];
+
   in "${pkgs.jankyborders}/bin/borders ${lib.concatStringsSep " " settings}";
 in {
   imports = [
@@ -112,8 +113,7 @@ in {
       command = "${pkgs.sketchybar}/bin/sketchybar --config ${config.home.homeDirectory}/.config/sketchybar/sketchybarrc";
       Label = "org.nixos.sketchybar";
       EnvironmentVariables = {
-        CONFIG_DIR = "${config.home.homeDirectory}/.config/sketchybar";
-        PATH = "${pkgs.sketchybar}/bin:${pkgs.lua5_4}/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
+        PATH = "$PATH:/bin:/usr/bin";
       };
       KeepAlive = true;
       RunAtLoad = true;
