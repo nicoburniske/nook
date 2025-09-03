@@ -17,6 +17,7 @@ in {
     ../common/cargo.nix
     ../common/scooter.nix
     ../common/packages.nix
+    ../common/comically.nix
     ../common/theme-switcher.nix
     ../common/zen-browser.nix
     
