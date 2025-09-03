@@ -108,7 +108,8 @@
 
     style = with config.lib.stylix.colors; let
       fontSize = toString config.stylix.fonts.sizes.desktop;
-      borderRadius = "12px";
+      borderRadius = "5px";
+      elementMargin = "8px 2px";
     in ''
       * {
         font-family: ${config.stylix.fonts.monospace.name}, ${config.stylix.fonts.emoji.name};
@@ -174,7 +175,7 @@
         background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
         color: #${base05};
         padding: 0 8px;
-        margin: 5px 2px;
+        margin: ${elementMargin};
         border-radius: ${borderRadius};
         font-weight: normal;
         font-size: ${fontSize}px;
@@ -186,7 +187,7 @@
         border: 1px solid #${base03};
         color: #${base05};
         padding: 0 8px;
-        margin: 5px 2px;
+        margin: ${elementMargin};
         border-radius: ${borderRadius};
         font-weight: normal;
         font-size: ${fontSize}px;
@@ -198,7 +199,7 @@
         background: transparent;
         color: #${base05};
         padding: 0 8px;
-        margin: 5px 2px;
+        margin: ${elementMargin};
         font-weight: normal;
         font-size: ${fontSize}px;
       }
@@ -219,7 +220,7 @@
       #tray {
         background: transparent;
         padding: 0 4px;
-        margin: 5px 2px;
+        margin: ${elementMargin};
       }
 
       #tray > .passive {
