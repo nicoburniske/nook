@@ -195,6 +195,7 @@ in {
   };
   home.packages = with pkgs; [
     zellij
+
     (writeShellScriptBin "zj" ''
       #!/usr/bin/env bash
       sessions=$(zellij list-sessions -n 2>/dev/null | grep -v "EXITED")
@@ -213,6 +214,24 @@ in {
         session_name=$(echo "$selected" | awk '{print $1}')
         zellij attach "$session_name"
       fi
+    '')
+
+    (writeShellScriptBin "zj-rm" ''
+      #!/usr/bin/env bash
+      SESSION_NAME="$1"
+
+      if [ -z "$SESSION_NAME" ]; then
+        echo "Usage: zellij-rm <session_name>"
+        exit 1
+      fi
+
+      zellij kill-session "$SESSION_NAME"
+      zellij delete-session "$SESSION_NAME"
+
+      rm -rf "$HOME/.cache/zellij/*/session_info/$SESSION_NAME/"
+      rm -f "/run/user/$(id -u)/zellij/*/$SESSION_NAME"
+
+      echo "Session $SESSION_NAME removed completely"
     '')
   ];
 
