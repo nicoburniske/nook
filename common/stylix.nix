@@ -35,7 +35,7 @@ in {
       stylix = {
         enable = true;
         base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
-        override = {slug = "gruvbox-dark";};
+        override = {slug = "gruvbox";};
         polarity = "dark";
         image = ../assets/wallpapers/dark-evangelion.png;
         fonts = baseFonts;
@@ -45,10 +45,10 @@ in {
     {
       stylix = {
         enable = true;
-        base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-light-hard.yaml";
-        override = {slug = "gruvbox-light-hard";};
-        polarity = "light";
-        image = ../assets/wallpapers/falling.jpg;
+        base16Scheme = "${pkgs.base16-schemes}/share/themes/everforest-dark-hard.yaml";
+        override = {slug = "everforest";};
+        polarity = "dark";
+        image = ../assets/wallpapers/light-mountains.jpg;
         fonts = baseFonts;
       };
     }
