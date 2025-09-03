@@ -218,13 +218,30 @@ in {
 
     (writeShellScriptBin "zj-rm" ''
       #!/usr/bin/env bash
-      SESSION_NAME="$1"
+      if [ -n "$1" ]; then
+        SESSION_NAME="$1"
+      else
+        sessions=$(zellij list-sessions -n 2>/dev/null | grep -v "EXITED")
 
-      if [ -z "$SESSION_NAME" ]; then
-        echo "Usage: zellij-rm <session_name>"
-        exit 1
+        if [ -z "$sessions" ]; then
+          echo "No active sessions to remove"
+          exit 1
+        fi
+
+        selected=$(echo "$sessions" | fzf \
+          --header="Remove Session" \
+          --height=100% \
+          --layout=reverse)
+
+        if [ -z "$selected" ]; then
+          echo "No session selected"
+          exit 1
+        fi
+
+        SESSION_NAME=$(echo "$selected" | awk '{print $1}')
       fi
 
+      echo "Killing session: $SESSION_NAME"
       zellij kill-session "$SESSION_NAME"
       zellij delete-session "$SESSION_NAME"
 
