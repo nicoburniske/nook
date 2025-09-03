@@ -75,46 +75,44 @@ in {
     cocoapods
   ];
 
-  launchd.agents."set-macos-theme" = {
-    enable = true;
-    config = {
-      ProgramArguments = wait4Path (toString (pkgs.writeShellScript "set-macos-theme" macosTheme));
-      serviceConfig = {
+  launchd.agents = {
+    "set-macos-theme" = {
+      enable = true;
+      config = {
+        ProgramArguments = wait4Path (toString (pkgs.writeShellScript "set-macos-theme" macosTheme));
         RunAtLoad = true;
         StandardOutPath = "/tmp/theme.log";
         StandardErrorPath = "/tmp/theme.err.log";
       };
     };
-  };
 
-  launchd.agents.jankyborders = {
-    enable = true;
-    config = {
-      ProgramArguments = wait4Path jankybordersCmd;
-      serviceConfig = {
+    jankyborders = {
+      enable = true;
+      config = {
+        ProgramArguments = wait4Path jankybordersCmd;
+        EnvironmentVariables = {
+          PATH = lib.makeBinPath [pkgs.jankyborders];
+        };
         KeepAlive = true;
         RunAtLoad = true;
         StandardOutPath = "/tmp/jankyborders.log";
         StandardErrorPath = "/tmp/jankyborders.err.log";
-        EnvironmentVariables = {
-          PATH = lib.makeBinPath [pkgs.jankyborders];
-        };
       };
     };
-  };
 
-  launchd.agents.sketchybar = {
-    enable = true;
-    config = {
-      ProgramArguments = wait4Path "${pkgs.sketchybar}/bin/sketchybar --config ${config.home.homeDirectory}/.config/sketchybar/sketchybarrc";
-      Label = "org.nixos.sketchybar";
-      EnvironmentVariables = {
-        PATH = "$PATH:/bin:/usr/bin";
+    sketchybar = {
+      enable = true;
+      config = {
+        ProgramArguments = wait4Path "${pkgs.sketchybar}/bin/sketchybar --config ${config.home.homeDirectory}/.config/sketchybar/sketchybarrc";
+        Label = "org.nixos.sketchybar";
+        EnvironmentVariables = {
+          PATH = "$PATH:/bin:/usr/bin";
+        };
+        KeepAlive = true;
+        RunAtLoad = true;
+        StandardErrorPath = "/tmp/sketchybar.err.log";
+        StandardOutPath = "/tmp/sketchybar.out.log";
       };
-      KeepAlive = true;
-      RunAtLoad = true;
-      StandardErrorPath = "/tmp/sketchybar.err.log";
-      StandardOutPath = "/tmp/sketchybar.out.log";
     };
   };
 
