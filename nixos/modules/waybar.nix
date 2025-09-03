@@ -56,7 +56,6 @@
             interval= 5;
             states= {
               warning= 20;
-              critical= 10;
             };
         };
 
