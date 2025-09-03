@@ -2,15 +2,11 @@
 let
   themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
   
-  wait4Path = {command, ...} @ args:
-    args
-    // {
-      ProgramArguments = [
-        "/run/current-system/sw/bin/sh"
-        "-c"
-        "/bin/wait4path /nix/store && exec ${command}"
-      ];
-    };
+  wait4Path = command: [
+    "/run/current-system/sw/bin/sh"
+    "-c"
+    "/bin/wait4path /nix/store && exec ${command}"
+  ];
 
   macosTheme = ''
     WALLPAPER="${toString config.stylix.image}"
@@ -81,8 +77,8 @@ in {
 
   launchd.agents."set-macos-theme" = {
     enable = true;
-    config = wait4Path {
-      command = toString (pkgs.writeShellScript "set-macos-theme" macosTheme);
+    config = {
+      ProgramArguments = wait4Path (toString (pkgs.writeShellScript "set-macos-theme" macosTheme));
       serviceConfig = {
         RunAtLoad = true;
         StandardOutPath = "/tmp/theme.log";
@@ -93,8 +89,8 @@ in {
 
   launchd.agents.jankyborders = {
     enable = true;
-    config = wait4Path {
-      command = jankybordersCmd;
+    config = {
+      ProgramArguments = wait4Path jankybordersCmd;
       serviceConfig = {
         KeepAlive = true;
         RunAtLoad = true;
@@ -109,8 +105,8 @@ in {
 
   launchd.agents.sketchybar = {
     enable = true;
-    config = wait4Path {
-      command = "${pkgs.sketchybar}/bin/sketchybar --config ${config.home.homeDirectory}/.config/sketchybar/sketchybarrc";
+    config = {
+      ProgramArguments = wait4Path "${pkgs.sketchybar}/bin/sketchybar --config ${config.home.homeDirectory}/.config/sketchybar/sketchybarrc";
       Label = "org.nixos.sketchybar";
       EnvironmentVariables = {
         PATH = "$PATH:/bin:/usr/bin";
