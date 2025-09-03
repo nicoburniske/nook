@@ -51,6 +51,7 @@ in {
     ../common/lazygit.nix
     ../common/cargo.nix
     ../common/scooter.nix
+    ../common/comically.nix
     ../common/theme-switcher.nix
     
     ./sketchybar
