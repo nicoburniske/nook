@@ -106,6 +106,22 @@ in {
     };
   };
 
+  launchd.agents.sketchybar = {
+    enable = true;
+    config = wait4Path {
+      command = "${pkgs.sketchybar}/bin/sketchybar --config ${config.home.homeDirectory}/.config/sketchybar/sketchybarrc";
+      Label = "org.nixos.sketchybar";
+      EnvironmentVariables = {
+        CONFIG_DIR = "${config.home.homeDirectory}/.config/sketchybar";
+        PATH = "${pkgs.sketchybar}/bin:${pkgs.lua5_4}/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
+      };
+      KeepAlive = true;
+      RunAtLoad = true;
+      StandardErrorPath = "/tmp/sketchybar.err.log";
+      StandardOutPath = "/tmp/sketchybar.out.log";
+    };
+  };
+
   home.activation.applyTheme = lib.hm.dag.entryAfter ["linkGeneration"] ''
     ${macosTheme}
     echo "reloading sketchybar"
