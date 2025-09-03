@@ -25,6 +25,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     
+    opencode-flake = {
+      url = "github:aodhanhayter/opencode-flake";
+    };
+    
     # nixos
     hyprland = {
       url = "github:hyprwm/Hyprland";
@@ -68,6 +72,7 @@
     homebrew-core,
     homebrew-cask,
     zen-browser,
+    opencode-flake,
     ... 
   }: {
     nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
@@ -85,6 +90,7 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
           home-manager.users.nico = import ./nixos/home.nix;
+          home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.sharedModules = [
             stylix.homeModules.stylix
             zen-browser.homeModules.twilight
@@ -103,6 +109,7 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
           home-manager.users.nicoburniske = import ./macos/home.nix;
+          home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.sharedModules = [
             stylix.homeModules.stylix
           ];
