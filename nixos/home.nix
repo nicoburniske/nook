@@ -47,6 +47,7 @@ in {
     vlc
     wl-clipboard
     brightnessctl
+    wiremix
   ];
 
   specialisation = builtins.listToAttrs (
