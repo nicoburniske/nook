@@ -27,6 +27,7 @@
     
     opencode-flake = {
       url = "github:aodhanhayter/opencode-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     
     # nixos
