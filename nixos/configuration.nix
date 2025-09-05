@@ -41,16 +41,18 @@
     };
   };
 
-  # networking.hostName = "nixos"; # Define your hostname.
-  networking.nameservers = ["1.1.1.1" "9.9.9.9"];
-
-  # Configure network connections interactively with nmcli or nmtui.
-  networking.networkmanager.enable = true;
-  networking.wireless.iwd = {
-    enable = true;
-    settings.General.EnableNetworkConfiguration = true;
+  networking = {
+    nameservers = ["1.1.1.1" "9.9.9.9"];
+    wireless.iwd = {
+      enable = true;
+      settings.General.EnableNetworkConfiguration = true;
+    };
+    networkmanager = {
+      enable = true;
+      wifi.backend = "iwd";
+      wifi.powersave = true;
+    };
   };
-
   time.timeZone = "America/New_York";
 
   # Configure network proxy if necessary
