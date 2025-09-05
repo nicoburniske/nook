@@ -22,7 +22,7 @@
     loader.efi.canTouchEfiVariables = false;
     kernelParams = ["apple_dcp.show_notch=1"];
     binfmt.emulatedSystems = ["x86_64-linux"];
-};
+  };
 
   hardware = {
     asahi = {
@@ -53,6 +53,7 @@
       wifi.powersave = true;
     };
   };
+
   time.timeZone = "America/New_York";
 
   # Configure network proxy if necessary
@@ -124,7 +125,18 @@
     enable = true;
     package = hyprland.packages.${pkgs.system}.hyprland;
   };
-  
+
+  services.greetd = {
+    enable = true;
+    settings = rec {
+      initial_session = {
+        command = "${pkgs.hyprland}/bin/Hyprland";
+        user = "nico";
+      };
+      default_session = initial_session;
+    };
+  };  
+
   programs.zsh.enable = true;
 
   # List packages installed in system profile.
