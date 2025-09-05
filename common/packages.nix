@@ -3,7 +3,6 @@
     just
     gh
     ripgrep
-    lazygit
     delta
     btop
     tokei
