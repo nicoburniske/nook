@@ -72,9 +72,8 @@ in {
           scheme = "Modus Operandi Tinted";
           author = "Protesilaos Stavrou";
           base00 = "fbf7f0"; # bg-main - primary background
-          base01 = "f0e3c0"; # bg-ochre - light yellow selection color
-          base02 = "f1d5d0"; # bg-hl-line - light pinkish highlight background
-          # base02 = "f0e3c0"; # bg-ochre - light yellow selection color
+          base01 = "f1d5d0"; # bg-hl-line - light pinkish
+          base02 = "f1c8b5"; # bg-clay - light orange
           base03 = "595959"; # fg-dim - lighter/dimmed text
           base04 = "585858"; # fg-mode-line-inactive - darkest text
           base05 = "000000"; # fg-main - primary text
