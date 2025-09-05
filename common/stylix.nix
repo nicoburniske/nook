@@ -53,16 +53,16 @@ in {
       };
     }
 
-    {
-      stylix = {
-        enable = true;
-        base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-        override = {slug = "catppuccin-mocha";};
-        polarity = "dark";
-        image = ../assets/wallpapers/frozen.png;
-        fonts = baseFonts;
-      };
-    }
+    # {
+    #   stylix = {
+    #     enable = true;
+    #     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+    #     override = {slug = "catppuccin-mocha";};
+    #     polarity = "dark";
+    #     image = ../assets/wallpapers/frozen.png;
+    #     fonts = baseFonts;
+    #   };
+    # }
 
     {
       # https://github.com/protesilaos/modus-themes/blob/main/modus-operandi-tinted-theme.el
@@ -72,8 +72,8 @@ in {
           scheme = "Modus Operandi Tinted";
           author = "Protesilaos Stavrou";
           base00 = "fbf7f0"; # bg-main - primary background
-          base01 = "f1d5d0"; # bg-hl-line - pinkish highlight background
-          base02 = "c2bcb5"; # bg-region - pinkish selection color
+          base01 = "f1d5d0"; # bg-hl-line - light pinkish highlight background
+          base02 = "f0c1cf"; # bg-completion - darker pinkish selection color
           base03 = "595959"; # fg-dim - lighter/dimmed text
           base04 = "585858"; # fg-mode-line-inactive - darkest text
           base05 = "000000"; # fg-main - primary text

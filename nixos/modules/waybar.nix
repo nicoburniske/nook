@@ -172,7 +172,7 @@
       }
 
       #custom-clock {
-        background: #${base01};
+        background: #${base02};
         border: 1px solid #${base03};
         color: #${base05};
         padding: 0 8px;
