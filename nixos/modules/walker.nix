@@ -5,9 +5,9 @@
     settings = {
       force_keyboard_focus = true;
 
-      keybinds = {
-        next = "ctrl+n";
-        previous = "ctrl+p";
+      keys = {
+        next = ["ctrl n"];
+        prev = ["ctrl p"];
       };
 
       ui.window.box = {
