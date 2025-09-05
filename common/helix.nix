@@ -39,9 +39,15 @@
         "C-r" = ":sh zellij run -c -f -n scooter -x 5%% -y 5%% --width 90%% --height 90%% -- scooter";
         "C-f" = ":sh zellij run -c -f -n yazi -x 5%% -y 5%% --width 90%% --height 90%% -- bash ~/.config/helix/yazi-picker.sh open %{buffer_name}";
 
+        "C-l" = "goto_next_buffer";
+        "C-h" = "goto_previous_buffer";
+        "C-x" = ":buffer-close";
+
         space = {
           q = ":quit";
+          Q = ":quit!";
           w = ":write";
+          W = ":write!";
           l = let
             clipboard = if pkgs.stdenv.isDarwin then "pbcopy" else "wl-copy";
           in ":sh if [ '%{selection_line_start}' != '%{selection_line_end}' ]; then printf '%{buffer_name}:%{selection_line_start}-%{selection_line_end}'; else printf '%{buffer_name}:%{cursor_line}'; fi | ${clipboard}";
