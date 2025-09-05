@@ -77,6 +77,7 @@
         };
 
         network= {
+            on-click = "ghostty -e nmtui";
             format-icons= ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
             format= "{icon}";
             format-wifi= "{icon}";
