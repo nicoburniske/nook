@@ -49,6 +49,8 @@ in {
     wl-clipboard
     brightnessctl
     wiremix
+    jmtpfs
+    usbutils
   ];
 
   specialisation = builtins.listToAttrs (
