@@ -1,7 +1,8 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, lib, ... }: {
 
-  home.packages = [
-    pkgs.hyprshot    
+  home.packages = with pkgs; [
+    hyprshot
+    phinger-cursors
   ];
 
   programs.hyprlock = {
@@ -84,6 +85,14 @@
         ", preferred, auto, 1"
       ];
 
+      # Cursor configuration
+      env = [
+        "HYPRCURSOR_THEME,${if config.stylix.polarity == "light" then "phinger-cursors-dark" else "phinger-cursors-light"}"
+        "HYPRCURSOR_SIZE,24"
+        "XCURSOR_THEME,${if config.stylix.polarity == "light" then "phinger-cursors-dark" else "phinger-cursors-light"}"
+        "XCURSOR_SIZE,24"
+      ];
+
       xwayland.force_zero_scaling = true;      
       
       # Allow arbitrary scaling values (disable the "clean divisor" check)
@@ -93,6 +102,7 @@
       
       exec-once = [
         "waybar"
+        "hyprctl setcursor ${if config.stylix.polarity == "light" then "phinger-cursors-dark" else "phinger-cursors-light"} 24"
       ];
 
       "$mod" = "alt";
