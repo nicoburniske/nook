@@ -101,7 +101,6 @@
       };
       
       exec-once = [
-        "hyprlock"
         "waybar"
         "hyprctl setcursor ${if config.stylix.polarity == "light" then "phinger-cursors-dark" else "phinger-cursors-light"} 24"
       ];
