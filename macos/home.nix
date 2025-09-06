@@ -40,7 +40,7 @@ in {
 
     ../common/git.nix
     ../common/helix.nix
-    ../common/starship.nix
+    ../common/oh-my-posh.nix
     ../common/zellij.nix
     ../common/yazi.nix
     ../common/zsh.nix

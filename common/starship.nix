@@ -1,6 +1,6 @@
 {config, ...}: {
   programs.starship = with config.lib.stylix.colors; {
-    enable = true;
+    enable = false;
     enableTransience = true;
     settings = {
       format = "$directory$nix_shell$fill$git_branch$cmd_duration$line_break$character";
