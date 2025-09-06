@@ -1,4 +1,4 @@
-{ config, ... }: {
+{config, ...}: {
   xdg.configFile."scooter/config.toml".text = ''
     [editor_open]
     # Close the floating pane first, then open the file in helix
