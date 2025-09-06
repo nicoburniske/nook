@@ -24,16 +24,10 @@
               type = "git";
               style = "plain";
               foreground = "#${base08}";
-              template = " <#${base0D}>git:(</>{{ .HEAD }}<#${base0D}>)</>"; 
+              template = " <#${base0D}>git:(</>{{ .HEAD }}<#${base0D}>)</>";
               properties = {
                 branch_icon = "";
               };
-            }
-            {
-              type = "status";
-              style = "plain";
-              foreground = "#${base08}";
-              template = " ✗";
             }
           ];
         }
