@@ -15,7 +15,7 @@
               type = "path";
               style = "plain";
               foreground = "#${base0C}";
-              template = "  {{ .Path }}";
+              template = "{{ .Path }}";
               properties = {
                 style = "folder";
               };
