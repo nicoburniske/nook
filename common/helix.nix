@@ -11,6 +11,8 @@
         bufferline = "always";
         cursorline = true;
         color-modes = true;
+        true-color = true;
+
         end-of-line-diagnostics = "hint";
         popup-border = "all";
 
