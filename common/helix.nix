@@ -77,6 +77,11 @@
         {
           name = "nix";
           language-servers = ["nil"];
+          formatter = {
+            command = "alejandra";
+            args = ["-"];
+          };
+          auto-format = true;
         }
         {
           name = "dart";
