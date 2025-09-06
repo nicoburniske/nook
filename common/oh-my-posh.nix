@@ -29,6 +29,16 @@
                 branch_icon = "";
               };
             }
+            {
+              type = "command";
+              style = "plain";
+              foreground = "#${base0E}";
+              template = "{{ if .Output }} <#${base0B}>nix:(</>{{ .Output }}<#${base0B}>)</>{{ end }}";
+              properties = {
+                command = "[[ -n \"$IN_NIX_SHELL\" ]] && echo \"$IN_NIX_SHELL\"";
+                shell = "bash";
+              };
+            }
           ];
         }
       ];
