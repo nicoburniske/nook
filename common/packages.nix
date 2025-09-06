@@ -16,5 +16,6 @@
     cmake
     neofetch
     qbittorrent
+    alejandra
   ];
 }
