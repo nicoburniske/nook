@@ -12,12 +12,6 @@
           alignment = "left";
           segments = [
             {
-              type = "text";
-              style = "plain";
-              foreground = "#${base0B}";
-              template = "➜";
-            }
-            {
               type = "path";
               style = "plain";
               foreground = "#${base0C}";
@@ -44,6 +38,11 @@
           ];
         }
       ];
+      transient_prompt = {
+        background = "transparent";
+        foreground = "#${base05}";
+        template = "❯ ";
+      };
     };
   };
 }
