@@ -42,21 +42,21 @@
           interval = 5;
         };
 
-        battery= {
-            format = "{icon} {capacity}%";
-            format-icons = {
-              default = ["󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
-            };
-            format-charging = "󰂄 {capacity}%";
-            format-plugged = "󰂄 {capacity}%";
-            format-full = "󰂅";
-            tooltip-format-discharging= "{power:>1.0f}W↓ {capacity}%";
-            tooltip-format-charging= "{power:>1.0f}W↑ {capacity}%";
+        battery = {
+          format = "{icon} {capacity}%";
+          format-icons = {
+            default = ["󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+          };
+          format-charging = "󰂄 {capacity}%";
+          format-plugged = "󰂄 {capacity}%";
+          format-full = "󰂅";
+          tooltip-format-discharging = "{power:>1.0f}W↓ {capacity}%";
+          tooltip-format-charging = "{power:>1.0f}W↑ {capacity}%";
 
-            interval= 5;
-            states= {
-              warning= 20;
-            };
+          interval = 5;
+          states = {
+            warning = 20;
+          };
         };
 
         "custom/clock" = {
@@ -65,32 +65,32 @@
           tooltip = false;
         };
 
-        pulseaudio= {
-          format= "{icon}";
-          on-click= "ghostty --class=Wiremix -e wiremix";
+        pulseaudio = {
+          format = "{icon}";
+          on-click = "ghostty --class=Wiremix -e wiremix";
           tooltip-format = "Playing at {volume}%";
-          scroll-step= 5;
-          format-muted= "󰝟";
-          format-icons= {
-            "default"= ["" "" ""];
+          scroll-step = 5;
+          format-muted = "󰝟";
+          format-icons = {
+            "default" = ["" "" ""];
           };
         };
 
-        network= {
-            on-click = "ghostty -e nmtui";
-            format-icons= ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
-            format= "{icon}";
-            format-wifi= "{icon}";
-            format-ethernet= "󰀂";
-            format-disconnected= "󰖪";
-            tooltip-format-wifi= "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
-            tooltip-format-ethernet= "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
-            tooltip-format-disconnected= "disconnected";
-            interval= 3;
-            spacing= 1;
+        network = {
+          on-click = "ghostty -e nmtui";
+          format-icons = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
+          format = "{icon}";
+          format-wifi = "{icon}";
+          format-ethernet = "󰀂";
+          format-disconnected = "󰖪";
+          tooltip-format-wifi = "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
+          tooltip-format-ethernet = "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
+          tooltip-format-disconnected = "disconnected";
+          interval = 3;
+          spacing = 1;
         };
 
-        bluetooth= {
+        bluetooth = {
           format = "";
           format-disabled = "󰂲";
           format-connected = "";
@@ -98,7 +98,6 @@
           on-click = "blueman-manager";
         };
 
-    
         tray = {
           icon-size = 14;
           spacing = 8;

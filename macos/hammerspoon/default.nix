@@ -8,7 +8,6 @@
     };
   };
 
-
   home.activation.hammerspoonConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
     if [ ! -L "$HOME/.hammerspoon" ]; then
       rm -rf "$HOME/.hammerspoon"

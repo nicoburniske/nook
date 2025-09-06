@@ -1,5 +1,9 @@
-{ config, pkgs, lib, ... }: {
-
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   home.packages = with pkgs; [
     hyprshot
     phinger-cursors
@@ -7,7 +11,7 @@
 
   programs.hyprlock = {
     enable = true;
-    
+
     settings = {
       general = {
         hide_cursor = true;
@@ -87,22 +91,34 @@
 
       # Cursor configuration
       env = [
-        "HYPRCURSOR_THEME,${if config.stylix.polarity == "light" then "phinger-cursors-dark" else "phinger-cursors-light"}"
+        "HYPRCURSOR_THEME,${
+          if config.stylix.polarity == "light"
+          then "phinger-cursors-dark"
+          else "phinger-cursors-light"
+        }"
         "HYPRCURSOR_SIZE,24"
-        "XCURSOR_THEME,${if config.stylix.polarity == "light" then "phinger-cursors-dark" else "phinger-cursors-light"}"
+        "XCURSOR_THEME,${
+          if config.stylix.polarity == "light"
+          then "phinger-cursors-dark"
+          else "phinger-cursors-light"
+        }"
         "XCURSOR_SIZE,24"
       ];
 
-      xwayland.force_zero_scaling = true;      
-      
+      xwayland.force_zero_scaling = true;
+
       # Allow arbitrary scaling values (disable the "clean divisor" check)
       debug = {
         disable_scale_checks = true;
       };
-      
+
       exec-once = [
         "waybar"
-        "hyprctl setcursor ${if config.stylix.polarity == "light" then "phinger-cursors-dark" else "phinger-cursors-light"} 24"
+        "hyprctl setcursor ${
+          if config.stylix.polarity == "light"
+          then "phinger-cursors-dark"
+          else "phinger-cursors-light"
+        } 24"
       ];
 
       "$mod" = "alt";

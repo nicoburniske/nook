@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-let
+{pkgs, ...}: let
   comically = pkgs.rustPlatform.buildRustPackage {
     pname = "comically";
     version = "0.1.6";
@@ -18,10 +16,9 @@ let
       description = "Comically fast manga & comic optimizer for e-readers";
       homepage = "https://github.com/nicoburniske/comically";
       license = licenses.mit;
-      maintainers = [ ];
+      maintainers = [];
     };
   };
-in
-{
-  home.packages = [ comically ];
+in {
+  home.packages = [comically];
 }

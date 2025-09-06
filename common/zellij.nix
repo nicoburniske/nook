@@ -254,13 +254,13 @@ in {
     (writeShellScriptBin "zj-clean" ''
       #!/usr/bin/env bash
       echo "Cleaning all Zellij session data..."
-      
+
       zellij kill-all-sessions
       zellij delete-all-sessions
-      
+
       rm -rf "$HOME/.cache/zellij/"*"/session_info/"
       rm -rf "/run/user/$(id -u)/zellij/"*
-      
+
       echo "All Zellij session data cleaned"
     '')
   ];

@@ -1,5 +1,8 @@
-{ pkgs, lib, ... }: 
-let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
 in {
   imports = [
@@ -20,7 +23,7 @@ in {
     ../common/comically.nix
     ../common/theme-switcher.nix
     ../common/zen-browser.nix
-    
+
     ./modules/hyprland.nix
     ./modules/waybar.nix
     ./modules/walker.nix
@@ -29,15 +32,15 @@ in {
   home.username = "nico";
   home.homeDirectory = "/home/nico";
   home.stateVersion = "24.05";
-  
+
   programs.home-manager.enable = true;
   programs.zsh.enable = true;
-  
+
   # Enable dconf for GNOME settings
   dconf.enable = true;
-  
+
   fonts.fontconfig.enable = true;
-  
+
   stylix = lib.mkMerge [
     (lib.mkDefault (builtins.head themeDefinitions.themes).stylix)
   ];

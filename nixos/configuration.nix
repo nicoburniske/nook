@@ -22,7 +22,7 @@
     loader.efi.canTouchEfiVariables = false;
     kernelParams = ["apple_dcp.show_notch=1"];
     binfmt.emulatedSystems = ["x86_64-linux"];
-};
+  };
 
   hardware = {
     asahi = {
@@ -30,7 +30,7 @@
       setupAsahiSound = true;
     };
     graphics.enable = true;
-    
+
     bluetooth.enable = true;
     bluetooth.powerOnBoot = true;
     bluetooth.settings = {
@@ -124,7 +124,7 @@
     enable = true;
     package = hyprland.packages.${pkgs.system}.hyprland;
   };
-  
+
   programs.zsh.enable = true;
 
   # List packages installed in system profile.
@@ -175,5 +175,4 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "25.11"; # Did you read the comment?
-
 }

@@ -49,7 +49,10 @@
           w = ":write";
           W = ":write!";
           l = let
-            clipboard = if pkgs.stdenv.isDarwin then "pbcopy" else "wl-copy";
+            clipboard =
+              if pkgs.stdenv.isDarwin
+              then "pbcopy"
+              else "wl-copy";
           in ":sh if [ '%{selection_line_start}' != '%{selection_line_end}' ]; then printf '%{buffer_name}:%{selection_line_start}-%{selection_line_end}'; else printf '%{buffer_name}:%{cursor_line}'; fi | ${clipboard}";
         };
       };
@@ -136,8 +139,11 @@
 
   # Export activation hook for helix reload
   home.activation.reloadHelix = let
-    pkill = if pkgs.stdenv.isDarwin then "/usr/bin/pkill" else "${pkgs.procps}/bin/pkill";
-  in 
+    pkill =
+      if pkgs.stdenv.isDarwin
+      then "/usr/bin/pkill"
+      else "${pkgs.procps}/bin/pkill";
+  in
     lib.hm.dag.entryAfter ["linkGeneration"] ''
       echo "reloading helix config"
       ${pkill} -USR1 hx || true

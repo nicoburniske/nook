@@ -1,7 +1,11 @@
-{ config, pkgs, lib, ... }: 
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
-  
+
   wait4Path = command: [
     "/run/current-system/sw/bin/sh"
     "-c"
@@ -29,7 +33,6 @@ let
       "style=round"
       "hidpi=on"
     ];
-
   in "${pkgs.jankyborders}/bin/borders ${lib.concatStringsSep " " settings}";
 in {
   imports = [
@@ -50,7 +53,7 @@ in {
     ../common/scooter.nix
     ../common/comically.nix
     ../common/theme-switcher.nix
-    
+
     ./sketchybar
     ./hammerspoon
   ];
@@ -69,7 +72,7 @@ in {
     nowplaying-cli
     yq-go
 
-    # envoy 
+    # envoy
     flutter335
     rust-bindgen
     cocoapods
