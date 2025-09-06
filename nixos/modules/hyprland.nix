@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  lib,
   ...
 }: {
   home.packages = with pkgs; [
@@ -182,11 +181,11 @@
         follow_mouse = 1;
         touchpad = {
           natural_scroll = true;
-          scroll_factor = 0.8;
+          scroll_factor = 0.5;
           tap-to-click = false;
           clickfinger_behavior = 1;
         };
-        sensitivity = 0;
+        sensitivity = 0.2;
         repeat_delay = 300;
         repeat_rate = 50;
       };
