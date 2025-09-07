@@ -46,8 +46,7 @@ in {
   ];
 
   home.packages = with pkgs; [
-    brave
-    firefox
+    ungoogled-chromium
     vlc
     wl-clipboard
     brightnessctl
