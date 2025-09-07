@@ -81,17 +81,6 @@
     '';
   };
 
-  virtualisation.libvirtd.enable = true;
-
-  services.udev.extraRules = ''
-    SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="9981", MODE="0666", GROUP="users"
-    SUBSYSTEM=="usb", ATTR{idVendor}=="1949", MODE="0666", GROUP="users"
-    SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", GROUP="users"
-    SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", MODE="0666", GROUP="users"
-    SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", GROUP="users"
-    SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", MODE="0666", GROUP="users"
-  '';
-
   services.blueman.enable = true;
 
   # Enable CUPS to print documents.
