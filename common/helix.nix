@@ -38,9 +38,16 @@
         X = "extend_line_above";
 
         "C-g" = ":sh zellij run -c -f -n git -x 5%% -y 5%% --width 90%% --height 90%% -- lazygit";
-        "C-r" = ":sh zellij run -c -f -n scooter -x 5%% -y 5%% --width 90%% --height 90%% -- scooter";
-        "C-f" = ":sh zellij run -c -f -n yazi -x 5%% -y 5%% --width 90%% --height 90%% -- bash ~/.config/helix/yazi-picker.sh open %{buffer_name}";
 
+        "C-f" = [
+          ":sh rm -f /tmp/unique-file"
+          ":insert-output yazi %{buffer_name} --chooser-file=/tmp/unique-file"
+          ":insert-output echo \"\x1b[?1049h\x1b[?2004h\" > /dev/tty"
+          ":open %sh{cat /tmp/unique-file}"
+          ":redraw"
+          ":set mouse false"
+          ":set mouse true"
+        ];
         "C-l" = "goto_next_buffer";
         "C-h" = "goto_previous_buffer";
         "C-x" = ":buffer-close";
