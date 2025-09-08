@@ -24,7 +24,7 @@
               type = "git";
               style = "plain";
               foreground = "#${base08}";
-              template = " <#${base0D}>git:(</>{{ .HEAD }}<#${base0D}>)</>";
+              template = " <#${base0D}>(</>{{ .HEAD }}<#${base0D}>)</>";
               properties = {
                 branch_icon = "";
               };
@@ -33,11 +33,17 @@
               type = "command";
               style = "plain";
               foreground = "#${base0E}";
-              template = "{{ if .Output }} <#${base0B}>nix</>{{ end }}";
+              template = "{{ if .Output }} <#${base0B}></> {{ end }}";
               properties = {
                 command = "[[ -n \"$IN_NIX_SHELL\" ]] && echo \"$IN_NIX_SHELL\"";
                 shell = "bash";
               };
+            }
+            {
+              type = "text";
+              style = "plain";
+              foreground = "#${base0A}";
+              template = " ❯";
             }
           ];
         }
@@ -45,7 +51,7 @@
       transient_prompt = {
         background = "transparent";
         foreground = "#${base05}";
-        template = "❯ ";
+        template = "> ";
       };
     };
   };
