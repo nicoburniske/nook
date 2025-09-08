@@ -2,11 +2,19 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 {
+  inputs,
   pkgs,
   apple-silicon,
   hyprland,
   ...
-}: {
+}: let
+  self = inputs.self;
+  shortRev = self.shortRev or self.dirtyShortRev or "unknown";
+  rev = "${shortRev}-${self.lastModifiedDate}";
+in {
+  system.configurationRevision = shortRev;
+  system.nixos.label = rev;
+
   # Enable flakes
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
