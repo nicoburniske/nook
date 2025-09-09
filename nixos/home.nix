@@ -53,6 +53,7 @@ in {
     wiremix
     jmtpfs
     usbutils
+    cutecom
   ];
 
   specialisation = builtins.listToAttrs (
