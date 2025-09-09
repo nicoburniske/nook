@@ -117,6 +117,7 @@ in {
       "input"
       "networkmanager"
       "users"
+      "plugdev"
     ];
     shell = pkgs.zsh;
   };
