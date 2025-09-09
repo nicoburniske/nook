@@ -6,7 +6,6 @@ language-servers = ["rust-analyzer"]
 command = "rust-analyzer"
 
 [language-server.rust-analyzer.config]
-# Check configuration
 check.overrideCommand = [
   "cargo",
   "check",
@@ -28,8 +27,9 @@ check.overrideCommand = [
   "--exclude", "tar",
   "--exclude", "mass-storage"
 ]
+check.extraEnv = { RUSTFLAGS = "--check-cfg=cfg(keyos)" }
 
-# Cargo configuration
+cargo.allTargets = false
 cargo.target = "armv7a-unknown-xous-elf"
 cargo.features = []
 cargo.buildScripts.enable = true
@@ -49,19 +49,17 @@ cargo.buildScripts.overrideCommand = [
   "--exclude", "log-serial",
   "--exclude", "log-usb-serial",
   "--exclude", "skeleton",
+  "--exclude", "crypto-client",
+  "--exclude", "syscall-arg-invalid-addr-test",
   "--exclude", "micro-ecc-sys",
   "--exclude", "rust-fatfs",
   "--exclude", "tar",
   "--exclude", "mass-storage"
 ]
 
-# Files configuration
-files.exclude = ["imports/", "test-apps/", "target/"]
-
-# Proc macro support
+cargo.extraEnv = { RUSTFLAGS = "--check-cfg=cfg(keyos)" }
+files.exclude = ["test-apps/"]
 procMacro.enable = true
-
-# Diagnostics
 diagnostics.disabled = ["unresolved-proc-macro"]
 
 [language-server.slint-lsp]
