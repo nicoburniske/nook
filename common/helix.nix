@@ -18,6 +18,7 @@
 
         cursor-shape = {
           insert = "bar";
+          select = "underline";
         };
 
         file-picker = {
