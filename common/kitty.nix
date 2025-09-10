@@ -84,6 +84,24 @@
           is_last: bool,
           extra_data: ExtraData,
       ) -> int:
+          # Draw mode indicator at the beginning (only for first tab)
+          if index == 1:
+              tm = get_boss().active_tab_manager
+              if tm and tm.active_window:
+                  keyboard_mode = tm.active_window.keyboard_mode_name
+                  if keyboard_mode and keyboard_mode != "default":
+                      # Unlocked mode - show in red
+                      screen.cursor.fg = as_rgb(color_as_int(opts.color1))
+                      screen.cursor.bg = as_rgb(color_as_int(opts.color0))
+                      screen.cursor.bold = True
+                      screen.draw(" [UNLOCKED] ")
+                  else:
+                      # Locked mode - show in green  
+                      screen.cursor.fg = as_rgb(color_as_int(opts.color2))
+                      screen.cursor.bg = as_rgb(color_as_int(opts.color0))
+                      screen.cursor.bold = False
+                      screen.draw(" [LOCKED] ")
+
           cwd_last, program = get_tab_info(tab)
 
           active_fg = as_rgb(color_as_int(opts.color0))
