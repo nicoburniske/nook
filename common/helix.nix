@@ -44,7 +44,7 @@
         # Launch yazi file picker in kitty overlay
         "C-f" = [
           ":sh rm -f /tmp/yazi-pick"
-          ":sh kitty @ launch --type=overlay --cwd=current ~/.config/helix/kitty-yazi-picker.sh"
+          ":sh kitty @ launch --type=overlay --cwd=current --wait-for-child-to-exit ~/.config/helix/kitty-yazi-picker.sh"
           ":open %sh{cat /tmp/yazi-pick 2>/dev/null || echo %{buffer_name}}"
         ];
         "C-l" = "goto_next_buffer";
