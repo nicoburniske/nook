@@ -8,6 +8,8 @@
       clear_all_shortcuts = true;
 
       tab_bar_style = "custom";
+      tab_title_template = "{title}";  # This removes the index from tabs
+      active_tab_title_template = "{title}";  # Also remove index from active tab
     };
 
     extraConfig = ''
@@ -46,6 +48,7 @@
       # Custom tab bar
       tab_bar_min_tabs 1
       tab_bar_edge bottom
+      tab_powerline_style slanted
     '';
   };
 
@@ -60,15 +63,11 @@
           ExtraData,
           TabBarData,
           as_rgb,
-          draw_title,
+          draw_tab_with_powerline,
       )
 
       opts = get_options()
       mode_fg = as_rgb(color_as_int(opts.background))
-
-      separator_fg = as_rgb(color_as_int(opts.color9))
-
-      SEPARATOR_SYMBOL, SOFT_SEPARATOR_SYMBOL = ("", "")
 
       def _draw_mode(screen: Screen, index: int) -> int:
           if index != 1:
@@ -95,55 +94,6 @@
           screen.cursor.x = len(MODE_TEXT)
           return screen.cursor.x
 
-
-      def _draw_left_status(
-          draw_data: DrawData,
-          screen: Screen,
-          tab: TabBarData,
-          before: int,
-          max_title_length: int,
-          index: int,
-          is_last: bool,
-          extra_data: ExtraData,
-      ) -> int:
-          tab_bg = screen.cursor.bg
-          tab_fg = screen.cursor.fg
-          default_bg = as_rgb(int(draw_data.default_bg))
-          if extra_data.next_tab:
-              next_tab_bg = as_rgb(draw_data.tab_bg(extra_data.next_tab))
-              needs_soft_separator = next_tab_bg == tab_bg
-          else:
-              next_tab_bg = default_bg
-              needs_soft_separator = False
-          # Use fixed MODE_TEXT length since both modes pad to same width
-          if screen.cursor.x <= len(" UNLOCKED "):
-              screen.cursor.x = len(" UNLOCKED ")
-          screen.draw(" ")
-          screen.cursor.bg = tab_bg
-          screen.cursor.bold = tab.is_active  # Bold only for active tab
-          draw_title(draw_data, screen, tab, index)
-          if not needs_soft_separator:
-              screen.draw(" ")
-              screen.cursor.fg = tab_bg
-              screen.cursor.bg = next_tab_bg
-              screen.draw(SEPARATOR_SYMBOL)
-          else:
-              prev_fg = screen.cursor.fg
-              if tab_bg == tab_fg:
-                  screen.cursor.fg = default_bg
-              elif tab_bg != default_bg:
-                  c1 = draw_data.inactive_bg.contrast(draw_data.default_bg)
-                  c2 = draw_data.inactive_bg.contrast(draw_data.inactive_fg)
-                  if c1 < c2:
-                      screen.cursor.fg = default_bg
-              screen.cursor.fg = prev_fg # separator_fg
-              screen.draw(" " + SOFT_SEPARATOR_SYMBOL)
-          end = screen.cursor.x
-          return end
-
-
-
-
       def draw_tab(
           draw_data: DrawData,
           screen: Screen,
@@ -155,8 +105,17 @@
           extra_data: ExtraData,
       ) -> int:
           screen.cursor.italic = False
-          _draw_mode(screen, index)
-          _draw_left_status(
+          
+          # Only draw mode for first tab and adjust positioning accordingly
+          if index == 1:
+              _draw_mode(screen, index)
+              # Add spacing after the mode indicator
+              screen.draw(" ")  # Add a space separator between mode and first tab
+              # Now set the before position for the tab
+              before = screen.cursor.x
+          
+          # Use the built-in powerline for tabs
+          return draw_tab_with_powerline(
               draw_data,
               screen,
               tab,
@@ -166,7 +125,6 @@
               is_last,
               extra_data,
           )
-          return screen.cursor.x
 
     '';
   };
