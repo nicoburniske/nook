@@ -47,6 +47,7 @@ in {
     ../common/fzf.nix
     ../common/zoxide.nix
     ../common/ghostty.nix
+    ../common/kitty.nix
     ../common/opencode.nix
     ../common/lazygit.nix
     ../common/cargo.nix
