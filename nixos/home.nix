@@ -54,6 +54,7 @@ in {
     jmtpfs
     usbutils
     cutecom
+    bluetui
   ];
 
   specialisation = builtins.listToAttrs (
