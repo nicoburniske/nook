@@ -38,16 +38,14 @@
       keys.normal = {
         X = "extend_line_above";
 
-        "C-g" = ":sh zellij run -c -f -n git -x 5%% -y 5%% --width 90%% --height 90%% -- lazygit";
+        # Launch lazygit in kitty overlay
+        "C-g" = ":sh kitty @ launch --type=overlay --cwd=current lazygit";
 
+        # Launch yazi file picker in kitty overlay
         "C-f" = [
-          ":sh rm -f /tmp/unique-file"
-          ":insert-output yazi %{buffer_name} --chooser-file=/tmp/unique-file"
-          ":insert-output echo \"\x1b[?1049h\x1b[?2004h\" > /dev/tty"
-          ":open %sh{cat /tmp/unique-file}"
-          ":redraw"
-          ":set mouse false"
-          ":set mouse true"
+          ":sh rm -f /tmp/yazi-pick"
+          ":sh kitty @ launch --type=overlay --cwd=current ~/.config/helix/kitty-yazi-picker.sh"
+          ":open %sh{cat /tmp/yazi-pick 2>/dev/null || echo %{buffer_name}}"
         ];
         "C-l" = "goto_next_buffer";
         "C-h" = "goto_previous_buffer";
@@ -117,40 +115,20 @@
     };
   };
 
-  # Helix yazi picker script
-  home.file.".config/helix/yazi-picker.sh" = {
+  # Kitty yazi picker script for helix integration
+  home.file.".config/helix/kitty-yazi-picker.sh" = {
     executable = true;
     text = ''
       #!/usr/bin/env bash
-
-      paths=$(yazi "$2" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
-
-      if [[ -n "$paths" ]]; then
-        zellij action toggle-floating-panes
-        zellij action write 27 # send <Escape> key
-        zellij action write-chars ":$1 $paths"
-        zellij action write 13 # send <Enter> key
-      else
-        zellij action toggle-floating-panes
-      fi
+      # Launch yazi and capture selected file to temp file
+      yazi --chooser-file=/tmp/yazi-pick
+      # Exit overlay when done
+      exit 0
     '';
   };
 
-  home.packages = with pkgs; [
-    # Helix-related shell script for yazi file picking
-    (writeShellScriptBin "yz-fp" ''
-      #!/usr/bin/env bash
-      zellij action toggle-floating-panes
-      zellij action write 27 # send escape key
-      for selected_file in "$@"
-      do
-        zellij action write-chars ":open $selected_file"
-        zellij action write 13 # send enter key
-      done
-      zellij action toggle-floating-panes
-      zellij action close-pane
-    '')
-  ];
+  # No additional packages needed for kitty integration
+  # The kitty-yazi-picker.sh script is created via home.file above
 
   # Export activation hook for helix reload
   home.activation.reloadHelix = let
