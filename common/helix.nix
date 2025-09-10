@@ -38,15 +38,8 @@
       keys.normal = {
         X = "extend_line_above";
 
-        # Launch lazygit in kitty overlay
         "C-g" = ":sh kitty @ launch --type=overlay --cwd=current lazygit >/dev/null";
-
-        # Launch yazi file picker in kitty overlay
-        "C-f" = [
-          ":sh rm -f /tmp/yazi-pick"
-          ":sh kitty @ launch --type=overlay --cwd=current --wait-for-child-to-exit ~/.config/helix/kitty-yazi-picker.sh >/dev/null"
-          ":open %sh{cat /tmp/yazi-pick 2>/dev/null || echo %{buffer_name}}"
-        ];
+        "C-f" = ":sh kitty @ launch --type=overlay --cwd=current --wait-for-child-to-exit ~/.config/helix/kitty-yazi-picker.sh open %{buffer_name} >/dev/null";
         "C-l" = "goto_next_buffer";
         "C-h" = "goto_previous_buffer";
         "C-x" = ":buffer-close";
@@ -120,15 +113,31 @@
     executable = true;
     text = ''
       #!/usr/bin/env bash
-      # Launch yazi and capture selected file to temp file
-      yazi --chooser-file=/tmp/yazi-pick
-      # Exit overlay when done
+      # Launch yazi picker - similar to the zellij version
+      # $1 = command (open)
+      # $2 = buffer_name (file path)
+
+      # Start yazi in the directory of the current buffer
+      if [ -n "$2" ]; then
+        dir=$(dirname "$2")
+        paths=$(yazi "$dir" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+      else
+        paths=$(yazi --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+      fi
+
+      # If files were selected, send commands back to Helix
+      if [[ -n "$paths" ]]; then
+        # Send Escape key to ensure we're in normal mode
+        kitty @ send-text --match 'state:overlay_parent' '\x1b'
+        # Send the :open command with the selected files
+        kitty @ send-text --match 'state:overlay_parent' ":$1 $paths"
+        # Send Enter key to execute the command
+        kitty @ send-text --match 'state:overlay_parent' '\r'
+      fi
+
       exit 0
     '';
   };
-
-  # No additional packages needed for kitty integration
-  # The kitty-yazi-picker.sh script is created via home.file above
 
   # Export activation hook for helix reload
   home.activation.reloadHelix = let
