@@ -52,35 +52,25 @@
   xdg.configFile."kitty/tab_bar.py" = {
     text = ''
 
-      from datetime import datetime
       from kitty.boss import get_boss
-      from kitty.fast_data_types import Screen, add_timer, get_options
-      from kitty.rgb import Color
+      from kitty.fast_data_types import Screen, get_options
       from kitty.utils import color_as_int
       from kitty.tab_bar import (
           DrawData,
           ExtraData,
-          Formatter,
           TabBarData,
           as_rgb,
-          draw_attributed_string,
           draw_title,
       )
 
       opts = get_options()
       mode_fg = as_rgb(color_as_int(opts.background))
 
-      date_fgcolor = as_rgb(color_as_int(opts.tab_bar_background))
-      date_bgcolor = as_rgb(color_as_int(opts.color9))
-      # date_bgcolor = as_rgb(color_as_int(Color(251, 74, 52)))
-
       separator_fg = as_rgb(color_as_int(opts.color9))
 
-      bat_text_color = as_rgb(color_as_int(opts.color15))
       SEPARATOR_SYMBOL, SOFT_SEPARATOR_SYMBOL = ("", "")
-      RIGHT_MARGIN = 0
 
-      def _draw_icon(screen: Screen, index: int) -> int:
+      def _draw_mode(screen: Screen, index: int) -> int:
           if index != 1:
               return 0
           fg, bg = screen.cursor.fg, screen.cursor.bg
@@ -88,21 +78,21 @@
           # Get keyboard mode
           mode = get_boss().mappings.current_keyboard_mode_name
           if mode and mode == "unlocked":
-              ICON = " UNLOCKED "
+              MODE_TEXT = " UNLOCKED "
               screen.cursor.fg = mode_fg
               # Red for unlocked
               screen.cursor.bg = as_rgb(color_as_int(opts.color1))
           else:
-              ICON = "  LOCKED  "
+              MODE_TEXT = "  LOCKED  "
               screen.cursor.fg = mode_fg
               # Green for locked
               screen.cursor.bg = as_rgb(color_as_int(opts.color2))
 
           screen.cursor.bold = False
-          screen.draw(ICON)
+          screen.draw(MODE_TEXT)
           screen.cursor.fg, screen.cursor.bg = fg, bg
           screen.cursor.bold = orig_bold
-          screen.cursor.x = len(ICON)
+          screen.cursor.x = len(MODE_TEXT)
           return screen.cursor.x
 
 
@@ -116,8 +106,6 @@
           is_last: bool,
           extra_data: ExtraData,
       ) -> int:
-          if screen.cursor.x >= screen.columns - right_status_length:
-              return screen.cursor.x
           tab_bg = screen.cursor.bg
           tab_fg = screen.cursor.fg
           default_bg = as_rgb(int(draw_data.default_bg))
@@ -127,7 +115,7 @@
           else:
               next_tab_bg = default_bg
               needs_soft_separator = False
-          # Use fixed ICON length since both modes pad to same width
+          # Use fixed MODE_TEXT length since both modes pad to same width
           if screen.cursor.x <= len(" UNLOCKED "):
               screen.cursor.x = len(" UNLOCKED ")
           screen.draw(" ")
@@ -154,27 +142,7 @@
           return end
 
 
-      def _draw_right_status(screen: Screen, is_last: bool, cells: list) -> int:
-          if not is_last:
-              return 0
-          draw_attributed_string(Formatter.reset, screen)
-          screen.cursor.x = screen.columns - right_status_length
-          screen.cursor.fg = 0
-          for bgColor, fgColor, status in cells:
-              screen.cursor.fg = fgColor
-              screen.cursor.bg = bgColor
-              screen.draw(status)
-          screen.cursor.bg = 0
-          return screen.cursor.x
 
-
-      def _redraw_tab_bar(_):
-          tm = get_boss().active_tab_manager
-          if tm is not None:
-              tm.mark_tab_bar_dirty()
-
-
-      right_status_length = -1
 
       def draw_tab(
           draw_data: DrawData,
@@ -186,15 +154,8 @@
           is_last: bool,
           extra_data: ExtraData,
       ) -> int:
-          global right_status_length
-          date = datetime.now().strftime(" %d.%m.%Y")
-          cells = [(date_bgcolor, date_fgcolor, date)]
-          right_status_length = RIGHT_MARGIN
-          for cell in cells:
-              right_status_length += len(str(cell[2]))
-
           screen.cursor.italic = False
-          _draw_icon(screen, index)
+          _draw_mode(screen, index)
           _draw_left_status(
               draw_data,
               screen,
@@ -204,11 +165,6 @@
               index,
               is_last,
               extra_data,
-          )
-          _draw_right_status(
-              screen,
-              is_last,
-              cells,
           )
           return screen.cursor.x
 
