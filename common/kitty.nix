@@ -1,4 +1,4 @@
-{config, ...}: {
+{...}: {
   programs.kitty = {
     enable = true;
 
@@ -87,18 +87,20 @@
           cwd_last, program = get_tab_info(tab)
 
           # Colors from stylix via get_options
-          active_fg = as_rgb(color_as_int(opts.color15)) if hasattr(opts, 'color15') else 0xffffff
-          inactive_fg = as_rgb(color_as_int(opts.color8)) if hasattr(opts, 'color8') else 0x888888
-          active_bg = as_rgb(color_as_int(opts.color0)) if hasattr(opts, 'color0') else 0x000000
-          inactive_bg = as_rgb(color_as_int(opts.color8)) if hasattr(opts, 'color8') else 0x333333
+          active_fg = as_rgb(color_as_int(opts.color0)) if hasattr(opts, 'color0') else 0x000000
+          inactive_fg = as_rgb(color_as_int(opts.color7)) if hasattr(opts, 'color7') else 0xcccccc
+          active_bg = as_rgb(color_as_int(opts.color3)) if hasattr(opts, 'color3') else 0xffff00
+          inactive_bg = as_rgb(color_as_int(opts.color0)) if hasattr(opts, 'color0') else 0x333333
 
           fg = active_fg if tab.is_active else inactive_fg
           bg = active_bg if tab.is_active else inactive_bg
 
           screen.cursor.fg = fg
           screen.cursor.bg = bg
+          screen.cursor.italic = False
+          screen.cursor.bold = tab.is_active
 
-          text = f"[{index}] {cwd_last}: {program}"
+          text = f"{cwd_last}: {program}"
           if len(text) > max_title_length:
               text = text[:max_title_length - 3] + "..."
 
