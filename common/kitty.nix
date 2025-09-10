@@ -8,7 +8,6 @@
       clear_all_shortcuts = true;
 
       tab_bar_style = "custom";
-      tab_bar_custom_draw_function = "${config.home.homeDirectory}/.config/kitty/tab_bar.py:draw_tab";
     };
 
     extraConfig = ''
@@ -43,6 +42,10 @@
       # Return to locked mode (Ctrl+Space or Escape)
       map --mode unlocked ctrl+space pop_keyboard_mode
       map --mode unlocked escape pop_keyboard_mode
+
+      # Custom tab bar
+      tab_bar_min_tabs 1
+      tab_bar_edge bottom
     '';
   };
 
