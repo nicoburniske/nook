@@ -68,8 +68,7 @@
       )
 
       opts = get_options()
-      icon_fg = as_rgb(color_as_int(opts.background))
-      icon_bg = as_rgb(color_as_int(opts.color6))
+      mode_fg = as_rgb(color_as_int(opts.background))
 
       date_fgcolor = as_rgb(color_as_int(opts.tab_bar_background))
       date_bgcolor = as_rgb(color_as_int(opts.color9))
@@ -85,20 +84,24 @@
           if index != 1:
               return 0
           fg, bg = screen.cursor.fg, screen.cursor.bg
-
+          orig_bold = screen.cursor.bold
           # Get keyboard mode
           mode = get_boss().mappings.current_keyboard_mode_name
           if mode and mode == "unlocked":
               ICON = " UNLOCKED "
-              screen.cursor.fg = icon_fg
-              screen.cursor.bg = as_rgb(color_as_int(opts.color1))  # Red for unlocked
+              screen.cursor.fg = mode_fg
+              # Red for unlocked
+              screen.cursor.bg = as_rgb(color_as_int(opts.color1))
           else:
               ICON = "  LOCKED  "
-              screen.cursor.fg = icon_fg
-              screen.cursor.bg = as_rgb(color_as_int(opts.color2))  # Green for locked
+              screen.cursor.fg = mode_fg
+              # Green for locked
+              screen.cursor.bg = as_rgb(color_as_int(opts.color2))
 
+          screen.cursor.bold = False
           screen.draw(ICON)
           screen.cursor.fg, screen.cursor.bg = fg, bg
+          screen.cursor.bold = orig_bold
           screen.cursor.x = len(ICON)
           return screen.cursor.x
 
@@ -129,6 +132,7 @@
               screen.cursor.x = len(" UNLOCKED ")
           screen.draw(" ")
           screen.cursor.bg = tab_bg
+          screen.cursor.bold = tab.is_active  # Bold only for active tab
           draw_title(draw_data, screen, tab, index)
           if not needs_soft_separator:
               screen.draw(" ")
@@ -189,6 +193,7 @@
           for cell in cells:
               right_status_length += len(str(cell[2]))
 
+          screen.cursor.italic = False
           _draw_icon(screen, index)
           _draw_left_status(
               draw_data,
