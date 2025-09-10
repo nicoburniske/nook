@@ -95,7 +95,7 @@
           format-disabled = "󰂲";
           format-connected = "";
           tooltip-format = "devices connected= {num_connections}";
-          on-click = "blueman-manager";
+          on-click = "ghostty --class=Bluetui -e bluetui";
         };
 
         tray = {
