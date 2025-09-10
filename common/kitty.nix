@@ -8,8 +8,11 @@
       clear_all_shortcuts = true;
 
       tab_bar_style = "custom";
-      tab_title_template = "{title}";  # This removes the index from tabs
-      active_tab_title_template = "{title}";  # Also remove index from active tab
+      tab_title_template = "{title}";
+      active_tab_title_template = "{title}";
+      tab_bar_min_tabs = 1;
+      tab_bar_edge = "bottom";
+      tab_powerline_style = "angled";
     };
 
     extraConfig = ''
@@ -45,10 +48,6 @@
       map --mode unlocked ctrl+space pop_keyboard_mode
       map --mode unlocked escape pop_keyboard_mode
 
-      # Custom tab bar
-      tab_bar_min_tabs 1
-      tab_bar_edge bottom
-      tab_powerline_style slanted
     '';
   };
 
@@ -105,7 +104,7 @@
           extra_data: ExtraData,
       ) -> int:
           screen.cursor.italic = False
-          
+
           # Only draw mode for first tab and adjust positioning accordingly
           if index == 1:
               _draw_mode(screen, index)
@@ -113,7 +112,7 @@
               screen.draw(" ")  # Add a space separator between mode and first tab
               # Now set the before position for the tab
               before = screen.cursor.x
-          
+
           # Use the built-in powerline for tabs
           return draw_tab_with_powerline(
               draw_data,
