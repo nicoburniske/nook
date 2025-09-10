@@ -11,7 +11,7 @@
     };
 
     extraConfig = ''
-      # === GLOBAL KEYBINDINGS ===
+      # === GLOBAL ===
       map shift+enter send_text all \n
       map ctrl+c copy_and_clear_or_interrupt
       map ctrl+v paste_from_clipboard
@@ -21,7 +21,7 @@
       # Toggle to unlocked mode
       map --new-mode unlocked ctrl+space
 
-      # === UNLOCKED MODE ===
+      # === UNLOCKED ===
       # Tab management
       map --mode unlocked ctrl+t new_tab_with_cwd
       map --mode unlocked ctrl+x close_tab
@@ -39,7 +39,7 @@
       map --mode unlocked ctrl+8 goto_tab 8
       map --mode unlocked ctrl+9 goto_tab 9
 
-      # Return to locked mode (Ctrl+Space or Escape)
+      # Return to locked mode
       map --mode unlocked ctrl+space pop_keyboard_mode
       map --mode unlocked escape pop_keyboard_mode
 
@@ -86,11 +86,10 @@
       ) -> int:
           cwd_last, program = get_tab_info(tab)
 
-          # Colors from stylix via get_options
-          active_fg = as_rgb(color_as_int(opts.color0)) if hasattr(opts, 'color0') else 0x000000
-          inactive_fg = as_rgb(color_as_int(opts.color7)) if hasattr(opts, 'color7') else 0xcccccc
-          active_bg = as_rgb(color_as_int(opts.color3)) if hasattr(opts, 'color3') else 0xffff00
-          inactive_bg = as_rgb(color_as_int(opts.color0)) if hasattr(opts, 'color0') else 0x333333
+          active_fg = as_rgb(color_as_int(opts.color0))
+          inactive_fg = as_rgb(color_as_int(opts.color7))
+          active_bg = as_rgb(color_as_int(opts.color3))
+          inactive_bg = as_rgb(color_as_int(opts.color0))
 
           fg = active_fg if tab.is_active else inactive_fg
           bg = active_bg if tab.is_active else inactive_bg
