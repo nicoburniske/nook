@@ -186,7 +186,7 @@
           clickfinger_behavior = 1;
         };
         sensitivity = 0.2;
-        repeat_delay = 300;
+        repeat_delay = 225;
         repeat_rate = 50;
       };
 
