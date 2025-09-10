@@ -124,7 +124,7 @@ in {
     NSGlobalDomain = {
       ApplePressAndHoldEnabled = false;
       InitialKeyRepeat = 15;
-      KeyRepeat = 2;
+      KeyRepeat = 1;
       AppleInterfaceStyle = "Dark";
       AppleShowScrollBars = "WhenScrolling";
       NSAutomaticCapitalizationEnabled = false;
