@@ -51,28 +51,126 @@
 
   xdg.configFile."kitty/tab_bar.py" = {
     text = ''
-      # pyright: reportMissingImports=false
+
+      from datetime import datetime
       from kitty.boss import get_boss
-      from kitty.fast_data_types import Screen, get_options
-      from kitty.tab_bar import DrawData, ExtraData, TabBarData, as_rgb, color_as_int
+      from kitty.fast_data_types import Screen, add_timer, get_options
+      from kitty.rgb import Color
+      from kitty.utils import color_as_int
+      from kitty.tab_bar import (
+          DrawData,
+          ExtraData,
+          Formatter,
+          TabBarData,
+          as_rgb,
+          draw_attributed_string,
+          draw_title,
+      )
 
       opts = get_options()
+      icon_fg = as_rgb(color_as_int(opts.background))
+      icon_bg = as_rgb(color_as_int(opts.color6))
 
-      def get_tab_info(tab: TabBarData):
+      date_fgcolor = as_rgb(color_as_int(opts.tab_bar_background))
+      date_bgcolor = as_rgb(color_as_int(opts.color9))
+      # date_bgcolor = as_rgb(color_as_int(Color(251, 74, 52)))
+
+      separator_fg = as_rgb(color_as_int(opts.color9))
+
+      bat_text_color = as_rgb(color_as_int(opts.color15))
+      SEPARATOR_SYMBOL, SOFT_SEPARATOR_SYMBOL = ("", "")
+      RIGHT_MARGIN = 0
+
+      def _draw_icon(screen: Screen, index: int) -> int:
+          if index != 1:
+              return 0
+          fg, bg = screen.cursor.fg, screen.cursor.bg
+
+          # Get keyboard mode
+          mode = get_boss().mappings.current_keyboard_mode_name
+          if mode and mode == "unlocked":
+              ICON = " UNLOCKED "
+              screen.cursor.fg = icon_fg
+              screen.cursor.bg = as_rgb(color_as_int(opts.color1))  # Red for unlocked
+          else:
+              ICON = "  LOCKED  "
+              screen.cursor.fg = icon_fg
+              screen.cursor.bg = as_rgb(color_as_int(opts.color2))  # Green for locked
+
+          screen.draw(ICON)
+          screen.cursor.fg, screen.cursor.bg = fg, bg
+          screen.cursor.x = len(ICON)
+          return screen.cursor.x
+
+
+      def _draw_left_status(
+          draw_data: DrawData,
+          screen: Screen,
+          tab: TabBarData,
+          before: int,
+          max_title_length: int,
+          index: int,
+          is_last: bool,
+          extra_data: ExtraData,
+      ) -> int:
+          if screen.cursor.x >= screen.columns - right_status_length:
+              return screen.cursor.x
+          tab_bg = screen.cursor.bg
+          tab_fg = screen.cursor.fg
+          default_bg = as_rgb(int(draw_data.default_bg))
+          if extra_data.next_tab:
+              next_tab_bg = as_rgb(draw_data.tab_bg(extra_data.next_tab))
+              needs_soft_separator = next_tab_bg == tab_bg
+          else:
+              next_tab_bg = default_bg
+              needs_soft_separator = False
+          # Use fixed ICON length since both modes pad to same width
+          if screen.cursor.x <= len(" UNLOCKED "):
+              screen.cursor.x = len(" UNLOCKED ")
+          screen.draw(" ")
+          screen.cursor.bg = tab_bg
+          draw_title(draw_data, screen, tab, index)
+          if not needs_soft_separator:
+              screen.draw(" ")
+              screen.cursor.fg = tab_bg
+              screen.cursor.bg = next_tab_bg
+              screen.draw(SEPARATOR_SYMBOL)
+          else:
+              prev_fg = screen.cursor.fg
+              if tab_bg == tab_fg:
+                  screen.cursor.fg = default_bg
+              elif tab_bg != default_bg:
+                  c1 = draw_data.inactive_bg.contrast(draw_data.default_bg)
+                  c2 = draw_data.inactive_bg.contrast(draw_data.inactive_fg)
+                  if c1 < c2:
+                      screen.cursor.fg = default_bg
+              screen.cursor.fg = prev_fg # separator_fg
+              screen.draw(" " + SOFT_SEPARATOR_SYMBOL)
+          end = screen.cursor.x
+          return end
+
+
+      def _draw_right_status(screen: Screen, is_last: bool, cells: list) -> int:
+          if not is_last:
+              return 0
+          draw_attributed_string(Formatter.reset, screen)
+          screen.cursor.x = screen.columns - right_status_length
+          screen.cursor.fg = 0
+          for bgColor, fgColor, status in cells:
+              screen.cursor.fg = fgColor
+              screen.cursor.bg = bgColor
+              screen.draw(status)
+          screen.cursor.bg = 0
+          return screen.cursor.x
+
+
+      def _redraw_tab_bar(_):
           tm = get_boss().active_tab_manager
-          for t in tm.tabs:
-              if t.id == tab.tab_id:
-                  active_window = t.active_window
-                  if active_window:
-                      cwd = active_window.cwd_of_child or "?"
-                      program = "?"
-                      if active_window.child and active_window.child.foreground_processes:
-                          cmdline = active_window.child.foreground_processes[0].get("cmdline")
-                          if cmdline:
-                              program = cmdline[0].rsplit("/", 1)[-1]
-                      cwd_last = cwd.rsplit("/", 1)[-1] if cwd != "?" else "?"
-                      return cwd_last, program
-          return "?", "?"
+          if tm is not None:
+              tm.mark_tab_bar_dirty()
+
+
+      right_status_length = -1
 
       def draw_tab(
           draw_data: DrawData,
@@ -84,49 +182,31 @@
           is_last: bool,
           extra_data: ExtraData,
       ) -> int:
-          # Draw mode indicator at the beginning (only for first tab)
-          if index == 1:
-              tm = get_boss().active_tab_manager
-              if tm and tm.active_window:
-                  keyboard_mode = tm.active_window.keyboard_mode_name
-                  if keyboard_mode and keyboard_mode != "default":
-                      # Unlocked mode - show in red
-                      screen.cursor.fg = as_rgb(color_as_int(opts.color1))
-                      screen.cursor.bg = as_rgb(color_as_int(opts.color0))
-                      screen.cursor.bold = True
-                      screen.draw(" [UNLOCKED] ")
-                  else:
-                      # Locked mode - show in green  
-                      screen.cursor.fg = as_rgb(color_as_int(opts.color2))
-                      screen.cursor.bg = as_rgb(color_as_int(opts.color0))
-                      screen.cursor.bold = False
-                      screen.draw(" [LOCKED] ")
+          global right_status_length
+          date = datetime.now().strftime(" %d.%m.%Y")
+          cells = [(date_bgcolor, date_fgcolor, date)]
+          right_status_length = RIGHT_MARGIN
+          for cell in cells:
+              right_status_length += len(str(cell[2]))
 
-          cwd_last, program = get_tab_info(tab)
-
-          active_fg = as_rgb(color_as_int(opts.color0))
-          inactive_fg = as_rgb(color_as_int(opts.color7))
-          active_bg = as_rgb(color_as_int(opts.color3))
-          inactive_bg = as_rgb(color_as_int(opts.color0))
-
-          fg = active_fg if tab.is_active else inactive_fg
-          bg = active_bg if tab.is_active else inactive_bg
-
-          screen.cursor.fg = fg
-          screen.cursor.bg = bg
-          screen.cursor.italic = False
-          screen.cursor.bold = tab.is_active
-
-          text = f"{cwd_last}: {program}"
-          if len(text) > max_title_length:
-              text = text[:max_title_length - 3] + "..."
-
-          screen.draw(" " + text + " ")
-
-          if not is_last:
-              screen.draw(" ")
-
+          _draw_icon(screen, index)
+          _draw_left_status(
+              draw_data,
+              screen,
+              tab,
+              before,
+              max_title_length,
+              index,
+              is_last,
+              extra_data,
+          )
+          _draw_right_status(
+              screen,
+              is_last,
+              cells,
+          )
           return screen.cursor.x
+
     '';
   };
 }
