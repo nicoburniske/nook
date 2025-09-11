@@ -57,6 +57,11 @@
       map --mode unlocked ctrl+8 goto_tab 8
       map --mode unlocked ctrl+9 goto_tab 9
 
+      # Tab reorganization
+      map --mode unlocked ctrl+cmd+h move_tab_backward
+      map --mode unlocked ctrl+cmd+l move_tab_forward
+      map --mode unlocked ctrl+cmd+r set_tab_title
+
       # Return to locked mode
       map --mode unlocked ctrl+space pop_keyboard_mode
       map --mode unlocked escape pop_keyboard_mode
