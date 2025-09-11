@@ -55,10 +55,29 @@
           command nix "$@"
         fi
       }
+
+      function set_terminal_title_precmd() {
+        local dir="''${PWD##*/}"
+        [[ "$dir" == "" ]] && dir="/"
+        [[ "$HOME" == "$PWD" ]] && dir="~"
+        echo -ne "\033]0;''${dir}\007"
+      }
+
+      function set_terminal_title_preexec() {
+        local dir="''${PWD##*/}"
+        [[ "$dir" == "" ]] && dir="/"
+        [[ "$HOME" == "$PWD" ]] && dir="~"
+        echo -ne "\033]0;''${dir} | $1\007"
+      }
+
+      autoload -Uz add-zsh-hook
+      add-zsh-hook precmd set_terminal_title_precmd
+      add-zsh-hook preexec set_terminal_title_preexec
     '';
 
     shellAliases = {
       lg = "lazygit";
+      oc = "opencode";
     };
   };
 }
