@@ -1,4 +1,4 @@
-{...}: {
+{config, ...}: {
   programs.kitty = {
     enable = true;
     shellIntegration = {
@@ -20,7 +20,16 @@
       tab_powerline_style = "angled";
     };
 
-    extraConfig = ''
+    extraConfig = with config.lib.stylix.colors.withHashtag; ''
+      # Override tab colors for better contrast
+      # Use the old active colors (base00/base05) for inactive tabs
+      inactive_tab_background ${base00}
+      inactive_tab_foreground ${base05}
+      
+      # Use accent color for active tab (works in both light/dark)
+      active_tab_background ${base0C}
+      active_tab_foreground ${base00}
+
       # === GLOBAL ===
       map shift+enter send_text all \n
       map ctrl+c copy_and_clear_or_interrupt
