@@ -43,6 +43,7 @@
       map ctrl+v paste_from_clipboard
       map ctrl+equal change_font_size all +2.0
       map ctrl+minus change_font_size all -2.0
+      map ctrl+shift+, load_config_file
 
       map --new-mode unlocked ctrl+space
 
