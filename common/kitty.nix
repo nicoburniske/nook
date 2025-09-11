@@ -12,6 +12,9 @@
       listen_on = "unix:/tmp/kitty";
       clear_all_shortcuts = true;
 
+      hide_window_decorations = "titlebar-only";
+      window_padding_width = 5;
+
       tab_bar_style = "custom";
       tab_title_template = "{title}";
       active_tab_title_template = "{title}";
@@ -21,12 +24,8 @@
     };
 
     extraConfig = with config.lib.stylix.colors.withHashtag; ''
-      # Override tab colors for better contrast
-      # Use the old active colors (base00/base05) for inactive tabs
-      inactive_tab_background ${base00}
+      inactive_tab_background ${base02}
       inactive_tab_foreground ${base05}
-      
-      # Use accent color for active tab (works in both light/dark)
       active_tab_background ${base0C}
       active_tab_foreground ${base00}
 
