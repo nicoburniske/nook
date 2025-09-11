@@ -67,7 +67,8 @@
         local dir="''${PWD##*/}"
         [[ "$dir" == "" ]] && dir="/"
         [[ "$HOME" == "$PWD" ]] && dir="~"
-        echo -ne "\033]0;''${dir} | $1\007"
+        local cmd="''${1%% *}"  # Extract first word (everything before first space)
+        echo -ne "\033]0;''${dir} [''${cmd}]\007"
       }
 
       autoload -Uz add-zsh-hook
