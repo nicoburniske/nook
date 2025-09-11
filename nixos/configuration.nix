@@ -4,6 +4,7 @@
 {
   inputs,
   pkgs,
+  lib,
   apple-silicon,
   hyprland,
   ...
@@ -109,12 +110,10 @@ in {
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
-  # Enable sound.
-  # OR
-  # services.pipewire = {
-  #   enable = true;
-  #   pulse.enable = true;
-  # };
+  # Fix for asahi audio crackling issue
+  # Source: https://github.com/nix-community/nixos-apple-silicon/issues/352
+  services.pipewire.configPackages = lib.mkForce [];
+  services.pipewire.wireplumber.configPackages = lib.mkForce [];
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
@@ -149,6 +148,7 @@ in {
   # Keep only system-level packages here, user packages go in home.nix
   environment.systemPackages = with pkgs; [
     git
+    asahi-audio # Added to fix audio after removing configPackages
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
