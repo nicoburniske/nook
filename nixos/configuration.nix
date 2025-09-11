@@ -113,7 +113,7 @@ in {
   # Fix for asahi audio crackling issue
   # Source: https://github.com/nix-community/nixos-apple-silicon/issues/352
   services.pipewire.configPackages = lib.mkForce [];
-  services.pipewire.wireplumber.configPackages = lib.mkForce [];
+  # services.pipewire.wireplumber.configPackages = lib.mkForce [];
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
