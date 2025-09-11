@@ -1,6 +1,11 @@
 {...}: {
   programs.kitty = {
     enable = true;
+    shellIntegration = {
+      enableZshIntegration = true;
+      # auto-title is trash
+      mode = "no-title";
+    };
 
     settings = {
       allow_remote_control = true;
