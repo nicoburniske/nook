@@ -4,7 +4,7 @@ local log = hs.logger.new('app_launcher', 'info')
 hs.application.enableSpotlightForNameSearches(true)
 
 local apps = {
-    ["1"] = "Ghostty",
+    ["1"] = "Kitty",
     ["2"] = "Zen",
     ["3"] = "Spotify",
     ["4"] = "Roam",
