@@ -40,6 +40,7 @@
 
         "C-g" = ":sh kitty @ launch --type=overlay --cwd=current lazygit >/dev/null";
         "C-f" = ":sh kitty @ launch --type=overlay --cwd=current --wait-for-child-to-exit ~/.config/helix/kitty-yazi-picker.sh open %{buffer_name} >/dev/null";
+        "C-t" = ":sh kitty @ launch --type=overlay --cwd=current >/dev/null";
         "C-l" = "goto_next_buffer";
         "C-h" = "goto_previous_buffer";
         "C-x" = ":buffer-close";
