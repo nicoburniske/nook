@@ -75,7 +75,7 @@ in {
           scheme = "Modus Operandi Tinted";
           author = "Protesilaos Stavrou";
           base00 = "fbf7f0"; # bg-main
-          base01 = "#e0d4ce"; # bg-tab-bar
+          base01 = "f1d5d0"; # bg-hl-line
           base02 = "cab9b2"; # bg-mode-line-active
           base03 = "a59a94"; # border-mode-line-inactive
           base04 = "585858"; # fg-mode-line-inactive
