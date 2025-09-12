@@ -155,7 +155,6 @@
         "$mod SHIFT, J, swapwindow, d"
 
         "$mod, S, togglesplit"
-        
         "$mod, equal, splitratio, 0.05"
         "$mod, minus, splitratio, -0.05"
 
@@ -244,6 +243,11 @@
       misc = {
         force_default_wallpaper = -1;
       };
+
+      # scroll faster in the terminal
+      windowrule = [
+        "scrolltouchpad 1.5, class:kitty"
+      ];
     };
   };
 }
