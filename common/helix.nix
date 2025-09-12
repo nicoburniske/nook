@@ -1,12 +1,16 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }: {
   programs.helix = {
     enable = true;
 
     settings = {
+      theme = lib.mkForce (
+        config.stylix.override.helix or "stylix"
+      );
       editor = {
         bufferline = "always";
         cursorline = true;
