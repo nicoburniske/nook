@@ -10,7 +10,6 @@ check.overrideCommand = [
   "cargo",
   "check",
   "--workspace",
-  "--target", "armv7a-unknown-xous-elf",
   "--target-dir=target/rust-analyzer",
   "--message-format=json-diagnostic-rendered-ansi",
   "--exclude", "atsama5d27",
@@ -26,12 +25,9 @@ check.overrideCommand = [
   "--exclude", "micro-ecc-sys",
   "--exclude", "rust-fatfs",
   "--exclude", "tar",
-  "--exclude", "mass-storage",
-  "--exclude", "rfal-sys"
+  "--exclude", "mass-storage"
 ]
-check.extraEnv = { RUSTFLAGS = "--cfg keyos --check-cfg=cfg(keyos)" }
 
-cargo.allTargets = false
 cargo.target = "armv7a-unknown-xous-elf"
 cargo.features = []
 cargo.buildScripts.enable = true
@@ -39,7 +35,6 @@ cargo.buildScripts.overrideCommand = [
   "cargo",
   "check",
   "--workspace",
-  "--target", "armv7a-unknown-xous-elf",
   "--target-dir=target/rust-analyzer",
   "--message-format=json",
   "--quiet",
@@ -52,17 +47,13 @@ cargo.buildScripts.overrideCommand = [
   "--exclude", "log-serial",
   "--exclude", "log-usb-serial",
   "--exclude", "skeleton",
-  "--exclude", "crypto-client",
-  "--exclude", "syscall-arg-invalid-addr-test",
   "--exclude", "micro-ecc-sys",
   "--exclude", "rust-fatfs",
   "--exclude", "tar",
-  "--exclude", "mass-storage",
-  "--exclude", "rfal-sys"
+  "--exclude", "mass-storage"
 ]
 
-cargo.extraEnv = { RUSTFLAGS = "--cfg keyos --check-cfg=cfg(keyos)" }
-files.exclude = ["test-apps/"]
+files.exclude = ["imports/", "test-apps/", "target/"]
 procMacro.enable = true
 diagnostics.disabled = ["unresolved-proc-macro"]
 
