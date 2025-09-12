@@ -46,7 +46,10 @@ in {
       stylix = {
         enable = true;
         base16Scheme = "${pkgs.base16-schemes}/share/themes/everforest-dark-hard.yaml";
-        override = {slug = "everforest";};
+        override = {
+          slug = "everforest";
+          helix = "everforest_dark";
+        };
         polarity = "dark";
         image = ../assets/wallpapers/light-mountains.jpg;
         fonts = baseFonts;
@@ -88,7 +91,10 @@ in {
           base0E = "721045"; # magenta
           base0F = "972500"; # red-warmer
         };
-        override = {slug = "modus-operandi";};
+        override = {
+          slug = "modus-operandi";
+          helix = "modus_operandi_tinted";
+        };
         polarity = "light";
         image = ../assets/wallpapers/light-porsche.png;
         fonts = baseFonts;
