@@ -149,6 +149,14 @@
         "$mod, K, movefocus, u"
         "$mod, J, movefocus, d"
 
+        "$mod SHIFT, H, swapwindow, l"
+        "$mod SHIFT, L, swapwindow, r"
+        "$mod SHIFT, K, swapwindow, u"
+        "$mod SHIFT, J, swapwindow, d"
+
+        "$mod, S, togglesplit"
+        "$mod, T, pseudo"
+
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
