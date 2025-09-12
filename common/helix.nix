@@ -38,9 +38,9 @@
       keys.normal = {
         X = "extend_line_above";
 
-        "C-g" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" lazygit >/dev/null";
-        "C-f" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --wait-for-child-to-exit ~/.config/helix/kitty-yazi-picker.sh open %{buffer_name} >/dev/null";
-        "C-t" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" >/dev/null";
+        "C-g" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current --color background_opacity=0.95 lazygit >/dev/null";
+        "C-f" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current --color background_opacity=0.95 --wait-for-child-to-exit ~/.config/helix/kitty-yazi-picker.sh open %{buffer_name} >/dev/null";
+        "C-t" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current --color background_opacity=0.95 >/dev/null";
         "C-l" = "goto_next_buffer";
         "C-h" = "goto_previous_buffer";
         "C-x" = ":buffer-close";
