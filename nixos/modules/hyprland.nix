@@ -123,14 +123,15 @@
       "$mod" = "alt";
 
       bind = [
-        "$mod, g, exec, ghostty"
-        "$mod, t, exec, theme-switch"
-        "$mod, Return, fullscreen, 1"
+        "$mod, Return, exec, kitty"
         "$mod, Q, killactive"
         "$mod, M, exit"
-        "$mod, F, togglefloating"
-        "$mod, Space, exec, walker"
+        "$mod, F, fullscreen, 1"
+
         "CTRL $mod, L, exec, hyprlock"
+
+        "$mod, Space, exec, walker"
+        "CTRL $mod, Space, exec, theme-switch"
 
         "$mod, P, exec, hyprshot -m output -o ~/screenshots"
         "$mod SHIFT, P, exec, hyprshot -m region -o ~/screenshots"
