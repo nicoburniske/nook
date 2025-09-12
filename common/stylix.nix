@@ -75,7 +75,7 @@ in {
           base01 = "f1d5d0"; # bg-hl-line - light pinkish
           base02 = "f1c8b5"; # bg-clay - light orange
           base03 = "80601f"; # gold - lighter/dimmed text
-          base04 = "573a30"; # fg-ochre - darkest text
+          base04 = "63192a"; # fg-clay - darkest text
           base05 = "000000"; # fg-main - primary text
           base06 = "193668"; # fg-alt - light forground
           base07 = "9f9690"; # border - lightest (for contrast in dark mode)
