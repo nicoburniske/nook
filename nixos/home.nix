@@ -9,7 +9,6 @@ in {
     ../common/git.nix
     ../common/helix.nix
     ../common/oh-my-posh.nix
-    ../common/zellij.nix
     ../common/yazi.nix
     ../common/zsh.nix
     ../common/fzf.nix
@@ -19,7 +18,6 @@ in {
     ../common/opencode.nix
     ../common/lazygit.nix
     ../common/cargo.nix
-    ../common/scooter.nix
     ../common/packages.nix
     ../common/comically.nix
     ../common/theme-switcher.nix

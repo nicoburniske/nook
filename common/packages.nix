@@ -12,7 +12,6 @@
     ffmpeg
     lua-language-server
     rustup
-    scooter
     cmake
     neofetch
     qbittorrent
