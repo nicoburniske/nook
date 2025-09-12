@@ -35,17 +35,14 @@
       map ctrl+equal change_font_size all +2.0
       map ctrl+minus change_font_size all -2.0
 
-      # Toggle to unlocked mode
       map --new-mode unlocked ctrl+space
 
       # === UNLOCKED ===
-      # Tab management
       map --mode unlocked ctrl+t new_tab_with_cwd
       map --mode unlocked ctrl+x close_tab
       map --mode unlocked ctrl+h previous_tab
       map --mode unlocked ctrl+l next_tab
 
-      # Tab jumping with numbers
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
       map --mode unlocked ctrl+3 goto_tab 3
@@ -56,12 +53,10 @@
       map --mode unlocked ctrl+8 goto_tab 8
       map --mode unlocked ctrl+9 goto_tab 9
 
-      # Tab reorganization
       map --mode unlocked ctrl+cmd+h move_tab_backward
       map --mode unlocked ctrl+cmd+l move_tab_forward
       map --mode unlocked ctrl+cmd+r set_tab_title
 
-      # Return to locked mode
       map --mode unlocked ctrl+space pop_keyboard_mode
       map --mode unlocked escape pop_keyboard_mode
 
@@ -90,17 +85,15 @@
               return 0
           fg, bg = screen.cursor.fg, screen.cursor.bg
           orig_bold = screen.cursor.bold
-          # Get keyboard mode
+
           mode = get_boss().mappings.current_keyboard_mode_name
           if mode and mode == "unlocked":
               MODE_TEXT = " UNLOCKED "
               screen.cursor.fg = mode_fg
-              # Red for unlocked
               screen.cursor.bg = as_rgb(color_as_int(opts.color1))
           else:
               MODE_TEXT = "  LOCKED  "
               screen.cursor.fg = mode_fg
-              # Green for locked
               screen.cursor.bg = as_rgb(color_as_int(opts.color2))
 
           screen.cursor.bold = False
@@ -122,15 +115,11 @@
       ) -> int:
           screen.cursor.italic = False
 
-          # Only draw mode for first tab and adjust positioning accordingly
           if index == 1:
               _draw_mode(screen, index)
-              # Add spacing after the mode indicator
-              screen.draw(" ")  # Add a space separator between mode and first tab
-              # Now set the before position for the tab
+              screen.draw(" ")
               before = screen.cursor.x
 
-          # Use the built-in powerline for tabs
           return draw_tab_with_powerline(
               draw_data,
               screen,
