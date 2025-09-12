@@ -6,30 +6,11 @@ language-servers = ["rust-analyzer"]
 command = "rust-analyzer"
 
 [language-server.rust-analyzer.config]
-check.overrideCommand = [
-  "cargo",
-  "check",
-  "--workspace",
-  "--target-dir=target/rust-analyzer",
-  "--message-format=json-diagnostic-rendered-ansi",
-  "--exclude", "atsama5d27",
-  "--exclude", "at91bootstrap-ffi",
-  "--exclude", "cryptoauthlib",
-  "--exclude", "libblur",
-  "--exclude", "loader",
-  "--exclude", "log-serial",
-  "--exclude", "log-usb-serial",
-  "--exclude", "skeleton",
-  "--exclude", "crypto-client",
-  "--exclude", "syscall-arg-invalid-addr-test",
-  "--exclude", "micro-ecc-sys",
-  "--exclude", "rust-fatfs",
-  "--exclude", "tar",
-  "--exclude", "mass-storage"
-]
-
+cargo.check.workspace = false
+cargo.targetDir = "target/rust-analyzer"
 cargo.target = "armv7a-unknown-xous-elf"
 cargo.features = []
+
 cargo.buildScripts.enable = true
 cargo.buildScripts.overrideCommand = [
   "cargo",
