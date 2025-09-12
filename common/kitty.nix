@@ -11,6 +11,7 @@
       allow_remote_control = true;
       listen_on = "unix:/tmp/kitty";
       clear_all_shortcuts = true;
+      confirm_os_window_close = 0;
 
       hide_window_decorations = "titlebar-only";
       window_padding_width = 5;
