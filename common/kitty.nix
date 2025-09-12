@@ -24,8 +24,8 @@
     };
 
     extraConfig = with config.lib.stylix.colors.withHashtag; ''
-      inactive_tab_background ${base02}
-      inactive_tab_foreground ${base05}
+      inactive_tab_background ${base07}
+      inactive_tab_foreground ${base00}
       active_tab_background ${base0C}
       active_tab_foreground ${base00}
 
