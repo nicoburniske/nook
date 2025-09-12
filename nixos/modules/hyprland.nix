@@ -155,7 +155,9 @@
         "$mod SHIFT, J, swapwindow, d"
 
         "$mod, S, togglesplit"
-        "$mod, T, pseudo"
+        
+        "$mod, equal, splitratio, 0.05"
+        "$mod, minus, splitratio, -0.05"
 
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
