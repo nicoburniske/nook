@@ -77,10 +77,9 @@
           draw_tab_with_powerline,
       )
 
-      opts = get_options()
-      mode_fg = as_rgb(color_as_int(opts.background))
 
       def _draw_mode(screen: Screen, index: int) -> int:
+          opts = get_options()
           if index != 1:
               return 0
           fg, bg = screen.cursor.fg, screen.cursor.bg
@@ -89,12 +88,12 @@
           mode = get_boss().mappings.current_keyboard_mode_name
           if mode and mode == "unlocked":
               MODE_TEXT = " UNLOCKED "
-              screen.cursor.fg = mode_fg
+              screen.cursor.fg = as_rgb(color_as_int(opts.background))
               screen.cursor.bg = as_rgb(color_as_int(opts.color1))
           else:
               MODE_TEXT = "  LOCKED  "
-              screen.cursor.fg = mode_fg
-              screen.cursor.bg = as_rgb(color_as_int(opts.color2))
+              screen.cursor.fg = as_rgb(color_as_int(opts.foreground))
+              screen.cursor.bg = as_rgb(color_as_int(opts.color0))
 
           screen.cursor.bold = False
           screen.draw(MODE_TEXT)
