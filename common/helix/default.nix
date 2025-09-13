@@ -12,6 +12,7 @@
     themes = {
       absolute-heat = {
         inherits = config.stylix.override.helix or "stylix";
+        "ui.background" = { bg = "none"; };
       };
       space-age = ./space-age.toml;
     };
