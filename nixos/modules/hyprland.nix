@@ -202,7 +202,8 @@
 
       general = {
         gaps_in = 5;
-        gaps_out = 20;
+        # less gap at top for notch
+        gaps_out = "10,20,20,20";
         border_size = 2;
         layout = "dwindle";
         resize_on_border = true;
