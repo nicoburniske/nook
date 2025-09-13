@@ -123,7 +123,7 @@ in {
             helix = "modus_operandi_tinted";
           };
           polarity = "light";
-          image = ../assets/wallpapers/light-porsche.png;
+          image = ../assets/wallpapers/light-painting.jpeg;
         }
         // baseConfig;
     }
