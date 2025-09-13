@@ -32,6 +32,8 @@
     initContent = ''
       WORDCHARS=''${WORDCHARS//[\/]}
 
+      export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=242"
+
       bindkey '^I'   complete-word
       bindkey '^[[Z' autosuggest-accept
 
