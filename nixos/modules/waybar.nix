@@ -121,8 +121,6 @@
     style = with config.lib.stylix.colors; let
       fontSize = toString config.stylix.fonts.sizes.desktop;
       borderRadius = "5px";
-      leanLeft = "5px 20px 5px 20px";
-      leanRight = "20px 5px 20px 5px";
       elementMargin = "8px 2px";
       elementPadding = "2px 8px";
       elementBackground = "#${base01}";
@@ -144,7 +142,7 @@
       #workspaces {
         background: ${elementBackground};
         border: ${elementBorder};
-        border-radius: ${leanRight};
+        border-radius: ${borderRadius};
         margin: ${elementMargin};
         padding: 0px 4px;
       }
@@ -187,7 +185,7 @@
         color: #${base05};
         padding: ${elementPadding};
         margin: ${elementMargin};
-        border-radius: ${leanRight};
+        border-radius: ${borderRadius};
         font-weight: normal;
         font-size: ${fontSize}px;
       }
@@ -199,7 +197,7 @@
         color: #${base05};
         padding: ${elementPadding};
         margin: ${elementMargin};
-        border-radius: ${leanRight};
+        border-radius: ${borderRadius};
         font-weight: normal;
         font-size: ${fontSize}px;
       }
@@ -207,7 +205,7 @@
       #indicators {
         background: ${elementBackground};
         border: ${elementBorder};
-        border-radius: ${leanRight};
+        border-radius: ${borderRadius};
         margin: ${elementMargin};
         padding: 2px 4px;
       }
