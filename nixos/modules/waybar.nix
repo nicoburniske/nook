@@ -1,4 +1,6 @@
 {config, ...}: {
+  stylix.targets.waybar.addCss = false;
+
   programs.waybar = {
     enable = true;
 
@@ -142,16 +144,16 @@
         border: ${elementBorder};
         border-radius: ${borderRadius};
         margin: ${elementMargin};
-        padding: 2px 4px;
+        padding: 0px 4px;
       }
 
       #workspaces button {
         background: transparent;
         color: #${base05};
-        padding: 2px 6px;
+        padding: 4px 6px 4px 6px;
         margin: 0 1px;
-        border-radius: 3px;
-        border: none;
+        border-top: 2px solid transparent;
+        border-bottom: 2px solid transparent;
 
         font-size: ${fontSize}px;
         min-width: 20px;
@@ -163,18 +165,11 @@
       }
 
       #workspaces button.active {
-        background: #${base03};
+        border-bottom: 2px solid #${base05};
       }
 
       #workspaces button.urgent {
         color: #${base08};
-      }
-
-      #custom-separator {
-        color: #${base03};
-        background: transparent;
-        padding: 0 8px;
-        font-size: ${fontSize}px;
       }
 
       #window {
