@@ -2,6 +2,10 @@
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
   baseConfig = {
+    enable = true;
+    opacity = {
+      terminal = 0.95;
+    };
     fonts = {
       monospace = {
         package = berkeleyMono;
@@ -36,7 +40,6 @@ in {
     {
       stylix =
         {
-          enable = true;
           base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
           override = {slug = "gruvbox";};
           polarity = "dark";
@@ -48,7 +51,6 @@ in {
     {
       stylix =
         {
-          enable = true;
           base16Scheme = "${pkgs.base16-schemes}/share/themes/everforest-dark-hard.yaml";
           override = {
             slug = "everforest";
@@ -63,7 +65,6 @@ in {
     {
       stylix =
         {
-          enable = true;
           base16Scheme = {
             scheme = "merionette";
             base00 = "190f0f"; # dark_red0 - background
@@ -97,7 +98,6 @@ in {
       # https://github.com/protesilaos/modus-themes/blob/main/modus-operandi-tinted-theme.el
       stylix =
         {
-          enable = true;
           base16Scheme = {
             scheme = "Modus Operandi Tinted";
             author = "Protesilaos Stavrou";
