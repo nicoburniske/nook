@@ -8,9 +8,14 @@
         position = "top";
         height = 40;
 
-        modules-left = ["hyprland/workspaces" "custom/separator" "hyprland/window"];
+        modules-left = ["hyprland/workspaces"];
         modules-center = [];
-        modules-right = ["tray" "bluetooth" "network" "pulseaudio" "cpu" "battery" "custom/clock"];
+        modules-right = ["tray" "group/indicators" "cpu" "battery" "custom/clock"];
+
+        "group/indicators" = {
+          orientation = "horizontal";
+          modules = ["bluetooth" "network" "pulseaudio"];
+        };
 
         "hyprland/workspaces" = {
           disable-scroll = false;
@@ -119,7 +124,7 @@
       }
 
       window#waybar {
-        background: rgba(${base00-rgb-r}, ${base00-rgb-g}, ${base00-rgb-b}, 0.95);
+        background: transparent;
         color: #${base04};
       }
 
@@ -130,7 +135,7 @@
       }
 
       #workspaces button {
-        background: rgba(${base01-rgb-r}, ${base01-rgb-g}, ${base01-rgb-b}, 0.6);
+        background: #${base01};
         color: #${base04};
         padding: 0 8px;
         margin: 5px 2px;
@@ -141,18 +146,18 @@
       }
 
       #workspaces button:hover {
-        background: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.7);
+        background: #${base02};
         color: #${base05};
       }
 
       #workspaces button.active {
-        background: rgba(${base02-rgb-r}, ${base02-rgb-g}, ${base02-rgb-b}, 0.8);
+        background: #${base02};
         color: #${base05};
-        border: 1px solid rgba(${base0D-rgb-r}, ${base0D-rgb-g}, ${base0D-rgb-b}, 0.5);
+        border: 1px solid #${base0D};
       }
 
       #workspaces button.urgent {
-        background: rgba(${base08-rgb-r}, ${base08-rgb-g}, ${base08-rgb-b}, 0.8);
+        background: #${base08};
         color: #${base00};
       }
 
@@ -183,7 +188,7 @@
 
       #cpu,
       #battery {
-        background: transparent;
+        background: #${base01};
         border: 1px solid #${base03};
         color: #${base05};
         padding: 0 8px;
@@ -193,13 +198,21 @@
         font-size: ${fontSize}px;
       }
 
+      #indicators {
+        background: #${base01};
+        border: 1px solid #${base03};
+        border-radius: ${borderRadius};
+        margin: ${elementMargin};
+        padding: 0 4px;
+      }
+
       #pulseaudio,
       #network,
       #bluetooth {
         background: transparent;
         color: #${base05};
-        padding: 0 8px;
-        margin: ${elementMargin};
+        padding: 0 6px;
+        margin: 0;
         font-weight: normal;
         font-size: ${fontSize}px;
       }
