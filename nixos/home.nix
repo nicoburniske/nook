@@ -7,7 +7,7 @@
 in {
   imports = [
     ../common/git.nix
-    ../common/helix.nix
+    ../common/helix/default.nix
     ../common/oh-my-posh.nix
     ../common/yazi.nix
     ../common/zsh.nix
