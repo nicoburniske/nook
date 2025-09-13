@@ -141,12 +141,12 @@
 
       #workspaces button {
         background: transparent;
-        color: #${base04};
+        color: #${base05};
         padding: 2px 6px;
         margin: 0 1px;
         border-radius: 3px;
         border: none;
-        border-bottom: 2px solid transparent;
+
         font-size: ${fontSize}px;
         min-width: 20px;
         transition: all 0.3s ease;
@@ -154,17 +154,14 @@
 
       #workspaces button:hover {
         color: #${base05};
-        border-bottom-color: rgba(${base05-rgb-r}, ${base05-rgb-g}, ${base05-rgb-b}, 0.5);
       }
 
       #workspaces button.active {
-        color: #${base0D};
-        border-bottom-color: #${base0D};
+        background: #${base03};
       }
 
       #workspaces button.urgent {
         color: #${base08};
-        border-bottom-color: #${base08};
       }
 
       #custom-separator {
