@@ -4,6 +4,8 @@
   config,
   ...
 }: {
+  stylix.targets.helix.transparent = true;
+
   programs.helix = {
     enable = true;
 
