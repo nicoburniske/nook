@@ -22,6 +22,8 @@
       tab_bar_min_tabs = 1;
       tab_bar_edge = "bottom";
       tab_powerline_style = "angled";
+      cursor_trail = 3;
+      cursor_trail_decay = "0.1 0.4";
     };
 
     extraConfig = with config.lib.stylix.colors.withHashtag; ''
