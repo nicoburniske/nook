@@ -209,6 +209,17 @@
         resize_on_border = true;
       };
 
+      decoration = {
+        blur = {
+          enabled = true;
+          size = 3;
+          passes = 3;
+          new_optimizations = true;
+          xray = true;
+          ignore_opacity = true;
+        };
+      };
+
       animations = {
         enabled = true;
         bezier = [
