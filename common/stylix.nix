@@ -56,16 +56,37 @@ in {
       };
     }
 
-    # {
-    #   stylix = {
-    #     enable = true;
-    #     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-    #     override = {slug = "catppuccin-mocha";};
-    #     polarity = "dark";
-    #     image = ../assets/wallpapers/frozen.png;
-    #     fonts = baseFonts;
-    #   };
-    # }
+    {
+      stylix = {
+        enable = true;
+        base16Scheme = {
+          scheme = "merionette";
+          base00 = "190f0f"; # dark_red0 - background
+          base01 = "2c1617"; # dark_red2 - cursorline/lighter bg
+          base02 = "442022"; # dark_red3 - selection/menu bg
+          base03 = "704144"; # dark_red4 - comments/disabled
+          base04 = "cebabf"; # white0 - foreground muted
+          base05 = "cebabf"; # white0 - primary foreground
+          base06 = "e97e8a"; # pink4 - bright foreground
+          base07 = "e97e8a"; # pink4 - brightest
+          base08 = "d2505f"; # pink1 - red/error
+          base09 = "ff7550"; # orange0 - orange/constants
+          base0A = "eb842b"; # orange1 - yellow/keywords
+          base0B = "8ea84d"; # green0 - green/strings
+          base0C = "65aba3"; # blue0 - cyan/info
+          base0D = "65aba3"; # blue0 - blue/functions
+          base0E = "ce8b9f"; # violet0 - magenta/specials
+          base0F = "d95362"; # pink2 - brown/deprecated
+        };
+        override = {
+          slug = "merionette";
+          helix = "merionette";
+        };
+        polarity = "dark";
+        image = ../assets/wallpapers/space.jpg;
+        fonts = baseFonts;
+      };
+    }
 
     {
       # https://github.com/protesilaos/modus-themes/blob/main/modus-operandi-tinted-theme.el
