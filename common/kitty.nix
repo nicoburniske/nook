@@ -26,6 +26,7 @@
 
       cursor_trail = 3;
       cursor_trail_decay = "0.1 0.4";
+      background_blur = 1;
     };
 
     extraConfig = with config.lib.stylix.colors.withHashtag; ''

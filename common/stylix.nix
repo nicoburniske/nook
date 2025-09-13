@@ -4,7 +4,7 @@
   baseConfig = {
     enable = true;
     opacity = {
-      terminal = 0.95;
+      terminal = 0.80;
     };
     fonts = {
       monospace = {
