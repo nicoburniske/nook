@@ -9,10 +9,16 @@
   programs.helix = {
     enable = true;
 
+    themes = {
+      absolute-heat = {
+        inherits = config.stylix.override.helix or "stylix";
+      };
+      space-age = ./space-age.toml;
+    };
+
     settings = {
-      theme = lib.mkForce (
-        config.stylix.override.helix or "stylix"
-      );
+      theme = lib.mkForce "absolute-heat";
+
       editor = {
         bufferline = "always";
         cursorline = true;

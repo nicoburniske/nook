@@ -66,7 +66,7 @@ in {
       stylix =
         {
           base16Scheme = {
-            scheme = "merionette";
+            scheme = "space-age";
             base00 = "190f0f"; # dark_red0 - background
             base01 = "2c1617"; # dark_red2 - cursorline/lighter bg
             base02 = "442022"; # dark_red3 - selection/menu bg
@@ -85,8 +85,8 @@ in {
             base0F = "d95362"; # pink2 - brown/deprecated
           };
           override = {
-            slug = "merionette";
-            helix = "merionette";
+            slug = "space-age";
+            helix = "space-age";
           };
           polarity = "dark";
           image = ../assets/wallpapers/space.jpg;
