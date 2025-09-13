@@ -22,6 +22,8 @@
       tab_bar_min_tabs = 1;
       tab_bar_edge = "bottom";
       tab_powerline_style = "angled";
+      tab_bar_margin_height = "2.0 2.0";
+
       cursor_trail = 3;
       cursor_trail_decay = "0.1 0.4";
     };
@@ -29,6 +31,11 @@
     extraConfig = with config.lib.stylix.colors.withHashtag; ''
       active_tab_background ${base0C}
       active_tab_foreground ${base00}
+
+      inactive_tab_background ${base02}
+      inactive_tab_foreground ${base05}
+
+      tab_bar_margin_color ${base02}
 
       # === GLOBAL ===
       map shift+enter send_text all \n
