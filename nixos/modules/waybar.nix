@@ -114,6 +114,9 @@
       fontSize = toString config.stylix.fonts.sizes.desktop;
       borderRadius = "5px";
       elementMargin = "8px 2px";
+      elementPadding = "2px 8px";
+      elementBackground = "#${base01}";
+      elementBorder = "1px solid #${base03}";
     in ''
       * {
         font-family: ${config.stylix.fonts.monospace.name}, ${config.stylix.fonts.emoji.name};
@@ -129,36 +132,39 @@
       }
 
       #workspaces {
-        background: transparent;
-        margin: 0;
-        padding: 0;
+        background: ${elementBackground};
+        border: ${elementBorder};
+        border-radius: ${borderRadius};
+        margin: ${elementMargin};
+        padding: 2px 4px;
       }
 
       #workspaces button {
-        background: #${base01};
+        background: transparent;
         color: #${base04};
-        padding: 0 8px;
-        margin: 5px 2px;
-        border-radius: ${borderRadius};
-        border: 1px solid transparent;
+        padding: 2px 6px;
+        margin: 0 1px;
+        border-radius: 3px;
+        border: none;
+        border-bottom: 2px solid transparent;
         font-size: ${fontSize}px;
         min-width: 20px;
+        transition: all 0.3s ease;
       }
 
       #workspaces button:hover {
-        background: #${base02};
         color: #${base05};
+        border-bottom-color: rgba(${base05-rgb-r}, ${base05-rgb-g}, ${base05-rgb-b}, 0.5);
       }
 
       #workspaces button.active {
-        background: #${base02};
-        color: #${base05};
-        border: 1px solid #${base0D};
+        color: #${base0D};
+        border-bottom-color: #${base0D};
       }
 
       #workspaces button.urgent {
-        background: #${base08};
-        color: #${base00};
+        color: #${base08};
+        border-bottom-color: #${base08};
       }
 
       #custom-separator {
@@ -176,10 +182,10 @@
       }
 
       #custom-clock {
-        background: #${base01};
-        border: 1px solid #${base03};
+        background: ${elementBackground};
+        border: ${elementBorder};
         color: #${base05};
-        padding: 0 8px;
+        padding: ${elementPadding};
         margin: ${elementMargin};
         border-radius: ${borderRadius};
         font-weight: normal;
@@ -188,10 +194,10 @@
 
       #cpu,
       #battery {
-        background: #${base01};
-        border: 1px solid #${base03};
+        background: ${elementBackground};
+        border: ${elementBorder};
         color: #${base05};
-        padding: 0 8px;
+        padding: ${elementPadding};
         margin: ${elementMargin};
         border-radius: ${borderRadius};
         font-weight: normal;
@@ -199,17 +205,16 @@
       }
 
       #indicators {
-        background: #${base01};
-        border: 1px solid #${base03};
+        background: ${elementBackground};
+        border: ${elementBorder};
         border-radius: ${borderRadius};
         margin: ${elementMargin};
-        padding: 0 4px;
+        padding: 2px 4px;
       }
 
       #pulseaudio,
       #network,
       #bluetooth {
-        background: transparent;
         color: #${base05};
         padding: 0 6px;
         margin: 0;
