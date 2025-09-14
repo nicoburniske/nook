@@ -212,8 +212,8 @@
       decoration = {
         blur = {
           enabled = true;
-          size = 3;
-          passes = 4;
+          size = 8;
+          passes = 1;
           new_optimizations = true;
           xray = true;
           ignore_opacity = true;
