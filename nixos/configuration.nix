@@ -4,9 +4,7 @@
 {
   inputs,
   pkgs,
-  lib,
   apple-silicon,
-  hyprland,
   ...
 }: let
   self = inputs.self;
@@ -134,7 +132,6 @@ in {
 
   programs.hyprland = {
     enable = true;
-    package = hyprland.packages.${pkgs.system}.hyprland;
   };
 
   programs.zsh.enable = true;
