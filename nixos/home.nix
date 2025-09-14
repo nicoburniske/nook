@@ -54,6 +54,7 @@ in {
     usbutils
     cutecom
     bluetui
+    obs-studio
   ];
 
   specialisation = builtins.listToAttrs (
