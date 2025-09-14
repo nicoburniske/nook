@@ -213,7 +213,10 @@
         blur = {
           enabled = true;
           size = 8;
-          passes = 1;
+          passes =
+            if config.stylix.polarity == "dark"
+            then 2
+            else 1;
           new_optimizations = true;
           xray = true;
           ignore_opacity = true;
