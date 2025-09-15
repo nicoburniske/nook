@@ -1,0 +1,5 @@
+inherits = "modus_operandi_tinted"
+
+"ui.bufferline.background" = { fg = "fg-mode-line-inactive", bg = "bg-mode-line-inactive" }
+"ui.bufferline" = { fg = "fg-mode-line-inactive", bg = "bg-mode-line-inactive" }
+"ui.bufferline.active" = { fg = "fg-mode-line-active", bg = "bg-mode-line-active" }
