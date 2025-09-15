@@ -59,6 +59,10 @@
 "ui.virtual.whitespace" = "dark_red4"
 "ui.window" = { bg = "dark_red2" }
 
+"ui.bufferline.background" = { fg = "dark_red0", bg = "pink1" }
+"ui.bufferline" = { fg = "dark_red0", bg = "pink1" }
+"ui.bufferline.active" = { fg = "white0", bg = "dark_red3" }
+
 "diagnostic.error" = { underline = { color = "orange1", style = "double_line" } }
 "diagnostic.hint" = { underline = { color = "white0", style = "double_line" } }
 "diagnostic.info" = { underline = { color = "blue0", style = "double_line" } }
