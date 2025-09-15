@@ -38,6 +38,11 @@ files.exclude = ["imports/", "test-apps/", "target/"]
 procMacro.enable = true
 diagnostics.disabled = ["unresolved-proc-macro"]
 
+[[language]]
+name = "slint"
+language-servers = ["slint-lsp"]
+auto-format = true
+
 [language-server.slint-lsp]
 command = "slint-lsp"
 args = ["-L", "ui=ui/ui"]
