@@ -15,6 +15,7 @@
         ui.background.bg = "none";
       };
       space-age = ./space-age.toml;
+      modus = ./modus.toml;
     };
 
     settings = {

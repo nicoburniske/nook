@@ -119,8 +119,8 @@ in {
             base0F = "972500"; # red-warmer
           };
           override = {
-            slug = "modus-operandi";
-            helix = "modus_operandi_tinted";
+            slug = "modus";
+            helix = "modus";
           };
           polarity = "light";
           image = ../assets/wallpapers/light-painting.jpeg;
