@@ -25,10 +25,6 @@ in {
     home = "/Users/nicoburniske";
   };
 
-  environment.variables = {
-    XDG_CONFIG_HOME = "${homeDir}/.config";
-  };
-
   environment.systemPackages = with pkgs; [
   ];
 
