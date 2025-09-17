@@ -103,6 +103,9 @@ in {
     # ];
   };
 
+  services.udisks2.enable = true;
+  services.gvfs.enable = true;
+
   virtualisation.libvirtd.enable = true;
 
   # Enable CUPS to print documents.
