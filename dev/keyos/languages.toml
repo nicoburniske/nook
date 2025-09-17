@@ -34,7 +34,7 @@ cargo.buildScripts.overrideCommand = [
   "--exclude", "mass-storage"
 ]
 
-files.exclude = ["imports/", "test-apps/", "target/"]
+files.exclude = ["imports/", "target/"]
 procMacro.enable = true
 diagnostics.disabled = ["unresolved-proc-macro"]
 
