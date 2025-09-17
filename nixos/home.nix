@@ -55,6 +55,7 @@ in {
     cutecom
     bluetui
     obs-studio
+    nautilus
   ];
 
   specialisation = builtins.listToAttrs (
