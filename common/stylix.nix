@@ -3,9 +3,6 @@
 
   baseConfig = {
     enable = true;
-    opacity = {
-      terminal = 0.80;
-    };
     fonts = {
       monospace = {
         package = berkeleyMono;
