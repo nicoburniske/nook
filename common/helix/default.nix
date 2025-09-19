@@ -4,16 +4,21 @@
   config,
   ...
 }: {
-  stylix.targets.helix.transparent = lib.mkForce true;
+  stylix.targets.helix.transparent = true;
 
   programs.helix = {
     enable = true;
 
     themes = {
-      absolute-heat = {
-        inherits = config.stylix.override.helix or "stylix";
-        ui.background.bg = "none";
-      };
+      absolute-heat =
+        {
+          inherits = config.stylix.override.helix or "stylix";
+          # make bg transparent on all themes
+          ui.background = {};
+        }
+        # remove italics from comments
+        // lib.optionalAttrs (!config.stylix.override ? helix) {comment = {fg = "base03";};};
+
       space-age = ./space-age.toml;
       modus = ./modus.toml;
     };
