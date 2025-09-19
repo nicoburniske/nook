@@ -80,7 +80,7 @@
 
         pulseaudio = {
           format = "{icon}";
-          on-click = "ghostty --class=Wiremix -e wiremix";
+          on-click = "kitty --class wiremix wiremix";
           tooltip-format = "Playing at {volume}%";
           scroll-step = 5;
           format-muted = "󰝟";
@@ -90,7 +90,7 @@
         };
 
         network = {
-          on-click = "ghostty -e nmtui";
+          on-click = "kitty --class nmtui nmtui";
           format-icons = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
           format = "{icon}";
           format-wifi = "{icon}";
@@ -108,7 +108,7 @@
           format-disabled = "󰂲";
           format-connected = "";
           tooltip-format = "devices connected= {num_connections}";
-          on-click = "ghostty --class=Bluetui -e bluetui";
+          on-click = "kitty --class bluetui bluetui";
         };
 
         tray = {
