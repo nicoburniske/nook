@@ -1,8 +1,21 @@
-{pkgs, ...}: let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
   baseConfig = {
     enable = true;
+
+    # looks bad on mac without blur
+    opacity =
+      lib.optionalAttrs
+      pkgs.stdenv.isLinux
+      {
+        terminal = 0.90;
+      };
+
     fonts = {
       monospace = {
         package = berkeleyMono;
