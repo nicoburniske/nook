@@ -16,6 +16,7 @@ cargo.buildScripts.overrideCommand = [
   "cargo",
   "check",
   "--workspace",
+  "--target=armv7a-unknown-xous-elf",
   "--target-dir=target/rust-analyzer",
   "--message-format=json",
   "--quiet",
