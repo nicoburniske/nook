@@ -13,6 +13,8 @@ in {
         paging = {
           pager = "delta --true-color=never --paging=never --line-numbers ${theme}";
         };
+        # allow rewording
+        overrideGpg = true;
       };
       gui.theme = with colors.withHashtag; {
         selectedLineBgColor = [base01];
