@@ -44,8 +44,10 @@ in {
     (lib.mkDefault (builtins.head themeDefinitions.themes).stylix)
   ];
 
+  nixpkgs.config.allowUnfree = true;
+
   home.packages = with pkgs; [
-    ungoogled-chromium
+    (ungoogled-chromium.override {enableWideVine = true;})
     vlc
     wl-clipboard
     brightnessctl
