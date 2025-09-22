@@ -2,10 +2,14 @@
   pkgs,
   inputs,
   ...
-}: {
+}: let
+  pkgs-master = import inputs.nixpkgs-master {
+    system = pkgs.system;
+  };
+in {
   programs.opencode = {
     enable = true;
-    package = inputs.opencode-flake.packages.${pkgs.system}.default;
+    package = pkgs-master.opencode;
     settings = {
       autoupdate = false;
     };

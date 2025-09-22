@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -21,11 +22,6 @@
 
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    opencode-flake = {
-      url = "github:aodhanhayter/opencode-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -57,6 +53,7 @@
   outputs = inputs @ {
     self,
     nixpkgs,
+    nixpkgs-master,
     home-manager,
     nix-ld,
     stylix,
@@ -66,7 +63,6 @@
     homebrew-core,
     homebrew-cask,
     zen-browser,
-    opencode-flake,
     ...
   }: {
     nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
