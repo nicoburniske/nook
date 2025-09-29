@@ -1,5 +1,15 @@
-{config, ...}: {
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}: let
+  pkgs-master = import inputs.nixpkgs-master {
+    system = pkgs.system;
+  };
+in {
   programs.kitty = {
+    package = pkgs-master.kitty;
     enable = true;
     shellIntegration = {
       enableZshIntegration = true;
