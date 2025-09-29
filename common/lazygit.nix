@@ -16,8 +16,12 @@ in {
         # allow rewording
         overrideGpg = true;
       };
-      gui.theme = with colors.withHashtag; {
-        selectedLineBgColor = [base01];
+
+      gui = {
+        theme = with colors.withHashtag; {
+          selectedLineBgColor = [base01];
+        };
+        sidePanelWidth = 0.25;
       };
     };
   };
