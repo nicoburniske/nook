@@ -36,6 +36,8 @@ in {
 
       cursor_trail = 3;
       cursor_trail_decay = "0.1 0.4";
+
+      enabled_layouts = "stack,horizontal";
     };
 
     extraConfig = with config.lib.stylix.colors.withHashtag; ''
@@ -62,6 +64,12 @@ in {
       map --mode unlocked ctrl+x close_tab
       map --mode unlocked ctrl+h previous_tab
       map --mode unlocked ctrl+l next_tab
+
+      map --mode unlocked ctrl+w close_window
+      map --mode unlocked ctrl+enter new_window_with_cwd
+      map --mode unlocked ctrl+n next_window
+      map --mode unlocked ctrl+p previous_window
+      map --mode unlocked ctrl+z toggle_layout stack
 
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
