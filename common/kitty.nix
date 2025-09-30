@@ -66,8 +66,8 @@ in {
       map --mode unlocked ctrl+cmd+t close_tab
       map --mode unlocked ctrl+p previous_tab
       map --mode unlocked ctrl+n next_tab
-      map --mode unlocked ctrl+shift+n move_tab_forward
-      map --mode unlocked ctrl+shift+p move_tab_backward
+      map --mode unlocked ctrl+cmd+n move_tab_forward
+      map --mode unlocked ctrl+cmd+p move_tab_backward
 
       map --mode unlocked ctrl+w new_window_with_cwd
       map --mode unlocked ctrl+cmd+w close_window
