@@ -62,24 +62,25 @@ in {
 
       # === UNLOCKED ===
 
-      map --mode unlocked ctrl+t new_tab_with_cwd
-      map --mode unlocked ctrl+cmd+t close_tab
-      map --mode unlocked ctrl+p previous_tab
-      map --mode unlocked ctrl+n next_tab
-      map --mode unlocked ctrl+cmd+n move_tab_forward
-      map --mode unlocked ctrl+cmd+p move_tab_backward
+      map --mode unlocked t new_tab_with_cwd
+      map --mode unlocked p previous_tab
+      map --mode unlocked n next_tab
+      map --mode unlocked shift+n move_tab_forward
+      map --mode unlocked shift+p move_tab_backward
 
-      map --mode unlocked ctrl+w new_window_with_cwd
-      map --mode unlocked ctrl+cmd+w close_window
-      map --mode unlocked ctrl+h neighboring_window left
-      map --mode unlocked ctrl+j neighboring_window down
-      map --mode unlocked ctrl+k neighboring_window up
-      map --mode unlocked ctrl+l neighboring_window right
+      map --mode unlocked w new_window_with_cwd
+      map --mode unlocked h neighboring_window left
+      map --mode unlocked j neighboring_window down
+      map --mode unlocked k neighboring_window up
+      map --mode unlocked l neighboring_window right
 
-      map --mode unlocked ctrl+cmd+h move_window left
-      map --mode unlocked ctrl+cmd+j move_window down
-      map --mode unlocked ctrl+cmd+k move_window up
-      map --mode unlocked ctrl+cmd+l move_window right
+      map --mode unlocked shift+h move_window left
+      map --mode unlocked shift+j move_window down
+      map --mode unlocked shift+k move_window up
+      map --mode unlocked shift+l move_window right
+
+      map --mode unlocked x close_tab
+      map --mode unlocked shift+x close_window
 
       map --mode unlocked ctrl+left resize_window narrower
       map --mode unlocked ctrl+right resize_window wider
@@ -87,9 +88,7 @@ in {
       map --mode unlocked ctrl+down resize_window shorter
 
       # "full" screen
-      map --mode unlocked ctrl+f toggle_layout stack
-      # "split" tabs
-      map --mode unlocked ctrl+s toggle_layout tall
+      map --mode unlocked f toggle_layout stack
 
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
@@ -100,8 +99,6 @@ in {
       map --mode unlocked ctrl+7 goto_tab 7
       map --mode unlocked ctrl+8 goto_tab 8
       map --mode unlocked ctrl+9 goto_tab 9
-
-      map --mode unlocked ctrl+cmd+r set_tab_title
 
       map --mode unlocked ctrl+space pop_keyboard_mode
       map --mode unlocked escape pop_keyboard_mode
