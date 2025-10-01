@@ -79,8 +79,8 @@ in {
       map --mode unlocked shift+k move_window up
       map --mode unlocked shift+l move_window right
 
-      map --mode unlocked x close_tab
-      map --mode unlocked shift+x close_window
+      map --mode unlocked x close_window
+      map --mode unlocked shift+x close_tab
 
       map --mode unlocked ctrl+h resize_window narrower
       map --mode unlocked ctrl+l resize_window wider
