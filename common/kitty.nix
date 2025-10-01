@@ -38,6 +38,7 @@ in {
       cursor_trail_decay = "0.1 0.4";
 
       enabled_layouts = "stack,tall";
+      scrollback_lines = 1000000000;
     };
 
     extraConfig = with config.lib.stylix.colors.withHashtag; ''
@@ -87,8 +88,10 @@ in {
       map --mode unlocked cmd+k resize_window taller
       map --mode unlocked cmd+j resize_window shorter
 
-      # full screen
-      map --mode unlocked ctrl+f next_layout
+      map --mode unlocked ctrl+e next_layout
+
+      # search with scrollback
+      map --mode unlocked ctrl+f combine | launch --stdin-source=@screen_scrollback --type=overlay hx | pop_keyboard_mode
 
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
