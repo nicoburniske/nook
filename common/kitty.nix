@@ -89,8 +89,8 @@ in {
       map --mode unlocked ctrl+k resize_window taller
       map --mode unlocked ctrl+j resize_window shorter
 
-      # "full" screen
-      map --mode unlocked f toggle_layout stack
+      # full screen
+      map --mode unlocked f next_layout
 
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
