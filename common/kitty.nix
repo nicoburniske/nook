@@ -63,16 +63,18 @@ in {
       # === UNLOCKED ===
 
       map --mode unlocked t new_tab_with_cwd
-      map --mode unlocked p previous_tab
-      map --mode unlocked n next_tab
-      map --mode unlocked shift+n move_tab_forward
-      map --mode unlocked shift+p move_tab_backward
+      map --mode unlocked [ previous_tab
+      map --mode unlocked ] next_tab
+      map --mode unlocked shift+] move_tab_forward
+      map --mode unlocked shift+[ move_tab_backward
 
       map --mode unlocked w new_window_with_cwd
       map --mode unlocked h neighboring_window left
       map --mode unlocked j neighboring_window down
       map --mode unlocked k neighboring_window up
       map --mode unlocked l neighboring_window right
+      map --mode unlocked n next_window
+      map --mode unlocked p previous_window
 
       map --mode unlocked shift+h move_window left
       map --mode unlocked shift+j move_window down
@@ -82,10 +84,10 @@ in {
       map --mode unlocked x close_tab
       map --mode unlocked shift+x close_window
 
-      map --mode unlocked ctrl+left resize_window narrower
-      map --mode unlocked ctrl+right resize_window wider
-      map --mode unlocked ctrl+up resize_window taller
-      map --mode unlocked ctrl+down resize_window shorter
+      map --mode unlocked ctrl+h resize_window narrower
+      map --mode unlocked ctrl+l resize_window wider
+      map --mode unlocked ctrl+k resize_window taller
+      map --mode unlocked ctrl+j resize_window shorter
 
       # "full" screen
       map --mode unlocked f toggle_layout stack
