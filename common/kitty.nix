@@ -62,33 +62,33 @@ in {
 
       # === UNLOCKED ===
 
-      map --mode unlocked t new_tab_with_cwd
-      map --mode unlocked p previous_tab
-      map --mode unlocked n next_tab
+      map --mode unlocked ctrl+t new_tab_with_cwd
+      map --mode unlocked ctrl+p previous_tab
+      map --mode unlocked ctrl+n next_tab
       map --mode unlocked shift+n move_tab_forward
       map --mode unlocked shift+p move_tab_backward
 
-      map --mode unlocked w new_window_with_cwd
-      map --mode unlocked h neighboring_window left
-      map --mode unlocked j neighboring_window down
-      map --mode unlocked k neighboring_window up
-      map --mode unlocked l neighboring_window right
+      map --mode unlocked ctrl+w new_window_with_cwd
+      map --mode unlocked ctrl+h neighboring_window left
+      map --mode unlocked ctrl+j neighboring_window down
+      map --mode unlocked ctrl+k neighboring_window up
+      map --mode unlocked ctrl+l neighboring_window right
 
       map --mode unlocked shift+h move_window left
       map --mode unlocked shift+j move_window down
       map --mode unlocked shift+k move_window up
       map --mode unlocked shift+l move_window right
 
-      map --mode unlocked x close_window
-      map --mode unlocked shift+x close_tab
+      map --mode unlocked ctrl+x close_window
+      map --mode unlocked ctrl+shift+x close_tab
 
-      map --mode unlocked ctrl+h resize_window narrower
-      map --mode unlocked ctrl+l resize_window wider
-      map --mode unlocked ctrl+k resize_window taller
-      map --mode unlocked ctrl+j resize_window shorter
+      map --mode unlocked cmd+h resize_window narrower
+      map --mode unlocked cmd+l resize_window wider
+      map --mode unlocked cmd+k resize_window taller
+      map --mode unlocked cmd+j resize_window shorter
 
       # full screen
-      map --mode unlocked f next_layout
+      map --mode unlocked ctrl+f next_layout
 
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
