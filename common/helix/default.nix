@@ -58,7 +58,7 @@
         X = "extend_line_above";
 
         "C-g" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current lazygit >/dev/null";
-        "C-f" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current --wait-for-child-to-exit ~/.config/helix/kitty-yazi-picker.sh open %{buffer_name} >/dev/null";
+        "C-f" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current ~/.config/helix/kitty-yazi-picker.sh %{buffer_name} >/dev/null";
         "C-t" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current >/dev/null";
         "C-l" = "goto_next_buffer";
         "C-h" = "goto_previous_buffer";
@@ -133,11 +133,10 @@
     text = ''
       #!/usr/bin/env bash
       # Launch yazi picker
-      # $1 = command (open)
-      # $2 = buffer_name (file path)
+      # $1 = buffer_name (file path)
 
-      if [ -n "$2" ]; then
-        paths=$(${pkgs.yazi}/bin/yazi "$2" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+      if [ -n "$1" ]; then
+        paths=$(${pkgs.yazi}/bin/yazi "$1" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
       else
         paths=$(${pkgs.yazi}/bin/yazi --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
       fi
@@ -145,7 +144,7 @@
       # If files were selected, send commands back to Helix
       if [[ -n "$paths" ]]; then
         kitty @ send-text --match 'state:overlay_parent' '\x1b'
-        kitty @ send-text --match 'state:overlay_parent' ":$1 $paths"
+        kitty @ send-text --match 'state:overlay_parent' ":open $paths"
         kitty @ send-text --match 'state:overlay_parent' '\r'
       fi
     '';
