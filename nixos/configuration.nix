@@ -111,8 +111,8 @@ in {
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.libinput.enable = true;
+  programs.adb.enable = true;
+
   users.extraGroups = {
     plugdev = {};
   };
@@ -129,6 +129,9 @@ in {
       "networkmanager"
       "users"
       "plugdev"
+
+      "kvm"
+      "adbusers"
     ];
     shell = pkgs.zsh;
   };
