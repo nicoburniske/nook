@@ -7,6 +7,7 @@
   pkgs-master = import inputs.nixpkgs-master {
     system = pkgs.system;
   };
+  tab_title = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
 in {
   programs.kitty = {
     package = pkgs-master.kitty;
@@ -27,8 +28,8 @@ in {
       window_padding_width = 5;
 
       tab_bar_style = "custom";
-      tab_title_template = "{title}";
-      active_tab_title_template = "{title}";
+      tab_title_template = tab_title;
+      active_tab_title_template = tab_title;
       tab_bar_min_tabs = 1;
       tab_bar_edge = "bottom";
       tab_powerline_style = "angled";
