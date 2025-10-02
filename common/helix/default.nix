@@ -137,8 +137,7 @@
       # $2 = buffer_name (file path)
 
       if [ -n "$2" ]; then
-        dir=$(dirname "$2")
-        paths=$(${pkgs.yazi}/bin/yazi "$dir" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+        paths=$(${pkgs.yazi}/bin/yazi "$2" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
       else
         paths=$(${pkgs.yazi}/bin/yazi --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
       fi
