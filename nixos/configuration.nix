@@ -46,6 +46,7 @@ in {
         Experimental = true;
       };
     };
+    keyboard.zsa.enable = true;
   };
 
   networking = {
