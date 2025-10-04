@@ -58,6 +58,7 @@ in {
     bluetui
     obs-studio
     nautilus
+    sparrow
   ];
 
   specialisation = builtins.listToAttrs (
