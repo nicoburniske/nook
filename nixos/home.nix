@@ -1,13 +1,11 @@
 {
   pkgs,
   lib,
-  inputs,
   ...
 }: let
   themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
 in {
   imports = [
-    inputs.walker.homeManagerModules.default
     ../common/git.nix
     ../common/helix/default.nix
     ../common/oh-my-posh.nix

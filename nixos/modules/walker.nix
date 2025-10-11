@@ -1,11 +1,14 @@
 {config, ...}: {
-  programs.walker = {
+  services.walker = {
     enable = true;
-    runAsService = true;
 
-    config = {
+    settings = {
       force_keyboard_focus = true;
-      hotreload_theme = true;
+
+      keys = {
+        next = ["ctrl n"];
+        prev = ["ctrl p"];
+      };
 
       ui.window.box = {
         width = 664;
@@ -25,201 +28,201 @@
 
       # Smaller icon size
       ui.window.box.scroll.list.item.icon = {
-        pixel_size = 40;
+        pixel_size = 24;
       };
 
-      builtins.applications = {
-        prioritize_new = false;
-        context_aware = false;
-        show_sub_when_single = false;
-        history = false;
-        icon = "";
-        hidden = true;
-
-        actions = {
-          enabled = false;
-          hide_category = true;
-        };
+      providers = {
+        default = ["desktopapplications"];
+        prefixes = [
+          {
+            prefix = "?";
+            provider = "websearch";
+          }
+        ];
       };
     };
 
     theme = {
       name = "stylix";
       style = with config.lib.stylix.colors; ''
-        @define-color window_bg_color #${base00};
-        @define-color accent_bg_color #${base02};
-        @define-color theme_fg_color #${base05};
-        @define-color error_bg_color #${base00};
-        @define-color error_fg_color #${base08};
-        @define-color border_color #${base0D};
+        /* Define color variables */
+        @define-color background #${base00};
+        @define-color foreground #${base05};
+        @define-color text #${base04};
+        @define-color selected-text #${base05};
+        @define-color base #${base01};
+        @define-color border #${base03};
+
+        /* Reset all elements */
+        #window,
+        #box,
+        #search,
+        #password,
+        #input,
+        #prompt,
+        #clear,
+        #typeahead,
+        #list,
+        child,
+        scrollbar,
+        slider,
+        #item,
+        #text,
+        #label,
+        #sub,
+        #activationlabel {
+          all: unset;
+        }
 
         * {
           font-family: ${config.stylix.fonts.monospace.name};
           font-size: ${toString config.stylix.fonts.sizes.desktop}px;
         }
 
-        * {
-          all: unset;
+        /* Window */
+        #window {
+          background: transparent;
+          color: @text;
         }
 
-        .normal-icons {
-          -gtk-icon-size: 16px;
+        /* Main box container */
+        #box {
+          background: alpha(@base, 0.95);
+          padding: 20px;
+          border: 2px solid @border;
+          border-radius: 8px;
         }
 
-        .large-icons {
-          -gtk-icon-size: 24px;
+        /* Search container */
+        #search {
+          background: @background;
+          padding: 10px;
+          margin-bottom: 8px;
+          border-radius: 4px;
+          border: 1px solid @border;
         }
 
+        /* Hide prompt icon */
+        #prompt {
+          opacity: 0;
+          min-width: 0;
+          margin: 0;
+        }
+
+        /* Hide clear button */
+        #clear {
+          opacity: 0;
+          min-width: 0;
+        }
+
+        /* Input field */
+        #input {
+          background: none;
+          color: @text;
+          padding: 0;
+        }
+
+        #input placeholder {
+          opacity: 0.5;
+          color: @text;
+        }
+
+        /* Hide typeahead */
+        #typeahead {
+          opacity: 0;
+        }
+
+        /* List */
+        #list {
+          background: transparent;
+          padding-top: 10px;
+        }
+
+        /* List items */
+        child {
+          padding: 0px 12px;
+          background: transparent;
+          border-radius: 4px;
+          margin: 1px 0;
+        }
+
+        child:selected,
+        child:hover {
+          background: alpha(@selected-text, 0.1);
+        }
+
+        /* Item layout */
+        #item {
+          padding: 0;
+        }
+
+        #item.active {
+          font-style: italic;
+        }
+
+        /* Icon */
+        #icon {
+          margin-right: 12px;
+          -gtk-icon-transform: scale(0.8);
+        }
+
+        /* Text */
+        #text {
+          color: @text;
+          padding: 8px 0;
+        }
+
+        #label {
+          font-weight: normal;
+        }
+
+        /* Selected state */
+        child:selected #text,
+        child:selected #label,
+        child:hover #text,
+        child:hover #label {
+          color: @selected-text;
+        }
+
+        /* Hide sub text */
+        #sub {
+          opacity: 0;
+          font-size: 0;
+          min-height: 0;
+        }
+
+        /* Hide activation label */
+        #activationlabel {
+          opacity: 0;
+          min-width: 0;
+        }
+
+        /* Scrollbar styling */
         scrollbar {
           opacity: 0;
         }
 
-        .box-wrapper {
-          background: @window_bg_color;
-          padding: 10px;
-          border: 1px solid @border_color;
+        /* Hide spinner */
+        #spinner {
+          opacity: 0;
         }
 
-        .preview-box,
-        .elephant-hint,
-        .placeholder {
-          color: @theme_fg_color;
+        /* Hide AI elements */
+        #aiScroll,
+        #aiList,
+        .aiItem {
+          opacity: 0;
+          min-height: 0;
         }
 
-        .box {
+        /* Bar entry (switcher) */
+        #bar {
+          opacity: 0;
+          min-height: 0;
         }
 
-        .search-container {
-        }
-
-        .input placeholder {
-          opacity: 0.5;
-        }
-
-        .input {
-          caret-color: @theme_fg_color;
-          background: lighter(@window_bg_color);
-          padding: 10px;
-          color: @theme_fg_color;
-        }
-
-        .input:focus,
-        .input:active {
-        }
-
-        .content-container {
-        }
-
-        .placeholder {
-        }
-
-        .scroll {
-        }
-
-        .list {
-          color: @theme_fg_color;
-        }
-
-        child {
-        }
-
-        .item-box {
-          padding: 4px;
-        }
-
-        .item-quick-activation {
-          margin-left: 10px;
-          background: alpha(@accent_bg_color, 0.25);
-          padding: 10px;
-        }
-
-        child:hover .item-box,
-        child:selected .item-box {
-          background: alpha(@accent_bg_color, 0.25);
-        }
-
-        .item-text-box {
-        }
-
-        .item-text {
-        }
-
-        .item-subtext {
-          font-size: 12px;
-          opacity: 0.5;
-        }
-
-        .item-image,
-        .item-image-text {
-          margin-right: 10px;
-        }
-
-        .item-image-text {
-          font-size: 28px;
-        }
-
-        .preview {
-          border: 1px solid @accent_bg_color;
-          padding: 10px;
-          color: @theme_fg_color;
-        }
-
-        .calc .item-text {
-          font-size: 24px;
-        }
-
-        .calc .item-subtext {
-        }
-
-        .symbols .item-image {
-          font-size: 24px;
-        }
-
-        .todo.done .item-text-box {
-          opacity: 0.25;
-        }
-
-        .todo.urgent {
-          font-size: 24px;
-        }
-
-        .todo.active {
-          font-weight: bold;
-        }
-
-        .bluetooth.disconnected {
-          opacity: 0.5;
-        }
-
-        .preview .large-icons {
-          -gtk-icon-size: 64px;
-        }
-
-        .keybinds-wrapper {
-          border-top: 1px solid lighter(@window_bg_color);
-          font-size: 12px;
-          opacity: 0.5;
-          color: @theme_fg_color;
-        }
-
-        .keybinds {
-        }
-
-        .keybind {
-        }
-
-        .keybind-bind {
-          /* color: lighter(@window_bg_color); */
-          font-weight: bold;
-        }
-
-        .keybind-label {
-        }
-
-        .error {
-          padding: 10px;
-          background: @error_bg_color;
-          color: @error_fg_color;
+        .barentry {
+          opacity: 0;
         }
       '';
     };
