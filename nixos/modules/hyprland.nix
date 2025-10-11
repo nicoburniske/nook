@@ -263,6 +263,10 @@
       windowrule = [
         "scrolltouchpad 1.5, class:kitty"
       ];
+
+      layerrule = [
+        "noanim, walker"
+      ];
     };
   };
 }
