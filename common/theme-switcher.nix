@@ -23,7 +23,6 @@
 
     THEME=$(echo "$themes" | ${pkgs.fzf}/bin/fzf \
       --prompt="Select theme: " \
-      --height=80% \
       --layout=reverse \
       --border=rounded \
       --color=dark)
@@ -49,7 +48,6 @@
     set -euo pipefail
 
     ${kittyPkg}/bin/kitten quick-access-terminal \
-      --config ~/.config/kitty/quick-access-terminal-center.conf \
       --instance-group theme-selector \
       ${themeSwitch}/bin/theme-switch
   '';

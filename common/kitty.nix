@@ -180,7 +180,7 @@ in {
     '';
   };
 
-  xdg.configFile."kitty/quick-access-terminal-center.conf" = {
+  xdg.configFile."kitty/quick-access-terminal.conf" = {
     text = ''
       edge center-sized
       lines 20
