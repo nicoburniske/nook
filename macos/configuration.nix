@@ -61,6 +61,7 @@ in {
       "flux-app"
       "sf-symbols"
       "hammerspoon"
+      "chrome"
     ];
 
     brews = [];
