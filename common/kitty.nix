@@ -179,4 +179,13 @@ in {
 
     '';
   };
+
+  xdg.configFile."kitty/quick-access-teriminal-center.conf" = {
+    text = ''
+      edge center-sized
+      lines 20
+      columns 50
+      background_opacity 0.85
+    '';
+  };
 }
