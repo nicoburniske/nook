@@ -89,10 +89,10 @@ in {
       map --mode unlocked cmd+k resize_window taller
       map --mode unlocked cmd+j resize_window shorter
 
-      map --mode unlocked ctrl+e next_layout
+      map --mode unlocked ctrl+f next_layout
 
       # search with scrollback
-      map --mode unlocked ctrl+f combine | launch --stdin-source=@screen_scrollback --type=overlay hx | pop_keyboard_mode
+      map --mode unlocked ctrl+/ combine | launch --stdin-source=@screen_scrollback --type=overlay hx | pop_keyboard_mode
 
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
