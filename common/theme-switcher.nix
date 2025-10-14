@@ -1,5 +1,9 @@
-{pkgs, ...}: let
-  themeSwitch = pkgs.writeShellScript "theme-switch" ''
+{
+  pkgs,
+  config,
+  ...
+}: let
+  themeSwitch = pkgs.writeShellScriptBin "theme-switch" ''
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -38,14 +42,16 @@
     "$SPEC_DIR/$THEME/activate"
   '';
 
+  kittyPkg = config.programs.kitty.package or pkgs.kitty;
+
   kittyThemeSwitch = pkgs.writeShellScriptBin "kitty-theme-switch" ''
     #!/usr/bin/env bash
     set -euo pipefail
 
-    ${pkgs.kitty}/bin/kitty kitten quick-access-terminal \
+    ${kittyPkg}/bin/kitten quick-access-terminal \
       --config ~/.config/kitty/quick-access-teriminal-center.conf \
       --instance-group theme-selector \
-      ${themeSwitch}
+      ${themeSwitch}/bin/theme-switch
   '';
 in {
   # Activation script to maintain specialisation symlink
