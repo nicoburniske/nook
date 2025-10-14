@@ -24,16 +24,6 @@
       /usr/bin/osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to true'
     fi
   '';
-
-  jankybordersCmd = let
-    settings = [
-      "active_color=0xff${config.lib.stylix.colors.base08}"
-      "inactive_color=0xff${config.lib.stylix.colors.base01}"
-      "width=6.0"
-      "style=round"
-      "hidpi=on"
-    ];
-  in "${pkgs.jankyborders}/bin/borders ${lib.concatStringsSep " " settings}";
 in {
   imports = [
     ../common/packages.nix
@@ -89,20 +79,6 @@ in {
       };
     };
 
-    jankyborders = {
-      enable = true;
-      config = {
-        ProgramArguments = wait4Path jankybordersCmd;
-        EnvironmentVariables = {
-          PATH = lib.makeBinPath [pkgs.jankyborders];
-        };
-        KeepAlive = true;
-        RunAtLoad = true;
-        StandardOutPath = "/tmp/jankyborders.log";
-        StandardErrorPath = "/tmp/jankyborders.err.log";
-      };
-    };
-
     sketchybar = {
       enable = true;
       config = {
@@ -123,8 +99,6 @@ in {
     ${macosTheme}
     echo "reloading sketchybar"
     ${pkgs.sketchybar}/bin/sketchybar --reload || true
-    echo "reloading jankyborders"
-    ${jankybordersCmd} || true
   '';
 
   specialisation = builtins.listToAttrs (
