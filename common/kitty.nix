@@ -180,12 +180,12 @@ in {
     '';
   };
 
-  xdg.configFile."kitty/quick-access-teriminal-center.conf" = {
+  xdg.configFile."kitty/quick-access-terminal-center.conf" = {
     text = ''
       edge center-sized
       lines 20
       columns 50
-      background_opacity 0.85
+      kitty_override tab_bar_style=hidden
     '';
   };
 }

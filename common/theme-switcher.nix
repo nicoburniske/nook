@@ -49,7 +49,7 @@
     set -euo pipefail
 
     ${kittyPkg}/bin/kitten quick-access-terminal \
-      --config ~/.config/kitty/quick-access-teriminal-center.conf \
+      --config ~/.config/kitty/quick-access-terminal-center.conf \
       --instance-group theme-selector \
       ${themeSwitch}/bin/theme-switch
   '';
