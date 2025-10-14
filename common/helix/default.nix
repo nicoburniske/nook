@@ -4,7 +4,7 @@
   config,
   ...
 }: {
-  stylix.targets.helix.transparent = true;
+  stylix.targets.helix.transparent = lib.mkForce true;
 
   programs.helix = {
     enable = true;

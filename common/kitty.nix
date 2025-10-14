@@ -1,16 +1,7 @@
-{
-  config,
-  inputs,
-  pkgs,
-  ...
-}: let
-  pkgs-master = import inputs.nixpkgs-master {
-    system = pkgs.system;
-  };
+{config, ...}: let
   tab_title = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
 in {
   programs.kitty = {
-    package = pkgs-master.kitty;
     enable = true;
     shellIntegration = {
       enableZshIntegration = true;
