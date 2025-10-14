@@ -135,7 +135,7 @@
         "CTRL $mod, L, exec, hyprlock"
 
         "$mod, Space, exec, walker"
-        "CTRL $mod, Space, exec, theme-switch"
+        "CTRL $mod, Space, exec, kitty-theme-switch"
 
         "$mod, P, exec, hyprshot -m output -o ~/screenshots"
         "$mod SHIFT, P, exec, hyprshot -m region -o ~/screenshots"
