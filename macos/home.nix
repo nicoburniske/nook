@@ -61,11 +61,6 @@ in {
   home.packages = with pkgs; [
     nowplaying-cli
     yq-go
-
-    # envoy
-    flutter335
-    rust-bindgen
-    cocoapods
   ];
 
   launchd.agents = {
