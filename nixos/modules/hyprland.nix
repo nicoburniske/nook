@@ -111,11 +111,6 @@
         disable_scale_checks = true;
       };
 
-      exec-once = [
-        "waybar"
-        "swaync"
-      ];
-
       exec = [
         "hyprctl setcursor ${
           if config.stylix.polarity == "light"
