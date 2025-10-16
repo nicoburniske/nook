@@ -106,6 +106,15 @@
           name = "dart";
           language-servers = ["dart"];
         }
+        {
+          name = "toml";
+          language-servers = ["taplo"];
+          formatter = {
+            command = "taplo";
+            args = ["fmt" "-"];
+          };
+          auto-format = true;
+        }
       ];
 
       language-server = {

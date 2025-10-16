@@ -16,5 +16,6 @@
     neofetch
     qbittorrent
     alejandra
+    taplo
   ];
 }
