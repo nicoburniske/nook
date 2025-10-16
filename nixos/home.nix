@@ -25,8 +25,8 @@ in {
 
     ./modules/hyprland.nix
     ./modules/waybar.nix
-    ./modules/walker.nix
     ./modules/swaync.nix
+    ./modules/rofi.nix
   ];
 
   home.username = "nico";

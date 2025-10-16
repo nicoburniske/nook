@@ -129,7 +129,7 @@
 
         "CTRL $mod, L, exec, hyprlock"
 
-        "$mod, Space, exec, walker"
+        "$mod, Space, exec, rofi -show drun"
         "CTRL $mod, Space, exec, kitty-theme-switch"
 
         "$mod, P, exec, hyprshot -m output -o ~/screenshots"
@@ -264,7 +264,7 @@
       ];
 
       layerrule = [
-        "noanim, walker"
+        "noanim, rofi"
       ];
     };
   };
