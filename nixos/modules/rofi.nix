@@ -1,4 +1,5 @@
 {
+  pkgs,
   lib,
   config,
   ...
@@ -10,17 +11,31 @@
   in {
     enable = true;
     extraConfig = {
-      modi = "drun,run";
+      modi = "drun,emoji";
       show-icons = false;
 
       display-drun = "";
       display-run = "";
       display-filebrowser = "";
       display-window = "";
+      display-emoji = "󰞅";
+      display-calc = "󰃬";
 
       drun-display-format = "{name}";
       window-format = "{w} · {c} · {t}";
+
+      kb-mode-next = "Control+l";
+      kb-mode-previous = "Control+h";
+      kb-row-up = "Control+k,Up";
+      kb-row-down = "Control+j,Down";
+      kb-remove-char-forward = "";
+      kb-remove-to-sol = "";
+      kb-remove-to-eol = "";
+      kb-mode-complete = "";
+      kb-remove-char-back = "BackSpace";
+      kb-accept-entry = "Return";
     };
+    plugins = [pkgs.rofi-emoji];
     theme = lib.mkForce {
       "*" = {
         selected = l "${colors.base0D}";
@@ -29,6 +44,7 @@
         background-alt = l "${colors.base01}";
         urgent = l "${colors.base08}";
         active = l "${colors.base0A}";
+        border = l "${colors.base03}";
 
         border-colour = l "@selected";
         handle-colour = l "@foreground";
@@ -60,27 +76,27 @@
         location = l "center";
         anchor = l "center";
         fullscreen = false;
-        width = px 400;
+        width = px 600;
         x-offset = px 0;
         y-offset = px 0;
 
         enabled = true;
         margin = px 0;
         padding = px 0;
-        border = l "0px solid";
-        border-radius = px 8;
-        border-color = l "@border-colour";
+        border = l "2px solid";
+        border-radius = px 0;
+        border-color = l "@border";
         cursor = l "default";
         background-color = l "@background-colour";
       };
 
       mainbox = {
         enabled = true;
-        spacing = px 10;
+        spacing = px 20;
         margin = px 0;
-        padding = px 30;
+        padding = px 40;
         border = l "0px solid";
-        border-radius = l "0px";
+        border-radius = l "0px 0px 0px 0px";
         border-color = l "@border-colour";
         background-color = l "transparent";
         children = l "[inputbar, message, listview, mode-switcher]";
@@ -90,13 +106,13 @@
         enabled = true;
         spacing = px 10;
         margin = px 0;
-        padding = px 0;
+        padding = px 8;
         border = l "0px solid";
-        border-radius = px 0;
+        border-radius = px 4;
         border-color = l "@border-colour";
-        background-color = l "transparent";
+        background-color = l "@alternate-background";
         text-color = l "@foreground-colour";
-        children = l "[prompt, entry]";
+        children = l "[entry]";
       };
 
       prompt = {
@@ -153,7 +169,7 @@
       listview = {
         enabled = true;
         columns = 1;
-        lines = 6;
+        lines = 9;
         cycle = true;
         dynamic = true;
         scrollbar = false;
