@@ -17,5 +17,7 @@
     qbittorrent
     alejandra
     taplo
+    bat
+    fd
   ];
 }

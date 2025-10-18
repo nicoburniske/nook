@@ -22,6 +22,7 @@ in {
     ../common/comically.nix
     ../common/theme-switcher.nix
     ../common/zen-browser.nix
+    ../common/television.nix
 
     ./modules/hyprland.nix
     ./modules/waybar.nix
