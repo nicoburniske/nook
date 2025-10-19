@@ -6,6 +6,9 @@
       television = pkgs.callPackage plugins/television.nix {
         mkYaziPlugin = pkgs.yaziPlugins.mkYaziPlugin;
       };
+      television-files = pkgs.callPackage plugins/television-files.nix {
+        mkYaziPlugin = pkgs.yaziPlugins.mkYaziPlugin;
+      };
     };
 
     keymap = {
@@ -14,6 +17,11 @@
           on = "S";
           run = "plugin television";
           desc = "Find in files via Television";
+        }
+        {
+          on = "z";
+          run = "plugin television-files";
+          desc = "Find files via Television";
         }
       ];
     };
