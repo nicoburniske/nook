@@ -6,7 +6,6 @@
     delta
     btop
     tokei
-    nil
     marksman
     bun
     ffmpeg

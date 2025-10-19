@@ -50,6 +50,7 @@ in {
   };
 
   networking = {
+    hostName = "snowflake";
     nameservers = ["1.1.1.1" "9.9.9.9"];
     wireless.iwd = {
       enable = true;
