@@ -2,12 +2,15 @@
   lib,
   pkgs,
   config,
+  osConfig,
   ...
 }: {
   stylix.targets.helix.transparent = true;
 
   programs.helix = {
     enable = true;
+
+    extraPackages = with pkgs; [nixd nil];
 
     themes = {
       absolute-heat =
@@ -95,7 +98,7 @@
         }
         {
           name = "nix";
-          language-servers = ["nil"];
+          language-servers = ["nil" "nixd"];
           formatter = {
             command = "alejandra";
             args = ["-"];
@@ -126,8 +129,35 @@
           };
         };
 
-        nil = {
-          command = "nil";
+        nixd = {
+          command = "nixd";
+          args = ["--semantic-tokens=true"];
+          config.nixd = let
+            flakePath = "${config.home.homeDirectory}/nook";
+            myFlake = ''(builtins.getFlake "${flakePath}")'';
+            isNixOS = pkgs.stdenv.isLinux;
+            hostName =
+              if isNixOS
+              then osConfig.networking.hostName
+              else osConfig.networking.computerName;
+            configType =
+              if isNixOS
+              then "nixosConfigurations"
+              else "darwinConfigurations";
+            systemOpts = "${myFlake}.${configType}.${hostName}.options";
+          in {
+            nixpkgs.expr = "import ${myFlake}.inputs.nixpkgs { }";
+            options =
+              if isNixOS
+              then {
+                nixos.expr = systemOpts;
+                home-manager.expr = "${systemOpts}.home-manager.users.type.getSubOptions []";
+              }
+              else {
+                darwin.expr = systemOpts;
+                home-manager.expr = "${systemOpts}.home-manager.users.type.getSubOptions []";
+              };
+          };
         };
 
         dart = {
