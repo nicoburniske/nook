@@ -15,12 +15,12 @@
       mgr.prepend_keymap = [
         {
           on = "S";
-          run = "plugin television";
+          run = "plugin tv-text";
           desc = "Find in files via Television";
         }
         {
           on = "z";
-          run = "plugin television-files";
+          run = "plugin tv-files";
           desc = "Find files via Television";
         }
       ];
