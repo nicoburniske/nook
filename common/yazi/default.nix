@@ -3,10 +3,10 @@
     enable = true;
 
     plugins = {
-      television = pkgs.callPackage plugins/television.nix {
+      tv-text = pkgs.callPackage plugins/tv-text.nix {
         mkYaziPlugin = pkgs.yaziPlugins.mkYaziPlugin;
       };
-      television-files = pkgs.callPackage plugins/television-files.nix {
+      tv-files = pkgs.callPackage plugins/tv-files.nix {
         mkYaziPlugin = pkgs.yaziPlugins.mkYaziPlugin;
       };
     };
