@@ -6,7 +6,7 @@ mkYaziPlugin {
   pname = "television-files.yazi";
   version = "0-unstable-2025-10-19";
 
-  src = ./television-files.yazi;
+  src = ./tv-files.nix;
 
   meta = {
     description = "Launch Television 'files' search from Yazi and open results";
