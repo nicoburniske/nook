@@ -1,6 +1,22 @@
-{...}: {
+{pkgs, ...}: {
   programs.yazi = {
     enable = true;
+
+    plugins = {
+      television = pkgs.callPackage plugins/television.nix {
+        mkYaziPlugin = pkgs.yaziPlugins.mkYaziPlugin;
+      };
+    };
+
+    keymap = {
+      mgr.prepend_keymap = [
+        {
+          on = "S";
+          run = "plugin television";
+          desc = "Find in files via Television";
+        }
+      ];
+    };
 
     settings = {
       mgr = {
