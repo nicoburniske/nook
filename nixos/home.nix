@@ -9,7 +9,7 @@ in {
     ../common/git.nix
     ../common/helix/default.nix
     ../common/oh-my-posh.nix
-    ../common/yazi.nix
+    ../common/yazi/default.nix
     ../common/zsh.nix
     ../common/fzf.nix
     ../common/zoxide.nix

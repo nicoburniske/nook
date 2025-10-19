@@ -22,7 +22,7 @@
     requirements = [ "rg", "bat",]
 
     [source]
-    command = "rg . --no-heading --line-number --colors 'match:fg:white' --colors 'path:fg:blue' --color=always"
+    command = "rg . --no-heading --line-number --colors 'match:fg:white' --colors 'path:fg:blue' --color=always --smart-case"
     ansi = true
     output = "{strip_ansi|split:\\::..2}"
 
