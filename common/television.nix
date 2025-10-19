@@ -34,4 +34,26 @@
     header = "{strip_ansi|split:\\::..2}"
 
   '';
+
+  xdg.configFile."television/cable/just.toml".text = ''
+    [metadata]
+    name = "just"
+    description = "A channel to select recipes from Justfiles"
+    requirements = [ "just",]
+
+    [source]
+    command = [ "just --summary | tr '[:blank:]' '\n'",]
+
+    [preview]
+    command = "just -s {}"
+
+    [keybindings]
+    enter = "actions:execute-recipe"
+
+    [actions.execute-recipe]
+    description = "Execute a justfile recipe"
+    command = "just {}"
+    mode = "execute"
+
+  '';
 }
