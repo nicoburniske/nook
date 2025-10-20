@@ -1,16 +1,21 @@
-{config, pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   theme =
     if config.stylix.polarity == "light"
     then "--light"
     else "--dark";
   colors = config.lib.stylix.colors;
-  
-  sendToHelix = cmd: pkgs.lib.concatStringsSep " && " [
-    "kitty @ send-text --match 'state:overlay_parent' '\\x1b'"
-    "kitty @ send-text --match 'state:overlay_parent' \"${cmd}\""
-    "kitty @ send-text --match 'state:overlay_parent' '\\r'"
-    "kitten @ close-window --match state:self"
-  ];
+
+  sendToHelix = cmd:
+    pkgs.lib.concatStringsSep " && " [
+      "kitty @ send-text --match 'state:overlay_parent' '\\x1b'"
+      "kitty @ send-text --match 'state:overlay_parent' \"${cmd}\""
+      "kitty @ send-text --match 'state:overlay_parent' '\\r'"
+      "kitten @ close-window --match state:self"
+    ];
 in {
   programs.lazygit = {
     enable = true;
