@@ -266,6 +266,10 @@
       layerrule = [
         "noanim, rofi"
       ];
+
+      gesture = [
+        "3, horizontal, workspace,"
+      ];
     };
   };
 }
