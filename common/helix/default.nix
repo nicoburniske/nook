@@ -4,7 +4,69 @@
   config,
   osConfig,
   ...
-}: {
+}: let
+  clipboard =
+    if pkgs.stdenv.isDarwin
+    then "pbcopy"
+    else "wl-copy";
+
+  copyLineRef = pkgs.writeShellScriptBin "hx-copy-line-reference" ''
+    buffer_name="$1"
+    cursor_line="$2"
+    selection_line_start="$3"
+    selection_line_end="$4"
+
+    if [ "$selection_line_start" != "$selection_line_end" ]; then
+      printf "%s:%s-%s" "$buffer_name" "$selection_line_start" "$selection_line_end" | ${clipboard}
+    else
+      printf "%s:%s" "$buffer_name" "$cursor_line" | ${clipboard}
+    fi
+  '';
+
+  copyLineUrl = pkgs.writeShellScriptBin "hx-copy-line-url" ''
+    buffer_name="$1"
+    cursor_line="$2"
+    selection_line_start="$3"
+    selection_line_end="$4"
+
+    url=$(git remote get-url origin 2>/dev/null)
+
+    if [ -z "$url" ]; then
+      return 1
+    fi
+
+    url=''${url#git@}
+    url=''${url/:/\/}
+    url=''${url%.git}
+    url="https://''$url"
+
+    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "HEAD")
+
+    if [ "$selection_line_start" != "$selection_line_end" ]; then
+
+      printf "%s/blob/%s/%s#L%s-L%s" "$url" "$branch" "$buffer_name" "$selection_line_start" "$selection_line_end" | ${clipboard}
+    else
+      printf "%s/blob/%s/%s#L%s" "$url" "$branch" "$buffer_name" "$cursor_line" | ${clipboard}
+    fi
+  '';
+
+  yaziPicker = pkgs.writeShellScriptBin "hx-yazi-picker" ''
+    buffer_name="$1"
+
+    if [ -n "$buffer_name" ]; then
+      paths=$(${pkgs.yazi}/bin/yazi "$buffer_name" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+    else
+      paths=$(${pkgs.yazi}/bin/yazi --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+    fi
+
+    # If files were selected, send commands back to Helix
+    if [[ -n "$paths" ]]; then
+      kitty @ send-text --match 'state:overlay_parent' '\x1b'
+      kitty @ send-text --match 'state:overlay_parent' ":open $paths"
+      kitty @ send-text --match 'state:overlay_parent' '\r'
+    fi
+  '';
+in {
   stylix.targets.helix.transparent = true;
 
   programs.helix = {
@@ -57,32 +119,36 @@
         };
       };
 
-      keys.normal = {
-        X = "extend_line_above";
-
-        "C-g" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current lazygit >/dev/null";
-        "C-f" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current ~/.config/helix/kitty-yazi-picker.sh %{buffer_name} >/dev/null";
-        "C-t" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current >/dev/null";
-        "C-l" = "goto_next_buffer";
-        "C-h" = "goto_previous_buffer";
-        "C-x" = ":buffer-close";
-
-        space = {
-          q = ":quit";
-          Q = ":quit!";
-          w = ":write";
-          W = ":write!";
-          l = let
-            clipboard =
-              if pkgs.stdenv.isDarwin
-              then "pbcopy"
-              else "wl-copy";
-          in ":sh if [ '%{selection_line_start}' != '%{selection_line_end}' ]; then printf '%{buffer_name}:%{selection_line_start}-%{selection_line_end}'; else printf '%{buffer_name}:%{cursor_line}'; fi | ${clipboard}";
+      keys = let
+        common = {
+          X = "extend_line_above";
+          space = {
+            q = ":quit";
+            Q = ":quit!";
+            w = ":write";
+            W = ":write!";
+            x = ":bc!";
+            l = ":sh ${copyLineRef}/bin/hx-copy-line-reference %{buffer_name} %{cursor_line} %{selection_line_start} %{selection_line_end}";
+            o = ":sh ${copyLineUrl}/bin/hx-copy-line-url %{buffer_name} %{cursor_line} %{selection_line_start} %{selection_line_end}";
+            "C-r" = ":rla";
+          };
         };
-      };
+      in {
+        normal =
+          {
+            "C-g" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current lazygit >/dev/null";
+            "C-f" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current ${yaziPicker}/bin/hx-yazi-picker %{buffer_name} >/dev/null";
+            "C-t" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current >/dev/null";
+            "C-l" = "goto_next_buffer";
+            "C-h" = "goto_previous_buffer";
+            "C-x" = ":buffer-close";
+          }
+          // common;
 
-      keys.select = {
-        X = "extend_line_above";
+        select =
+          {
+          }
+          // common;
       };
     };
 
@@ -170,22 +236,6 @@
   home.file.".config/helix/kitty-yazi-picker.sh" = {
     executable = true;
     text = ''
-      #!/usr/bin/env bash
-      # Launch yazi picker
-      # $1 = buffer_name (file path)
-
-      if [ -n "$1" ]; then
-        paths=$(${pkgs.yazi}/bin/yazi "$1" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
-      else
-        paths=$(${pkgs.yazi}/bin/yazi --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
-      fi
-
-      # If files were selected, send commands back to Helix
-      if [[ -n "$paths" ]]; then
-        kitty @ send-text --match 'state:overlay_parent' '\x1b'
-        kitty @ send-text --match 'state:overlay_parent' ":open $paths"
-        kitty @ send-text --match 'state:overlay_parent' '\r'
-      fi
     '';
   };
 
