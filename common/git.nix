@@ -15,9 +15,9 @@
 
     extraConfig = {
       gpg.format = "ssh";
-      commit.gpgsign = true;
       push.autoSetupRemote = true;
       pull.rebase = true;
+      rerere.enabled = true;
       core = {
         pager = "delta";
         editor = "hx";
