@@ -6,12 +6,12 @@ language-servers = ["rust-analyzer"]
 command = "rust-analyzer"
 
 [language-server.rust-analyzer.config]
-check.extraEnv = { RUSTFLAGS = "--cfg keyos" }
 check.overrideCommand = [
   "cargo",
   "check",
   "--workspace",
   "--target-dir=target/rust-analyzer",
+  "--target=armv7a-unknown-xous-elf",
   "--message-format=json",
   "--exclude",
   "atsama5d27",
@@ -44,14 +44,13 @@ check.overrideCommand = [
 ]
 
 cargo.target = "armv7a-unknown-xous-elf"
-cargo.features = []
 cargo.buildScripts.enable = true
-cargo.buildScripts.extraEnv = { RUSTFLAGS = "--cfg keyos" }
 cargo.buildScripts.overrideCommand = [
   "cargo",
   "check",
   "--workspace",
   "--target-dir=target/rust-analyzer",
+  "--target=armv7a-unknown-xous-elf",
   "--message-format=json",
   "--quiet",
   "--keep-going",
