@@ -6,33 +6,79 @@ language-servers = ["rust-analyzer"]
 command = "rust-analyzer"
 
 [language-server.rust-analyzer.config]
-cargo.check.workspace = false
-cargo.targetDir = "target/rust-analyzer"
+check.extraEnv = { RUSTFLAGS = "--cfg keyos" }
+check.overrideCommand = [
+  "cargo",
+  "check",
+  "--workspace",
+  "--target-dir=target/rust-analyzer",
+  "--message-format=json",
+  "--exclude",
+  "atsama5d27",
+  "--exclude",
+  "at91bootstrap-ffi",
+  "--exclude",
+  "cryptoauthlib",
+  "--exclude",
+  "libblur",
+  "--exclude",
+  "loader",
+  "--exclude",
+  "log-serial",
+  "--exclude",
+  "log-usb-serial",
+  "--exclude",
+  "skeleton",
+  "--exclude",
+  "crypto-client",
+  "--exclude",
+  "syscall-arg-invalid-addr-test",
+  "--exclude",
+  "micro-ecc-sys",
+  "--exclude",
+  "rust-fatfs",
+  "--exclude",
+  "tar",
+  "--exclude",
+  "mass-storage",
+]
+
 cargo.target = "armv7a-unknown-xous-elf"
 cargo.features = []
-
 cargo.buildScripts.enable = true
+cargo.buildScripts.extraEnv = { RUSTFLAGS = "--cfg keyos" }
 cargo.buildScripts.overrideCommand = [
   "cargo",
   "check",
   "--workspace",
-  "--target=armv7a-unknown-xous-elf",
   "--target-dir=target/rust-analyzer",
   "--message-format=json",
   "--quiet",
   "--keep-going",
-  "--exclude", "atsama5d27",
-  "--exclude", "at91bootstrap-ffi",
-  "--exclude", "cryptoauthlib",
-  "--exclude", "libblur",
-  "--exclude", "loader",
-  "--exclude", "log-serial",
-  "--exclude", "log-usb-serial",
-  "--exclude", "skeleton",
-  "--exclude", "micro-ecc-sys",
-  "--exclude", "rust-fatfs",
-  "--exclude", "tar",
-  "--exclude", "mass-storage"
+  "--exclude",
+  "atsama5d27",
+  "--exclude",
+  "at91bootstrap-ffi",
+  "--exclude",
+  "cryptoauthlib",
+  "--exclude",
+  "libblur",
+  "--exclude",
+  "loader",
+  "--exclude",
+  "log-serial",
+  "--exclude",
+  "log-usb-serial",
+  "--exclude",
+  "skeleton",
+  "--exclude",
+  "micro-ecc-sys",
+  "--exclude",
+  "rust-fatfs",
+  "--exclude",
+  "tar",
+  "--exclude",
+  "mass-storage",
 ]
 
 files.exclude = ["imports/", "target/"]
