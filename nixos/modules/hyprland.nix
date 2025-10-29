@@ -127,6 +127,7 @@
         "$mod, M, exit"
         "$mod, F, fullscreen, 1"
 
+        "CTRL ALT super, Q, exit"
         "CTRL $mod, L, exec, hyprlock"
 
         "$mod, Space, exec, rofi -show drun"
