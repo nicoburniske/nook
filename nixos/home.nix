@@ -60,6 +60,8 @@ in {
     bluetui
     obs-studio
     nautilus
+    file-roller
+    unzip
     sparrow
   ];
 
