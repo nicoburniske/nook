@@ -116,8 +116,6 @@ in {
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
-  programs.adb.enable = true;
-
   users.extraGroups = {
     plugdev = {};
   };
@@ -141,11 +139,12 @@ in {
     shell = pkgs.zsh;
   };
 
-  programs.hyprland = {
-    enable = true;
+  programs = {
+    adb.enable = true;
+    direnv.enable = true;
+    hyprland.enable = true;
+    zsh.enable = true;
   };
-
-  programs.zsh.enable = true;
 
   # List packages installed in system profile.
   # Keep only system-level packages here, user packages go in home.nix
