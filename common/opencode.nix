@@ -12,6 +12,11 @@ in {
     package = pkgs-master.opencode;
     settings = {
       autoupdate = false;
+      tui = {
+        scroll_acceleration = {
+          enabled = true;
+        };
+      };
     };
   };
 }
