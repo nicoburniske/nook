@@ -23,6 +23,7 @@ in {
     ../common/theme-switcher.nix
     ../common/zen-browser.nix
     ../common/television.nix
+    ../common/direnv.nix
 
     ./modules/hyprland.nix
     ./modules/waybar.nix
