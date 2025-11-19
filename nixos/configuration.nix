@@ -141,7 +141,6 @@ in {
 
   programs = {
     adb.enable = true;
-    direnv.enable = true;
     hyprland.enable = true;
     zsh.enable = true;
   };
