@@ -124,7 +124,6 @@
       bind = [
         "$mod, Return, exec, kitty"
         "$mod, Q, killactive"
-        "$mod, M, exit"
         "$mod, F, fullscreen, 1"
 
         "CTRL ALT super, Q, exit"
