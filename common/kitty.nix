@@ -92,7 +92,7 @@ in {
       map --mode unlocked ctrl+f next_layout
 
       # search with scrollback
-      map --mode unlocked ctrl+/ combine | launch --stdin-source=@screen_scrollback --type=overlay hx | pop_keyboard_mode
+      map --mode unlocked ctrl+/ combine | launch --stdin-source=@last_cmd_output --type=overlay hx | pop_keyboard_mode
 
       map --mode unlocked ctrl+1 goto_tab 1
       map --mode unlocked ctrl+2 goto_tab 2
