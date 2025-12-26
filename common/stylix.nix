@@ -53,7 +53,7 @@ in {
           base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
           override = {slug = "gruvbox";};
           polarity = "dark";
-          image = ../assets/wallpapers/dark-evangelion.png;
+          image = ../assets/wallpapers/the-backwater.jpg;
         }
         // baseConfig;
     }
