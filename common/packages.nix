@@ -18,6 +18,6 @@
     taplo
     bat
     fd
-    calibre
+    readest
   ];
 }
