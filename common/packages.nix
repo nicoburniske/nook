@@ -18,5 +18,6 @@
     taplo
     bat
     fd
+    calibre
   ];
 }
