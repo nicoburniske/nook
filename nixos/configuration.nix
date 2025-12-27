@@ -125,6 +125,21 @@ in {
     plugdev = {};
   };
 
+  security.pam.loginLimits = [
+    {
+      domain = "*";
+      type = "soft";
+      item = "memlock";
+      value = "unlimited";
+    }
+    {
+      domain = "*";
+      type = "hard";
+      item = "memlock";
+      value = "unlimited";
+    }
+  ];
+
   # Define a user account. Don't forget to set a password with 'passwd'.
   users.users.nico = {
     isNormalUser = true;
