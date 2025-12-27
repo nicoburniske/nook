@@ -125,6 +125,7 @@
         "$mod, Return, exec, kitty"
         "$mod, Q, killactive"
         "$mod, F, fullscreen, 1"
+        "$mod, G, fullscreen, 0"
 
         "CTRL ALT super, Q, exit"
         "CTRL $mod, L, exec, hyprlock"
