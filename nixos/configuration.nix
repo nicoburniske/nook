@@ -154,6 +154,7 @@ in {
   # Keep only system-level packages here, user packages go in home.nix
   environment.systemPackages = with pkgs; [
     git
+    rpcs3
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
