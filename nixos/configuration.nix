@@ -125,21 +125,6 @@ in {
     plugdev = {};
   };
 
-  security.pam.loginLimits = [
-    {
-      domain = "*";
-      type = "soft";
-      item = "memlock";
-      value = "unlimited";
-    }
-    {
-      domain = "*";
-      type = "hard";
-      item = "memlock";
-      value = "unlimited";
-    }
-  ];
-
   # Define a user account. Don't forget to set a password with 'passwd'.
   users.users.nico = {
     isNormalUser = true;
@@ -169,7 +154,6 @@ in {
   # Keep only system-level packages here, user packages go in home.nix
   environment.systemPackages = with pkgs; [
     git
-    rpcs3
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
