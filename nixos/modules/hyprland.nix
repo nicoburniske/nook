@@ -119,7 +119,7 @@
         } 24"
       ];
 
-      "$mod" = "alt";
+      "$mod" = "SUPER";
 
       bind = [
         "$mod, Return, exec, kitty"
