@@ -41,6 +41,8 @@ check.overrideCommand = [
   "tar",
   "--exclude",
   "mass-storage",
+  "--exclude",
+  "soft-buffer",
 ]
 
 cargo.target = "armv7a-unknown-xous-elf"
@@ -78,6 +80,8 @@ cargo.buildScripts.overrideCommand = [
   "tar",
   "--exclude",
   "mass-storage",
+  "--exclude",
+  "soft-buffer",
 ]
 
 files.exclude = ["imports/", "target/"]
