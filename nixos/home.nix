@@ -66,6 +66,7 @@ in {
     unzip
     unrar
     sparrow
+    pavucontrol
   ];
 
   specialisation = builtins.listToAttrs (
