@@ -81,7 +81,7 @@
 
         pulseaudio = {
           format = "{icon}";
-          on-click = "kitty --class wiremix wiremix";
+          on-click = "pavucontrol";
           tooltip-format = "Playing at {volume}%";
           scroll-step = 5;
           format-muted = "󰝟";
