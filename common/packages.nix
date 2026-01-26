@@ -18,6 +18,5 @@
     taplo
     bat
     fd
-    readest
   ];
 }
