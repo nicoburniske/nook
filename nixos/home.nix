@@ -66,6 +66,7 @@ in {
     unzip
     unrar
     sparrow
+    readest
   ];
 
   specialisation = builtins.listToAttrs (
