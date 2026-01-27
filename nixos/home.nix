@@ -49,8 +49,14 @@ in {
 
   nixpkgs.config.allowUnfree = true;
 
+  nixpkgs.overlays = [
+    (final: prev: {
+      ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
+    })
+  ];
+
   home.packages = with pkgs; [
-    (ungoogled-chromium.override {enableWideVine = true;})
+    ungoogled-chromium
     vlc
     wl-clipboard
     brightnessctl
