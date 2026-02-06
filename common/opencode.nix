@@ -2,14 +2,10 @@
   pkgs,
   inputs,
   ...
-}: let
-  pkgs-master = import inputs.nixpkgs-master {
-    system = pkgs.system;
-  };
-in {
+}: {
   programs.opencode = {
     enable = true;
-    package = pkgs-master.opencode;
+    package = inputs.opencode.packages.${pkgs.system}.opencode;
     settings = {
       autoupdate = false;
       tui = {
