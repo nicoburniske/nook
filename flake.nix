@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
+    opencode.url = "github:anomalyco/opencode/dev";
 
     home-manager = {
       url = "github:nix-community/home-manager";
