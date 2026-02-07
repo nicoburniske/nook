@@ -113,7 +113,7 @@ in {
             author = "Protesilaos Stavrou";
             base00 = "fbf7f0"; # bg-main
             base01 = "f1d5d0"; # bg-hl-line
-            base02 = "cab9b2"; # bg-mode-line-active
+            base02 = "ddc7c1"; # bg-alt
             base03 = "a59a94"; # border-mode-line-inactive
             base04 = "585858"; # fg-mode-line-inactive
             base05 = "000000"; # pure black

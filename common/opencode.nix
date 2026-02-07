@@ -4,11 +4,30 @@
   inputs,
   ...
 }: let
-  colors = config.lib.stylix.colors.withHashtag;
+  colors = config.lib.stylix.colors;
+  colorsHex = config.lib.stylix.colors.withHashtag;
   themeName = "stylix";
+  diffBgStrength = 18;
+  diffLineBgStrength = 24;
+  rgb = name: {
+    r = pkgs.lib.toInt colors."${name}-rgb-r";
+    g = pkgs.lib.toInt colors."${name}-rgb-g";
+    b = pkgs.lib.toInt colors."${name}-rgb-b";
+  };
+  hex2 = value: pkgs.lib.fixedWidthString 2 "0" (pkgs.lib.toHexString value);
+  rgbToHex = value: "#${hex2 value.r}${hex2 value.g}${hex2 value.b}";
+  mixChannel = a: b: percent:
+    builtins.div (a * percent + b * (100 - percent)) 100;
+  blendRgb = fg: bg: percent: {
+    r = mixChannel fg.r bg.r percent;
+    g = mixChannel fg.g bg.g percent;
+    b = mixChannel fg.b bg.b percent;
+  };
+  blendHex = fgName: bgName: percent:
+    rgbToHex (blendRgb (rgb fgName) (rgb bgName) percent);
   themeJson = builtins.toJSON {
     "$schema" = "https://opencode.ai/theme.json";
-    theme = with colors; {
+    theme = with colorsHex; {
       primary = base0D;
       secondary = base0E;
       accent = base0C;
@@ -30,12 +49,12 @@
       diffHunkHeader = base04;
       diffHighlightAdded = base0B;
       diffHighlightRemoved = base08;
-      diffAddedBg = base01;
-      diffRemovedBg = base01;
+      diffAddedBg = blendHex "base0B" "base00" diffBgStrength;
+      diffRemovedBg = blendHex "base08" "base00" diffBgStrength;
       diffContextBg = base01;
       diffLineNumber = base03;
-      diffAddedLineNumberBg = base01;
-      diffRemovedLineNumberBg = base01;
+      diffAddedLineNumberBg = blendHex "base0B" "base00" diffLineBgStrength;
+      diffRemovedLineNumberBg = blendHex "base08" "base00" diffLineBgStrength;
       markdownText = base05;
       markdownHeading = base0D;
       markdownLink = base0D;
