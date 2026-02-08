@@ -6,6 +6,7 @@ Scope {
   id: bar
 
   required property var theme
+  property string activePopup: ""
 
   Variants {
     model: Quickshell.screens
@@ -62,11 +63,13 @@ Scope {
               SoundWidget {
                 panelWindow: panel
                 theme: bar.theme
+                popupState: bar
               }
 
               BluetoothWidget {
                 panelWindow: panel
                 theme: bar.theme
+                popupState: bar
               }
 
               Rectangle {
