@@ -169,204 +169,170 @@ Rectangle {
     }
   }
 
-  PopupWindow {
+  PopupMenu {
     id: btPopup
 
-    anchor.window: panelWindow
-    anchor.rect.x: 0
-    anchor.rect.y: panelWindow.implicitHeight
+    panelWindow: root.panelWindow
+    popupState: root.popupState
+    popupId: "bluetooth"
+    triggerItem: root
+    theme: root.theme
+    menuWidth: 300
 
-    visible: popupState.activePopup === "bluetooth"
-    color: "transparent"
+    Column {
+      id: content
+      width: parent.width
+      spacing: 6
 
-    implicitWidth: screen.width
-    implicitHeight: Math.max(1, screen.height - panelWindow.implicitHeight)
+      RowLayout {
+        width: parent.width
 
-    Rectangle {
-      anchors.fill: parent
-      color: "transparent"
-
-      MouseArea {
-        anchors.fill: parent
-        onClicked: popupState.activePopup = ""
-      }
-
-      Rectangle {
-        id: menu
-        anchors.top: parent.top
-        anchors.topMargin: 6
-        anchors.right: parent.right
-        anchors.rightMargin: 10
-        width: 300
-        implicitHeight: content.implicitHeight + 16
-        radius: theme.radius
-        color: theme.widgetBg
-        border.color: theme.widgetBorder
-        border.width: 1
-        clip: true
-
-        MouseArea {
-          anchors.fill: parent
-        }
-
-        Column {
-          id: content
-          anchors.fill: parent
-          anchors.margins: 8
-          spacing: 6
+        Item {
+          implicitWidth: launchBtuiRow.implicitWidth
+          implicitHeight: 22
 
           RowLayout {
-            width: parent.width
-
-            Item {
-              implicitWidth: launchBtuiRow.implicitWidth
-              implicitHeight: 22
-
-              RowLayout {
-                id: launchBtuiRow
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 6
-
-                Text {
-                  id: btLabel
-                  text: "bluetooth"
-                  color: theme.fg
-                  font.family: theme.monospaceFont
-                  font.pixelSize: theme.fontSize
-                  Layout.alignment: Qt.AlignVCenter
-                }
-
-                Text {
-                  id: btCog
-                  text: "󰒓"
-                  color: theme.fg
-                  font.family: theme.emojiFont
-                  font.pixelSize: theme.fontSize
-                  Layout.alignment: Qt.AlignVCenter
-                }
-              }
-
-              MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                  popupState.activePopup = "";
-                  openBtui.startDetached();
-                }
-              }
-            }
-
-            Item {
-              Layout.fillWidth: true
-            }
-
-            Rectangle {
-              color: "transparent"
-              implicitWidth: 34
-              implicitHeight: 22
-              Layout.alignment: Qt.AlignRight
-
-              Rectangle {
-                id: powerSwitch
-                anchors.centerIn: parent
-                width: 34
-                height: 18
-                radius: 9
-                border.width: 1
-                border.color: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? theme.base0C : theme.widgetBorder
-                color: Qt.rgba(0, 0, 0, 0)
-
-                Rectangle {
-                  width: 12
-                  height: 12
-                  radius: 6
-                  y: 3
-                  x: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? 18 : 4
-                  color: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? theme.base0C : theme.base03
-
-                  Behavior on x {
-                    NumberAnimation { duration: 120 }
-                  }
-                }
-
-                MouseArea {
-                  anchors.fill: parent
-                  onClicked: {
-                    if (Bluetooth.defaultAdapter) {
-                      Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-          RowLayout {
-            visible: root.connectedDevices().length > 0
-            width: content.width
-            spacing: 8
-
-            Rectangle {
-              Layout.fillWidth: true
-              implicitHeight: 1
-              color: theme.widgetBorder
-            }
+            id: launchBtuiRow
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 6
 
             Text {
-              text: "connected"
+              id: btLabel
+              text: "bluetooth"
               color: theme.fg
               font.family: theme.monospaceFont
               font.pixelSize: theme.fontSize
+              Layout.alignment: Qt.AlignVCenter
             }
-
-            Rectangle {
-              Layout.fillWidth: true
-              implicitHeight: 1
-              color: theme.widgetBorder
-            }
-          }
-
-          Repeater {
-            model: ScriptModel {
-              values: root.connectedDevices()
-            }
-
-            DeviceRow {
-              required property var modelData
-              device: modelData
-              connectedSection: true
-            }
-          }
-
-          Repeater {
-            model: ScriptModel {
-              values: root.knownDevices()
-            }
-
-            DeviceRow {
-              required property var modelData
-              device: modelData
-              connectedSection: false
-            }
-          }
-
-          Rectangle {
-            visible: !Bluetooth.defaultAdapter || (root.connectedDevices().length === 0 && root.knownDevices().length === 0)
-            width: content.width
-            implicitHeight: 30
-            radius: theme.radius
-            color: "transparent"
-            border.color: theme.widgetBorder
-            border.width: 1
 
             Text {
-              anchors.centerIn: parent
-              text: !Bluetooth.defaultAdapter ? "no bluetooth adapter" : "no saved devices"
-              color: theme.base03
-              font.family: theme.monospaceFont
+              id: btCog
+              text: "󰒓"
+              color: theme.fg
+              font.family: theme.emojiFont
               font.pixelSize: theme.fontSize
+              Layout.alignment: Qt.AlignVCenter
             }
           }
 
+          MouseArea {
+            anchors.fill: parent
+            onClicked: {
+              popupState.activePopup = "";
+              openBtui.startDetached();
+            }
+          }
+        }
+
+        Item {
+          Layout.fillWidth: true
+        }
+
+        Rectangle {
+          color: "transparent"
+          implicitWidth: 34
+          implicitHeight: 22
+          Layout.alignment: Qt.AlignRight
+
+          Rectangle {
+            id: powerSwitch
+            anchors.centerIn: parent
+            width: 34
+            height: 18
+            radius: 9
+            border.width: 1
+            border.color: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? theme.base0C : theme.widgetBorder
+            color: Qt.rgba(0, 0, 0, 0)
+
+            Rectangle {
+              width: 12
+              height: 12
+              radius: 6
+              y: 3
+              x: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? 18 : 4
+              color: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? theme.base0C : theme.base03
+
+              Behavior on x {
+                NumberAnimation { duration: 120 }
+              }
+            }
+
+            MouseArea {
+              anchors.fill: parent
+              onClicked: {
+                if (Bluetooth.defaultAdapter) {
+                  Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      RowLayout {
+        visible: root.connectedDevices().length > 0
+        width: content.width
+        spacing: 8
+
+        Rectangle {
+          Layout.fillWidth: true
+          implicitHeight: 1
+          color: theme.widgetBorder
+        }
+
+        Text {
+          text: "connected"
+          color: theme.fg
+          font.family: theme.monospaceFont
+          font.pixelSize: theme.fontSize
+        }
+
+        Rectangle {
+          Layout.fillWidth: true
+          implicitHeight: 1
+          color: theme.widgetBorder
+        }
+      }
+
+      Repeater {
+        model: ScriptModel {
+          values: root.connectedDevices()
+        }
+
+        DeviceRow {
+          required property var modelData
+          device: modelData
+          connectedSection: true
+        }
+      }
+
+      Repeater {
+        model: ScriptModel {
+          values: root.knownDevices()
+        }
+
+        DeviceRow {
+          required property var modelData
+          device: modelData
+          connectedSection: false
+        }
+      }
+
+      Rectangle {
+        visible: !Bluetooth.defaultAdapter || (root.connectedDevices().length === 0 && root.knownDevices().length === 0)
+        width: content.width
+        implicitHeight: 30
+        radius: theme.radius
+        color: "transparent"
+        border.color: theme.widgetBorder
+        border.width: 1
+
+        Text {
+          anchors.centerIn: parent
+          text: !Bluetooth.defaultAdapter ? "no bluetooth adapter" : "no saved devices"
+          color: theme.base03
+          font.family: theme.monospaceFont
+          font.pixelSize: theme.fontSize
         }
       }
     }
