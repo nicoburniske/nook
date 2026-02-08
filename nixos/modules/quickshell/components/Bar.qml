@@ -7,6 +7,7 @@ Scope {
 
   required property var theme
   property string activePopup: ""
+  property int segmentSlant: 6
 
   Variants {
     model: Quickshell.screens
@@ -46,19 +47,17 @@ Scope {
             Layout.fillWidth: true
           }
 
-          Rectangle {
-            radius: theme.radius
-            color: theme.widgetBg
-            border.color: theme.widgetBorder
-            border.width: 1
+          SlantRect {
+            fillColor: theme.widgetBg
+            strokeColor: theme.widgetBorder
+            strokeWidth: 1
+            slant: bar.segmentSlant
             implicitHeight: 26
-            implicitWidth: indicatorRow.implicitWidth + 8
 
             RowLayout {
               id: indicatorRow
-              anchors.fill: parent
-              anchors.leftMargin: 4
-              anchors.rightMargin: 4
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
               spacing: 2
 
               SoundWidget {
@@ -75,19 +74,17 @@ Scope {
             }
           }
 
-          Rectangle {
-            radius: theme.radius
-            color: theme.widgetBg
-            border.color: theme.widgetBorder
-            border.width: 1
+          SlantRect {
+            fillColor: theme.widgetBg
+            strokeColor: theme.widgetBorder
+            strokeWidth: 1
+            slant: bar.segmentSlant
             implicitHeight: 26
-            implicitWidth: statsRow.implicitWidth + 8
 
             RowLayout {
               id: statsRow
-              anchors.fill: parent
-              anchors.leftMargin: 4
-              anchors.rightMargin: 4
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
               spacing: 2
 
               SystemStatsWidget {
@@ -96,19 +93,17 @@ Scope {
             }
           }
 
-          Rectangle {
-            radius: theme.radius
-            color: theme.widgetBg
-            border.color: theme.widgetBorder
-            border.width: 1
+          SlantRect {
+            fillColor: theme.widgetBg
+            strokeColor: theme.widgetBorder
+            strokeWidth: 1
+            slant: bar.segmentSlant
             implicitHeight: 26
-            implicitWidth: batteryRow.implicitWidth + 8
 
             RowLayout {
               id: batteryRow
-              anchors.fill: parent
-              anchors.leftMargin: 4
-              anchors.rightMargin: 4
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
               spacing: 2
 
               BatteryWidget {
@@ -119,17 +114,17 @@ Scope {
             }
           }
 
-          Rectangle {
-            radius: theme.radius
-            color: theme.widgetBg
-            border.color: theme.widgetBorder
-            border.width: 1
+          SlantRect {
+            fillColor: theme.widgetBg
+            strokeColor: theme.widgetBorder
+            strokeWidth: 1
+            slant: bar.segmentSlant
             implicitHeight: 26
-            implicitWidth: clockLabel.implicitWidth + 16
 
             Text {
               id: clockLabel
-              anchors.centerIn: parent
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
               color: theme.fg
               font.family: theme.monospaceFont
               font.pixelSize: theme.fontSize
