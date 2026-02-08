@@ -199,7 +199,7 @@ in {
           command = "nixd";
           args = ["--semantic-tokens=true"];
           config.nixd = let
-            flakePath = "${config.home.homeDirectory}/nook";
+            flakePath = config.nook.paths.flakeRoot;
             myFlake = ''(builtins.getFlake "${flakePath}")'';
             isNixOS = pkgs.stdenv.isLinux;
             hostName =

@@ -1,6 +1,10 @@
-{config, pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   fontSize = toString config.stylix.fonts.sizes.desktop;
-  quickshellRepoDir = "${config.home.homeDirectory}/nook/nixos/modules/quickshell";
+  quickshellRoot = "${config.nook.paths.flakeRoot}/nixos/modules/quickshell";
 in {
   home.packages = [pkgs.quickshell];
 
@@ -38,7 +42,7 @@ in {
     }
   '';
 
-  xdg.configFile."quickshell/components".source = config.lib.file.mkOutOfStoreSymlink "${quickshellRepoDir}/components";
+  xdg.configFile."quickshell/components".source = config.lib.file.mkOutOfStoreSymlink "${quickshellRoot}/components";
 
   systemd.user.services.quickshell = {
     Unit = {
