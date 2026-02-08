@@ -55,35 +55,13 @@ Item {
     indicatorReady = true;
   }
 
-  Canvas {
-    id: containerShape
+  SlantRect {
     anchors.fill: parent
-
-    onPaint: {
-      var ctx = getContext("2d");
-      var w = width;
-      var h = height;
-      var s = root.sideInset;
-
-      ctx.clearRect(0, 0, w, h);
-      ctx.beginPath();
-      ctx.moveTo(s, 0.5);
-      ctx.lineTo(w - 0.5, 0.5);
-      ctx.lineTo(w - s, h - 0.5);
-      ctx.lineTo(0.5, h - 0.5);
-      ctx.closePath();
-
-      ctx.fillStyle = theme.widgetBg;
-      ctx.fill();
-
-      ctx.strokeStyle = theme.widgetBorder;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
+    slant: root.sideInset
+    fillColor: theme.widgetBg
+    strokeColor: theme.widgetBorder
+    strokeWidth: 1
   }
-
-  onWidthChanged: containerShape.requestPaint()
-  onHeightChanged: containerShape.requestPaint()
 
   MouseArea {
     anchors.fill: parent
