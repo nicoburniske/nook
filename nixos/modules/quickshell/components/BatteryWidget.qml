@@ -158,179 +158,123 @@ Rectangle {
     }
   }
 
-  PopupWindow {
+  PopupMenu {
     id: popup
 
-    anchor.window: panelWindow
-    anchor.rect.x: 0
-    anchor.rect.y: panelWindow.implicitHeight
+    panelWindow: root.panelWindow
+    popupState: root.popupState
+    popupId: "battery"
+    triggerItem: root
+    theme: root.theme
+    menuWidth: 320
 
-    visible: popupState.activePopup === "battery"
-    color: "transparent"
+    Column {
+      id: content
+      width: parent.width
+      spacing: 6
 
-    implicitWidth: screen.width
-    implicitHeight: Math.max(1, screen.height - panelWindow.implicitHeight)
-
-    Rectangle {
-      anchors.fill: parent
-      color: "transparent"
-
-      MouseArea {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: menu.top
-        onClicked: popupState.activePopup = ""
-      }
-
-      MouseArea {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: menu.bottom
-        anchors.bottom: parent.bottom
-        onClicked: popupState.activePopup = ""
-      }
-
-      MouseArea {
-        anchors.left: parent.left
-        anchors.right: menu.left
-        anchors.top: menu.top
-        anchors.bottom: menu.bottom
-        onClicked: popupState.activePopup = ""
-      }
-
-      MouseArea {
-        anchors.left: menu.right
-        anchors.right: parent.right
-        anchors.top: menu.top
-        anchors.bottom: menu.bottom
-        onClicked: popupState.activePopup = ""
+      Text {
+        text: "battery"
+        color: theme.fg
+        font.family: theme.monospaceFont
+        font.pixelSize: theme.fontSize
       }
 
       Rectangle {
-        id: menu
-        anchors.top: parent.top
-        anchors.topMargin: 6
-        anchors.right: parent.right
-        anchors.rightMargin: 10
-        width: 320
-        implicitHeight: content.implicitHeight + 16
+        width: content.width
+        implicitHeight: 44
         radius: theme.radius
-        color: theme.widgetBg
-        border.color: theme.widgetBorder
+        color: "transparent"
+        border.color: UPower.onBattery && root.percentage() <= 20 ? theme.danger : theme.widgetBorder
         border.width: 1
-        clip: true
 
         Column {
-          id: content
           anchors.fill: parent
-          anchors.margins: 8
-          spacing: 6
+          anchors.leftMargin: 8
+          anchors.rightMargin: 8
+          anchors.topMargin: 4
+          anchors.bottomMargin: 4
+          spacing: 2
 
           Text {
-            text: "battery"
-            color: theme.fg
-            font.family: theme.monospaceFont
-            font.pixelSize: theme.fontSize
-          }
-
-          Rectangle {
-            width: content.width
-            implicitHeight: 44
-            radius: theme.radius
-            color: "transparent"
-            border.color: UPower.onBattery && root.percentage() <= 20 ? theme.danger : theme.widgetBorder
-            border.width: 1
-
-            Column {
-              anchors.fill: parent
-              anchors.leftMargin: 8
-              anchors.rightMargin: 8
-              anchors.topMargin: 4
-              anchors.bottomMargin: 4
-              spacing: 2
-
-              Text {
-                text: root.percentage() + "% " + root.batteryIcon() + "  " + root.statusText()
-                color: UPower.onBattery && root.percentage() <= 20 ? theme.danger : theme.fg
-                font.family: theme.monospaceFont
-                font.pixelSize: theme.fontSize
-              }
-
-              Text {
-                text: root.detailsText().length > 0 ? root.detailsText() : "no power estimate"
-                color: theme.base03
-                font.family: theme.monospaceFont
-                font.pixelSize: theme.fontSize
-              }
-            }
-          }
-
-          Text {
-            text: "power profile"
-            color: theme.fg
-            font.family: theme.monospaceFont
-            font.pixelSize: theme.fontSize
-          }
-
-          RowLayout {
-            width: content.width
-            spacing: 4
-
-            Repeater {
-              model: ScriptModel {
-                values: root.profileEntries()
-              }
-
-              Rectangle {
-                required property var modelData
-
-                Layout.fillWidth: true
-                implicitHeight: 28
-                radius: theme.radius
-                color: "transparent"
-                border.width: 1
-                border.color: PowerProfiles.profile === modelData.profile ? theme.base0C : theme.widgetBorder
-
-                Text {
-                  anchors.centerIn: parent
-                  text: modelData.label
-                  color: PowerProfiles.profile === modelData.profile ? theme.base0C : theme.fg
-                  font.family: theme.monospaceFont
-                  font.pixelSize: theme.fontSize
-                }
-
-                TapHandler {
-                  onTapped: PowerProfiles.profile = modelData.profile
-                }
-              }
-            }
-          }
-
-          Text {
-            visible: !PowerProfiles.hasPerformanceProfile
-            text: "performance profile unavailable"
-            color: theme.base03
+            text: root.percentage() + "% " + root.batteryIcon() + "  " + root.statusText()
+            color: UPower.onBattery && root.percentage() <= 20 ? theme.danger : theme.fg
             font.family: theme.monospaceFont
             font.pixelSize: theme.fontSize
           }
 
           Text {
-            visible: root.degradationText().length > 0
-            text: "degraded: " + root.degradationText()
-            color: theme.danger
-            font.family: theme.monospaceFont
-            font.pixelSize: theme.fontSize
-          }
-
-          Text {
-            visible: PowerProfiles.holds.length > 0
-            text: "profile held by " + PowerProfiles.holds.length + " app(s)"
+            text: root.detailsText().length > 0 ? root.detailsText() : "no power estimate"
             color: theme.base03
             font.family: theme.monospaceFont
             font.pixelSize: theme.fontSize
           }
         }
+      }
+
+      Text {
+        text: "power profile"
+        color: theme.fg
+        font.family: theme.monospaceFont
+        font.pixelSize: theme.fontSize
+      }
+
+      RowLayout {
+        width: content.width
+        spacing: 4
+
+        Repeater {
+          model: ScriptModel {
+            values: root.profileEntries()
+          }
+
+          Rectangle {
+            required property var modelData
+
+            Layout.fillWidth: true
+            implicitHeight: 28
+            radius: theme.radius
+            color: "transparent"
+            border.width: 1
+            border.color: PowerProfiles.profile === modelData.profile ? theme.base0C : theme.widgetBorder
+
+            Text {
+              anchors.centerIn: parent
+              text: modelData.label
+              color: PowerProfiles.profile === modelData.profile ? theme.base0C : theme.fg
+              font.family: theme.monospaceFont
+              font.pixelSize: theme.fontSize
+            }
+
+            TapHandler {
+              onTapped: PowerProfiles.profile = modelData.profile
+            }
+          }
+        }
+      }
+
+      Text {
+        visible: !PowerProfiles.hasPerformanceProfile
+        text: "performance profile unavailable"
+        color: theme.base03
+        font.family: theme.monospaceFont
+        font.pixelSize: theme.fontSize
+      }
+
+      Text {
+        visible: root.degradationText().length > 0
+        text: "degraded: " + root.degradationText()
+        color: theme.danger
+        font.family: theme.monospaceFont
+        font.pixelSize: theme.fontSize
+      }
+
+      Text {
+        visible: PowerProfiles.holds.length > 0
+        text: "profile held by " + PowerProfiles.holds.length + " app(s)"
+        color: theme.base03
+        font.family: theme.monospaceFont
+        font.pixelSize: theme.fontSize
       }
     }
   }

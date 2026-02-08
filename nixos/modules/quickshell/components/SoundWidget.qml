@@ -308,183 +308,127 @@ Rectangle {
     }
   }
 
-  PopupWindow {
+  PopupMenu {
     id: popup
 
-    anchor.window: panelWindow
-    anchor.rect.x: 0
-    anchor.rect.y: panelWindow.implicitHeight
+    panelWindow: root.panelWindow
+    popupState: root.popupState
+    popupId: "sound"
+    triggerItem: root
+    theme: root.theme
+    menuWidth: 320
 
-    visible: popupState.activePopup === "sound"
-    color: "transparent"
+    Column {
+      id: content
+      width: parent.width
+      spacing: 6
 
-    implicitWidth: screen.width
-    implicitHeight: Math.max(1, screen.height - panelWindow.implicitHeight)
+      Item {
+        width: content.width
+        implicitHeight: headerRow.implicitHeight
 
-    Rectangle {
-      anchors.fill: parent
-      color: "transparent"
-
-      MouseArea {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: menu.top
-        onClicked: popupState.activePopup = ""
-      }
-
-      MouseArea {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: menu.bottom
-        anchors.bottom: parent.bottom
-        onClicked: popupState.activePopup = ""
-      }
-
-      MouseArea {
-        anchors.left: parent.left
-        anchors.right: menu.left
-        anchors.top: menu.top
-        anchors.bottom: menu.bottom
-        onClicked: popupState.activePopup = ""
-      }
-
-      MouseArea {
-        anchors.left: menu.right
-        anchors.right: parent.right
-        anchors.top: menu.top
-        anchors.bottom: menu.bottom
-        onClicked: popupState.activePopup = ""
-      }
-
-      Rectangle {
-        id: menu
-        anchors.top: parent.top
-        anchors.topMargin: 6
-        anchors.right: parent.right
-        anchors.rightMargin: 10
-        width: 320
-        implicitHeight: content.implicitHeight + 16
-        radius: theme.radius
-        color: theme.widgetBg
-        border.color: theme.widgetBorder
-        border.width: 1
-        clip: true
-
-        Column {
-          id: content
-          anchors.fill: parent
-          anchors.margins: 8
+        RowLayout {
+          id: headerRow
+          anchors.left: parent.left
+          anchors.verticalCenter: parent.verticalCenter
           spacing: 6
 
-          Item {
-            width: content.width
-            implicitHeight: headerRow.implicitHeight
-
-            RowLayout {
-              id: headerRow
-              anchors.left: parent.left
-              anchors.verticalCenter: parent.verticalCenter
-              spacing: 6
-
-              Text {
-                text: "sound"
-                color: theme.fg
-                font.family: theme.monospaceFont
-                font.pixelSize: theme.fontSize
-              }
-
-              Text {
-                text: "󰒓"
-                color: theme.fg
-                font.family: theme.emojiFont
-                font.pixelSize: theme.fontSize
-              }
-            }
-
-            MouseArea {
-              anchors.fill: parent
-              onClicked: {
-                popupState.activePopup = "";
-                openPavucontrol.startDetached();
-              }
-            }
+          Text {
+            text: "sound"
+            color: theme.fg
+            font.family: theme.monospaceFont
+            font.pixelSize: theme.fontSize
           }
 
-          Repeater {
-            model: ScriptModel {
-              values: audio.sinks()
-            }
+          Text {
+            text: "󰒓"
+            color: theme.fg
+            font.family: theme.emojiFont
+            font.pixelSize: theme.fontSize
+          }
+        }
 
-            SinkRow {
-              required property var modelData
-              sinkNode: modelData
-              rowWidth: content.width
-            }
+        MouseArea {
+          anchors.fill: parent
+          onClicked: {
+            popupState.activePopup = "";
+            openPavucontrol.startDetached();
+          }
+        }
+      }
+
+      Repeater {
+        model: ScriptModel {
+          values: audio.sinks()
+        }
+
+        SinkRow {
+          required property var modelData
+          sinkNode: modelData
+          rowWidth: content.width
+        }
+      }
+
+      RowLayout {
+        width: content.width
+
+        Text {
+          text: audio.volumePercent() + "%"
+          color: theme.fg
+          font.family: theme.monospaceFont
+          font.pixelSize: theme.fontSize
+        }
+
+        Item {
+          id: volumeSlider
+          Layout.fillWidth: true
+          implicitHeight: 20
+
+          Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            height: 4
+            radius: 2
+            color: theme.widgetBorder
           }
 
-          RowLayout {
-            width: content.width
+          Rectangle {
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            width: parent.width * audio.volumeValue
+            height: 4
+            radius: 2
+            color: theme.base0C
+          }
 
-            Text {
-              text: audio.volumePercent() + "%"
-              color: theme.fg
-              font.family: theme.monospaceFont
-              font.pixelSize: theme.fontSize
+          Rectangle {
+            width: 12
+            height: 12
+            radius: 6
+            x: audio.volumeValue * (parent.width - width)
+            y: (parent.height - height) / 2
+            color: theme.base0C
+            border.width: 1
+            border.color: theme.widgetBg
+          }
+
+          MouseArea {
+            anchors.fill: parent
+            onPressed: mouse => {
+              audio.volumeDragging = true;
+              audio.setVolumeFromPosition(mouse.x, width);
             }
-
-            Item {
-              id: volumeSlider
-              Layout.fillWidth: true
-              implicitHeight: 20
-
-              Rectangle {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                height: 4
-                radius: 2
-                color: theme.widgetBorder
-              }
-
-              Rectangle {
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                width: parent.width * audio.volumeValue
-                height: 4
-                radius: 2
-                color: theme.base0C
-              }
-
-              Rectangle {
-                width: 12
-                height: 12
-                radius: 6
-                x: audio.volumeValue * (parent.width - width)
-                y: (parent.height - height) / 2
-                color: theme.base0C
-                border.width: 1
-                border.color: theme.widgetBg
-              }
-
-              MouseArea {
-                anchors.fill: parent
-                onPressed: mouse => {
-                  audio.volumeDragging = true;
-                  audio.setVolumeFromPosition(mouse.x, width);
-                }
-                onPositionChanged: mouse => {
-                  if (pressed) audio.setVolumeFromPosition(mouse.x, width);
-                }
-                onReleased: {
-                  audio.volumeDragging = false;
-                  audio.scheduleVolumeRefresh();
-                }
-                onCanceled: {
-                  audio.volumeDragging = false;
-                  audio.scheduleVolumeRefresh();
-                }
-              }
+            onPositionChanged: mouse => {
+              if (pressed) audio.setVolumeFromPosition(mouse.x, width);
+            }
+            onReleased: {
+              audio.volumeDragging = false;
+              audio.scheduleVolumeRefresh();
+            }
+            onCanceled: {
+              audio.volumeDragging = false;
+              audio.scheduleVolumeRefresh();
             }
           }
         }

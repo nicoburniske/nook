@@ -27,6 +27,7 @@ Scope {
       implicitHeight: theme.barHeight
 
       Rectangle {
+        id: barSurface
         anchors.fill: parent
         color: "transparent"
 
