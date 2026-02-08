@@ -80,6 +80,27 @@ Scope {
             border.color: theme.widgetBorder
             border.width: 1
             implicitHeight: 26
+            implicitWidth: statsRow.implicitWidth + 8
+
+            RowLayout {
+              id: statsRow
+              anchors.fill: parent
+              anchors.leftMargin: 4
+              anchors.rightMargin: 4
+              spacing: 2
+
+              SystemStatsWidget {
+                theme: bar.theme
+              }
+            }
+          }
+
+          Rectangle {
+            radius: theme.radius
+            color: theme.widgetBg
+            border.color: theme.widgetBorder
+            border.width: 1
+            implicitHeight: 26
             implicitWidth: batteryRow.implicitWidth + 8
 
             RowLayout {
