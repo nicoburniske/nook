@@ -59,6 +59,11 @@ Scope {
               anchors.rightMargin: 4
               spacing: 2
 
+              SoundWidget {
+                panelWindow: panel
+                theme: bar.theme
+              }
+
               BluetoothWidget {
                 panelWindow: panel
                 theme: bar.theme
