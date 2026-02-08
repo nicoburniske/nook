@@ -236,12 +236,6 @@ Rectangle {
 
           Rectangle {
             width: content.width
-            implicitHeight: 1
-            color: theme.widgetBorder
-          }
-
-          Rectangle {
-            width: content.width
             implicitHeight: 44
             radius: theme.radius
             color: "transparent"
@@ -270,12 +264,6 @@ Rectangle {
                 font.pixelSize: theme.fontSize
               }
             }
-          }
-
-          Rectangle {
-            width: content.width
-            implicitHeight: 1
-            color: theme.widgetBorder
           }
 
           Text {

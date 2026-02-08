@@ -264,11 +264,6 @@ Rectangle {
     objects: audio.trackedObjects
   }
 
-  component Divider: Rectangle {
-    implicitHeight: 1
-    color: root.theme.widgetBorder
-  }
-
   component SinkRow: Rectangle {
     required property var sinkNode
     required property real rowWidth
@@ -416,10 +411,6 @@ Rectangle {
             }
           }
 
-          Divider {
-            width: content.width
-          }
-
           Repeater {
             model: ScriptModel {
               values: audio.sinks()
@@ -430,10 +421,6 @@ Rectangle {
               sinkNode: modelData
               rowWidth: content.width
             }
-          }
-
-          Divider {
-            width: content.width
           }
 
           RowLayout {
