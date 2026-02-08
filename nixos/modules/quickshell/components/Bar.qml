@@ -51,10 +51,10 @@ Scope {
             border.color: theme.widgetBorder
             border.width: 1
             implicitHeight: 26
-            implicitWidth: rightRow.implicitWidth + 8
+            implicitWidth: indicatorRow.implicitWidth + 8
 
             RowLayout {
-              id: rightRow
+              id: indicatorRow
               anchors.fill: parent
               anchors.leftMargin: 4
               anchors.rightMargin: 4
@@ -71,21 +71,47 @@ Scope {
                 theme: bar.theme
                 popupState: bar
               }
+            }
+          }
 
-              Rectangle {
-                color: "transparent"
-                implicitWidth: clockLabel.implicitWidth + 8
-                implicitHeight: 22
+          Rectangle {
+            radius: theme.radius
+            color: theme.widgetBg
+            border.color: theme.widgetBorder
+            border.width: 1
+            implicitHeight: 26
+            implicitWidth: batteryRow.implicitWidth + 8
 
-                Text {
-                  id: clockLabel
-                  anchors.centerIn: parent
-                  color: theme.fg
-                  font.family: theme.monospaceFont
-                  font.pixelSize: theme.fontSize
-                  text: Qt.formatDateTime(clock.date, "ddd MMM dd hh:mm").toLowerCase()
-                }
+            RowLayout {
+              id: batteryRow
+              anchors.fill: parent
+              anchors.leftMargin: 4
+              anchors.rightMargin: 4
+              spacing: 2
+
+              BatteryWidget {
+                panelWindow: panel
+                theme: bar.theme
+                popupState: bar
               }
+            }
+          }
+
+          Rectangle {
+            radius: theme.radius
+            color: theme.widgetBg
+            border.color: theme.widgetBorder
+            border.width: 1
+            implicitHeight: 26
+            implicitWidth: clockLabel.implicitWidth + 16
+
+            Text {
+              id: clockLabel
+              anchors.centerIn: parent
+              color: theme.fg
+              font.family: theme.monospaceFont
+              font.pixelSize: theme.fontSize
+              text: Qt.formatDateTime(clock.date, "ddd MMM dd hh:mm").toLowerCase()
             }
           }
         }
