@@ -26,7 +26,7 @@ in {
     ../common/direnv.nix
 
     ./modules/hyprland.nix
-    ./modules/waybar.nix
+    ./modules/quickshell
     ./modules/swaync.nix
     ./modules/rofi.nix
   ];

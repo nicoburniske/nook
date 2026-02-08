@@ -39,6 +39,8 @@
 
     echo "Switching to $THEME theme..."
     "$SPEC_DIR/$THEME/activate"
+
+    systemctl --user restart quickshell.service
   '';
 
   kittyPkg = config.programs.kitty.package or pkgs.kitty;
