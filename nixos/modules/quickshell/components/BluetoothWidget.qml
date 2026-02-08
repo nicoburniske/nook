@@ -9,6 +9,7 @@ Rectangle {
 
   required property var panelWindow
   required property var theme
+  required property var popupState
 
   color: "transparent"
   radius: theme.radius
@@ -163,7 +164,9 @@ Rectangle {
 
   MouseArea {
     anchors.fill: parent
-    onClicked: btPopup.visible = !btPopup.visible
+    onClicked: {
+      popupState.activePopup = popupState.activePopup === "bluetooth" ? "" : "bluetooth";
+    }
   }
 
   PopupWindow {
@@ -173,7 +176,7 @@ Rectangle {
     anchor.rect.x: 0
     anchor.rect.y: panelWindow.implicitHeight
 
-    visible: false
+    visible: popupState.activePopup === "bluetooth"
     color: "transparent"
 
     implicitWidth: screen.width
@@ -185,7 +188,7 @@ Rectangle {
 
       MouseArea {
         anchors.fill: parent
-        onClicked: btPopup.visible = false
+        onClicked: popupState.activePopup = ""
       }
 
       Rectangle {
@@ -246,7 +249,7 @@ Rectangle {
               MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                  btPopup.visible = false;
+                  popupState.activePopup = "";
                   openBtui.startDetached();
                 }
               }

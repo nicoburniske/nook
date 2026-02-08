@@ -9,6 +9,7 @@ Rectangle {
 
   required property var panelWindow
   required property var theme
+  required property var popupState
 
   color: "transparent"
   radius: theme.radius
@@ -253,7 +254,9 @@ Rectangle {
 
   MouseArea {
     anchors.fill: parent
-    onClicked: popup.visible = !popup.visible
+    onClicked: {
+      popupState.activePopup = popupState.activePopup === "sound" ? "" : "sound";
+    }
   }
 
   PopupWindow {
@@ -263,7 +266,7 @@ Rectangle {
     anchor.rect.x: 0
     anchor.rect.y: panelWindow.implicitHeight
 
-    visible: false
+    visible: popupState.activePopup === "sound"
     color: "transparent"
 
     implicitWidth: screen.width
@@ -278,7 +281,7 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: menu.top
-        onClicked: popup.visible = false
+        onClicked: popupState.activePopup = ""
       }
 
       MouseArea {
@@ -286,7 +289,7 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: menu.bottom
         anchors.bottom: parent.bottom
-        onClicked: popup.visible = false
+        onClicked: popupState.activePopup = ""
       }
 
       MouseArea {
@@ -294,7 +297,7 @@ Rectangle {
         anchors.right: menu.left
         anchors.top: menu.top
         anchors.bottom: menu.bottom
-        onClicked: popup.visible = false
+        onClicked: popupState.activePopup = ""
       }
 
       MouseArea {
@@ -302,7 +305,7 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: menu.top
         anchors.bottom: menu.bottom
-        onClicked: popup.visible = false
+        onClicked: popupState.activePopup = ""
       }
 
       Rectangle {
