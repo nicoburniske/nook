@@ -12,7 +12,6 @@ in {
     ../common/zsh.nix
     ../common/fzf.nix
     ../common/zoxide.nix
-    ../common/kitty.nix
     ../common/opencode.nix
     ../common/cargo.nix
     ../common/packages.nix
