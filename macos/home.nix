@@ -39,7 +39,6 @@ in {
     ../common/ghostty.nix
     ../common/kitty.nix
     ../common/opencode.nix
-    ../common/lazygit.nix
     ../common/cargo.nix
     ../common/comically.nix
     ../common/theme-switcher.nix

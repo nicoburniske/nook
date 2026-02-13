@@ -16,7 +16,6 @@ in {
     ../common/zoxide.nix
     ../common/kitty.nix
     ../common/opencode.nix
-    ../common/lazygit.nix
     ../common/cargo.nix
     ../common/packages.nix
     ../common/comically.nix

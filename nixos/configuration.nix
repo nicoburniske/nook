@@ -32,6 +32,8 @@ in {
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     apple-silicon.nixosModules.apple-silicon-support
+
+    ./modules/lazygit.nix
   ];
 
   velum = {
