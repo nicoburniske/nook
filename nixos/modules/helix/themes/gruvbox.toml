@@ -1,0 +1,9 @@
+inherits = "gruvbox_dark_hard"
+"comment" = { fg = "gray" }
+"attribute" = { fg = "aqua1" }
+
+"markup.italic" = {}
+"type.enum.variant" = {}
+
+"variable.builtin" = { fg = "orange1" }
+"variable.parameter" = { fg = "blue1" }

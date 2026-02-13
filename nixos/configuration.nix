@@ -33,6 +33,7 @@ in {
     ./hardware-configuration.nix
     apple-silicon.nixosModules.apple-silicon-support
 
+    ./modules/helix
     ./modules/lazygit.nix
     ./modules/quickshell
   ];
