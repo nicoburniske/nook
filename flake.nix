@@ -16,6 +16,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    velum.url = "path:./velum";
+
     nix-ld = {
       url = "github:Mic92/nix-ld";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -58,6 +60,7 @@
     home-manager,
     nix-ld,
     stylix,
+    velum,
     apple-silicon,
     nix-darwin,
     nix-homebrew,
@@ -73,6 +76,7 @@
         ./nixos/configuration.nix
         ./nixos/hardware-configuration.nix
         nix-ld.nixosModules.nix-ld
+        velum.nixosModules.default
         home-manager.nixosModules.home-manager
         {
           programs.nix-ld.dev.enable = true;
