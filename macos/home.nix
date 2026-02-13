@@ -35,7 +35,6 @@ in {
     ../common/fzf.nix
     ../common/zoxide.nix
     ../common/ghostty.nix
-    ../common/kitty.nix
     ../common/opencode.nix
     ../common/cargo.nix
     ../common/comically.nix
