@@ -61,20 +61,6 @@ in {
     {
       stylix =
         {
-          base16Scheme = "${pkgs.base16-schemes}/share/themes/everforest-dark-hard.yaml";
-          override = {
-            slug = "everforest";
-            helix = "everforest_dark";
-          };
-          polarity = "dark";
-          image = ../assets/wallpapers/light-mountains.jpg;
-        }
-        // baseConfig;
-    }
-
-    {
-      stylix =
-        {
           base16Scheme = {
             scheme = "space-age";
             base00 = "190f0f"; # dark_red0 - background
