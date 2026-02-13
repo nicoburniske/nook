@@ -1,20 +1,9 @@
-{
-  pkgs,
-  config,
-  ...
-}: let
+{pkgs, ...}: let
   themeSwitch = pkgs.writeShellScriptBin "theme-switch" ''
     #!/usr/bin/env bash
     set -euo pipefail
 
-    SPEC_DIR="$HOME/specialisation"
-
-    if [ ! -d "$SPEC_DIR" ]; then
-      echo "No specialisations found."
-      exit 1
-    fi
-
-    themes=$(ls -1 "$SPEC_DIR" 2>/dev/null || echo "")
+    themes=$(velum list 2>/dev/null || echo "")
 
     if [ -z "$themes" ]; then
       echo "No themes available"
@@ -32,24 +21,15 @@
       exit 0
     fi
 
-    if [ ! -e "$SPEC_DIR/$THEME" ]; then
-      echo "Error: Theme '$THEME' not found"
-      exit 1
-    fi
-
     echo "Switching to $THEME theme..."
-    "$SPEC_DIR/$THEME/activate"
-
-    systemctl --user restart quickshell.service
+    velum switch "$THEME"
   '';
-
-  kittyPkg = config.programs.kitty.package or pkgs.kitty;
 
   kittyThemeSwitch = pkgs.writeShellScriptBin "kitty-theme-switch" ''
     #!/usr/bin/env bash
     set -euo pipefail
 
-    ${kittyPkg}/bin/kitten quick-access-terminal \
+    kitten quick-access-terminal \
       --instance-group theme-selector \
       ${themeSwitch}/bin/theme-switch
   '';
