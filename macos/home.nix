@@ -38,7 +38,6 @@ in {
     ../common/opencode.nix
     ../common/cargo.nix
     ../common/comically.nix
-    ../common/theme-switcher.nix
     ../common/direnv.nix
 
     ./sketchybar
