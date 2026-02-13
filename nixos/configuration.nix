@@ -36,6 +36,7 @@ in {
     ./modules/helix
     ./modules/lazygit.nix
     ./modules/quickshell
+    ./modules/yazi
   ];
 
   velum = {
