@@ -31,7 +31,6 @@ in {
     ../common/git.nix
     ../common/paths.nix
     ../common/oh-my-posh.nix
-    ../common/yazi/default.nix
     ../common/zsh.nix
     ../common/fzf.nix
     ../common/zoxide.nix
