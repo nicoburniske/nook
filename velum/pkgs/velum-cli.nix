@@ -17,7 +17,9 @@ writeShellApplication {
     set -euo pipefail
 
     manifest="''${VELUM_MANIFEST:-}"
-    state_dir="''${VELUM_STATE_DIR:-$HOME/.local/state/velum}"
+    home_dir="''${VELUM_HOME_DIR:-$HOME}"
+    config_dir="''${VELUM_CONFIG_DIR:-$home_dir/.config}"
+    state_dir="''${VELUM_STATE_DIR:-$home_dir/.local/state/velum}"
 
     usage() {
       cat <<'EOF'
@@ -33,6 +35,8 @@ writeShellApplication {
     Environment:
       VELUM_MANIFEST   Path to manifest json
       VELUM_STATE_DIR  State directory (default: $HOME/.local/state/velum)
+      VELUM_HOME_DIR   Home directory used for managed paths
+      VELUM_CONFIG_DIR Config directory used for .config paths
     EOF
     }
 
@@ -70,8 +74,10 @@ writeShellApplication {
 
       if [[ "$path" = /* ]]; then
         printf '%s\n' "$path"
+      elif [[ "$path" = .config/* ]]; then
+        printf '%s/%s\n' "$config_dir" "''${path#.config/}"
       else
-        printf '%s/%s\n' "$HOME" "$path"
+        printf '%s/%s\n' "$home_dir" "$path"
       fi
     }
 

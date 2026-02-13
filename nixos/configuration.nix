@@ -34,10 +34,13 @@ in {
     apple-silicon.nixosModules.apple-silicon-support
 
     ./modules/lazygit.nix
+    ./modules/quickshell
   ];
 
   velum = {
     enable = true;
+    user = "nico";
+    flakeRoot = "/home/nico/nook";
     defaultTheme = "gruvbox";
     themes = velumThemes;
   };

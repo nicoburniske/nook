@@ -220,6 +220,30 @@ in {
       description = "Theme used when no state file exists yet.";
     };
 
+    user = lib.mkOption {
+      type = with types; nullOr str;
+      default = null;
+      description = "Primary user name for modules that need a home directory fallback.";
+    };
+
+    homeDirectory = lib.mkOption {
+      type = with types; nullOr str;
+      default = null;
+      description = "Home directory Velum should manage. If null, derived from velum.user.";
+    };
+
+    configDirectory = lib.mkOption {
+      type = with types; nullOr str;
+      default = null;
+      description = "Config directory Velum should target. Defaults to <homeDirectory>/.config.";
+    };
+
+    flakeRoot = lib.mkOption {
+      type = with types; nullOr str;
+      default = null;
+      description = "Flake checkout root used by app modules for source-relative assets.";
+    };
+
     stateDirectory = lib.mkOption {
       type = with types; nullOr str;
       default = null;
@@ -277,6 +301,25 @@ in {
     }
 
     (lib.mkIf (cfg.enable or false) (let
+      resolvedHomeDirectory =
+        if cfg.homeDirectory != null
+        then cfg.homeDirectory
+        else if cfg.user != null && lib.hasAttrByPath ["users" "users" cfg.user "home"] config
+        then config.users.users.${cfg.user}.home
+        else null;
+
+      resolvedConfigDirectory =
+        if cfg.configDirectory != null
+        then cfg.configDirectory
+        else if resolvedHomeDirectory != null
+        then "${resolvedHomeDirectory}/.config"
+        else null;
+
+      resolvedFlakeRoot =
+        if cfg.flakeRoot != null
+        then cfg.flakeRoot
+        else null;
+
       normalizedThemes =
         if !hasStylixBase16
         then {}
@@ -299,6 +342,8 @@ in {
             slug = override.slug or name;
             polarity = themeSource.polarity or "either";
             image = themeSource.image or null;
+            fonts = themeSource.fonts or null;
+            opacity = themeSource.opacity or null;
             raw = rawTheme;
           })
           cfg.themes;
@@ -447,13 +492,21 @@ in {
         export VELUM_STATE_DIR="${cfg.stateDirectory}"
       '';
 
+      homeDirectoryExport = lib.optionalString (resolvedHomeDirectory != null) ''
+        export VELUM_HOME_DIR="${resolvedHomeDirectory}"
+      '';
+
+      configDirectoryExport = lib.optionalString (resolvedConfigDirectory != null) ''
+        export VELUM_CONFIG_DIR="${resolvedConfigDirectory}"
+      '';
+
       wrappedCli = pkgs.writeShellScriptBin "velum" ''
         export VELUM_MANIFEST="${manifestPath}"
         ${stateDirectoryExport}
+        ${homeDirectoryExport}
+        ${configDirectoryExport}
         exec ${baseCli}/bin/velum "$@"
       '';
-
-      managedPaths = lib.concatStringsSep "\n" filePaths;
     in {
       assertions = [
         {
@@ -472,6 +525,21 @@ in {
         {
           assertion = cfg.defaultTheme != "";
           message = "velum.defaultTheme must be set.";
+        }
+
+        {
+          assertion = resolvedHomeDirectory != null;
+          message = "velum.homeDirectory or velum.user must be set when velum.enable = true.";
+        }
+
+        {
+          assertion = cfg.user == null || lib.hasAttrByPath ["users" "users" cfg.user "home"] config;
+          message = "velum.user must reference an existing users.users.<name>.home entry.";
+        }
+
+        {
+          assertion = resolvedConfigDirectory != null;
+          message = "velum.configDirectory could not be resolved.";
         }
 
         {
@@ -502,32 +570,20 @@ in {
       ];
 
       lib.velum.themeContexts = normalizedThemes;
+      lib.velum.paths = {
+        home = resolvedHomeDirectory;
+        config = resolvedConfigDirectory;
+        flakeRoot = resolvedFlakeRoot;
+        flakeRootOrErr =
+          if resolvedFlakeRoot != null
+          then resolvedFlakeRoot
+          else throw "velum.flakeRoot must be set for modules that need repository-relative paths.";
+      };
 
       environment.etc."velum/manifest.json".source = manifestPath;
       environment.systemPackages = [wrappedCli];
 
       system.userActivationScripts.velum = ''
-        while IFS= read -r rel; do
-          [ -n "$rel" ] || continue
-
-          case "$rel" in
-            /*)
-              target="$rel"
-              ;;
-            *)
-              target="$HOME/$rel"
-              ;;
-          esac
-
-          if [ -d "$target" ] && [ ! -L "$target" ]; then
-            rm -rf "$target"
-          elif [ -e "$target" ] && [ ! -L "$target" ]; then
-            rm -f "$target"
-          fi
-        done <<'VELUM_PATHS'
-        ${managedPaths}
-        VELUM_PATHS
-
         theme="$(${wrappedCli}/bin/velum current)"
         if [ -n "$theme" ]; then
           ${wrappedCli}/bin/velum switch "$theme"
