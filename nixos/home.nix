@@ -10,13 +10,11 @@ in {
     ../common/paths.nix
     ../common/oh-my-posh.nix
     ../common/zsh.nix
-    ../common/fzf.nix
     ../common/zoxide.nix
     ../common/opencode.nix
     ../common/cargo.nix
     ../common/packages.nix
     ../common/comically.nix
-    ../common/zen-browser.nix
     ../common/television.nix
     ../common/direnv.nix
 
