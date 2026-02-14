@@ -123,5 +123,39 @@ in {
         }
         // baseConfig;
     }
+
+    {
+      # https://github.com/protesilaos/ef-themes/blob/main/ef-melissa-light-theme.el
+      stylix =
+        {
+          base16Scheme = {
+            scheme = "Ef Melissa Light";
+            author = "Protesilaos Stavrou";
+            base00 = "fff6d8"; # bg-main
+            base01 = "f5e9cb"; # bg-dim
+            base02 = "e7d7c6"; # bg-alt
+            base03 = "c5baa6"; # border
+            base04 = "68708a"; # fg-dim
+            base05 = "484431"; # fg-main
+            base06 = "80431a"; # fg-alt
+            base07 = "a07f00"; # cursor
+            base08 = "c74400"; # red-warmer
+            base09 = "ba5205"; # yellow-warmer
+            base0A = "a26310"; # yellow
+            base0B = "007a0a"; # green
+            base0C = "0f708a"; # cyan-cooler
+            base0D = "375cc6"; # blue
+            base0E = "6448ca"; # magenta-cooler
+            base0F = "946830"; # yellow-cooler
+          };
+          override = {
+            slug = "melissa-light";
+            helix = "melissa-light";
+          };
+          polarity = "light";
+          image = ../assets/wallpapers/church-gentleman.jpg;
+        }
+        // baseConfig;
+    }
   ];
 }

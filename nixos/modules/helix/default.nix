@@ -177,6 +177,8 @@ in {
 
     "helix/languages.toml".source = tomlFormat.generate "velum-helix-languages.toml" languages;
     "helix/themes/modus.toml".source = ./themes/modus.toml;
+    "helix/themes/melissa-dark.toml".source = ./themes/melissa-dark.toml;
+    "helix/themes/melissa-light.toml".source = ./themes/melissa-light.toml;
     "helix/themes/space-age.toml".source = ./themes/space-age.toml;
     "helix/themes/gruvbox.toml".source = ./themes/gruvbox.toml;
 
