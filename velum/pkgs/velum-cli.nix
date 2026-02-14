@@ -93,6 +93,8 @@ writeShellApplication {
 
       mkdir -p "$state_dir"
 
+      echo "Linking theme files for '$theme'..."
+
       exec 9>"$state_dir/switch.lock"
       flock 9
 
@@ -117,13 +119,44 @@ writeShellApplication {
         mv -Tf "$tmp_link" "$dest"
       done < <(jq -r --arg theme "$theme" '.themes[$theme].files[]? | "\(.path)\t\(.source)"' "$manifest")
 
-      while IFS= read -r command; do
-        [ -n "$command" ] || continue
-        ${bash}/bin/bash -lc "$command"
-      done < <(jq -r '.hooks.reload[]?.command' "$manifest")
+      local total_hooks
+      local hook_index=0
+      local hook_failures=0
+      local -a failed_hooks=()
+
+      total_hooks="$(jq -r '(.hooks.reload // []) | length' "$manifest")"
+
+      if [ "$total_hooks" -gt 0 ]; then
+        echo "Running reload hooks..."
+      fi
+
+      while IFS=$'\t' read -r hook_registration hook_command; do
+        [ -n "$hook_command" ] || continue
+
+        hook_index=$((hook_index + 1))
+
+        local hook_label="''${hook_registration#program-}"
+        local hook_output=""
+
+        if hook_output="$(${bash}/bin/bash -lc "$hook_command" 2>&1)"; then
+          echo "[$hook_index/$total_hooks] $hook_label"
+        else
+          echo "[$hook_index/$total_hooks] fail $hook_label" >&2
+          if [ -n "$hook_output" ]; then
+            echo "$hook_output" >&2
+          fi
+          hook_failures=$((hook_failures + 1))
+          failed_hooks+=("$hook_label")
+        fi
+      done < <(jq -r '(.hooks.reload // [])[] | [(.registration // "unknown"), .command] | @tsv' "$manifest")
 
       printf '{"theme":"%s","switchedAt":"%s"}\n' "$theme" "$(date --iso-8601=seconds)" > "$state_dir/current.json"
+
       echo "Switched to theme '$theme'"
+
+      if [ "$hook_failures" -gt 0 ]; then
+        echo "Hook failures ($hook_failures): ''${failed_hooks[*]}" >&2
+      fi
     }
 
     show_theme() {
