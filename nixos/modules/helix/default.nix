@@ -183,7 +183,7 @@ in {
 
   sumi.programs.helix = {
     "helix/config.toml".render = theme:
-      tomlFormat.generate "sumi-helix-config-${theme.slug}.toml" (baseSettings // {theme = theme.slug;});
+      tomlFormat.generate "sumi-helix-config-${theme.name}.toml" (baseSettings // {theme = theme.meta.helix or theme.name;});
 
     "helix/languages.toml".source = tomlFormat.generate "sumi-helix-languages.toml" languages;
     "helix/themes/modus.toml".source = ./themes/modus.toml;
