@@ -23,11 +23,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    zen-browser = {
-      url = "github:0xc000022070/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # nixos
     apple-silicon = {
       url = "github:nix-community/nixos-apple-silicon";
@@ -66,7 +61,6 @@
     nix-homebrew,
     homebrew-core,
     homebrew-cask,
-    zen-browser,
     ...
   }: {
     nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
@@ -88,7 +82,6 @@
           home-manager.extraSpecialArgs = {inherit inputs;};
           home-manager.sharedModules = [
             stylix.homeModules.stylix
-            zen-browser.homeModules.twilight
           ];
         }
       ];

@@ -34,6 +34,7 @@ in {
     apple-silicon.nixosModules.apple-silicon-support
 
     ./modules/helix
+    ./modules/fzf.nix
     ./modules/hypr
     ./modules/kitty
     ./modules/lazygit.nix
