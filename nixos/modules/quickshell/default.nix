@@ -13,7 +13,7 @@ in {
     "quickshell/shell.qml".render = theme:
       with theme.colors.withHashtag; ''
         import Quickshell
-        import "file:${configHome}/quickshell/components"
+        import "${configHome}/quickshell/components"
 
         Scope {
           id: root
@@ -65,5 +65,10 @@ in {
       Restart = "on-failure";
       RestartSec = 1;
     };
+
+    path = [
+      pkgs.bash
+      pkgs.pipewire
+    ];
   };
 }
