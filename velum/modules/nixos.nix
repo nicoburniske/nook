@@ -507,6 +507,14 @@ in {
         ${configDirectoryExport}
         exec ${baseCli}/bin/velum "$@"
       '';
+
+      refreshTheme = pkgs.writeShellScript "velum-refresh-theme" ''
+        theme="$(${wrappedCli}/bin/velum current 2>/dev/null || true)"
+        if [ -z "$theme" ]; then
+          theme="${cfg.defaultTheme}"
+        fi
+        ${wrappedCli}/bin/velum switch "$theme" || true
+      '';
     in {
       assertions = [
         {
@@ -584,11 +592,20 @@ in {
       environment.systemPackages = [wrappedCli];
 
       system.userActivationScripts.velum = ''
-        theme="$(${wrappedCli}/bin/velum current)"
-        if [ -n "$theme" ]; then
-          ${wrappedCli}/bin/velum switch "$theme"
-        fi
+        ${refreshTheme}
       '';
+
+      systemd.user.services.velum-reapply-theme = {
+        description = "Reapply current Velum theme on session start";
+        partOf = ["graphical-session.target"];
+        after = ["graphical-session.target"];
+        wantedBy = ["graphical-session.target"];
+
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = refreshTheme;
+        };
+      };
 
       velum.generated.manifest = manifestPath;
       velum.package = wrappedCli;
