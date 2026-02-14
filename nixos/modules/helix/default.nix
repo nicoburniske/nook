@@ -46,9 +46,19 @@
     buffer_name="$1"
 
     if [ -n "$buffer_name" ]; then
-      paths=$(${pkgs.yazi}/bin/yazi "$buffer_name" --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+      paths=$(
+        ${pkgs.yazi}/bin/yazi "$buffer_name" --chooser-file=/dev/stdout |
+          while IFS= read -r path || [ -n "$path" ]; do
+            printf "%q " "$path"
+          done
+      )
     else
-      paths=$(${pkgs.yazi}/bin/yazi --chooser-file=/dev/stdout | while read -r; do printf "%q " "$REPLY"; done)
+      paths=$(
+        ${pkgs.yazi}/bin/yazi --chooser-file=/dev/stdout |
+          while IFS= read -r path || [ -n "$path" ]; do
+            printf "%q " "$path"
+          done
+      )
     fi
 
     if [[ -n "$paths" ]]; then
