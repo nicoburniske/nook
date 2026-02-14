@@ -7,7 +7,7 @@
 in {
   environment.systemPackages = [opencodePackage];
 
-  velum.programs.opencode = {
+  sumi.programs.opencode = {
     "opencode/config.json".text = builtins.toJSON {
       "$schema" = "https://opencode.ai/config.json";
       autoupdate = false;

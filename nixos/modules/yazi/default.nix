@@ -93,11 +93,11 @@
 in {
   environment.systemPackages = [pkgs.yazi];
 
-  velum.programs.yazi = {
-    "yazi/yazi.toml".source = tomlFormat.generate "velum-yazi.toml" yaziSettings;
-    "yazi/keymap.toml".source = tomlFormat.generate "velum-yazi-keymap.toml" yaziKeymap;
+  sumi.programs.yazi = {
+    "yazi/yazi.toml".source = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
+    "yazi/keymap.toml".source = tomlFormat.generate "sumi-yazi-keymap.toml" yaziKeymap;
     "yazi/theme.toml".render = theme:
-      tomlFormat.generate "velum-yazi-theme-${theme.slug}.toml" (mkTheme theme);
+      tomlFormat.generate "sumi-yazi-theme-${theme.slug}.toml" (mkTheme theme);
 
     "yazi/plugins/tv-files.yazi".source = tvFilesPlugin;
     "yazi/plugins/tv-text.yazi".source = tvTextPlugin;

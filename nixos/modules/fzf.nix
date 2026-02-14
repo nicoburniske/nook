@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.fzf];
 
-  velum.programs.fzf = {
+  sumi.programs.fzf = {
     ".fzfrc".render = theme:
       with theme.colors.withHashtag; ''
         --style=full

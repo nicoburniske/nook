@@ -244,7 +244,7 @@
     "flake-parts_2": {
       "inputs": {
         "nixpkgs-lib": [
-          "velum",
+          "sumi",
           "nixpkgs"
         ]
       },
@@ -265,7 +265,7 @@
     "flake-parts_3": {
       "inputs": {
         "nixpkgs-lib": [
-          "velum",
+          "sumi",
           "stylix",
           "nixpkgs"
         ]
@@ -538,12 +538,12 @@
     "nur_2": {
       "inputs": {
         "flake-parts": [
-          "velum",
+          "sumi",
           "stylix",
           "flake-parts"
         ],
         "nixpkgs": [
-          "velum",
+          "sumi",
           "stylix",
           "nixpkgs"
         ]
@@ -593,7 +593,7 @@
         "nixpkgs": "nixpkgs",
         "opencode": "opencode",
         "stylix": "stylix",
-        "velum": "velum"
+        "sumi": "sumi"
       }
     },
     "stylix": {
@@ -640,7 +640,7 @@
         "flake-parts": "flake-parts_3",
         "gnome-shell": "gnome-shell_2",
         "nixpkgs": [
-          "velum",
+          "sumi",
           "nixpkgs"
         ],
         "nur": "nur_2",
@@ -872,7 +872,7 @@
         "type": "github"
       }
     },
-    "velum": {
+    "sumi": {
       "inputs": {
         "flake-parts": "flake-parts_2",
         "nixpkgs": "nixpkgs_3",
@@ -880,11 +880,11 @@
         "systems": "systems_3"
       },
       "locked": {
-        "path": "./velum",
+        "path": "./sumi",
         "type": "path"
       },
       "original": {
-        "path": "./velum",
+        "path": "./sumi",
         "type": "path"
       },
       "parent": []

@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.oh-my-posh];
 
-  velum.programs.oh-my-posh = {
+  sumi.programs.oh-my-posh = {
     "ohmyposh/config.json".render = theme:
       builtins.toJSON {
         "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";

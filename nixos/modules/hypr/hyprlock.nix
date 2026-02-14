@@ -1,5 +1,5 @@
 {lib, ...}: {
-  velum.programs.hyprlock = {
+  sumi.programs.hyprlock = {
     "hypr/hyprlock.conf".render = theme: let
       rgb = hex: "rgb(${hex})";
       imagePath =

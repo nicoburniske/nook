@@ -14,7 +14,7 @@
   rev = "${shortRev}-${self.lastModifiedDate}";
 
   themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
-  velumThemes = builtins.listToAttrs (
+  sumiThemes = builtins.listToAttrs (
     map (theme: {
       name = theme.stylix.override.slug;
       value = {stylix = theme.stylix;};
@@ -56,12 +56,12 @@ in {
     ./modules/yazi
   ];
 
-  velum = {
+  sumi = {
     enable = true;
     user = "nico";
     flakeRoot = "/home/nico/nook";
     defaultTheme = "gruvbox";
-    themes = velumThemes;
+    themes = sumiThemes;
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -200,7 +200,7 @@ in {
     zsh.enable = true;
   };
 
-  velum.programs.ghostty = {
+  sumi.programs.ghostty = {
     "ghostty/config".render = theme: let
       c = theme.colors;
       h = c.withHashtag;

@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  configDir = config.lib.velum.paths.config;
+  configDir = config.lib.sumi.paths.config;
   gtkCssTemplate = builtins.readFile ./gtk.css.mustache;
 
   bases = [
@@ -71,10 +71,10 @@
 
   mkFlattenedGtkTheme = theme: let
     css = mkGtkCss theme;
-    cssFile = pkgs.writeText "velum-gtk.css" css;
+    cssFile = pkgs.writeText "sumi-gtk.css" css;
     suffix = builtins.substring 0 8 theme.colors.base00;
   in
-    pkgs.runCommandLocal "velum-adw-gtk3-${suffix}" {} ''
+    pkgs.runCommandLocal "sumi-adw-gtk3-${suffix}" {} ''
       cp --recursive "${pkgs.adw-gtk3}/share/themes/adw-gtk3" "$out"
       chmod -R u+w "$out"
       cat "${cssFile}" >> "$out/gtk-3.0/gtk.css"
@@ -83,7 +83,7 @@
 in {
   programs.dconf.enable = true;
 
-  velum.programs.gtk = {
+  sumi.programs.gtk = {
     ".gtkrc-2.0".render = mkGtkrc;
     "gtk-3.0/settings.ini".render = mkGtkSettings;
     "gtk-4.0/settings.ini".render = mkGtkSettings;

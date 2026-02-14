@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  configHome = config.lib.velum.paths.config;
+  configHome = config.lib.sumi.paths.config;
 in {
   programs.direnv = {
     enable = true;

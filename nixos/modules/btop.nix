@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.btop];
 
-  velum.programs.btop = {
+  sumi.programs.btop = {
     "btop/btop.conf".text = ''
       color_theme = "stylix"
     '';

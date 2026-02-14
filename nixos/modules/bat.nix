@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.bat];
 
-  velum.programs.bat = {
+  sumi.programs.bat = {
     "bat/config".text = "--theme=base16-stylix\n";
 
     "bat/themes/base16-stylix.tmTheme".render = theme:

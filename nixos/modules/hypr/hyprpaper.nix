@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  velum.programs.hyprpaper = {
+  sumi.programs.hyprpaper = {
     "hypr/hyprpaper.conf".render = theme: let
       imagePath =
         if theme.image == null

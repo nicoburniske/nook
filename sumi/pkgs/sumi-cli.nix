@@ -6,7 +6,7 @@
   util-linux,
 }:
 writeShellApplication {
-  name = "velum";
+  name = "sumi";
 
   runtimeInputs = [
     bash
@@ -18,38 +18,38 @@ writeShellApplication {
   text = ''
     set -euo pipefail
 
-    manifest="''${VELUM_MANIFEST:-}"
-    home_dir="''${VELUM_HOME_DIR:-$HOME}"
-    config_dir="''${VELUM_CONFIG_DIR:-$home_dir/.config}"
-    state_dir="''${VELUM_STATE_DIR:-$home_dir/.local/state/velum}"
+    manifest="''${SUMI_MANIFEST:-}"
+    home_dir="''${SUMI_HOME_DIR:-$HOME}"
+    config_dir="''${SUMI_CONFIG_DIR:-$home_dir/.config}"
+    state_dir="''${SUMI_STATE_DIR:-$home_dir/.local/state/sumi}"
 
     usage() {
       cat <<'EOF'
-    velum - theme switcher runtime
+    sumi - theme switcher runtime
 
     Usage:
-      velum [--manifest PATH] list
-      velum [--manifest PATH] current
-      velum [--manifest PATH] show <theme> [--json]
-      velum [--manifest PATH] switch <theme>
-      velum [--manifest PATH] doctor [theme]
+      sumi [--manifest PATH] list
+      sumi [--manifest PATH] current
+      sumi [--manifest PATH] show <theme> [--json]
+      sumi [--manifest PATH] switch <theme>
+      sumi [--manifest PATH] doctor [theme]
 
     Environment:
-      VELUM_MANIFEST   Path to manifest json
-      VELUM_STATE_DIR  State directory (default: $HOME/.local/state/velum)
-      VELUM_HOME_DIR   Home directory used for managed paths
-      VELUM_CONFIG_DIR Config directory used for .config paths
+      SUMI_MANIFEST   Path to manifest json
+      SUMI_STATE_DIR  State directory (default: $HOME/.local/state/sumi)
+      SUMI_HOME_DIR   Home directory used for managed paths
+      SUMI_CONFIG_DIR Config directory used for .config paths
     EOF
     }
 
     require_manifest() {
       if [ -z "$manifest" ]; then
-        echo "velum: manifest not configured. pass --manifest or set VELUM_MANIFEST" >&2
+        echo "sumi: manifest not configured. pass --manifest or set SUMI_MANIFEST" >&2
         exit 1
       fi
 
       if [ ! -f "$manifest" ]; then
-        echo "velum: manifest does not exist: $manifest" >&2
+        echo "sumi: manifest does not exist: $manifest" >&2
         exit 1
       fi
     }
@@ -87,7 +87,7 @@ writeShellApplication {
       local theme="$1"
 
       if ! jq -e --arg theme "$theme" '.themes[$theme] != null' "$manifest" >/dev/null; then
-        echo "velum: unknown theme '$theme'" >&2
+        echo "sumi: unknown theme '$theme'" >&2
         exit 1
       fi
 
@@ -114,7 +114,7 @@ writeShellApplication {
           rm -f "$dest"
         fi
 
-        tmp_link="''${dest}.velum.tmp.$$"
+        tmp_link="''${dest}.sumi.tmp.$$"
         ln -sfn "$source" "$tmp_link"
         mv -Tf "$tmp_link" "$dest"
       done < <(jq -r --arg theme "$theme" '.themes[$theme].files[]? | "\(.path)\t\(.source)"' "$manifest")
@@ -164,7 +164,7 @@ writeShellApplication {
       local json="''${2:-false}"
 
       if ! jq -e --arg theme "$theme" '.themes[$theme] != null' "$manifest" >/dev/null; then
-        echo "velum: unknown theme '$theme'" >&2
+        echo "sumi: unknown theme '$theme'" >&2
         exit 1
       fi
 
@@ -186,12 +186,12 @@ writeShellApplication {
       fi
 
       if [ -z "$theme" ]; then
-        echo "velum: could not determine theme. pass one explicitly." >&2
+        echo "sumi: could not determine theme. pass one explicitly." >&2
         exit 1
       fi
 
       if ! jq -e --arg theme "$theme" '.themes[$theme] != null' "$manifest" >/dev/null; then
-        echo "velum: unknown theme '$theme'" >&2
+        echo "sumi: unknown theme '$theme'" >&2
         exit 1
       fi
 
@@ -216,7 +216,7 @@ writeShellApplication {
         exit 1
       fi
 
-      echo "velum doctor: ok ($theme)"
+      echo "sumi doctor: ok ($theme)"
     }
 
     parse_global_args() {
@@ -224,7 +224,7 @@ writeShellApplication {
         case "$1" in
           --manifest)
             if [ "$#" -lt 2 ]; then
-              echo "velum: --manifest requires a path" >&2
+              echo "sumi: --manifest requires a path" >&2
               exit 1
             fi
             manifest="$2"
@@ -263,7 +263,7 @@ writeShellApplication {
       show)
         require_manifest
         if [ "$#" -lt 2 ]; then
-          echo "velum: show requires a theme" >&2
+          echo "sumi: show requires a theme" >&2
           exit 1
         fi
         if [ "''${3:-}" = "--json" ]; then
@@ -275,7 +275,7 @@ writeShellApplication {
       switch)
         require_manifest
         if [ "$#" -lt 2 ]; then
-          echo "velum: switch requires a theme" >&2
+          echo "sumi: switch requires a theme" >&2
           exit 1
         fi
         switch_theme "$2"
@@ -285,7 +285,7 @@ writeShellApplication {
         doctor "''${2:-}"
         ;;
       *)
-        echo "velum: unknown command '$command'" >&2
+        echo "sumi: unknown command '$command'" >&2
         usage >&2
         exit 1
         ;;
