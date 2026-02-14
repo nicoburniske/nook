@@ -1,5 +1,14 @@
-{config, ...}: {
-  programs.oh-my-posh = with config.lib.stylix.colors; {
+{
+  programs.oh-my-posh = let
+    base03 = "665c54";
+    base05 = "d5c4a1";
+    base08 = "fb4934";
+    base0A = "fabd2f";
+    base0B = "b8bb26";
+    base0C = "8ec07c";
+    base0D = "83a598";
+    base0E = "d3869b";
+  in {
     enable = true;
     enableZshIntegration = true;
     settings = {
