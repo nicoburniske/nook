@@ -1,16 +1,14 @@
 {pkgs, ...}: {
   environment.systemPackages = [
     pkgs.rofi
-    pkgs.rofi-emoji
   ];
 
   velum.programs.rofi = {
     "rofi/config.rasi".render = theme:
       with theme.colors.withHashtag; ''
         configuration {
-          modi: "drun,emoji";
+          modi: "drun";
           show-icons: false;
-          plugins: "${pkgs.rofi-emoji}/lib/rofi/emoji.so";
 
           display-drun: "";
           display-run: "";
