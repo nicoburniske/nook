@@ -1,15 +1,5 @@
-{
-  config,
-  pkgs,
-  ...
-}: let
-  configHome = config.lib.velum.paths.config;
-in {
+{pkgs, ...}: {
   environment.systemPackages = [pkgs.oh-my-posh];
-
-  programs.zsh.promptInit = ''
-    eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${configHome}/ohmyposh/config.json")"
-  '';
 
   velum.programs.oh-my-posh = {
     "ohmyposh/config.json".render = theme:

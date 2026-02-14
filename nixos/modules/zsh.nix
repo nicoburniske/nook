@@ -1,4 +1,10 @@
-{...}: {
+{
+  config,
+  pkgs,
+  ...
+}: let
+  configHome = config.lib.velum.paths.config;
+in {
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
@@ -35,9 +41,6 @@
       plugins = [
         "gh"
         "zoxide"
-        "bun"
-        "docker"
-        "docker-compose"
       ];
     };
 
@@ -50,11 +53,6 @@
 
     interactiveShellInit = ''
       WORDCHARS=''${WORDCHARS//[\/]}
-
-      bindkey '^I' complete-word
-      bindkey '^[[Z' autosuggest-accept
-
-      export PATH=~/.cargo/bin:$PATH
 
       function yy() {
         local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
@@ -99,5 +97,11 @@
       lg = "lazygit";
       oc = "opencode";
     };
+
+    promptInit = ''
+      bindkey '^I' complete-word
+      bindkey '^[[Z' autosuggest-accept
+      eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${configHome}/ohmyposh/config.json")"
+    '';
   };
 }
