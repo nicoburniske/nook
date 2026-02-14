@@ -1,4 +1,6 @@
-{pkgs, ...}: {
+{config, pkgs, ...}: let
+  configDir = config.lib.velum.paths.config;
+in {
   environment.systemPackages = [
     pkgs.swaynotificationcenter
   ];
@@ -7,14 +9,8 @@
     "swaync/config.json".text = "{}\n";
 
     "swaync/style.css".render = theme: let
-      fontFamily =
-        if theme.fonts == null
-        then "Berkeley Mono"
-        else theme.fonts.sansSerif.name;
-      fontSize =
-        if theme.fonts == null || !(theme.fonts ? sizes) || !(theme.fonts.sizes ? desktop)
-        then "12"
-        else toString theme.fonts.sizes.desktop;
+      fontFamily = theme.fonts.sansSerif.name;
+      fontSize = toString theme.fonts.sizes.desktop;
       baseCss = builtins.readFile ./base.css;
     in
       with theme.colors.withHashtag;
@@ -36,10 +32,7 @@
         ''
         + baseCss;
 
-    reload = "
-      ${pkgs.swaynotificationcenter}/bin/swaync-client --reload-config || true;
-      ${pkgs.swaynotificationcenter}/bin/swaync-client --reload-css || true
-      ";
+    reload = "${pkgs.systemd}/bin/systemctl --user restart swaync.service || true";
   };
 
   systemd.user.services.swaync = {
@@ -59,5 +52,10 @@
       Restart = "on-failure";
       RestartSec = 1;
     };
+
+    restartTriggers = [
+      "${configDir}/swaync/config.json"
+      "${configDir}/swaync/style.css"
+    ];
   };
 }
