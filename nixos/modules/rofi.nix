@@ -1,336 +1,333 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}: {
-  programs.rofi = let
-    colors = config.lib.stylix.colors.withHashtag;
-    l = config.lib.formats.rasi.mkLiteral;
-    px = x: l "${toString x}px";
-  in {
-    enable = true;
-    extraConfig = {
-      modi = "drun,emoji";
-      show-icons = false;
+{pkgs, ...}: {
+  environment.systemPackages = [
+    pkgs.rofi
+    pkgs.rofi-emoji
+  ];
 
-      display-drun = "";
-      display-run = "";
-      display-filebrowser = "";
-      display-window = "";
-      display-emoji = "󰞅";
-      display-calc = "󰃬";
+  velum.programs.rofi = {
+    "rofi/config.rasi".render = theme:
+      with theme.colors.withHashtag; ''
+        configuration {
+          modi: "drun,emoji";
+          show-icons: false;
+          plugins: "${pkgs.rofi-emoji}/lib/rofi/emoji.so";
 
-      drun-display-format = "{name}";
-      window-format = "{w} · {c} · {t}";
+          display-drun: "";
+          display-run: "";
+          display-filebrowser: "";
+          display-window: "";
+          display-emoji: "󰞅";
+          display-calc: "󰃬";
 
-      kb-mode-next = "Control+l";
-      kb-mode-previous = "Control+h";
-      kb-row-up = "Control+k,Up";
-      kb-row-down = "Control+j,Down";
-      kb-remove-char-forward = "";
-      kb-remove-to-sol = "";
-      kb-remove-to-eol = "";
-      kb-mode-complete = "";
-      kb-remove-char-back = "BackSpace";
-      kb-accept-entry = "Return";
-    };
-    plugins = [pkgs.rofi-emoji];
-    theme = lib.mkForce {
-      "*" = {
-        selected = l "${colors.base0D}";
-        foreground = l "${colors.base05}";
-        background = l "${colors.base00}";
-        background-alt = l "${colors.base01}";
-        urgent = l "${colors.base08}";
-        active = l "${colors.base0A}";
-        border = l "${colors.base03}";
+          drun-display-format: "{name}";
+          window-format: "{w} · {c} · {t}";
 
-        border-colour = l "@selected";
-        handle-colour = l "@foreground";
-        background-colour = l "@background";
-        foreground-colour = l "@foreground";
-        alternate-background = l "@background-alt";
-        normal-background = l "@background";
-        normal-foreground = l "@foreground";
-        urgent-background = l "@urgent";
-        urgent-foreground = l "@background";
-        active-background = l "@active";
-        active-foreground = l "@background";
-        selected-normal-background = l "@selected";
-        selected-normal-foreground = l "@background";
-        selected-urgent-background = l "@active";
-        selected-urgent-foreground = l "@background";
-        selected-active-background = l "@urgent";
-        selected-active-foreground = l "@background";
-        alternate-normal-background = l "@background";
-        alternate-normal-foreground = l "@foreground";
-        alternate-urgent-background = l "@urgent";
-        alternate-urgent-foreground = l "@background";
-        alternate-active-background = l "@active";
-        alternate-active-foreground = l "@background";
-      };
+          kb-mode-next: "Control+l";
+          kb-mode-previous: "Control+h";
+          kb-row-up: "Control+k,Up";
+          kb-row-down: "Control+j,Down";
+          kb-remove-char-forward: "";
+          kb-remove-to-sol: "";
+          kb-remove-to-eol: "";
+          kb-mode-complete: "";
+          kb-remove-char-back: "BackSpace";
+          kb-accept-entry: "Return";
+        }
 
-      window = {
-        transparency = "real";
-        location = l "center";
-        anchor = l "center";
-        fullscreen = false;
-        width = px 600;
-        x-offset = px 0;
-        y-offset = px 0;
+        * {
+          selected: ${base0D};
+          foreground: ${base05};
+          background: ${base00};
+          background-alt: ${base01};
+          urgent: ${base08};
+          active: ${base0A};
+          border: ${base03};
 
-        enabled = true;
-        margin = px 0;
-        padding = px 0;
-        border = l "2px solid";
-        border-radius = px 0;
-        border-color = l "@border";
-        cursor = l "default";
-        background-color = l "@background-colour";
-      };
+          border-colour: @selected;
+          handle-colour: @foreground;
+          background-colour: @background;
+          foreground-colour: @foreground;
+          alternate-background: @background-alt;
+          normal-background: @background;
+          normal-foreground: @foreground;
+          urgent-background: @urgent;
+          urgent-foreground: @background;
+          active-background: @active;
+          active-foreground: @background;
+          selected-normal-background: @selected;
+          selected-normal-foreground: @background;
+          selected-urgent-background: @active;
+          selected-urgent-foreground: @background;
+          selected-active-background: @urgent;
+          selected-active-foreground: @background;
+          alternate-normal-background: @background;
+          alternate-normal-foreground: @foreground;
+          alternate-urgent-background: @urgent;
+          alternate-urgent-foreground: @background;
+          alternate-active-background: @active;
+          alternate-active-foreground: @background;
+        }
 
-      mainbox = {
-        enabled = true;
-        spacing = px 20;
-        margin = px 0;
-        padding = px 40;
-        border = l "0px solid";
-        border-radius = l "0px 0px 0px 0px";
-        border-color = l "@border-colour";
-        background-color = l "transparent";
-        children = l "[inputbar, message, listview, mode-switcher]";
-      };
+        window {
+          transparency: "real";
+          location: center;
+          anchor: center;
+          fullscreen: false;
+          width: 600px;
+          x-offset: 0px;
+          y-offset: 0px;
+          enabled: true;
+          margin: 0px;
+          padding: 0px;
+          border: 2px solid;
+          border-radius: 0px;
+          border-color: @border;
+          cursor: default;
+          background-color: @background-colour;
+        }
 
-      inputbar = {
-        enabled = true;
-        spacing = px 10;
-        margin = px 0;
-        padding = px 8;
-        border = l "0px solid";
-        border-radius = px 4;
-        border-color = l "@border-colour";
-        background-color = l "@alternate-background";
-        text-color = l "@foreground-colour";
-        children = l "[entry]";
-      };
+        mainbox {
+          enabled: true;
+          spacing: 20px;
+          margin: 0px;
+          padding: 40px;
+          border: 0px solid;
+          border-radius: 0px 0px 0px 0px;
+          border-color: @border-colour;
+          background-color: transparent;
+          children: [inputbar, message, listview, mode-switcher];
+        }
 
-      prompt = {
-        enabled = true;
-        background-color = l "inherit";
-        text-color = l "inherit";
-      };
+        inputbar {
+          enabled: true;
+          spacing: 10px;
+          margin: 0px;
+          padding: 8px;
+          border: 0px solid;
+          border-radius: 4px;
+          border-color: @border-colour;
+          background-color: @alternate-background;
+          text-color: @foreground-colour;
+          children: [entry];
+        }
 
-      textbox-prompt-colon = {
-        enabled = true;
-        expand = false;
-        str = "::";
-        background-color = l "inherit";
-        text-color = l "inherit";
-      };
+        prompt {
+          enabled: true;
+          background-color: inherit;
+          text-color: inherit;
+        }
 
-      entry = {
-        enabled = true;
-        background-color = l "inherit";
-        text-color = l "inherit";
-        cursor = l "text";
-        placeholder = "search...";
-        placeholder-color = l "inherit";
-      };
+        textbox-prompt-colon {
+          enabled: true;
+          expand: false;
+          str: "::";
+          background-color: inherit;
+          text-color: inherit;
+        }
 
-      num-filtered-rows = {
-        enabled = true;
-        expand = false;
-        background-color = l "inherit";
-        text-color = l "inherit";
-      };
+        entry {
+          enabled: true;
+          background-color: inherit;
+          text-color: inherit;
+          cursor: text;
+          placeholder: "search...";
+          placeholder-color: inherit;
+        }
 
-      textbox-num-sep = {
-        enabled = true;
-        expand = false;
-        str = "/";
-        background-color = l "inherit";
-        text-color = l "inherit";
-      };
+        num-filtered-rows {
+          enabled: true;
+          expand: false;
+          background-color: inherit;
+          text-color: inherit;
+        }
 
-      num-rows = {
-        enabled = true;
-        expand = false;
-        background-color = l "inherit";
-        text-color = l "inherit";
-      };
+        textbox-num-sep {
+          enabled: true;
+          expand: false;
+          str: "/";
+          background-color: inherit;
+          text-color: inherit;
+        }
 
-      case-indicator = {
-        enabled = true;
-        background-color = l "inherit";
-        text-color = l "inherit";
-      };
+        num-rows {
+          enabled: true;
+          expand: false;
+          background-color: inherit;
+          text-color: inherit;
+        }
 
-      listview = {
-        enabled = true;
-        columns = 1;
-        lines = 9;
-        cycle = true;
-        dynamic = true;
-        scrollbar = false;
-        layout = l "vertical";
-        reverse = false;
-        fixed-height = true;
-        fixed-columns = true;
+        case-indicator {
+          enabled: true;
+          background-color: inherit;
+          text-color: inherit;
+        }
 
-        spacing = px 5;
-        margin = px 0;
-        padding = px 0;
-        border = l "0px solid";
-        border-radius = px 0;
-        border-color = l "@border-colour";
-        background-color = l "transparent";
-        text-color = l "@foreground-colour";
-        cursor = l "default";
-      };
+        listview {
+          enabled: true;
+          columns: 1;
+          lines: 9;
+          cycle: true;
+          dynamic: true;
+          scrollbar: false;
+          layout: vertical;
+          reverse: false;
+          fixed-height: true;
+          fixed-columns: true;
+          spacing: 5px;
+          margin: 0px;
+          padding: 0px;
+          border: 0px solid;
+          border-radius: 0px;
+          border-color: @border-colour;
+          background-color: transparent;
+          text-color: @foreground-colour;
+          cursor: default;
+        }
 
-      scrollbar = {
-        handle-width = px 5;
-        handle-color = l "@handle-colour";
-        border-radius = px 8;
-        background-color = l "@alternate-background";
-      };
+        scrollbar {
+          handle-width: 5px;
+          handle-color: @handle-colour;
+          border-radius: 8px;
+          background-color: @alternate-background;
+        }
 
-      element = {
-        enabled = true;
-        spacing = px 8;
-        margin = px 0;
-        padding = px 8;
-        border = l "0px solid";
-        border-radius = px 4;
-        border-color = l "@border-colour";
-        background-color = l "transparent";
-        text-color = l "@foreground-colour";
-        cursor = l "pointer";
-      };
+        element {
+          enabled: true;
+          spacing: 8px;
+          margin: 0px;
+          padding: 8px;
+          border: 0px solid;
+          border-radius: 4px;
+          border-color: @border-colour;
+          background-color: transparent;
+          text-color: @foreground-colour;
+          cursor: pointer;
+        }
 
-      "element normal.normal" = {
-        background-color = l "@normal-background";
-        text-color = l "@normal-foreground";
-      };
+        element normal.normal {
+          background-color: @normal-background;
+          text-color: @normal-foreground;
+        }
 
-      "element normal.urgent" = {
-        background-color = l "@urgent-background";
-        text-color = l "@urgent-foreground";
-      };
+        element normal.urgent {
+          background-color: @urgent-background;
+          text-color: @urgent-foreground;
+        }
 
-      "element normal.active" = {
-        background-color = l "@active-background";
-        text-color = l "@active-foreground";
-      };
+        element normal.active {
+          background-color: @active-background;
+          text-color: @active-foreground;
+        }
 
-      "element selected.normal" = {
-        background-color = l "@normal-foreground";
-        text-color = l "@normal-background";
-      };
+        element selected.normal {
+          background-color: @normal-foreground;
+          text-color: @normal-background;
+        }
 
-      "element selected.urgent" = {
-        background-color = l "@selected-urgent-background";
-        text-color = l "@selected-urgent-foreground";
-      };
+        element selected.urgent {
+          background-color: @selected-urgent-background;
+          text-color: @selected-urgent-foreground;
+        }
 
-      "element selected.active" = {
-        background-color = l "@selected-active-background";
-        text-color = l "@selected-active-foreground";
-      };
+        element selected.active {
+          background-color: @selected-active-background;
+          text-color: @selected-active-foreground;
+        }
 
-      "element alternate.normal" = {
-        background-color = l "@alternate-normal-background";
-        text-color = l "@alternate-normal-foreground";
-      };
+        element alternate.normal {
+          background-color: @alternate-normal-background;
+          text-color: @alternate-normal-foreground;
+        }
 
-      "element alternate.urgent" = {
-        background-color = l "@alternate-urgent-background";
-        text-color = l "@alternate-urgent-foreground";
-      };
+        element alternate.urgent {
+          background-color: @alternate-urgent-background;
+          text-color: @alternate-urgent-foreground;
+        }
 
-      "element alternate.active" = {
-        background-color = l "@alternate-active-background";
-        text-color = l "@alternate-active-foreground";
-      };
+        element alternate.active {
+          background-color: @alternate-active-background;
+          text-color: @alternate-active-foreground;
+        }
 
-      element-icon = {
-        background-color = l "transparent";
-        text-color = l "inherit";
-        size = px 24;
-        cursor = l "inherit";
-      };
+        element-icon {
+          background-color: transparent;
+          text-color: inherit;
+          size: 24px;
+          cursor: inherit;
+        }
 
-      element-text = {
-        background-color = l "transparent";
-        text-color = l "inherit";
-        highlight = l "inherit";
-        cursor = l "inherit";
-        vertical-align = l "0.5";
-        horizontal-align = l "0.0";
-      };
+        element-text {
+          background-color: transparent;
+          text-color: inherit;
+          highlight: inherit;
+          cursor: inherit;
+          vertical-align: 0.5;
+          horizontal-align: 0.0;
+        }
 
-      mode-switcher = {
-        enabled = true;
-        spacing = px 10;
-        margin = px 0;
-        padding = px 0;
-        border = l "0px solid";
-        border-radius = px 0;
-        border-color = l "@border-colour";
-        background-color = l "transparent";
-        text-color = l "@foreground-colour";
-      };
+        mode-switcher {
+          enabled: true;
+          spacing: 10px;
+          margin: 0px;
+          padding: 0px;
+          border: 0px solid;
+          border-radius: 0px;
+          border-color: @border-colour;
+          background-color: transparent;
+          text-color: @foreground-colour;
+        }
 
-      button = {
-        padding = px 8;
-        border = l "0px solid";
-        border-radius = px 4;
-        border-color = l "@border-colour";
-        background-color = l "@alternate-background";
-        text-color = l "inherit";
-        cursor = l "pointer";
-      };
+        button {
+          padding: 8px;
+          border: 0px solid;
+          border-radius: 4px;
+          border-color: @border-colour;
+          background-color: @alternate-background;
+          text-color: inherit;
+          cursor: pointer;
+        }
 
-      "button selected" = {
-        background-color = l "@normal-foreground";
-        text-color = l "@normal-background";
-      };
+        button selected {
+          background-color: @normal-foreground;
+          text-color: @normal-background;
+        }
 
-      message = {
-        enabled = true;
-        margin = px 0;
-        padding = px 0;
-        border = l "0px solid";
-        border-radius = l "0px";
-        border-color = l "@border-colour";
-        background-color = l "transparent";
-        text-color = l "@foreground-colour";
-      };
+        message {
+          enabled: true;
+          margin: 0px;
+          padding: 0px;
+          border: 0px solid;
+          border-radius: 0px;
+          border-color: @border-colour;
+          background-color: transparent;
+          text-color: @foreground-colour;
+        }
 
-      textbox = {
-        padding = px 8;
-        border = l "0px solid";
-        border-radius = px 4;
-        border-color = l "@border-colour";
-        background-color = l "@alternate-background";
-        text-color = l "@foreground-colour";
-        vertical-align = l "0.5";
-        horizontal-align = l "0.0";
-        highlight = l "none";
-        placeholder-color = l "@foreground-colour";
-        blink = true;
-        markup = true;
-      };
+        textbox {
+          padding: 8px;
+          border: 0px solid;
+          border-radius: 4px;
+          border-color: @border-colour;
+          background-color: @alternate-background;
+          text-color: @foreground-colour;
+          vertical-align: 0.5;
+          horizontal-align: 0.0;
+          highlight: none;
+          placeholder-color: @foreground-colour;
+          blink: true;
+          markup: true;
+        }
 
-      error-message = {
-        padding = px 10;
-        border = l "0px solid";
-        border-radius = px 4;
-        border-color = l "@border-colour";
-        background-color = l "@background-colour";
-        text-color = l "@foreground-colour";
-      };
-    };
+        error-message {
+          padding: 10px;
+          border: 0px solid;
+          border-radius: 4px;
+          border-color: @border-colour;
+          background-color: @background-colour;
+          text-color: @foreground-colour;
+        }
+      '';
+
+    reload = [];
   };
 }

@@ -42,6 +42,7 @@ in {
     ./modules/lazygit.nix
     ./modules/opencode.nix
     ./modules/quickshell
+    ./modules/rofi.nix
     ./modules/yazi
   ];
 
