@@ -5,78 +5,7 @@
   ...
 }: let
   types = lib.types;
-  sumiLib = import ../lib;
   cfg = config.sumi or {};
-
-  fileOptionType = types.submodule ({...}: {
-    options = {
-      path = lib.mkOption {
-        type = types.str;
-        description = "Path to manage, relative to $HOME, e.g. .config/hypr/hyprland.conf";
-      };
-
-      render = lib.mkOption {
-        type = with types; nullOr (functionTo (oneOf [str path package]));
-        default = null;
-        description = "Function called as theme: returns either text content or a source path/derivation.";
-      };
-
-      text = lib.mkOption {
-        type = with types; nullOr lines;
-        default = null;
-        description = "Static text for this file.";
-      };
-
-      source = lib.mkOption {
-        type = with types; nullOr (oneOf [path package str]);
-        default = null;
-        description = "Source path to symlink directly (file or directory).";
-      };
-
-      executable = lib.mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether generated text files should be executable.";
-      };
-    };
-  });
-
-  hookOptionType = types.submodule ({...}: {
-    options = {
-      type = lib.mkOption {
-        type = types.enum ["command"];
-        default = "command";
-        description = "Hook type. v1 supports command hooks only.";
-      };
-
-      command = lib.mkOption {
-        type = types.str;
-        description = "Shell command executed after files are switched.";
-      };
-
-      name = lib.mkOption {
-        type = types.str;
-        default = "";
-        description = "Optional hook name for debugging and introspection.";
-      };
-    };
-  });
-
-  registrationOptionType = types.submodule ({...}: {
-    options = {
-      files = lib.mkOption {
-        type = types.listOf fileOptionType;
-        default = [];
-        description = "Managed files contributed by this registration.";
-      };
-
-      reload = lib.mkOption {
-        type = types.listOf hookOptionType;
-        default = [];
-        description = "Hooks run after switching themes.";
-      };
-    };
-  });
 
   programFileOptionType = types.submodule ({...}: {
     options = {
@@ -288,12 +217,6 @@ in {
       '';
     };
 
-    registrations = lib.mkOption {
-      type = types.attrsOf registrationOptionType;
-      default = {};
-      description = "Additional manual registrations merged with sumi.programs.";
-    };
-
     generated = {
       manifest = lib.mkOption {
         type = types.path;
@@ -312,17 +235,13 @@ in {
 
   config = lib.mkMerge [
     {
-      lib.sumi =
-        sumiLib
-        // {
-          mkOutOfStoreSymlink = path: let
-            pathStr = toString path;
-            drvName = lib.strings.sanitizeDerivationName "sumi-oos-${baseNameOf pathStr}";
-          in
-            pkgs.runCommandLocal drvName {} ''
-              ln -s ${lib.escapeShellArg pathStr} "$out"
-            '';
-        };
+      lib.sumi.mkOutOfStoreSymlink = path: let
+        pathStr = toString path;
+        drvName = lib.strings.sanitizeDerivationName "sumi-oos-${baseNameOf pathStr}";
+      in
+        pkgs.runCommandLocal drvName {} ''
+          ln -s ${lib.escapeShellArg pathStr} "$out"
+        '';
     }
 
     (lib.mkIf (cfg.enable or false) (let
@@ -406,42 +325,31 @@ in {
             (builtins.length (builtins.attrNames fileEntries)) > 0)
           cfg.programs);
 
-      normalizedManualRegistrations =
-        lib.mapAttrs
-        (_: registration:
-          registration
-          // {
-            files = builtins.map (file: file // {path = normalizeManagedPath file.path;}) registration.files;
-          })
-        cfg.registrations;
-
-      allRegistrations = normalizedManualRegistrations // programRegistrations;
-
       invalidFiles =
         lib.filter (v: v != null)
         (lib.flatten
           (lib.mapAttrsToList (registrationName: registration:
-            builtins.map
+            map
             (file:
               if fileMethodCount file == 1
               then null
               else "${registrationName}:${file.path}")
             registration.files)
-          allRegistrations));
+          programRegistrations));
 
       registeredFiles =
         lib.flatten
         (lib.mapAttrsToList (registrationName: registration:
-          builtins.map (file: file // {inherit registrationName;}) registration.files)
-        allRegistrations);
+          map (file: file // {inherit registrationName;}) registration.files)
+        programRegistrations);
 
       reloadHooks =
         lib.flatten
         (lib.mapAttrsToList (registrationName: registration:
-          builtins.map (hook: hook // {inherit registrationName;}) registration.reload)
-        allRegistrations);
+          map (hook: hook // {inherit registrationName;}) registration.reload)
+        programRegistrations);
 
-      filePaths = builtins.map (file: file.path) registeredFiles;
+      filePaths = map (file: file.path) registeredFiles;
 
       duplicatePaths =
         lib.filter
@@ -453,7 +361,7 @@ in {
       renderedFilesByTheme =
         lib.mapAttrs
         (themeName: themeContext:
-          builtins.map (file: {
+          map (file: {
             path = file.path;
             executable = file.executable;
             registration = file.registrationName;
@@ -492,7 +400,7 @@ in {
               else toString themeContext.image;
 
             files =
-              builtins.map (file: {
+              map (file: {
                 inherit (file) executable path registration;
                 source = toString file.source;
               })
@@ -501,7 +409,7 @@ in {
           normalizedThemes;
 
         hooks.reload =
-          builtins.map (hook: {
+          map (hook: {
             inherit (hook) command name type;
             registration = hook.registrationName;
           })
@@ -578,7 +486,7 @@ in {
 
         {
           assertion = duplicatePaths == [];
-          message = "sumi registrations contain duplicate file paths: ${lib.concatStringsSep ", " duplicatePaths}";
+          message = "sumi.programs contains duplicate file paths: ${lib.concatStringsSep ", " duplicatePaths}";
         }
 
         {
