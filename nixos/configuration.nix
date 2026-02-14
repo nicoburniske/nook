@@ -43,6 +43,7 @@ in {
     ./modules/opencode.nix
     ./modules/quickshell
     ./modules/rofi.nix
+    ./modules/swaync
     ./modules/yazi
   ];
 
