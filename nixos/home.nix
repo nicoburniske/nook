@@ -11,7 +11,6 @@ in {
     ../common/oh-my-posh.nix
     ../common/zsh.nix
     ../common/zoxide.nix
-    ../common/opencode.nix
     ../common/cargo.nix
     ../common/packages.nix
     ../common/comically.nix
