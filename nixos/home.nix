@@ -18,7 +18,6 @@ in {
     ../common/direnv.nix
 
     ./modules/swaync.nix
-    ./modules/rofi.nix
   ];
 
   home.username = "nico";
