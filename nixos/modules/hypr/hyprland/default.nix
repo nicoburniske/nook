@@ -1,6 +1,19 @@
 {pkgs, ...}: let
   keybinds = import ./keybinds.nix;
 
+  systemdVariables = [
+    "DISPLAY"
+    "HYPRLAND_INSTANCE_SIGNATURE"
+    "WAYLAND_DISPLAY"
+    "XDG_CURRENT_DESKTOP"
+  ];
+
+  systemdActivation =
+    "${pkgs.dbus}/bin/dbus-update-activation-environment --systemd "
+    + builtins.concatStringsSep " " systemdVariables
+    + " && ${pkgs.systemd}/bin/systemctl --user stop hyprland-session.target"
+    + " && ${pkgs.systemd}/bin/systemctl --user start hyprland-session.target";
+
   mkBindLines = prefix: entries:
     builtins.concatStringsSep "\n" (builtins.map (entry: "${prefix}=${entry}") entries);
 
@@ -20,7 +33,7 @@ in {
         then "phinger-cursors-dark"
         else "phinger-cursors-light";
     in ''
-      exec-once = dbus-update-activation-environment --systemd --all && systemctl --user stop hyprland-session.target && systemctl --user start hyprland-session.target
+      exec-once = ${systemdActivation}
       $mod=SUPER
 
       animations {

@@ -52,9 +52,13 @@ in {
 
   systemd.user.services.quickshell = {
     description = "Quickshell";
-    partOf = ["graphical-session.target"];
-    after = ["graphical-session.target"];
-    wantedBy = ["graphical-session.target"];
+    partOf = ["hyprland-session.target"];
+    after = ["hyprland-session.target"];
+    wantedBy = ["hyprland-session.target"];
+
+    unitConfig = {
+      ConditionEnvironment = "WAYLAND_DISPLAY";
+    };
 
     serviceConfig = {
       ExecStart = "${pkgs.quickshell}/bin/qs -n";
