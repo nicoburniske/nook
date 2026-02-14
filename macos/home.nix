@@ -26,10 +26,7 @@
   '';
 in {
   imports = [
-    ../common/packages.nix
-
     ../common/git.nix
-    ../common/paths.nix
     ../common/oh-my-posh.nix
     ../common/fzf.nix
     ../common/ghostty.nix

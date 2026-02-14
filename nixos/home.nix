@@ -5,14 +5,7 @@
 }: let
   themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
 in {
-  imports = [
-    ../common/git.nix
-    ../common/paths.nix
-    ../common/cargo.nix
-    ../common/packages.nix
-    ../common/comically.nix
-    ../common/television.nix
-  ];
+  imports = [];
 
   home.username = "nico";
   home.homeDirectory = "/home/nico";
@@ -29,34 +22,7 @@ in {
     (lib.mkDefault (builtins.head themeDefinitions.themes).stylix)
   ];
 
-  nixpkgs.config.allowUnfree = true;
-
-  nixpkgs.overlays = [
-    (final: prev: {
-      ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
-    })
-  ];
-
-  home.packages = with pkgs; [
-    ungoogled-chromium
-    vlc
-    wl-clipboard
-    brightnessctl
-    wiremix
-    jmtpfs
-    usbutils
-    cutecom
-    bluetui
-    obs-studio
-    nautilus
-    file-roller
-    zip
-    unzip
-    unrar
-    sparrow
-    readest
-    pavucontrol
-  ];
+  home.packages = [];
 
   specialisation = builtins.listToAttrs (
     map (theme: {
