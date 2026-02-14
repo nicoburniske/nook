@@ -1,16 +1,33 @@
-{config, ...}: {
+{pkgs, ...}: {
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+    settings = {
+      global = {
+        hide_env_diff = true;
+        log_filter = "^$";
+      };
+    };
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableBashIntegration = true;
+    enableZshIntegration = true;
+  };
+
   programs.zsh = {
     enable = true;
-
     enableCompletion = true;
-    autosuggestion = {
+
+    autosuggestions = {
       enable = true;
-    };
-    syntaxHighlighting = {
-      enable = true;
+      highlightStyle = "fg=242";
     };
 
-    oh-my-zsh = {
+    syntaxHighlighting.enable = true;
+
+    ohMyZsh = {
       enable = true;
       plugins = [
         "gh"
@@ -21,20 +38,17 @@
       ];
     };
 
-    history = {
-      size = 999999999;
-      save = 999999999;
-      path = "${config.home.homeDirectory}/.zsh_history";
-      ignoreDups = true;
-      share = false;
-    };
+    histSize = 999999999;
+    histFile = "$HOME/.zsh_history";
+    setOptions = [
+      "HIST_IGNORE_DUPS"
+      "HIST_FCNTL_LOCK"
+    ];
 
-    initContent = ''
+    interactiveShellInit = ''
       WORDCHARS=''${WORDCHARS//[\/]}
 
-      export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=242"
-
-      bindkey '^I'   complete-word
+      bindkey '^I' complete-word
       bindkey '^[[Z' autosuggest-accept
 
       export PATH=~/.cargo/bin:$PATH
@@ -69,15 +83,13 @@
         local dir="''${PWD##*/}"
         [[ "$dir" == "" ]] && dir="/"
         [[ "$HOME" == "$PWD" ]] && dir="~"
-        local cmd="''${1%% *}"  # Extract first word (everything before first space)
+        local cmd="''${1%% *}"
         echo -ne "\033]0;''${dir} [''${cmd}]\007"
       }
 
       autoload -Uz add-zsh-hook
       add-zsh-hook precmd set_terminal_title_precmd
       add-zsh-hook preexec set_terminal_title_preexec
-
-      eval "$(oh-my-posh init zsh --config "$HOME/.config/ohmyposh/config.json")"
     '';
 
     shellAliases = {

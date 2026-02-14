@@ -45,6 +45,7 @@ in {
     ./modules/quickshell
     ./modules/rofi.nix
     ./modules/swaync
+    ./modules/zsh.nix
     ./modules/yazi
   ];
 

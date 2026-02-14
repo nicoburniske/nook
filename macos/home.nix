@@ -31,14 +31,11 @@ in {
     ../common/git.nix
     ../common/paths.nix
     ../common/oh-my-posh.nix
-    ../common/zsh.nix
     ../common/fzf.nix
-    ../common/zoxide.nix
     ../common/ghostty.nix
     ../common/opencode.nix
     ../common/cargo.nix
     ../common/comically.nix
-    ../common/direnv.nix
 
     ./sketchybar
     ./hammerspoon
