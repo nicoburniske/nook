@@ -27,15 +27,7 @@
               ./modules/nixos.nix
             ];
           };
-
-          sumi = {...}: {
-            imports = [
-              ./modules/nixos.nix
-            ];
-          };
         };
-
-        lib = import ./lib;
       };
 
       perSystem = {pkgs, ...}: let
