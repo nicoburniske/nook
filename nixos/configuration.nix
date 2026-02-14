@@ -37,14 +37,19 @@ in {
     ./modules/fzf.nix
     ./modules/bat.nix
     ./modules/btop.nix
+    ./modules/cargo.nix
+    ./modules/comically.nix
+    ./modules/git.nix
     ./modules/hypr
     ./modules/kitty
     ./modules/lazygit.nix
     ./modules/oh-my-posh.nix
     ./modules/opencode.nix
+    ./modules/packages.nix
     ./modules/quickshell
     ./modules/rofi.nix
     ./modules/swaync
+    ./modules/television.nix
     ./modules/zsh.nix
     ./modules/yazi
   ];
@@ -56,6 +61,14 @@ in {
     defaultTheme = "gruvbox";
     themes = velumThemes;
   };
+
+  nixpkgs.config.allowUnfree = true;
+
+  nixpkgs.overlays = [
+    (final: prev: {
+      ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
+    })
+  ];
 
   boot = {
     consoleLogLevel = 0;
