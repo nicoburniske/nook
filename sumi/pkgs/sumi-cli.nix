@@ -174,7 +174,7 @@ writeShellApplication {
       fi
 
       echo "Theme: $theme"
-      jq -r --arg theme "$theme" '.themes[$theme] | "  slug: \(.slug)\n  polarity: \(.polarity)\n  files: \(.files | length)"' "$manifest"
+      jq -r --arg theme "$theme" '.themes[$theme] | "  polarity: \(.polarity)\n  files: \(.files | length)"' "$manifest"
     }
 
     doctor() {

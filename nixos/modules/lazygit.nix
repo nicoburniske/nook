@@ -61,7 +61,7 @@ in {
 
   sumi.programs.lazygit = {
     "lazygit/config.yml".render = theme:
-      yamlFormat.generate "sumi-lazygit-${theme.slug}.yml" (mkSettings theme);
+      yamlFormat.generate "sumi-lazygit-${theme.name}.yml" (mkSettings theme);
 
     reload = [];
   };

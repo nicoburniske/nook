@@ -130,12 +130,6 @@
         description = "Color palette with base00..base0F hex values.";
       };
 
-      slug = lib.mkOption {
-        type = with types; nullOr str;
-        default = null;
-        description = "Optional explicit slug for app formats that need one.";
-      };
-
       meta = lib.mkOption {
         type = types.attrs;
         default = {};
@@ -367,8 +361,8 @@ in {
           palette = normalizePalette rawTheme.palette;
           withHashtag = lib.mapAttrs (_: value: "#${value}") palette;
         in {
+          inherit name;
           colors = palette // {inherit withHashtag;};
-          slug = rawTheme.slug or name;
           meta = rawTheme.meta or {};
           polarity = rawTheme.polarity or "either";
           image = rawTheme.image or rawTheme.wallpaper or null;
@@ -490,7 +484,7 @@ in {
 
         themes =
           lib.mapAttrs (themeName: themeContext: {
-            slug = themeContext.slug;
+            name = themeContext.name;
             polarity = themeContext.polarity;
             image =
               if themeContext.image == null
