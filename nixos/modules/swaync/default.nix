@@ -44,11 +44,17 @@
 
   systemd.user.services.swaync = {
     description = "Sway Notification Center";
-    partOf = ["graphical-session.target"];
-    after = ["graphical-session.target"];
-    wantedBy = ["graphical-session.target"];
+    partOf = ["hyprland-session.target"];
+    after = ["hyprland-session.target"];
+    wantedBy = ["hyprland-session.target"];
+
+    unitConfig = {
+      ConditionEnvironment = "WAYLAND_DISPLAY";
+    };
 
     serviceConfig = {
+      Type = "dbus";
+      BusName = "org.freedesktop.Notifications";
       ExecStart = "${pkgs.swaynotificationcenter}/bin/swaync";
       Restart = "on-failure";
       RestartSec = 1;

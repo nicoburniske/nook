@@ -16,13 +16,18 @@
 
   systemd.user.services.hyprpaper = {
     description = "Hyprpaper wallpaper daemon";
-    partOf = ["graphical-session.target"];
-    after = ["graphical-session.target"];
-    wantedBy = ["graphical-session.target"];
+    partOf = ["hyprland-session.target"];
+    after = ["hyprland-session.target"];
+    wantedBy = ["hyprland-session.target"];
+
+    unitConfig = {
+      StartLimitIntervalSec = 0;
+      ConditionEnvironment = "WAYLAND_DISPLAY";
+    };
 
     serviceConfig = {
       ExecStart = "${pkgs.hyprpaper}/bin/hyprpaper";
-      Restart = "on-failure";
+      Restart = "always";
       RestartSec = 1;
     };
   };
