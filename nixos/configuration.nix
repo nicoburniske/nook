@@ -40,6 +40,7 @@ in {
     ./modules/cargo.nix
     ./modules/comically.nix
     ./modules/git.nix
+    ./modules/gtk
     ./modules/hypr
     ./modules/kitty
     ./modules/lazygit.nix
