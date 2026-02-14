@@ -35,6 +35,8 @@ in {
 
     ./modules/helix
     ./modules/fzf.nix
+    ./modules/bat.nix
+    ./modules/btop.nix
     ./modules/hypr
     ./modules/kitty
     ./modules/lazygit.nix
