@@ -196,7 +196,6 @@ in {
   };
 
   programs = {
-    adb.enable = true;
     hyprland.enable = true;
     zsh.enable = true;
   };

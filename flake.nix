@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     opencode.url = "github:anomalyco/opencode/dev";
 
     home-manager = {
@@ -51,7 +50,6 @@
   outputs = inputs @ {
     self,
     nixpkgs,
-    nixpkgs-master,
     home-manager,
     nix-ld,
     stylix,

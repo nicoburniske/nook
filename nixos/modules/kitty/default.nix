@@ -1,16 +1,8 @@
-{
-  inputs,
-  pkgs,
-  ...
-}: let
-  pkgsMaster = import inputs.nixpkgs-master {
-    system = pkgs.system;
-  };
-
+{pkgs, ...}: let
   tabTitle = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
   renderTheme = import ./theme.nix;
 in {
-  environment.systemPackages = [pkgsMaster.kitty];
+  environment.systemPackages = [pkgs.kitty];
 
   velum.programs.kitty = {
     "kitty/kitty.conf".text = ''

@@ -1,24 +1,20 @@
 {
   config,
-  inputs,
   pkgs,
   ...
 }: let
   configHome = config.lib.velum.paths.config;
   flakeRoot = config.lib.velum.paths.flakeRootOrErr;
   quickshellRoot = "${flakeRoot}/nixos/modules/quickshell";
-  pkgsMaster = import inputs.nixpkgs-master {
-    system = pkgs.system;
-  };
   runtimePackages = with pkgs;
     [
       bash
       pipewire
       pavucontrol
+      kitty
       bluetui
       coreutils
-    ]
-    ++ [pkgsMaster.kitty];
+    ];
 in {
   environment.systemPackages = [pkgs.quickshell];
 
