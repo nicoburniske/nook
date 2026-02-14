@@ -27,9 +27,9 @@
 
     git = {
       colorArg = "always";
-      paging = {
-        pager = "delta --true-color=never --paging=never --line-numbers ${pagerTheme}";
-      };
+      pagers = [
+        {pager = "delta --true-color=never --paging=never --line-numbers ${pagerTheme}";}
+      ];
       overrideGpg = true;
     };
 
