@@ -1,10 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: let
-  themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
-in {
+{...}: {
   imports = [];
 
   home.username = "nico";
@@ -18,21 +12,5 @@ in {
 
   fonts.fontconfig.enable = true;
 
-  stylix = lib.mkMerge [
-    (lib.mkDefault (builtins.head themeDefinitions.themes).stylix)
-  ];
-
   home.packages = [];
-
-  specialisation = builtins.listToAttrs (
-    map (theme: {
-      name = theme.stylix.override.slug;
-      value = {
-        configuration = {
-          stylix = lib.mkForce theme.stylix;
-        };
-      };
-    })
-    themeDefinitions.themes
-  );
 }

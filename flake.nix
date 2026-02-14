@@ -80,9 +80,6 @@
           home-manager.backupFileExtension = "backup";
           home-manager.users.nico = import ./nixos/home.nix;
           home-manager.extraSpecialArgs = {inherit inputs;};
-          home-manager.sharedModules = [
-            stylix.homeModules.stylix
-          ];
         }
       ];
     };
