@@ -69,7 +69,7 @@ in {
     consoleLogLevel = 0;
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = false;
-    kernelParams = ["appledrm.show_notch="];
+    kernelParams = ["appledrm.show_notch=1"];
     binfmt.emulatedSystems = ["x86_64-linux"];
   };
 
