@@ -138,12 +138,12 @@ in {
 
       exec=hyprctl setcursor ${cursorTheme} 24
       gesture=3, horizontal, workspace,
-      layerrule=noanim, rofi
+      layerrule=no_anim on, match:namespace rofi
 
       monitor=eDP-1, 3456x2234@60, 0x0, 1.6
       monitor=, preferred, auto, 1
 
-      windowrule=scrolltouchpad 1.5, class:kitty
+      windowrule=scroll_touchpad 1.5, match:class kitty
     '';
 
     reload = "${pkgs.hyprland}/bin/hyprctl reload || true";
