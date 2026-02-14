@@ -6,15 +6,14 @@
   configHome = config.lib.velum.paths.config;
   flakeRoot = config.lib.velum.paths.flakeRootOrErr;
   quickshellRoot = "${flakeRoot}/nixos/modules/quickshell";
-  runtimePackages = with pkgs;
-    [
-      bash
-      pipewire
-      pavucontrol
-      kitty
-      bluetui
-      coreutils
-    ];
+  runtimePackages = with pkgs; [
+    bash
+    pipewire
+    pavucontrol
+    kitty
+    bluetui
+    coreutils
+  ];
 in {
   environment.systemPackages = [pkgs.quickshell];
 

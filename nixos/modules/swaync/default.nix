@@ -1,4 +1,8 @@
-{config, pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   configDir = config.lib.velum.paths.config;
 in {
   environment.systemPackages = [
