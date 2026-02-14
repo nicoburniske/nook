@@ -11,7 +11,7 @@ in {
     "opencode/config.json".text = builtins.toJSON {
       "$schema" = "https://opencode.ai/config.json";
       autoupdate = false;
-      theme = "stylix";
+      theme = "sumi";
       tui = {
         scroll_acceleration = {
           enabled = true;
@@ -19,7 +19,7 @@ in {
       };
     };
 
-    "opencode/themes/stylix.json".render = theme:
+    "opencode/themes/sumi.json".render = theme:
       builtins.toJSON {
         "$schema" = "https://opencode.ai/theme.json";
         theme = with theme.colors.withHashtag; {

@@ -10,11 +10,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    stylix = {
-      url = "github:danth/stylix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     sumi.url = "path:./sumi";
 
     nix-ld = {
@@ -52,7 +47,6 @@
     nixpkgs,
     home-manager,
     nix-ld,
-    stylix,
     sumi,
     apple-silicon,
     nix-darwin,
@@ -63,7 +57,7 @@
   }: {
     nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
-      specialArgs = {inherit inputs apple-silicon stylix;};
+      specialArgs = {inherit inputs apple-silicon;};
       modules = [
         ./nixos/configuration.nix
         ./nixos/hardware-configuration.nix

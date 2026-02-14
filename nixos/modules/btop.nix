@@ -3,10 +3,10 @@
 
   sumi.programs.btop = {
     "btop/btop.conf".text = ''
-      color_theme = "stylix"
+      color_theme = "sumi"
     '';
 
-    "btop/themes/stylix.theme".render = theme:
+    "btop/themes/sumi.theme".render = theme:
       with theme.colors.withHashtag; ''
         theme[main_bg]="${base00}"
         theme[main_fg]="${base05}"
