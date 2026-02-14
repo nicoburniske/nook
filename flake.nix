@@ -77,7 +77,7 @@
 
     darwinConfigurations.fuji = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
-      specialArgs = {inherit inputs stylix;};
+      specialArgs = {inherit inputs;};
       modules = [
         ./macos/configuration.nix
         home-manager.darwinModules.home-manager
@@ -86,9 +86,6 @@
           home-manager.backupFileExtension = "backup";
           home-manager.users.nicoburniske = import ./macos/home.nix;
           home-manager.extraSpecialArgs = {inherit inputs;};
-          home-manager.sharedModules = [
-            stylix.homeModules.stylix
-          ];
         }
         nix-homebrew.darwinModules.nix-homebrew
         {

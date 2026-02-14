@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{lib, pkgs, ...}: {
   programs.ghostty = {
     enable = true;
 
@@ -15,7 +10,7 @@
       gtk-single-instance = true;
       adjust-cursor-thickness = 5;
 
-      window-title-font-family = config.stylix.fonts.monospace.name;
+      window-title-font-family = "Berkeley Mono";
 
       window-theme = "auto";
       window-decoration = "none";
