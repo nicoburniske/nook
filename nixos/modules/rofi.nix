@@ -3,7 +3,7 @@
     pkgs.rofi
   ];
 
-  velum.programs.rofi = {
+  sumi.programs.rofi = {
     "rofi/config.rasi".render = theme:
       with theme.colors.withHashtag; ''
         configuration {

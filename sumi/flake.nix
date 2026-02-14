@@ -1,5 +1,5 @@
 {
-  description = "Velum: theme switching primitives for NixOS";
+  description = "Sumi: theme switching primitives for NixOS";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -34,7 +34,7 @@
             ];
           };
 
-          velum = {...}: {
+          sumi = {...}: {
             imports = [
               inputs.stylix.nixosModules.stylix
               ./modules/nixos.nix
@@ -46,18 +46,18 @@
       };
 
       perSystem = {pkgs, ...}: let
-        velumCli = pkgs.callPackage ./pkgs/velum-cli.nix {};
+        sumiCli = pkgs.callPackage ./pkgs/sumi-cli.nix {};
       in {
         formatter = pkgs.alejandra;
 
         packages = {
-          default = velumCli;
-          velum = velumCli;
+          default = sumiCli;
+          sumi = sumiCli;
         };
 
         apps.default = {
           type = "app";
-          program = "${velumCli}/bin/velum";
+          program = "${sumiCli}/bin/sumi";
         };
       };
     };

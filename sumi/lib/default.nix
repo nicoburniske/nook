@@ -38,7 +38,7 @@ in {
 
   mkConfig = name: {
     program ? null,
-    velum,
+    sumi,
     ...
   }:
     (
@@ -46,5 +46,5 @@ in {
       then {}
       else setAttrByPath ["programs" name] program
     )
-    // setAttrByPath ["velum" "programs" name] velum;
+    // setAttrByPath ["sumi" "programs" name] sumi;
 }

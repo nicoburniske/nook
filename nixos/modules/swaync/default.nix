@@ -3,13 +3,13 @@
   pkgs,
   ...
 }: let
-  configDir = config.lib.velum.paths.config;
+  configDir = config.lib.sumi.paths.config;
 in {
   environment.systemPackages = [
     pkgs.swaynotificationcenter
   ];
 
-  velum.programs.swaync = {
+  sumi.programs.swaync = {
     "swaync/config.json".text = "{}\n";
 
     "swaync/style.css".render = theme: let

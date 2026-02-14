@@ -5,8 +5,8 @@
   ...
 }: let
   types = lib.types;
-  velumLib = import ../lib;
-  cfg = config.velum or {};
+  sumiLib = import ../lib;
+  cfg = config.sumi or {};
 
   hasStylixBase16 = lib.hasAttrByPath ["stylix" "base16"] config;
 
@@ -158,7 +158,7 @@
         type = with types; nullOr attrs;
         default = null;
         description = ''
-          Optional nested stylix-like shape. If set, Velum reads values from
+          Optional nested stylix-like shape. If set, Sumi reads values from
           `themes.<name>.stylix`.
         '';
       };
@@ -202,8 +202,8 @@
       file.source
     ]);
 in {
-  options.velum = {
-    enable = lib.mkEnableOption "Velum theme switching runtime";
+  options.sumi = {
+    enable = lib.mkEnableOption "Sumi theme switching runtime";
 
     themes = lib.mkOption {
       type = types.attrsOf themeOptionType;
@@ -229,13 +229,13 @@ in {
     homeDirectory = lib.mkOption {
       type = with types; nullOr str;
       default = null;
-      description = "Home directory Velum should manage. If null, derived from velum.user.";
+      description = "Home directory Sumi should manage. If null, derived from sumi.user.";
     };
 
     configDirectory = lib.mkOption {
       type = with types; nullOr str;
       default = null;
-      description = "Config directory Velum should target. Defaults to <homeDirectory>/.config.";
+      description = "Config directory Sumi should target. Defaults to <homeDirectory>/.config.";
     };
 
     flakeRoot = lib.mkOption {
@@ -248,8 +248,8 @@ in {
       type = with types; nullOr str;
       default = null;
       description = ''
-        Runtime state directory for Velum. If null, Velum defaults to
-        `$HOME/.local/state/velum`.
+        Runtime state directory for Sumi. If null, Sumi defaults to
+        `$HOME/.local/state/sumi`.
       '';
     };
 
@@ -266,7 +266,7 @@ in {
     registrations = lib.mkOption {
       type = types.attrsOf registrationOptionType;
       default = {};
-      description = "Additional manual registrations merged with velum.programs.";
+      description = "Additional manual registrations merged with sumi.programs.";
     };
 
     generated = {
@@ -281,18 +281,18 @@ in {
       type = types.package;
       readOnly = true;
       internal = true;
-      description = "Host-wrapped Velum CLI package.";
+      description = "Host-wrapped Sumi CLI package.";
     };
   };
 
   config = lib.mkMerge [
     {
-      lib.velum =
-        velumLib
+      lib.sumi =
+        sumiLib
         // {
           mkOutOfStoreSymlink = path: let
             pathStr = toString path;
-            drvName = lib.strings.sanitizeDerivationName "velum-oos-${baseNameOf pathStr}";
+            drvName = lib.strings.sanitizeDerivationName "sumi-oos-${baseNameOf pathStr}";
           in
             pkgs.runCommandLocal drvName {} ''
               ln -s ${lib.escapeShellArg pathStr} "$out"
@@ -333,7 +333,7 @@ in {
             base16Scheme =
               if (themeSource ? base16Scheme) && themeSource.base16Scheme != null
               then themeSource.base16Scheme
-              else throw "velum.themes.${name} must define base16Scheme (or stylix.base16Scheme)";
+              else throw "sumi.themes.${name} must define base16Scheme (or stylix.base16Scheme)";
 
             override = themeSource.override or {};
             colors = (config.stylix.base16.mkSchemeAttrs base16Scheme).override override;
@@ -445,7 +445,7 @@ in {
                 if builtins.isString rendered
                 then
                   pkgs.writeTextFile {
-                    name = "velum-${themeName}-${sanitizePath file.path}";
+                    name = "sumi-${themeName}-${sanitizePath file.path}";
                     text = rendered;
                     executable = file.executable;
                   }
@@ -484,86 +484,86 @@ in {
           reloadHooks;
       };
 
-      manifestPath = pkgs.writeText "velum-manifest.json" (builtins.toJSON manifest);
+      manifestPath = pkgs.writeText "sumi-manifest.json" (builtins.toJSON manifest);
 
-      baseCli = pkgs.callPackage ../pkgs/velum-cli.nix {};
+      baseCli = pkgs.callPackage ../pkgs/sumi-cli.nix {};
 
       stateDirectoryExport = lib.optionalString (cfg.stateDirectory != null) ''
-        export VELUM_STATE_DIR="${cfg.stateDirectory}"
+        export SUMI_STATE_DIR="${cfg.stateDirectory}"
       '';
 
       homeDirectoryExport = lib.optionalString (resolvedHomeDirectory != null) ''
-        export VELUM_HOME_DIR="${resolvedHomeDirectory}"
+        export SUMI_HOME_DIR="${resolvedHomeDirectory}"
       '';
 
       configDirectoryExport = lib.optionalString (resolvedConfigDirectory != null) ''
-        export VELUM_CONFIG_DIR="${resolvedConfigDirectory}"
+        export SUMI_CONFIG_DIR="${resolvedConfigDirectory}"
       '';
 
-      wrappedCli = pkgs.writeShellScriptBin "velum" ''
-        export VELUM_MANIFEST="${manifestPath}"
+      wrappedCli = pkgs.writeShellScriptBin "sumi" ''
+        export SUMI_MANIFEST="${manifestPath}"
         ${stateDirectoryExport}
         ${homeDirectoryExport}
         ${configDirectoryExport}
-        exec ${baseCli}/bin/velum "$@"
+        exec ${baseCli}/bin/sumi "$@"
       '';
 
-      refreshTheme = pkgs.writeShellScript "velum-refresh-theme" ''
-        theme="$(${wrappedCli}/bin/velum current 2>/dev/null || true)"
+      refreshTheme = pkgs.writeShellScript "sumi-refresh-theme" ''
+        theme="$(${wrappedCli}/bin/sumi current 2>/dev/null || true)"
         if [ -z "$theme" ]; then
           theme="${cfg.defaultTheme}"
         fi
-        ${wrappedCli}/bin/velum switch "$theme" || true
+        ${wrappedCli}/bin/sumi switch "$theme" || true
       '';
     in {
       assertions = [
         {
           assertion = hasStylixBase16;
           message = ''
-            Velum requires Stylix base16 helpers. Import `velum.nixosModules.default`
+            Sumi requires Stylix base16 helpers. Import `sumi.nixosModules.default`
             so Stylix is wired automatically.
           '';
         }
 
         {
           assertion = cfg.themes != {};
-          message = "velum.themes must define at least one theme.";
+          message = "sumi.themes must define at least one theme.";
         }
 
         {
           assertion = cfg.defaultTheme != "";
-          message = "velum.defaultTheme must be set.";
+          message = "sumi.defaultTheme must be set.";
         }
 
         {
           assertion = resolvedHomeDirectory != null;
-          message = "velum.homeDirectory or velum.user must be set when velum.enable = true.";
+          message = "sumi.homeDirectory or sumi.user must be set when sumi.enable = true.";
         }
 
         {
           assertion = cfg.user == null || lib.hasAttrByPath ["users" "users" cfg.user "home"] config;
-          message = "velum.user must reference an existing users.users.<name>.home entry.";
+          message = "sumi.user must reference an existing users.users.<name>.home entry.";
         }
 
         {
           assertion = resolvedConfigDirectory != null;
-          message = "velum.configDirectory could not be resolved.";
+          message = "sumi.configDirectory could not be resolved.";
         }
 
         {
           assertion = builtins.hasAttr cfg.defaultTheme cfg.themes;
-          message = "velum.defaultTheme must match a key in velum.themes.";
+          message = "sumi.defaultTheme must match a key in sumi.themes.";
         }
 
         {
           assertion = duplicatePaths == [];
-          message = "velum registrations contain duplicate file paths: ${lib.concatStringsSep ", " duplicatePaths}";
+          message = "sumi registrations contain duplicate file paths: ${lib.concatStringsSep ", " duplicatePaths}";
         }
 
         {
           assertion = absolutePaths == [];
           message = ''
-            velum files must be relative to $HOME. Found absolute paths:
+            sumi files must be relative to $HOME. Found absolute paths:
             ${lib.concatStringsSep ", " absolutePaths}
           '';
         }
@@ -571,32 +571,32 @@ in {
         {
           assertion = invalidFiles == [];
           message = ''
-            velum files must set exactly one of render, text, or source:
+            sumi files must set exactly one of render, text, or source:
             ${lib.concatStringsSep ", " invalidFiles}
           '';
         }
       ];
 
-      lib.velum.themeContexts = normalizedThemes;
-      lib.velum.paths = {
+      lib.sumi.themeContexts = normalizedThemes;
+      lib.sumi.paths = {
         home = resolvedHomeDirectory;
         config = resolvedConfigDirectory;
         flakeRoot = resolvedFlakeRoot;
         flakeRootOrErr =
           if resolvedFlakeRoot != null
           then resolvedFlakeRoot
-          else throw "velum.flakeRoot must be set for modules that need repository-relative paths.";
+          else throw "sumi.flakeRoot must be set for modules that need repository-relative paths.";
       };
 
-      environment.etc."velum/manifest.json".source = manifestPath;
+      environment.etc."sumi/manifest.json".source = manifestPath;
       environment.systemPackages = [wrappedCli];
 
-      system.userActivationScripts.velum = ''
+      system.userActivationScripts.sumi = ''
         ${refreshTheme}
       '';
 
-      systemd.user.services.velum-reapply-theme = {
-        description = "Reapply current Velum theme on session start";
+      systemd.user.services.sumi-reapply-theme = {
+        description = "Reapply current Sumi theme on session start";
         partOf = ["hyprland-session.target"];
         after = ["hyprland-session.target"];
         wantedBy = ["hyprland-session.target"];
@@ -611,8 +611,8 @@ in {
         };
       };
 
-      velum.generated.manifest = manifestPath;
-      velum.package = wrappedCli;
+      sumi.generated.manifest = manifestPath;
+      sumi.package = wrappedCli;
     }))
   ];
 }

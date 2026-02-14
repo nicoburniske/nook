@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.television];
 
-  velum.programs.television = {
+  sumi.programs.television = {
     "television/cable/files.toml".text = ''
       [metadata]
       name = "files"

@@ -3,8 +3,8 @@
   pkgs,
   ...
 }: let
-  configHome = config.lib.velum.paths.config;
-  flakeRoot = config.lib.velum.paths.flakeRootOrErr;
+  configHome = config.lib.sumi.paths.config;
+  flakeRoot = config.lib.sumi.paths.flakeRootOrErr;
   quickshellRoot = "${flakeRoot}/nixos/modules/quickshell";
   runtimePackages = with pkgs; [
     bash
@@ -17,7 +17,7 @@
 in {
   environment.systemPackages = [pkgs.quickshell];
 
-  velum.programs.quickshell = {
+  sumi.programs.quickshell = {
     "quickshell/shell.qml".render = theme:
       with theme.colors.withHashtag; ''
         import Quickshell
@@ -53,7 +53,7 @@ in {
         }
       '';
 
-    "quickshell/components".source = config.lib.velum.mkOutOfStoreSymlink "${quickshellRoot}/components";
+    "quickshell/components".source = config.lib.sumi.mkOutOfStoreSymlink "${quickshellRoot}/components";
 
     reload = "${pkgs.systemd}/bin/systemctl --user restart quickshell.service || true";
   };

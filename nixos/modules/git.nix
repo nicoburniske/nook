@@ -8,7 +8,7 @@
     delta
   ];
 
-  velum.programs.git = {
+  sumi.programs.git = {
     ".gitconfig".text = lib.generators.toGitINI {
       user = {
         name = "Nico Burniske";

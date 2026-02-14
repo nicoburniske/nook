@@ -4,7 +4,7 @@
 in {
   environment.systemPackages = [pkgs.kitty];
 
-  velum.programs.kitty = {
+  sumi.programs.kitty = {
     "kitty/kitty.conf".text = ''
       shell_integration no-rc no-title
 
@@ -26,7 +26,7 @@ in {
       tab_title_template ${tabTitle}
       window_padding_width 5
 
-      include ~/.config/kitty/themes/velum.conf
+      include ~/.config/kitty/themes/sumi.conf
 
       # === GLOBAL ===
 
@@ -85,7 +85,7 @@ in {
       map --mode unlocked escape pop_keyboard_mode
     '';
 
-    "kitty/themes/velum.conf".render = renderTheme;
+    "kitty/themes/sumi.conf".render = renderTheme;
     "kitty/tab_bar.py".source = ./tab_bar.py;
 
     "kitty/quick-access-terminal.conf".text = ''

@@ -25,7 +25,7 @@ in {
     chromiumProfile
   ];
 
-  velum.programs.hyprland = {
+  sumi.programs.hyprland = {
     "hypr/hyprland.conf".render = theme: let
       t = import ./theme.nix theme;
       cursorTheme =

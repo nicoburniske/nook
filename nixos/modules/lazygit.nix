@@ -59,9 +59,9 @@
 in {
   environment.systemPackages = [pkgs.lazygit];
 
-  velum.programs.lazygit = {
+  sumi.programs.lazygit = {
     "lazygit/config.yml".render = theme:
-      yamlFormat.generate "velum-lazygit-${theme.slug}.yml" (mkSettings theme);
+      yamlFormat.generate "sumi-lazygit-${theme.slug}.yml" (mkSettings theme);
 
     reload = [];
   };

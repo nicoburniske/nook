@@ -6,7 +6,7 @@ pkgs.writeShellScriptBin "theme-switch" ''
     --instance-group theme-selector \
     ${pkgs.bash}/bin/bash -lc '
       set -euo pipefail
-      themes=$(velum list 2>/dev/null || true)
+      themes=$(sumi list 2>/dev/null || true)
 
       theme=$(printf "%s\n" "$themes" | ${pkgs.fzf}/bin/fzf \
         --prompt="Select theme: " \
@@ -15,7 +15,7 @@ pkgs.writeShellScriptBin "theme-switch" ''
         --color=dark)
 
       if [ -n "$theme" ]; then
-        velum switch "$theme"
+        sumi switch "$theme"
       fi
     '
 ''
