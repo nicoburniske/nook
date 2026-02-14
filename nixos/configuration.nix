@@ -40,6 +40,7 @@ in {
     ./modules/hypr
     ./modules/kitty
     ./modules/lazygit.nix
+    ./modules/oh-my-posh.nix
     ./modules/opencode.nix
     ./modules/quickshell
     ./modules/rofi.nix
