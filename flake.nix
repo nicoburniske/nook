@@ -71,15 +71,8 @@
         ./nixos/hardware-configuration.nix
         nix-ld.nixosModules.nix-ld
         velum.nixosModules.default
-        home-manager.nixosModules.home-manager
         {
           programs.nix-ld.dev.enable = true;
-        }
-        {
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.nico = import ./nixos/home.nix;
-          home-manager.extraSpecialArgs = {inherit inputs;};
         }
       ];
     };
