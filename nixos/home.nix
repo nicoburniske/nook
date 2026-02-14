@@ -8,7 +8,6 @@ in {
   imports = [
     ../common/git.nix
     ../common/paths.nix
-    ../common/oh-my-posh.nix
     ../common/zsh.nix
     ../common/zoxide.nix
     ../common/cargo.nix
