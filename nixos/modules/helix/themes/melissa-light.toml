@@ -43,8 +43,8 @@
 "ui.menu" = { fg = "fg_main", bg = "bg_alt" }
 "ui.menu.selected" = { fg = "fg_main", bg = "bg_completion", modifiers = ["bold"] }
 "ui.popup" = { bg = "bg_alt" }
-"ui.selection" = { bg = "bg_region" }
-"ui.selection.primary" = { bg = "bg_hover" }
+"ui.selection" = { bg = "bg_paren_match" }
+"ui.selection.primary" = { bg = "bg_region" }
 "ui.statusline" = { fg = "fg_mode_line_active", bg = "bg_mode_line_active" }
 "ui.statusline.inactive" = { fg = "fg_main", bg = "bg_inactive" }
 "ui.statusline.insert" = { fg = "bg_main", bg = "green" }
