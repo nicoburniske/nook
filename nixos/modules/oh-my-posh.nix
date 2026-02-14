@@ -1,8 +1,14 @@
-{pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: let
+  configHome = config.lib.velum.paths.config;
+in {
   environment.systemPackages = [pkgs.oh-my-posh];
 
-  programs.zsh.interactiveShellInit = ''
-    eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "$HOME/.config/ohmyposh/config.json")"
+  programs.zsh.promptInit = ''
+    eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${configHome}/ohmyposh/config.json")"
   '';
 
   velum.programs.oh-my-posh = {

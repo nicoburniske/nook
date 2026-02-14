@@ -12,7 +12,6 @@ in {
     ../common/packages.nix
     ../common/comically.nix
     ../common/television.nix
-
   ];
 
   home.username = "nico";
