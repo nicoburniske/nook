@@ -193,58 +193,10 @@ in {
     zsh.enable = true;
   };
 
-  sumi.programs.ghostty = {
-    "ghostty/config".render = theme: let
-      c = theme.colors;
-      h = c.withHashtag;
-    in ''
-      shell-integration-features = no-cursor,no-title
-      gtk-titlebar = false
-      gtk-single-instance = true
-      adjust-cursor-thickness = 5
-      window-theme = auto
-      window-decoration = none
-      window-padding-balance = true
-      window-padding-x = 5
-      window-padding-y = 0
-      window-padding-color = extend
-      scrollback-limit = 104857600
-      keybind = shift+enter=text:\n
-      keybind = performable:ctrl+c=copy_to_clipboard
-      keybind = performable:ctrl+v=paste_from_clipboard
-
-      background = ${c.base00}
-      foreground = ${c.base05}
-      cursor-color = ${c.base05}
-      selection-background = ${c.base02}
-      selection-foreground = ${c.base05}
-
-      palette = 0=${h.base00}
-      palette = 1=${h.base08}
-      palette = 2=${h.base0B}
-      palette = 3=${h.base0A}
-      palette = 4=${h.base0D}
-      palette = 5=${h.base0E}
-      palette = 6=${h.base0C}
-      palette = 7=${h.base05}
-      palette = 8=${h.base03}
-      palette = 9=${h.base08}
-      palette = 10=${h.base0B}
-      palette = 11=${h.base0A}
-      palette = 12=${h.base0D}
-      palette = 13=${h.base0E}
-      palette = 14=${h.base0C}
-      palette = 15=${h.base07}
-    '';
-
-    reload = "${pkgs.procps}/bin/pkill -SIGUSR2 ghostty || true";
-  };
-
   # List packages installed in system profile.
   # Keep only system-level packages here, user packages go in home.nix
   environment.systemPackages = with pkgs; [
     git
-    ghostty
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

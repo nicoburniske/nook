@@ -1,12 +1,8 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   imports = [
     ../common/git.nix
     ../common/oh-my-posh.nix
     ../common/fzf.nix
-    ../common/ghostty.nix
     ../common/opencode.nix
     ../common/cargo.nix
     ../common/comically.nix
