@@ -597,9 +597,18 @@ in {
 
       systemd.user.services.velum-reapply-theme = {
         description = "Reapply current Velum theme on session start";
-        partOf = ["graphical-session.target"];
-        after = ["graphical-session.target"];
-        wantedBy = ["graphical-session.target"];
+        partOf = [
+          "graphical-session.target"
+          "hyprland-session.target"
+        ];
+        after = [
+          "graphical-session.target"
+          "hyprland-session.target"
+        ];
+        wantedBy = [
+          "graphical-session.target"
+          "hyprland-session.target"
+        ];
 
         serviceConfig = {
           Type = "oneshot";
