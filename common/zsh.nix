@@ -76,6 +76,8 @@
       autoload -Uz add-zsh-hook
       add-zsh-hook precmd set_terminal_title_precmd
       add-zsh-hook preexec set_terminal_title_preexec
+
+      eval "$(oh-my-posh init zsh --config "$HOME/.config/ohmyposh/config.json")"
     '';
 
     shellAliases = {

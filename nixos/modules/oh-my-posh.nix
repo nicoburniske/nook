@@ -1,10 +1,6 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.oh-my-posh];
 
-  programs.zsh.interactiveShellInit = ''
-    eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "$HOME/.config/ohmyposh/config.json")"
-  '';
-
   velum.programs.oh-my-posh = {
     "ohmyposh/config.json".render = theme:
       builtins.toJSON {
@@ -15,6 +11,7 @@
           {
             type = "prompt";
             alignment = "left";
+            newline = true;
             segments = with theme.colors.withHashtag; [
               {
                 type = "path";
@@ -44,19 +41,33 @@
                   shell = "bash";
                 };
               }
+            ];
+          }
+          {
+            type = "prompt";
+            alignment = "left";
+            newline = true;
+            segments = with theme.colors.withHashtag; [
               {
                 type = "text";
                 style = "plain";
-                foreground = base0A;
-                template = " ❯";
+                foreground_templates = [
+                  "{{ if gt .Code 0 }}${base08}{{ end }}"
+                  "{{ if eq .Code 0 }}${base0A}{{ end }}"
+                ];
+                template = "❯";
               }
             ];
           }
         ];
         transient_prompt = {
           background = "transparent";
-          foreground = theme.colors.withHashtag.base05;
-          template = "> ";
+          foreground_templates = with theme.colors.withHashtag; [
+            "{{ if gt .Code 0 }}${base08}{{ end }}"
+            "{{ if eq .Code 0 }}${base0A}{{ end }}"
+          ];
+          newline = true;
+          template = "❯ ";
         };
       };
 
