@@ -16,8 +16,6 @@ in {
     ../common/comically.nix
     ../common/television.nix
     ../common/direnv.nix
-
-    ./modules/swaync.nix
   ];
 
   home.username = "nico";
