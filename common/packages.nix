@@ -4,7 +4,6 @@
     gh
     ripgrep
     delta
-    btop
     tokei
     marksman
     bun
@@ -16,7 +15,6 @@
     qbittorrent
     alejandra
     taplo
-    bat
     fd
     presenterm
   ];
