@@ -6,9 +6,13 @@
         then ""
         else toString theme.image;
     in ''
-      preload=${imagePath}
-      wallpaper=,${imagePath}
       splash=false
+
+      wallpaper {
+        monitor=*
+        path=${imagePath}
+        fit_mode=cover
+      }
     '';
 
     reload = "${pkgs.systemd}/bin/systemctl --user restart hyprpaper.service || true";
