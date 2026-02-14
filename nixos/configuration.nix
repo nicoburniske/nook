@@ -39,6 +39,7 @@ in {
     ./modules/btop.nix
     ./modules/cargo.nix
     ./modules/comically.nix
+    ./modules/fonts.nix
     ./modules/git.nix
     ./modules/gtk
     ./modules/hypr

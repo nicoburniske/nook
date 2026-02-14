@@ -10,7 +10,5 @@
   # Enable dconf for GNOME settings
   dconf.enable = true;
 
-  fonts.fontconfig.enable = true;
-
   home.packages = [];
 }
