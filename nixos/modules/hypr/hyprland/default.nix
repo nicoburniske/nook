@@ -133,6 +133,6 @@ in {
       windowrule=scrolltouchpad 1.5, class:kitty
     '';
 
-    reload = "hyprctl reload";
+    reload = "${pkgs.hyprland}/bin/hyprctl reload || true";
   };
 }

@@ -1,4 +1,5 @@
 {
+  bash,
   writeShellApplication,
   coreutils,
   jq,
@@ -8,6 +9,7 @@ writeShellApplication {
   name = "velum";
 
   runtimeInputs = [
+    bash
     coreutils
     jq
     util-linux
@@ -117,7 +119,7 @@ writeShellApplication {
 
       while IFS= read -r command; do
         [ -n "$command" ] || continue
-        bash -lc "$command"
+        ${bash}/bin/bash -lc "$command"
       done < <(jq -r '.hooks.reload[]?.command' "$manifest")
 
       printf '{"theme":"%s","switchedAt":"%s"}\n' "$theme" "$(date --iso-8601=seconds)" > "$state_dir/current.json"
