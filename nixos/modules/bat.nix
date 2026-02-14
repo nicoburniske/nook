@@ -2,9 +2,9 @@
   environment.systemPackages = [pkgs.bat];
 
   sumi.programs.bat = {
-    "bat/config".text = "--theme=base16-stylix\n";
+    "bat/config".text = "--theme=base16-sumi\n";
 
-    "bat/themes/base16-stylix.tmTheme".render = theme:
+    "bat/themes/base16-sumi.tmTheme".render = theme:
       with theme.colors; ''
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -15,7 +15,7 @@
                 <key>author</key>
                 <string>Template: Chris Kempson, Scheme: Mitchell Kember</string>
                 <key>name</key>
-                <string>Base16 Stylix</string>
+                <string>Base16 Sumi</string>
                 <key>colorSpaceName</key>
                 <string>sRGB</string>
                 <key>settings</key>

@@ -10,11 +10,6 @@
     };
 
     systems.url = "github:nix-systems/default";
-
-    stylix = {
-      url = "github:nix-community/stylix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = inputs @ {
@@ -29,14 +24,12 @@
         nixosModules = {
           default = {...}: {
             imports = [
-              inputs.stylix.nixosModules.stylix
               ./modules/nixos.nix
             ];
           };
 
           sumi = {...}: {
             imports = [
-              inputs.stylix.nixosModules.stylix
               ./modules/nixos.nix
             ];
           };

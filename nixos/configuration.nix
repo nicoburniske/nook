@@ -13,14 +13,7 @@
   shortRev = self.shortRev or self.dirtyShortRev or "unknown";
   rev = "${shortRev}-${self.lastModifiedDate}";
 
-  themeDefinitions = import ../common/stylix.nix {inherit pkgs lib;};
-  sumiThemes = builtins.listToAttrs (
-    map (theme: {
-      name = theme.stylix.override.slug;
-      value = {stylix = theme.stylix;};
-    })
-    themeDefinitions.themes
-  );
+  sumiThemes = import ../common/themes.nix {inherit pkgs lib;};
 in {
   system.configurationRevision = shortRev;
   system.nixos.label = rev;

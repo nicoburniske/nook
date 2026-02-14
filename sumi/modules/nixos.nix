@@ -8,8 +8,6 @@
   sumiLib = import ../lib;
   cfg = config.sumi or {};
 
-  hasStylixBase16 = lib.hasAttrByPath ["stylix" "base16"] config;
-
   fileOptionType = types.submodule ({...}: {
     options = {
       path = lib.mkOption {
@@ -126,16 +124,22 @@
     freeformType = types.attrs;
 
     options = {
-      base16Scheme = lib.mkOption {
-        type = with types; nullOr (oneOf [path lines attrs]);
-        default = null;
-        description = "Base16 scheme. Accepts a path, YAML string, or attribute set.";
+      palette = lib.mkOption {
+        type = types.attrsOf types.str;
+        default = {};
+        description = "Color palette with base00..base0F hex values.";
       };
 
-      override = lib.mkOption {
+      slug = lib.mkOption {
+        type = with types; nullOr str;
+        default = null;
+        description = "Optional explicit slug for app formats that need one.";
+      };
+
+      meta = lib.mkOption {
         type = types.attrs;
         default = {};
-        description = "Extra attributes merged into the base16 scheme result.";
+        description = "Optional app-specific metadata for render functions.";
       };
 
       polarity = lib.mkOption {
@@ -154,13 +158,10 @@
         description = "Optional wallpaper metadata.";
       };
 
-      stylix = lib.mkOption {
-        type = with types; nullOr attrs;
+      wallpaper = lib.mkOption {
+        type = with types; nullOr path;
         default = null;
-        description = ''
-          Optional nested stylix-like shape. If set, Sumi reads values from
-          `themes.<name>.stylix`.
-        '';
+        description = "Alias for image.";
       };
     };
   });
@@ -201,6 +202,39 @@
       file.text
       file.source
     ]);
+
+  baseKeys = [
+    "base00"
+    "base01"
+    "base02"
+    "base03"
+    "base04"
+    "base05"
+    "base06"
+    "base07"
+    "base08"
+    "base09"
+    "base0A"
+    "base0B"
+    "base0C"
+    "base0D"
+    "base0E"
+    "base0F"
+  ];
+
+  normalizeHex = value: let
+    raw = lib.strings.toLower value;
+    stripped =
+      if lib.hasPrefix "#" raw
+      then builtins.substring 1 (builtins.stringLength raw - 1) raw
+      else raw;
+  in
+    if builtins.match "^[0-9a-f]{6}$" stripped != null
+    then stripped
+    else throw "sumi theme colors must be 6-digit hex values, got '${value}'";
+
+  normalizePalette = palette:
+    lib.genAttrs baseKeys (key: normalizeHex palette.${key});
 in {
   options.sumi = {
     enable = lib.mkEnableOption "Sumi theme switching runtime";
@@ -208,10 +242,7 @@ in {
     themes = lib.mkOption {
       type = types.attrsOf themeOptionType;
       default = {};
-      description = ''
-        Centralized theme registry. Each theme must provide `base16Scheme`
-        either directly or under `stylix`.
-      '';
+      description = "Centralized theme registry keyed by theme name.";
     };
 
     defaultTheme = lib.mkOption {
@@ -320,33 +351,32 @@ in {
         then cfg.flakeRoot
         else null;
 
+      themePaletteErrors =
+        lib.flatten
+        (lib.mapAttrsToList (name: theme: let
+          palette = theme.palette or {};
+          missingKeys = lib.filter (key: !(builtins.hasAttr key palette)) baseKeys;
+        in
+          if missingKeys == []
+          then []
+          else ["${name}: missing ${lib.concatStringsSep ", " missingKeys}"])
+        cfg.themes);
+
       normalizedThemes =
-        if !hasStylixBase16
-        then {}
-        else
-          lib.mapAttrs (name: rawTheme: let
-            themeSource =
-              if (rawTheme ? stylix) && rawTheme.stylix != null
-              then rawTheme.stylix
-              else rawTheme;
-
-            base16Scheme =
-              if (themeSource ? base16Scheme) && themeSource.base16Scheme != null
-              then themeSource.base16Scheme
-              else throw "sumi.themes.${name} must define base16Scheme (or stylix.base16Scheme)";
-
-            override = themeSource.override or {};
-            colors = (config.stylix.base16.mkSchemeAttrs base16Scheme).override override;
-          in {
-            inherit base16Scheme colors override;
-            slug = override.slug or name;
-            polarity = themeSource.polarity or "either";
-            image = themeSource.image or null;
-            fonts = themeSource.fonts or null;
-            opacity = themeSource.opacity or null;
-            raw = rawTheme;
-          })
-          cfg.themes;
+        lib.mapAttrs (name: rawTheme: let
+          palette = normalizePalette rawTheme.palette;
+          withHashtag = lib.mapAttrs (_: value: "#${value}") palette;
+        in {
+          colors = palette // {inherit withHashtag;};
+          slug = rawTheme.slug or name;
+          meta = rawTheme.meta or {};
+          polarity = rawTheme.polarity or "either";
+          image = rawTheme.image or rawTheme.wallpaper or null;
+          fonts = rawTheme.fonts or null;
+          opacity = rawTheme.opacity or null;
+          raw = rawTheme;
+        })
+        cfg.themes;
 
       programRegistrations =
         lib.mapAttrs'
@@ -518,14 +548,6 @@ in {
     in {
       assertions = [
         {
-          assertion = hasStylixBase16;
-          message = ''
-            Sumi requires Stylix base16 helpers. Import `sumi.nixosModules.default`
-            so Stylix is wired automatically.
-          '';
-        }
-
-        {
           assertion = cfg.themes != {};
           message = "sumi.themes must define at least one theme.";
         }
@@ -553,6 +575,11 @@ in {
         {
           assertion = builtins.hasAttr cfg.defaultTheme cfg.themes;
           message = "sumi.defaultTheme must match a key in sumi.themes.";
+        }
+
+        {
+          assertion = themePaletteErrors == [];
+          message = "sumi themes must include base00..base0F in palette: ${lib.concatStringsSep "; " themePaletteErrors}";
         }
 
         {
