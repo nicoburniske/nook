@@ -3,7 +3,7 @@
   inputs,
   ...
 }: let
-  opencodePackage = inputs.opencode.packages.${pkgs.system}.opencode;
+  opencodePackage = inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
 in {
   environment.systemPackages = [opencodePackage];
 
