@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{...}: {
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
@@ -29,6 +29,9 @@
 
     ohMyZsh = {
       enable = true;
+      preLoaded = ''
+        DISABLE_AUTO_TITLE=true
+      '';
       plugins = [
         "gh"
         "zoxide"
