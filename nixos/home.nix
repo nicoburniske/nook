@@ -8,13 +8,11 @@ in {
   imports = [
     ../common/git.nix
     ../common/paths.nix
-    ../common/zsh.nix
-    ../common/zoxide.nix
     ../common/cargo.nix
     ../common/packages.nix
     ../common/comically.nix
     ../common/television.nix
-    ../common/direnv.nix
+
   ];
 
   home.username = "nico";
@@ -22,7 +20,6 @@ in {
   home.stateVersion = "24.05";
 
   programs.home-manager.enable = true;
-  programs.zsh.enable = true;
 
   # Enable dconf for GNOME settings
   dconf.enable = true;

@@ -1,6 +1,10 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.oh-my-posh];
 
+  programs.zsh.interactiveShellInit = ''
+    eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "$HOME/.config/ohmyposh/config.json")"
+  '';
+
   velum.programs.oh-my-posh = {
     "ohmyposh/config.json".render = theme:
       builtins.toJSON {
