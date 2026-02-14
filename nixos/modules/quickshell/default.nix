@@ -1,11 +1,24 @@
 {
   config,
+  inputs,
   pkgs,
   ...
 }: let
   configHome = config.lib.velum.paths.config;
   flakeRoot = config.lib.velum.paths.flakeRootOrErr;
   quickshellRoot = "${flakeRoot}/nixos/modules/quickshell";
+  pkgsMaster = import inputs.nixpkgs-master {
+    system = pkgs.system;
+  };
+  runtimePackages = with pkgs;
+    [
+      bash
+      pipewire
+      pavucontrol
+      bluetui
+      coreutils
+    ]
+    ++ [pkgsMaster.kitty];
 in {
   environment.systemPackages = [pkgs.quickshell];
 
@@ -13,7 +26,7 @@ in {
     "quickshell/shell.qml".render = theme:
       with theme.colors.withHashtag; ''
         import Quickshell
-        import "${configHome}/quickshell/components"
+        import "file:${configHome}/quickshell/components"
 
         Scope {
           id: root
@@ -66,9 +79,6 @@ in {
       RestartSec = 1;
     };
 
-    path = [
-      pkgs.bash
-      pkgs.pipewire
-    ];
+    path = runtimePackages;
   };
 }
