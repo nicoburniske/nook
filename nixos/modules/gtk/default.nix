@@ -50,7 +50,10 @@
   mkGtkSettings = theme: let
     fontName = theme.fonts.sansSerif.name;
     fontSize = toString theme.fonts.sizes.applications;
-    preferDark = if theme.polarity == "dark" then "1" else "0";
+    preferDark =
+      if theme.polarity == "dark"
+      then "1"
+      else "0";
   in ''
     [Settings]
     gtk-font-name=${fontName} ${fontSize}

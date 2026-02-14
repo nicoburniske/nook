@@ -2,8 +2,7 @@
   lib,
   pkgs,
   ...
-}:
-{
+}: {
   environment.systemPackages = with pkgs; [
     git
     delta
@@ -42,6 +41,6 @@
       };
     };
 
-    reload = [ ];
+    reload = [];
   };
 }
