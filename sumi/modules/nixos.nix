@@ -358,10 +358,18 @@ in {
 
       absolutePaths = lib.filter (path: lib.hasPrefix "/" path) filePaths;
 
+      missingLiteralSources =
+        lib.filter (v: v != null)
+        (map (file:
+          if file.source != null && builtins.isPath file.source && !(builtins.pathExists file.source)
+          then "${file.registrationName}:${file.path} -> ${toString file.source}"
+          else null)
+        registeredFiles);
+
       renderedFilesByTheme =
         lib.mapAttrs
-        (themeName: themeContext:
-          map (file: {
+          (themeName: themeContext:
+            map (file: {
             path = file.path;
             executable = file.executable;
             registration = file.registrationName;
@@ -388,6 +396,7 @@ in {
 
       manifest = {
         version = 1;
+        home = resolvedHomeDirectory;
         defaultTheme = cfg.defaultTheme;
 
         themes =
@@ -419,6 +428,7 @@ in {
       manifestPath = pkgs.writeText "sumi-manifest.json" (builtins.toJSON manifest);
 
       baseCli = pkgs.callPackage ../pkgs/sumi-cli.nix {};
+      sumiLink = pkgs.callPackage ../pkgs/sumi-link.nix {};
 
       stateDirectoryExport = lib.optionalString (cfg.stateDirectory != null) ''
         export SUMI_STATE_DIR="${cfg.stateDirectory}"
@@ -434,6 +444,7 @@ in {
 
       wrappedCli = pkgs.writeShellScriptBin "sumi" ''
         export SUMI_MANIFEST="${manifestPath}"
+        export SUMI_LINK_BIN="${sumiLink}/bin/sumi-link"
         ${stateDirectoryExport}
         ${homeDirectoryExport}
         ${configDirectoryExport}
@@ -502,6 +513,14 @@ in {
           message = ''
             sumi files must set exactly one of render, text, or source:
             ${lib.concatStringsSep ", " invalidFiles}
+          '';
+        }
+
+        {
+          assertion = missingLiteralSources == [];
+          message = ''
+            sumi files reference missing path literals:
+            ${lib.concatStringsSep ", " missingLiteralSources}
           '';
         }
       ];

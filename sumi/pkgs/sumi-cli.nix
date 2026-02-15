@@ -19,9 +19,9 @@ writeShellApplication {
     set -euo pipefail
 
     manifest="''${SUMI_MANIFEST:-}"
-    home_dir="''${SUMI_HOME_DIR:-$HOME}"
-    config_dir="''${SUMI_CONFIG_DIR:-$home_dir/.config}"
-    state_dir="''${SUMI_STATE_DIR:-$home_dir/.local/state/sumi}"
+    home_dir="''${SUMI_HOME_DIR:-}"
+    state_dir="''${SUMI_STATE_DIR:-}"
+    sumi_link_bin="''${SUMI_LINK_BIN:-sumi-link}"
 
     usage() {
       cat <<'EOF'
@@ -36,9 +36,10 @@ writeShellApplication {
 
     Environment:
       SUMI_MANIFEST   Path to manifest json
-      SUMI_STATE_DIR  State directory (default: $HOME/.local/state/sumi)
-      SUMI_HOME_DIR   Home directory used for managed paths
-      SUMI_CONFIG_DIR Config directory used for .config paths
+      SUMI_STATE_DIR  State directory (default: <manifest.home>/.local/state/sumi)
+      SUMI_HOME_DIR   Home directory override (defaults to manifest.home)
+      SUMI_LINK_BIN   Path to sumi-link binary
+      SUMI_CONFLICT_POLICY Conflict policy: backup|replace
     EOF
     }
 
@@ -51,6 +52,21 @@ writeShellApplication {
       if [ ! -f "$manifest" ]; then
         echo "sumi: manifest does not exist: $manifest" >&2
         exit 1
+      fi
+
+      local manifest_home
+      manifest_home="$(jq -r '.home // empty' "$manifest")"
+
+      if [ -z "$home_dir" ]; then
+        if [ -n "$manifest_home" ]; then
+          home_dir="$manifest_home"
+        else
+          home_dir="$HOME"
+        fi
+      fi
+
+      if [ -z "$state_dir" ]; then
+        state_dir="$home_dir/.local/state/sumi"
       fi
     }
 
@@ -71,20 +87,10 @@ writeShellApplication {
       default_theme
     }
 
-    resolve_destination() {
-      local path="$1"
-
-      if [[ "$path" = /* ]]; then
-        printf '%s\n' "$path"
-      elif [[ "$path" = .config/* ]]; then
-        printf '%s/%s\n' "$config_dir" "''${path#.config/}"
-      else
-        printf '%s/%s\n' "$home_dir" "$path"
-      fi
-    }
-
     switch_theme() {
       local theme="$1"
+      local conflict_policy="''${SUMI_CONFLICT_POLICY:-backup}"
+      local apply_status=0
 
       if ! jq -e --arg theme "$theme" '.themes[$theme] != null' "$manifest" >/dev/null; then
         echo "sumi: unknown theme '$theme'" >&2
@@ -98,26 +104,21 @@ writeShellApplication {
       exec 9>"$state_dir/switch.lock"
       flock 9
 
-      while IFS=$'\t' read -r rel source; do
-        [ -n "$rel" ] || continue
-
-        local dest
-        local tmp_link
-
-        dest="$(resolve_destination "$rel")"
-
-        mkdir -p "$(dirname "$dest")"
-
-        if [ -d "$dest" ] && [ ! -L "$dest" ]; then
-          rm -rf "$dest"
-        elif [ -e "$dest" ] && [ ! -L "$dest" ]; then
-          rm -f "$dest"
+      if "$sumi_link_bin" apply \
+        --manifest "$manifest" \
+        --state-dir "$state_dir" \
+        --theme "$theme" \
+        --conflict-policy "$conflict_policy"
+      then
+        apply_status=0
+      else
+        apply_status=$?
+        if [ "$apply_status" -ne 2 ]; then
+          echo "sumi: apply failed (status $apply_status)" >&2
+          exit "$apply_status"
         fi
-
-        tmp_link="''${dest}.sumi.tmp.$$"
-        ln -sfn "$source" "$tmp_link"
-        mv -Tf "$tmp_link" "$dest"
-      done < <(jq -r --arg theme "$theme" '.themes[$theme].files[]? | "\(.path)\t\(.source)"' "$manifest")
+        echo "sumi: apply completed with partial failures" >&2
+      fi
 
       local total_hooks
       local hook_index=0
@@ -156,6 +157,10 @@ writeShellApplication {
 
       if [ "$hook_failures" -gt 0 ]; then
         echo "Hook failures ($hook_failures): ''${failed_hooks[*]}" >&2
+      fi
+
+      if [ "$apply_status" -ne 0 ]; then
+        exit "$apply_status"
       fi
     }
 
@@ -199,7 +204,7 @@ writeShellApplication {
         [ -n "$rel" ] || continue
 
         local dest
-        dest="$(resolve_destination "$rel")"
+        dest="$home_dir/$rel"
 
         if [ ! -e "$source" ]; then
           echo "missing source: $source" >&2

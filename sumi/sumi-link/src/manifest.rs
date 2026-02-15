@@ -15,6 +15,7 @@ pub struct Manifest {
 
 #[derive(Debug, Deserialize)]
 pub struct Theme {
+    #[serde(default)]
     pub files: Vec<ThemeFile>,
 }
 
