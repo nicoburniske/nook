@@ -27,9 +27,6 @@ in {
     ../../../nixos/modules/lazygit.nix
     ../../../nixos/modules/opencode.nix
     ../../../nixos/modules/packages.nix
-    ../../../nixos/modules/quickshell
-    ../../../nixos/modules/rofi.nix
-    ../../../nixos/modules/swaync
     ../../../nixos/modules/television.nix
     ../../../nixos/modules/zsh.nix
   ];

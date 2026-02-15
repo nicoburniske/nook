@@ -26,6 +26,9 @@
       hypr
       kitty
       yazi
+      rofi
+      swaync
+      quickshell
       helix
       fzf
       ohMyPosh
