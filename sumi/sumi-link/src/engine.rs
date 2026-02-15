@@ -57,6 +57,12 @@ impl Engine {
             })?;
 
         let desired = collect_desired_map(theme_name, &theme.files, &home)?;
+        let missing_sources = collect_missing_sources(&desired);
+        if !missing_sources.is_empty() {
+            return Err(AppError::MissingSources {
+                paths: missing_sources.join(", "),
+            });
+        }
 
         fs::create_dir_all(state_dir).map_err(|source| AppError::CreateDir {
             path: state_dir.to_path_buf(),
@@ -247,6 +253,16 @@ fn collect_desired_map(
     }
 
     Ok(desired)
+}
+
+fn collect_missing_sources(desired: &BTreeMap<String, String>) -> Vec<String> {
+    let mut missing = Vec::new();
+    for source in desired.values() {
+        if !Path::new(source).exists() {
+            missing.push(source.clone());
+        }
+    }
+    missing
 }
 
 fn tmp_link_path(target: &Path) -> PathBuf {
