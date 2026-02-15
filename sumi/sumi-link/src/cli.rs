@@ -24,8 +24,8 @@ pub struct ApplyArgs {
     #[arg(long)]
     pub state_dir: PathBuf,
 
-    #[arg(long)]
-    pub theme: String,
+    #[arg(long = "set", value_name = "FACET=VALUE")]
+    pub set: Vec<String>,
 
     #[arg(long, value_enum, default_value_t = ConflictPolicyArg::Backup)]
     pub conflict_policy: ConflictPolicyArg,

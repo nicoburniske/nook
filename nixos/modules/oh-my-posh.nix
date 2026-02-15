@@ -1,8 +1,11 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.oh-my-posh];
 
-  sumi.programs.oh-my-posh = {
-    "ohmyposh/config.json".render = theme:
+  sumi.file."ohmyposh/config.json" = {
+    dependsOn = ["theme"];
+    render = ctx: let
+      theme = ctx.values.theme;
+    in
       builtins.toJSON {
         "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
         version = 3;
@@ -70,7 +73,7 @@
           template = "❯ ";
         };
       };
-
-    reload = [];
   };
+
+  sumi.program."oh-my-posh".reload = [];
 }

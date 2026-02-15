@@ -1,9 +1,9 @@
 use crate::cli::ConflictPolicyArg;
 use crate::error::AppError;
-use crate::manifest::{Manifest, ThemeFile};
+use crate::manifest::{FileRule, Manifest, ManifestFile};
 use crate::snapshot::Snapshot;
 use log::{error, info, warn};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fs;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
@@ -43,20 +43,14 @@ impl Engine {
         &self,
         manifest: Manifest,
         state_dir: &Path,
-        theme_name: &str,
+        set_overrides: &HashMap<String, String>,
     ) -> Result<ApplySummary, AppError> {
         let home = manifest.home_path()?;
         let _ = manifest.version;
-        let _ = &manifest.default_theme;
 
-        let theme = manifest
-            .themes
-            .get(theme_name)
-            .ok_or_else(|| AppError::MissingTheme {
-                theme: theme_name.to_string(),
-            })?;
+        let selection = resolve_selection(&manifest, set_overrides)?;
+        let desired = collect_desired_map(&manifest.files, &selection, &home)?;
 
-        let desired = collect_desired_map(theme_name, &theme.files, &home)?;
         let missing_sources = collect_missing_sources(&desired);
         if !missing_sources.is_empty() {
             return Err(AppError::MissingSources {
@@ -70,7 +64,7 @@ impl Engine {
         })?;
 
         let snapshot_path = state_dir.join("snapshot.json");
-        let old_snapshot = Snapshot::read(&snapshot_path, theme_name.to_string())?;
+        let old_snapshot = Snapshot::read(&snapshot_path, selection.clone())?;
         let old_files = old_snapshot.files;
 
         let old_keys: BTreeSet<String> = old_files.keys().cloned().collect();
@@ -148,7 +142,7 @@ impl Engine {
 
         let snapshot = Snapshot {
             version: 1,
-            theme: theme_name.to_string(),
+            selection,
             updated_at: unix_seconds_string(),
             files: actual_files,
         };
@@ -231,28 +225,78 @@ impl Engine {
     }
 }
 
+fn resolve_selection(
+    manifest: &Manifest,
+    overrides: &HashMap<String, String>,
+) -> Result<BTreeMap<String, String>, AppError> {
+    let mut selection = manifest.default_selection.clone();
+
+    for (facet_name, facet) in &manifest.facets {
+        selection
+            .entry(facet_name.clone())
+            .or_insert_with(|| facet.default.clone());
+    }
+
+    for (facet, value) in overrides {
+        let data = manifest
+            .facets
+            .get(facet)
+            .ok_or_else(|| AppError::UnknownFacet {
+                facet: facet.clone(),
+            })?;
+
+        if !data.variants.contains_key(value) {
+            return Err(AppError::InvalidFacetValue {
+                facet: facet.clone(),
+                value: value.clone(),
+            });
+        }
+
+        selection.insert(facet.clone(), value.clone());
+    }
+
+    Ok(selection)
+}
+
 fn collect_desired_map(
-    theme_name: &str,
-    theme_files: &[ThemeFile],
+    files: &[ManifestFile],
+    selection: &BTreeMap<String, String>,
     home: &Path,
 ) -> Result<BTreeMap<String, String>, AppError> {
     let mut desired = BTreeMap::new();
     let mut seen_paths = BTreeSet::new();
 
-    for file in theme_files {
-        let _ = file.executable;
+    for file in files {
         if !seen_paths.insert(file.path.clone()) {
             return Err(AppError::DuplicatePath {
-                theme: theme_name.to_string(),
                 path: file.path.clone(),
             });
         }
 
+        let maybe_rule = file.rules.iter().find(|rule| rule_matches(rule, selection));
+        let Some(rule) = maybe_rule else {
+            continue;
+        };
+
         let target = home.join(&file.path);
-        desired.insert(target.to_string_lossy().into_owned(), file.source.clone());
+        desired.insert(target.to_string_lossy().into_owned(), rule.source.clone());
     }
 
     Ok(desired)
+}
+
+fn rule_matches(rule: &FileRule, selection: &BTreeMap<String, String>) -> bool {
+    for (facet, allowed_values) in &rule.when {
+        let Some(current) = selection.get(facet) else {
+            return false;
+        };
+
+        if !allowed_values.iter().any(|value| value == current) {
+            return false;
+        }
+    }
+
+    true
 }
 
 fn collect_missing_sources(desired: &BTreeMap<String, String>) -> Vec<String> {
@@ -264,6 +308,10 @@ fn collect_missing_sources(desired: &BTreeMap<String, String>) -> Vec<String> {
     }
     missing
 }
+
+#[cfg(test)]
+#[path = "engine_tests.rs"]
+mod tests;
 
 fn tmp_link_path(target: &Path) -> PathBuf {
     let suffix = SystemTime::now()
@@ -337,7 +385,3 @@ fn unix_seconds_string() -> String {
         .map(|d| d.as_secs().to_string())
         .unwrap_or_else(|_| "0".to_string())
 }
-
-#[cfg(test)]
-#[path = "engine_tests.rs"]
-mod tests;

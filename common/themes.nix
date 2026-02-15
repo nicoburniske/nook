@@ -5,6 +5,14 @@
 }: let
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
+  mkTheme = base: let
+    withHashtag = lib.mapAttrs (_: value: "#${value}") base.colors;
+  in
+    base
+    // {
+      colors = base.colors // {inherit withHashtag;};
+    };
+
   sharedTheme = {
     opacity =
       lib.optionalAttrs
@@ -43,12 +51,12 @@
     };
   };
 in {
-  gruvbox =
+  gruvbox = mkTheme (
     sharedTheme
     // {
       polarity = "dark";
       image = ../assets/wallpapers/the-backwater.jpg;
-      palette = {
+      colors = {
         base00 = "1d2021";
         base01 = "3c3836";
         base02 = "504945";
@@ -66,9 +74,10 @@ in {
         base0E = "d3869b";
         base0F = "d65d0e";
       };
-    };
+    }
+  );
 
-  space-age =
+  space-age = mkTheme (
     sharedTheme
     // {
       polarity = "dark";
@@ -76,7 +85,7 @@ in {
       meta = {
         helix = "space-age";
       };
-      palette = {
+      colors = {
         base00 = "190f0f";
         base01 = "2c1617";
         base02 = "442022";
@@ -94,9 +103,10 @@ in {
         base0E = "ce8b9f";
         base0F = "d95362";
       };
-    };
+    }
+  );
 
-  modus =
+  modus = mkTheme (
     sharedTheme
     // {
       polarity = "light";
@@ -104,7 +114,7 @@ in {
       meta = {
         helix = "modus";
       };
-      palette = {
+      colors = {
         base00 = "fbf7f0";
         base01 = "f1d5d0";
         base02 = "efe9dd";
@@ -122,9 +132,10 @@ in {
         base0E = "531ab6";
         base0F = "894000";
       };
-    };
+    }
+  );
 
-  melissa-light =
+  melissa-light = mkTheme (
     sharedTheme
     // {
       polarity = "light";
@@ -132,7 +143,7 @@ in {
       meta = {
         helix = "melissa-light";
       };
-      palette = {
+      colors = {
         base00 = "fff6d8";
         base01 = "f5e9cb";
         base02 = "e7d7c6";
@@ -150,5 +161,6 @@ in {
         base0E = "6448ca";
         base0F = "946830";
       };
-    };
+    }
+  );
 }

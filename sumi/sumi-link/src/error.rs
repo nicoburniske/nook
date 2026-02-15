@@ -24,11 +24,17 @@ pub enum AppError {
         source: std::io::Error,
     },
 
-    #[error("theme '{theme}' was not found in manifest")]
-    MissingTheme { theme: String },
+    #[error("invalid --set value '{value}', expected key=value")]
+    InvalidSelectionSet { value: String },
 
-    #[error("duplicate file path '{path}' in theme '{theme}'")]
-    DuplicatePath { theme: String, path: String },
+    #[error("unknown facet '{facet}'")]
+    UnknownFacet { facet: String },
+
+    #[error("invalid value '{value}' for facet '{facet}'")]
+    InvalidFacetValue { facet: String, value: String },
+
+    #[error("duplicate managed file path '{path}' in manifest")]
+    DuplicatePath { path: String },
 
     #[error("manifest contains invalid home directory '{home}'")]
     InvalidHome { home: String },

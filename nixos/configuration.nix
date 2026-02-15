@@ -12,8 +12,6 @@
   self = inputs.self;
   shortRev = self.shortRev or self.dirtyShortRev or "unknown";
   rev = "${shortRev}-${self.lastModifiedDate}";
-
-  sumiThemes = import ../common/themes.nix {inherit pkgs lib;};
 in {
   system.configurationRevision = shortRev;
   system.nixos.label = rev;
@@ -47,15 +45,8 @@ in {
     ./modules/television.nix
     ./modules/zsh.nix
     ./modules/yazi
+    ./sumi.nix
   ];
-
-  sumi = {
-    enable = true;
-    user = "nico";
-    flakeRoot = "/home/nico/nook";
-    defaultTheme = "gruvbox";
-    themes = sumiThemes;
-  };
 
   nixpkgs.config.allowUnfree = true;
 

@@ -1,6 +1,8 @@
 {pkgs, ...}: {
-  sumi.programs.hyprpaper = {
-    "hypr/hyprpaper.conf".render = theme: let
+  sumi.file."hypr/hyprpaper.conf" = {
+    dependsOn = ["theme"];
+    render = ctx: let
+      theme = ctx.values.theme;
       imagePath =
         if theme.image == null
         then ""
@@ -14,9 +16,9 @@
         fit_mode=cover
       }
     '';
-
-    reload = "${pkgs.systemd}/bin/systemctl --user restart hyprpaper.service || true";
   };
+
+  sumi.program.hyprpaper.reload = "${pkgs.systemd}/bin/systemctl --user restart hyprpaper.service || true";
 
   systemd.user.services.hyprpaper = {
     description = "Hyprpaper wallpaper daemon";

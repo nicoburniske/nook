@@ -93,15 +93,17 @@
 in {
   environment.systemPackages = [pkgs.yazi];
 
-  sumi.programs.yazi = {
+  sumi.file = {
     "yazi/yazi.toml".source = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
     "yazi/keymap.toml".source = tomlFormat.generate "sumi-yazi-keymap.toml" yaziKeymap;
-    "yazi/theme.toml".render = theme:
-      tomlFormat.generate "sumi-yazi-theme-${theme.name}.toml" (mkTheme theme);
+    "yazi/theme.toml" = {
+      dependsOn = ["theme"];
+      render = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.selection.theme}.toml" (mkTheme ctx.values.theme);
+    };
 
     "yazi/plugins/tv-files.yazi".source = tvFilesPlugin;
     "yazi/plugins/tv-text.yazi".source = tvTextPlugin;
-
-    reload = [];
   };
+
+  sumi.program.yazi.reload = [];
 }
