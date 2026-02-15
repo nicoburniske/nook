@@ -7,7 +7,7 @@
 in {
   sumi = {
     enable = true;
-    user = "nico";
+    homeDirectory = "/home/nico";
     flakeRoot = "/home/nico/nook";
     facets.theme = {
       default = "gruvbox";
