@@ -20,7 +20,6 @@ in {
     ./hardware-configuration.nix
     apple-silicon.nixosModules.apple-silicon-support
 
-    ../../../nixos/modules/helix
     ../../../nixos/modules/bat.nix
     ../../../nixos/modules/btop.nix
     ../../../nixos/modules/comically.nix
@@ -40,18 +39,6 @@ in {
   nixpkgs.overlays = [
     (final: prev: {
       ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
-
-      writeNuScriptBin = name: text:
-        prev.writeTextFile {
-          inherit name;
-          executable = true;
-          destination = "/bin/${name}";
-          text = ''
-            #!${final.nushell}/bin/nu
-            ${text}
-          '';
-          meta.mainProgram = name;
-        };
     })
   ];
 
