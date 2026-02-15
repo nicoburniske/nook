@@ -31,14 +31,14 @@
     base01 = c.base01;
     hexAt = idx: builtins.substring idx 2 base01;
     placeholders =
-      (builtins.map (base: "{{${base}-hex}}") bases)
+      (map (base: "{{${base}-hex}}") bases)
       ++ [
         "{{base01-dec-r}}"
         "{{base01-dec-g}}"
         "{{base01-dec-b}}"
       ];
     replacements =
-      (builtins.map (base: c.${base}) bases)
+      (map (base: c.${base}) bases)
       ++ [
         (toString (lib.fromHexString (hexAt 0)))
         (toString (lib.fromHexString (hexAt 2)))
