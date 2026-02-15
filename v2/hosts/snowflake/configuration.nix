@@ -42,7 +42,7 @@ in {
 
   hardware = {
     asahi = {
-      peripheralFirmwareDirectory = ../../../nixos/firmware;
+      peripheralFirmwareDirectory = ./firmware;
       setupAsahiSound = true;
     };
     graphics.enable = true;
