@@ -31,6 +31,9 @@
       opencode
       television
       zsh
+      bat
+      btop
+      comically
       git
       cargo
       inputs.nix-homebrew.darwinModules.nix-homebrew

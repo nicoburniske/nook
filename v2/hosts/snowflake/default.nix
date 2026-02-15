@@ -36,6 +36,9 @@
       opencode
       television
       zsh
+      bat
+      btop
+      comically
       git
       cargo
     ];

@@ -20,9 +20,6 @@ in {
     ./hardware-configuration.nix
     apple-silicon.nixosModules.apple-silicon-support
 
-    ../../../nixos/modules/bat.nix
-    ../../../nixos/modules/btop.nix
-    ../../../nixos/modules/comically.nix
     ../../../nixos/modules/gtk
     ../../../nixos/modules/packages.nix
   ];
