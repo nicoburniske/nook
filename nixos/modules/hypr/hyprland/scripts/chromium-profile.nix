@@ -1,48 +1,57 @@
 {pkgs}:
 pkgs.writeScriptBin "chromium-profile" ''
-  #!${pkgs.python3}/bin/python
-  import json
-  import os
-  import subprocess
-  import sys
-  from pathlib import Path
+  #!${pkgs.nushell}/bin/nu
 
-  chromium = "${pkgs.ungoogled-chromium}/bin/chromium"
-  rofi = "${pkgs.rofi}/bin/rofi"
-  data_dir = Path.home() / ".config" / "chromium"
+  let chromium = "${pkgs.ungoogled-chromium}/bin/chromium"
+  let rofi = "${pkgs.rofi}/bin/rofi"
+  let data_dir = ([$env.HOME ".config" "chromium"] | path join)
+  let local_state = ([$data_dir "Local State"] | path join)
 
-  if not (data_dir / "Local State").exists():
-      sys.exit("Chromium profile data not found.")
+  if not ($local_state | path exists) {
+    print --stderr "Chromium profile data not found."
+    exit 1
+  }
 
-  with (data_dir / "Local State").open("r", encoding="utf-8") as handle:
-      state = json.load(handle)
+  let state = (open --raw $local_state | from json)
+  let info_cache = (($state | get -o profile.info_cache) | default {})
 
-  profiles = sorted(
-      [
-          (data.get("name") or directory, directory)
-          for directory, data in state.get("profile", {}).get("info_cache", {}).items()
-          if directory != "System Profile" and (data.get("name") or directory) != "Your Chromium"
-      ],
-      key=lambda item: item[0].lower(),
+  let profiles = (
+    $info_cache
+    | transpose directory data
+    | each {|row|
+        let name = ($row.data.name? | default $row.directory)
+        {
+          name: $name,
+          directory: $row.directory,
+          sort_key: ($name | str downcase),
+        }
+      }
+    | where {|row| $row.directory != "System Profile" and $row.name != "Your Chromium" }
+    | sort-by sort_key
+    | each {|row| {name: $row.name, directory: $row.directory} }
   )
 
-  if not profiles:
-      sys.exit("No Chromium profiles found.")
+  if (($profiles | length) == 0) {
+    print --stderr "No Chromium profiles found."
+    exit 1
+  }
 
-  menu = "\n".join(name for name, _ in profiles)
-  selection = subprocess.run(
-      [rofi, "-dmenu", "-i", "-p", "Chromium profile"],
-      input=menu,
-      text=True,
-      capture_output=True,
-  ).stdout.strip()
+  let menu = ($profiles | get name | str join "\n")
+  let rofi_result = (do { $menu | ^$rofi -dmenu -i -p "Chromium profile" } | complete)
 
-  if not selection:
-      sys.exit(0)
+  if $rofi_result.exit_code != 0 {
+    exit 0
+  }
 
-  directory = next((dir_name for name, dir_name in profiles if name == selection), None)
-  if not directory:
-      sys.exit(0)
+  let selection = ($rofi_result.stdout | str trim)
+  if $selection == "" {
+    exit 0
+  }
 
-  os.execv(chromium, [chromium, f"--user-data-dir={data_dir}", f"--profile-directory={directory}"])
+  let directory = (($profiles | where name == $selection | get -o 0.directory) | default "")
+  if $directory == "" {
+    exit 0
+  }
+
+  ^$chromium $"--user-data-dir=($data_dir)" $"--profile-directory=($directory)"
 ''
