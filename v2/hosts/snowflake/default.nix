@@ -29,6 +29,7 @@
       rofi
       swaync
       quickshell
+      gtk
       helix
       fzf
       ohMyPosh
