@@ -26,7 +26,6 @@ in {
     ../../../nixos/modules/btop.nix
     ../../../nixos/modules/comically.nix
     ../../../nixos/modules/gtk
-    ../../../nixos/modules/hypr
     ../../../nixos/modules/kitty
     ../../../nixos/modules/lazygit.nix
     ../../../nixos/modules/oh-my-posh.nix
