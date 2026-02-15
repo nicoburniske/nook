@@ -22,6 +22,7 @@
       inputs.nix-ld.nixosModules.nix-ld
       sumi
       fonts
+      hypr
       git
       cargo
     ];
