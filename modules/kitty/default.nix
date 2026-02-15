@@ -108,12 +108,12 @@ in {
   flake.modules.nixos.kitty = {pkgs, ...}:
     mkKittyModule {
       inherit pkgs;
-      reloadCommand = "${pkgs.procps}/bin/pkill -USR1 kitty || true";
+      reloadCommand = "${pkgs.procps}/bin/pkill -USR1 -x kitty || true";
     };
 
   flake.modules.darwin.kitty = {pkgs, ...}:
     mkKittyModule {
       inherit pkgs;
-      reloadCommand = "/usr/bin/pkill -USR1 kitty || true";
+      reloadCommand = "${pkgs.kitty}/bin/kitten @ load-config";
     };
 }
