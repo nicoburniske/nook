@@ -128,11 +128,8 @@ in {
     programs.zsh =
       common
       // {
-        variables = {
-          HISTFILE = "$HOME/.zsh_history";
-          HISTSIZE = "999999999";
-          SAVEHIST = "999999999";
-        };
+        histFile = "$HOME/.zsh_history";
+        histSize = 999999999;
         enableCompletion = true;
         enableAutosuggestions = true;
         enableSyntaxHighlighting = true;
