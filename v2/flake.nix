@@ -3,12 +3,21 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
     import-tree.url = "github:vic/import-tree";
 
-    opencode.url = "github:anomalyco/opencode/dev";
+    opencode = {
+      url = "github:anomalyco/opencode/dev";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    sumi.url = "git+file:///home/nico/nook?dir=sumi";
+    sumi = {
+      url = "path:../sumi";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nix-ld = {
       url = "github:Mic92/nix-ld";
