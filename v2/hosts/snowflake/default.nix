@@ -22,9 +22,11 @@
       inputs.nix-ld.nixosModules.nix-ld
       sumi
       fonts
+      writeNuScriptBin
       hypr
       kitty
       yazi
+      helix
       fzf
       ohMyPosh
       git

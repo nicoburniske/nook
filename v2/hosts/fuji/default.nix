@@ -21,8 +21,10 @@
       ./configuration.nix
       sumi
       fonts
+      writeNuScriptBin
       kitty
       yazi
+      helix
       fzf
       ohMyPosh
       git
