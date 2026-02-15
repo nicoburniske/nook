@@ -3,74 +3,74 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs-lib.follows = "nixpkgs";
-    };
-
-    systems.url = "github:nix-systems/default";
   };
 
-  outputs = inputs @ {
-    flake-parts,
-    systems,
-    ...
-  }:
-    flake-parts.lib.mkFlake {inherit inputs;} {
-      systems = import systems;
+  outputs = {nixpkgs, ...}: let
+    systems = with nixpkgs; lib.systems.flakeExposed;
+    forAllSystems = f:
+      builtins.foldl' (
+        attrs: system: let
+          out = f system;
+        in
+          builtins.foldl' (
+            acc: key:
+              acc
+              // {
+                ${key} = (acc.${key} or {}) // {${system} = out.${key};};
+              }
+          )
+          attrs (builtins.attrNames out)
+      ) {}
+      systems;
+  in
+    {
+      nixosModules.default = {
+        config,
+        lib,
+        ...
+      }: {
+        imports = [
+          ./default.nix
+        ];
 
-      flake = {
-        nixosModules = {
-          default = {
-            config,
-            lib,
-            ...
-          }: {
-            imports = [
-              ./default.nix
-            ];
-
-            config = lib.mkIf (config.sumi.enable or false) {
-              system.userActivationScripts.sumi = ''
-                ${config.sumi.package}/bin/sumi switch || true
-              '';
-            };
-          };
-        };
-
-        darwinModules = {
-          default = {
-            config,
-            lib,
-            ...
-          }: {
-            imports = [
-              ./default.nix
-            ];
-
-            config = lib.mkIf (config.sumi.enable or false) {
-              system.activationScripts.sumi.text = ''
-                ${config.sumi.package}/bin/sumi switch || true
-              '';
-            };
-          };
+        config = lib.mkIf (config.sumi.enable or false) {
+          system.userActivationScripts.sumi = ''
+            ${config.sumi.package}/bin/sumi switch || true
+          '';
         };
       };
 
-      perSystem = {pkgs, ...}: let
-        sumiCli = pkgs.callPackage ./pkgs/sumi-cli.nix {};
-        sumiLink = pkgs.callPackage ./pkgs/sumi-link.nix {};
-      in {
-        formatter = pkgs.alejandra;
+      darwinModules.default = {
+        config,
+        lib,
+        ...
+      }: {
+        imports = [
+          ./default.nix
+        ];
 
-        packages = {
-          default = sumiCli;
-          sumi = sumiCli;
-          sumi-link = sumiLink;
+        config = lib.mkIf (config.sumi.enable or false) {
+          system.activationScripts.sumi.text = ''
+            ${config.sumi.package}/bin/sumi switch || true
+          '';
         };
+      };
+    }
+    // forAllSystems (system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+      sumiCli = pkgs.callPackage ./pkgs/sumi-cli.nix {};
+      sumiLink = pkgs.callPackage ./pkgs/sumi-link.nix {};
+    in {
+      formatter = pkgs.alejandra;
 
-        devShells.default = pkgs.mkShell {
+      packages = {
+        default = sumiCli;
+        sumi = sumiCli;
+        sumi-link = sumiLink;
+      };
+
+      devShells = {
+        default = pkgs.mkShell {
           packages = with pkgs; [
             gcc
             rustc
@@ -80,16 +80,18 @@
             rust-analyzer
           ];
         };
+      };
 
-        apps.default = {
+      apps = {
+        default = {
           type = "app";
           program = "${sumiCli}/bin/sumi";
         };
 
-        apps.sumi-link = {
+        sumi-link = {
           type = "app";
           program = "${sumiLink}/bin/sumi-link";
         };
       };
-    };
+    });
 }
