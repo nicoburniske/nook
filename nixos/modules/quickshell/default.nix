@@ -70,10 +70,6 @@ in {
     after = ["hyprland-session.target"];
     wantedBy = ["hyprland-session.target"];
 
-    unitConfig = {
-      ConditionEnvironment = "WAYLAND_DISPLAY";
-    };
-
     serviceConfig = {
       ExecStart = "${pkgs.quickshell}/bin/qs -n";
       Restart = "on-failure";
