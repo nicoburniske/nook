@@ -6,7 +6,7 @@ pkgs.writeShellScriptBin "theme-switch" ''
     --instance-group theme-selector \
     ${pkgs.bash}/bin/bash -lc '
       set -euo pipefail
-      themes=$(sumi list 2>/dev/null || true)
+      themes=$(sumi facets theme 2>/dev/null || true)
 
       theme=$(printf "%s\n" "$themes" | ${pkgs.fzf}/bin/fzf \
         --prompt="Select theme: " \
@@ -15,7 +15,7 @@ pkgs.writeShellScriptBin "theme-switch" ''
         --color=dark)
 
       if [ -n "$theme" ]; then
-        sumi switch "$theme"
+        sumi switch "theme=$theme"
       fi
     '
 ''

@@ -8,25 +8,25 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Snapshot {
     pub version: u64,
-    pub theme: String,
+    pub selection: BTreeMap<String, String>,
     #[serde(rename = "updatedAt")]
     pub updated_at: String,
     pub files: BTreeMap<String, String>,
 }
 
 impl Snapshot {
-    pub fn empty(theme: String) -> Self {
+    pub fn empty(selection: BTreeMap<String, String>) -> Self {
         Self {
             version: 1,
-            theme,
+            selection,
             updated_at: now_rfc3339_like(),
             files: BTreeMap::new(),
         }
     }
 
-    pub fn read(path: &Path, theme: String) -> Result<Self, AppError> {
+    pub fn read(path: &Path, selection: BTreeMap<String, String>) -> Result<Self, AppError> {
         if !path.exists() {
-            return Ok(Self::empty(theme));
+            return Ok(Self::empty(selection));
         }
 
         let text = fs::read_to_string(path).map_err(|source| AppError::ReadFile {

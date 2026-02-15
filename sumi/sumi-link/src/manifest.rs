@@ -1,6 +1,7 @@
 use crate::error::AppError;
 use serde::Deserialize;
-use std::collections::HashMap;
+use serde_json::Value;
+use std::collections::{BTreeMap, HashMap};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -8,22 +9,32 @@ use std::path::{Path, PathBuf};
 pub struct Manifest {
     pub version: u64,
     pub home: String,
-    #[serde(rename = "defaultTheme")]
-    pub default_theme: String,
-    pub themes: HashMap<String, Theme>,
+    pub facets: HashMap<String, Facet>,
+    #[serde(rename = "defaultSelection")]
+    pub default_selection: BTreeMap<String, String>,
+    pub files: Vec<ManifestFile>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Theme {
-    #[serde(default)]
-    pub files: Vec<ThemeFile>,
+pub struct Facet {
+    pub default: String,
+    pub variants: HashMap<String, Value>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ThemeFile {
+pub struct ManifestFile {
     pub path: String,
-    pub source: String,
+    #[allow(dead_code)]
     pub executable: Option<bool>,
+    #[serde(default)]
+    pub rules: Vec<FileRule>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct FileRule {
+    #[serde(default)]
+    pub when: HashMap<String, Vec<String>>,
+    pub source: String,
 }
 
 impl Manifest {

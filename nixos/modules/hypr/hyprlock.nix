@@ -1,6 +1,8 @@
 {lib, ...}: {
-  sumi.programs.hyprlock = {
-    "hypr/hyprlock.conf".render = theme: let
+  sumi.file."hypr/hyprlock.conf" = {
+    dependsOn = ["theme"];
+    render = ctx: let
+      theme = ctx.values.theme;
       rgb = hex: "rgb(${hex})";
       imagePath =
         if theme.image == null
@@ -76,7 +78,7 @@
           valign=center
         }
       '';
-
-    reload = [];
   };
+
+  sumi.program.hyprlock.reload = [];
 }

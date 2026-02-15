@@ -7,12 +7,33 @@
   types = lib.types;
   cfg = config.sumi or {};
 
-  programFileOptionType = types.submodule ({...}: {
+  selectorType = types.attrsOf (with types; either str (listOf str));
+
+  normalizeSelector = selector:
+    lib.mapAttrs (_: value:
+      if builtins.isString value
+      then [value]
+      else value)
+    selector;
+
+  fileOptionType = types.submodule ({...}: {
     options = {
+      when = lib.mkOption {
+        type = selectorType;
+        default = {};
+        description = "Facet selector map used to conditionally include this file.";
+      };
+
+      dependsOn = lib.mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = "Facet keys this render function depends on. Required for render entries.";
+      };
+
       render = lib.mkOption {
         type = with types; nullOr (functionTo (oneOf [str path package]));
         default = null;
-        description = "Function called as theme: returns either text content or a source path/derivation.";
+        description = "Function called as ctx: returns text or a source path/derivation.";
       };
 
       text = lib.mkOption {
@@ -36,55 +57,36 @@
   });
 
   programOptionType = types.submodule ({...}: {
-    options.reload = lib.mkOption {
-      type = with types; either str (listOf str);
-      default = [];
-      apply = value:
-        if builtins.isString value
-        then [value]
-        else value;
-      description = "Command or commands to run after switching themes.";
-    };
+    options = {
+      when = lib.mkOption {
+        type = selectorType;
+        default = {};
+        description = "Facet selector controlling when reload hooks should run.";
+      };
 
-    freeformType = types.attrsOf programFileOptionType;
+      reload = lib.mkOption {
+        type = with types; either str (listOf str);
+        default = [];
+        apply = value:
+          if builtins.isString value
+          then [value]
+          else value;
+        description = "Command or commands to run after switching selections.";
+      };
+    };
   });
 
-  themeOptionType = types.submodule ({...}: {
-    freeformType = types.attrs;
-
+  facetOptionType = types.submodule ({...}: {
     options = {
-      palette = lib.mkOption {
-        type = types.attrsOf types.str;
+      default = lib.mkOption {
+        type = types.str;
+        description = "Default variant key for this facet.";
+      };
+
+      variants = lib.mkOption {
+        type = types.attrsOf types.attrs;
         default = {};
-        description = "Color palette with base00..base0F hex values.";
-      };
-
-      meta = lib.mkOption {
-        type = types.attrs;
-        default = {};
-        description = "Optional app-specific metadata for render functions.";
-      };
-
-      polarity = lib.mkOption {
-        type = types.enum [
-          "either"
-          "light"
-          "dark"
-        ];
-        default = "either";
-        description = "Theme polarity metadata.";
-      };
-
-      image = lib.mkOption {
-        type = with types; nullOr path;
-        default = null;
-        description = "Optional wallpaper metadata.";
-      };
-
-      wallpaper = lib.mkOption {
-        type = with types; nullOr path;
-        default = null;
-        description = "Alias for image.";
+        description = "Payloads keyed by variant name.";
       };
     };
   });
@@ -126,52 +128,51 @@
       file.source
     ]);
 
-  baseKeys = [
-    "base00"
-    "base01"
-    "base02"
-    "base03"
-    "base04"
-    "base05"
-    "base06"
-    "base07"
-    "base08"
-    "base09"
-    "base0A"
-    "base0B"
-    "base0C"
-    "base0D"
-    "base0E"
-    "base0F"
-  ];
+  selectorUnknownFacets = selector: facetNames:
+    lib.filter (facet: !(builtins.elem facet facetNames)) (builtins.attrNames selector);
 
-  normalizeHex = value: let
-    raw = lib.strings.toLower value;
-    stripped =
-      if lib.hasPrefix "#" raw
-      then builtins.substring 1 (builtins.stringLength raw - 1) raw
-      else raw;
+  selectorInvalidValues = selector: facets:
+    lib.flatten
+    (lib.mapAttrsToList (facet: values: let
+      allowed = builtins.attrNames facets.${facet}.variants;
+      invalid = lib.filter (value: !(builtins.elem value allowed)) values;
+    in
+      if invalid == []
+      then []
+      else ["${facet}: invalid values ${lib.concatStringsSep ", " invalid}"])
+    selector);
+
+  cartesianProductOfSets = attrs: let
+    names = builtins.attrNames attrs;
+
+    go = remaining:
+      if remaining == []
+      then [{}]
+      else let
+        name = builtins.head remaining;
+        tail = builtins.tail remaining;
+        tailProduct = go tail;
+      in
+        lib.concatMap
+        (value:
+          map (partial: partial // {${name} = value;}) tailProduct)
+        attrs.${name};
   in
-    if builtins.match "^[0-9a-f]{6}$" stripped != null
-    then stripped
-    else throw "sumi theme colors must be 6-digit hex values, got '${value}'";
-
-  normalizePalette = palette:
-    lib.genAttrs baseKeys (key: normalizeHex palette.${key});
+    go names;
 in {
   options.sumi = {
-    enable = lib.mkEnableOption "Sumi theme switching runtime";
+    enable = lib.mkEnableOption "Sumi facet-based runtime config switching";
 
-    themes = lib.mkOption {
-      type = types.attrsOf themeOptionType;
+    facets = lib.mkOption {
+      type = types.attrsOf facetOptionType;
       default = {};
-      description = "Centralized theme registry keyed by theme name.";
+      description = "Facet registry keyed by facet name.";
     };
 
-    defaultTheme = lib.mkOption {
-      type = types.str;
-      default = "";
-      description = "Theme used when no state file exists yet.";
+    defaultSelection = lib.mkOption {
+      type = types.attrsOf types.str;
+      default = {};
+      description = "Default selected variant per facet. Overrides facet defaults.";
     };
 
     user = lib.mkOption {
@@ -189,7 +190,7 @@ in {
     configDirectory = lib.mkOption {
       type = with types; nullOr str;
       default = null;
-      description = "Config directory Sumi should target. Defaults to <homeDirectory>/.config.";
+      description = "Config directory helper path. Defaults to <homeDirectory>/.config.";
     };
 
     flakeRoot = lib.mkOption {
@@ -207,14 +208,16 @@ in {
       '';
     };
 
-    programs = lib.mkOption {
+    file = lib.mkOption {
+      type = types.attrsOf fileOptionType;
+      default = {};
+      description = "Managed files keyed by home-relative destination path.";
+    };
+
+    program = lib.mkOption {
       type = types.attrsOf programOptionType;
       default = {};
-      description = ''
-        Program theme registrations keyed by name (for example `ghostty` or
-        `hyprland`). Each program entry can contain many file entries keyed by
-        destination path plus an optional `reload` command/list.
-      '';
+      description = "Program reload orchestration keyed by program name.";
     };
 
     generated = {
@@ -264,93 +267,129 @@ in {
         then cfg.flakeRoot
         else null;
 
-      themePaletteErrors =
+      facetNames = builtins.attrNames cfg.facets;
+      facetVariantNames = lib.mapAttrs (_: facet: builtins.attrNames facet.variants) cfg.facets;
+
+      inferredDefaultSelection = lib.mapAttrs (_: facet: facet.default) cfg.facets;
+      resolvedDefaultSelection = inferredDefaultSelection // cfg.defaultSelection;
+
+      defaultSelectionUnknownFacets = selectorUnknownFacets cfg.defaultSelection facetNames;
+
+      defaultSelectionInvalidValues =
+        lib.filter (v: v != null)
+        (lib.mapAttrsToList (facet: value:
+          if !(builtins.hasAttr facet cfg.facets)
+          then null
+          else if builtins.elem value facetVariantNames.${facet}
+          then null
+          else "${facet}:${value}")
+        cfg.defaultSelection);
+
+      facetDefinitionErrors =
         lib.flatten
-        (lib.mapAttrsToList (name: theme: let
-          palette = theme.palette or {};
-          missingKeys = lib.filter (key: !(builtins.hasAttr key palette)) baseKeys;
+        (lib.mapAttrsToList (facet: data: let
+          variants = facetVariantNames.${facet};
+          hasDefault = builtins.elem data.default variants;
         in
-          if missingKeys == []
-          then []
-          else ["${name}: missing ${lib.concatStringsSep ", " missingKeys}"])
-        cfg.themes);
+          (
+            if variants == []
+            then ["${facet}: variants must not be empty"]
+            else []
+          )
+          ++ (
+            if hasDefault
+            then []
+            else ["${facet}: default '${data.default}' missing from variants"]
+          ))
+        cfg.facets);
 
-      normalizedThemes =
-        lib.mapAttrs (name: rawTheme: let
-          palette = normalizePalette rawTheme.palette;
-          withHashtag = lib.mapAttrs (_: value: "#${value}") palette;
-        in {
-          inherit name;
-          colors = palette // {inherit withHashtag;};
-          meta = rawTheme.meta or {};
-          polarity = rawTheme.polarity or "either";
-          image = rawTheme.image or rawTheme.wallpaper or null;
-          fonts = rawTheme.fonts or null;
-          opacity = rawTheme.opacity or null;
-          raw = rawTheme;
+      normalizedFiles =
+        lib.mapAttrsToList (filePath: fileCfg: {
+          path = normalizeManagedPath filePath;
+          normalizedWhen = normalizeSelector fileCfg.when;
+          inherit
+            (fileCfg)
+            render
+            text
+            source
+            executable
+            dependsOn
+            ;
         })
-        cfg.themes;
+        cfg.file;
 
-      programRegistrations =
-        lib.mapAttrs'
-        (programName: programCfg: let
-          fileEntries = lib.filterAttrs (key: _: key != "reload") programCfg;
-        in
-          lib.nameValuePair "program-${programName}" {
-            files =
-              lib.mapAttrsToList (filePath: fileCfg: {
-                path = normalizeManagedPath filePath;
-                inherit
-                  (fileCfg)
-                  render
-                  text
-                  source
-                  executable
-                  ;
-              })
-              fileEntries;
-
-            reload =
-              map (command: {
-                type = "command";
-                inherit command;
-                name = "${programName}-reload";
-              })
-              programCfg.reload;
-          })
-        (lib.filterAttrs
-          (_: programCfg: let
-            fileEntries = lib.filterAttrs (key: _: key != "reload") programCfg;
-          in
-            (builtins.length (builtins.attrNames fileEntries)) > 0)
-          cfg.programs);
+      normalizedPrograms =
+        lib.mapAttrsToList (programName: programCfg: {
+          name = programName;
+          when = normalizeSelector programCfg.when;
+          reload = programCfg.reload;
+        })
+        cfg.program;
 
       invalidFiles =
         lib.filter (v: v != null)
-        (lib.flatten
-          (lib.mapAttrsToList (registrationName: registration:
-            map
-            (file:
-              if fileMethodCount file == 1
-              then null
-              else "${registrationName}:${file.path}")
-            registration.files)
-          programRegistrations));
+        (map
+          (file:
+            if fileMethodCount file == 1
+            then null
+            else file.path)
+          normalizedFiles);
 
-      registeredFiles =
-        lib.flatten
-        (lib.mapAttrsToList (registrationName: registration:
-          map (file: file // {inherit registrationName;}) registration.files)
-        programRegistrations);
+      renderMissingDependsOn =
+        lib.filter (v: v != null)
+        (map (file:
+          if file.render != null && file.dependsOn == []
+          then file.path
+          else null)
+        normalizedFiles);
 
-      reloadHooks =
-        lib.flatten
-        (lib.mapAttrsToList (registrationName: registration:
-          map (hook: hook // {inherit registrationName;}) registration.reload)
-        programRegistrations);
+      nonRenderWithDependsOn =
+        lib.filter (v: v != null)
+        (map (file:
+          if file.render == null && file.dependsOn != []
+          then file.path
+          else null)
+        normalizedFiles);
 
-      filePaths = map (file: file.path) registeredFiles;
+      fileSelectorFacetErrors =
+        lib.filter (v: v != null)
+        (map (file: let
+          unknownWhen = selectorUnknownFacets file.normalizedWhen facetNames;
+          unknownDependsOn = lib.filter (facet: !(builtins.elem facet facetNames)) file.dependsOn;
+        in
+          if unknownWhen == [] && unknownDependsOn == []
+          then null
+          else "${file.path}: unknown facets (${lib.concatStringsSep ", " (unknownWhen ++ unknownDependsOn)})")
+        normalizedFiles);
 
+      fileSelectorValueErrors =
+        lib.filter (v: v != null)
+        (map (file: let
+          whenErrors =
+            if selectorUnknownFacets file.normalizedWhen facetNames == []
+            then selectorInvalidValues file.normalizedWhen cfg.facets
+            else [];
+        in
+          if whenErrors == []
+          then null
+          else "${file.path}: ${lib.concatStringsSep "; " whenErrors}")
+        normalizedFiles);
+
+      programSelectorErrors =
+        lib.filter (v: v != null)
+        (map (program: let
+          unknown = selectorUnknownFacets program.when facetNames;
+          valueErrors =
+            if unknown == []
+            then selectorInvalidValues program.when cfg.facets
+            else [];
+        in
+          if unknown == [] && valueErrors == []
+          then null
+          else "${program.name}: ${lib.concatStringsSep "; " ((map (f: "unknown facet ${f}") unknown) ++ valueErrors)}")
+        normalizedPrograms);
+
+      filePaths = map (file: file.path) normalizedFiles;
       duplicatePaths =
         lib.filter
         (path: (lib.length (lib.filter (candidate: candidate == path) filePaths)) > 1)
@@ -358,75 +397,138 @@ in {
 
       absolutePaths = lib.filter (path: lib.hasPrefix "/" path) filePaths;
 
-      missingLiteralSources =
+      mkFacetValues = selection:
+        lib.mapAttrs (facet: variant: cfg.facets.${facet}.variants.${variant}) selection;
+
+      mkContext = selection: {
+        inherit selection;
+        facets = cfg.facets;
+        values = mkFacetValues selection;
+      };
+
+      sourceLiteralErrors =
         lib.filter (v: v != null)
         (map (file:
           if file.source != null && builtins.isPath file.source && !(builtins.pathExists file.source)
-          then "${file.registrationName}:${file.path} -> ${toString file.source}"
+          then "${file.path} -> ${toString file.source}"
           else null)
-        registeredFiles);
+        normalizedFiles);
 
-      renderedFilesByTheme =
-        lib.mapAttrs
-          (themeName: themeContext:
-            map (file: {
-            path = file.path;
-            executable = file.executable;
-            registration = file.registrationName;
-            source =
+      renderRulesForFile = file: let
+        comboSpace =
+          if file.dependsOn == []
+          then [{}]
+          else cartesianProductOfSets (lib.genAttrs file.dependsOn (facet: facetVariantNames.${facet}));
+      in
+        lib.filter (rule: rule != null)
+        (map (combo: let
+          comboKeys = builtins.attrNames combo;
+          compatible = builtins.all (facet:
+            if builtins.hasAttr facet file.normalizedWhen
+            then builtins.elem combo.${facet} file.normalizedWhen.${facet}
+            else true)
+          comboKeys;
+        in
+          if !compatible
+          then null
+          else let
+            comboWhen = lib.mapAttrs (_: value: [value]) combo;
+            whenRule = file.normalizedWhen // comboWhen;
+
+            selectionBase = resolvedDefaultSelection // combo;
+            selectionForRender =
+              lib.foldl'
+              (acc: facet: let
+                allowed = whenRule.${facet};
+                current = acc.${facet};
+              in
+                if builtins.elem current allowed
+                then acc
+                else acc // {${facet} = builtins.head allowed;})
+              selectionBase
+              (builtins.attrNames whenRule);
+
+            ruleHash = builtins.substring 0 8 (builtins.hashString "sha256" (builtins.toJSON whenRule));
+
+            renderedSource =
               if file.source != null
               then file.source
+              else if file.text != null
+              then
+                pkgs.writeTextFile {
+                  name = "sumi-${sanitizePath file.path}-${ruleHash}";
+                  text = file.text;
+                  executable = file.executable;
+                }
               else let
-                rendered =
-                  if file.render != null
-                  then file.render themeContext
-                  else file.text;
+                rendered = file.render (mkContext selectionForRender);
               in
                 if builtins.isString rendered
                 then
                   pkgs.writeTextFile {
-                    name = "sumi-${themeName}-${sanitizePath file.path}";
+                    name = "sumi-${sanitizePath file.path}-${ruleHash}";
                     text = rendered;
                     executable = file.executable;
                   }
                 else rendered;
+          in {
+            when = whenRule;
+            source = renderedSource;
           })
-          registeredFiles)
-        normalizedThemes;
+        comboSpace);
+
+      filesWithRules =
+        map (file: file // {rules = renderRulesForFile file;}) normalizedFiles;
+
+      hookRules =
+        lib.flatten
+        (map (program:
+          map (command: {
+            type = "command";
+            inherit command;
+            name = "${program.name}-reload";
+            registration = "program-${program.name}";
+            when = program.when;
+          })
+          program.reload)
+        normalizedPrograms);
 
       manifest = {
         version = 1;
         home = resolvedHomeDirectory;
-        defaultTheme = cfg.defaultTheme;
-
-        themes =
-          lib.mapAttrs (themeName: themeContext: {
-            name = themeContext.name;
-            polarity = themeContext.polarity;
-            image =
-              if themeContext.image == null
-              then null
-              else toString themeContext.image;
-
-            files =
-              map (file: {
-                inherit (file) executable path registration;
-                source = toString file.source;
-              })
-              renderedFilesByTheme.${themeName};
+        facets =
+          lib.mapAttrs (name: facet: {
+            default = facet.default;
+            variants = facet.variants;
           })
-          normalizedThemes;
-
+          cfg.facets;
+        defaultSelection = resolvedDefaultSelection;
+        files =
+          map (file: {
+            inherit (file) path executable;
+            rules =
+              map (rule: {
+                when = rule.when;
+                source = toString rule.source;
+              })
+              file.rules;
+          })
+          filesWithRules;
         hooks.reload =
           map (hook: {
-            inherit (hook) command name type;
-            registration = hook.registrationName;
+            inherit
+              (hook)
+              command
+              name
+              type
+              registration
+              when
+              ;
           })
-          reloadHooks;
+          hookRules;
       };
 
       manifestPath = pkgs.writeText "sumi-manifest.json" (builtins.toJSON manifest);
-
       baseCli = pkgs.callPackage ../pkgs/sumi-cli.nix {};
       sumiLink = pkgs.callPackage ../pkgs/sumi-link.nix {};
 
@@ -438,94 +540,86 @@ in {
         export SUMI_HOME_DIR="${resolvedHomeDirectory}"
       '';
 
-      configDirectoryExport = lib.optionalString (resolvedConfigDirectory != null) ''
-        export SUMI_CONFIG_DIR="${resolvedConfigDirectory}"
-      '';
-
       wrappedCli = pkgs.writeShellScriptBin "sumi" ''
         export SUMI_MANIFEST="${manifestPath}"
         export SUMI_LINK_BIN="${sumiLink}/bin/sumi-link"
         ${stateDirectoryExport}
         ${homeDirectoryExport}
-        ${configDirectoryExport}
         exec ${baseCli}/bin/sumi "$@"
       '';
 
-      refreshTheme = pkgs.writeShellScript "sumi-refresh-theme" ''
-        theme="$(${wrappedCli}/bin/sumi current 2>/dev/null || true)"
-        if [ -z "$theme" ]; then
-          theme="${cfg.defaultTheme}"
-        fi
-        ${wrappedCli}/bin/sumi switch "$theme" || true
+      refreshSelection = pkgs.writeShellScript "sumi-refresh-selection" ''
+        ${wrappedCli}/bin/sumi switch || true
       '';
     in {
       assertions = [
         {
-          assertion = cfg.themes != {};
-          message = "sumi.themes must define at least one theme.";
+          assertion = cfg.facets != {};
+          message = "sumi.facets must define at least one facet.";
         }
-
         {
-          assertion = cfg.defaultTheme != "";
-          message = "sumi.defaultTheme must be set.";
+          assertion = facetDefinitionErrors == [];
+          message = "sumi facet definitions are invalid: ${lib.concatStringsSep "; " facetDefinitionErrors}";
         }
-
+        {
+          assertion = defaultSelectionUnknownFacets == [];
+          message = "sumi.defaultSelection contains unknown facets: ${lib.concatStringsSep ", " defaultSelectionUnknownFacets}";
+        }
+        {
+          assertion = defaultSelectionInvalidValues == [];
+          message = "sumi.defaultSelection contains invalid values: ${lib.concatStringsSep ", " defaultSelectionInvalidValues}";
+        }
         {
           assertion = resolvedHomeDirectory != null;
           message = "sumi.homeDirectory or sumi.user must be set when sumi.enable = true.";
         }
-
         {
           assertion = cfg.user == null || lib.hasAttrByPath ["users" "users" cfg.user "home"] config;
           message = "sumi.user must reference an existing users.users.<name>.home entry.";
         }
-
         {
           assertion = resolvedConfigDirectory != null;
           message = "sumi.configDirectory could not be resolved.";
         }
-
-        {
-          assertion = builtins.hasAttr cfg.defaultTheme cfg.themes;
-          message = "sumi.defaultTheme must match a key in sumi.themes.";
-        }
-
-        {
-          assertion = themePaletteErrors == [];
-          message = "sumi themes must include base00..base0F in palette: ${lib.concatStringsSep "; " themePaletteErrors}";
-        }
-
         {
           assertion = duplicatePaths == [];
-          message = "sumi.programs contains duplicate file paths: ${lib.concatStringsSep ", " duplicatePaths}";
+          message = "sumi.file contains duplicate file paths: ${lib.concatStringsSep ", " duplicatePaths}";
         }
-
         {
           assertion = absolutePaths == [];
-          message = ''
-            sumi files must be relative to $HOME. Found absolute paths:
-            ${lib.concatStringsSep ", " absolutePaths}
-          '';
+          message = "sumi files must be relative to $HOME. Found absolute paths: ${lib.concatStringsSep ", " absolutePaths}";
         }
-
         {
           assertion = invalidFiles == [];
-          message = ''
-            sumi files must set exactly one of render, text, or source:
-            ${lib.concatStringsSep ", " invalidFiles}
-          '';
+          message = "sumi files must set exactly one of render, text, or source: ${lib.concatStringsSep ", " invalidFiles}";
         }
-
         {
-          assertion = missingLiteralSources == [];
-          message = ''
-            sumi files reference missing path literals:
-            ${lib.concatStringsSep ", " missingLiteralSources}
-          '';
+          assertion = renderMissingDependsOn == [];
+          message = "sumi render files must set dependsOn: ${lib.concatStringsSep ", " renderMissingDependsOn}";
+        }
+        {
+          assertion = nonRenderWithDependsOn == [];
+          message = "sumi dependsOn is only valid with render: ${lib.concatStringsSep ", " nonRenderWithDependsOn}";
+        }
+        {
+          assertion = fileSelectorFacetErrors == [];
+          message = "sumi file selector facet errors: ${lib.concatStringsSep "; " fileSelectorFacetErrors}";
+        }
+        {
+          assertion = fileSelectorValueErrors == [];
+          message = "sumi file selector value errors: ${lib.concatStringsSep "; " fileSelectorValueErrors}";
+        }
+        {
+          assertion = programSelectorErrors == [];
+          message = "sumi program selector errors: ${lib.concatStringsSep "; " programSelectorErrors}";
+        }
+        {
+          assertion = sourceLiteralErrors == [];
+          message = "sumi files reference missing path literals: ${lib.concatStringsSep ", " sourceLiteralErrors}";
         }
       ];
 
-      lib.sumi.themeContexts = normalizedThemes;
+      lib.sumi.facets = cfg.facets;
       lib.sumi.paths = {
         home = resolvedHomeDirectory;
         config = resolvedConfigDirectory;
@@ -540,11 +634,11 @@ in {
       environment.systemPackages = [wrappedCli];
 
       system.userActivationScripts.sumi = ''
-        ${refreshTheme}
+        ${refreshSelection}
       '';
 
-      systemd.user.services.sumi-reapply-theme = {
-        description = "Reapply current Sumi theme on session start";
+      systemd.user.services.sumi-reapply-selection = {
+        description = "Reapply current Sumi selection on session start";
         partOf = ["hyprland-session.target"];
         after = ["hyprland-session.target"];
         wantedBy = ["hyprland-session.target"];
@@ -555,7 +649,7 @@ in {
 
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = refreshTheme;
+          ExecStart = refreshSelection;
         };
       };
 

@@ -1,5 +1,5 @@
 {
-  description = "Sumi: theme switching primitives for NixOS";
+  description = "Sumi: facet-based runtime config switching for NixOS";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";

@@ -9,6 +9,7 @@ use clap::Parser;
 use cli::{Cli, Command};
 use engine::{ConflictPolicy, Engine};
 use log::error;
+use std::collections::HashMap;
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
@@ -32,7 +33,22 @@ fn run(cli: Cli) -> Result<ExitCode, error::AppError> {
                 conflict_policy: ConflictPolicy::from(args.conflict_policy),
             };
 
-            let summary = engine.apply(manifest, &args.state_dir, &args.theme)?;
+            let mut set_overrides = HashMap::new();
+            for item in args.set {
+                let Some((key, value)) = item.split_once('=') else {
+                    return Err(error::AppError::InvalidSelectionSet { value: item });
+                };
+
+                if key.is_empty() || value.is_empty() {
+                    return Err(error::AppError::InvalidSelectionSet {
+                        value: format!("{}={}", key, value),
+                    });
+                }
+
+                set_overrides.insert(key.to_string(), value.to_string());
+            }
+
+            let summary = engine.apply(manifest, &args.state_dir, &set_overrides)?;
             println!(
                 "created={} updated={} removed={} unchanged={} failed={}",
                 summary.created,

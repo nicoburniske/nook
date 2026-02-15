@@ -8,7 +8,7 @@
     delta
   ];
 
-  sumi.programs.git = {
+  sumi.file = {
     ".gitconfig".text = lib.generators.toGitINI {
       user = {
         name = "Nico Burniske";
@@ -40,7 +40,7 @@
         hyperlinks = true;
       };
     };
-
-    reload = [];
   };
+
+  sumi.program.git.reload = [];
 }

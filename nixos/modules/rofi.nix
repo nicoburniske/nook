@@ -3,8 +3,11 @@
     pkgs.rofi
   ];
 
-  sumi.programs.rofi = {
-    "rofi/config.rasi".render = theme:
+  sumi.file."rofi/config.rasi" = {
+    dependsOn = ["theme"];
+    render = ctx: let
+      theme = ctx.values.theme;
+    in
       with theme.colors.withHashtag; ''
         configuration {
           modi: "drun";
@@ -325,7 +328,7 @@
           text-color: @foreground-colour;
         }
       '';
-
-    reload = [];
   };
+
+  sumi.program.rofi.reload = [];
 }

@@ -83,19 +83,37 @@
 in {
   programs.dconf.enable = true;
 
-  sumi.programs.gtk = {
-    ".gtkrc-2.0".render = mkGtkrc;
-    "gtk-3.0/settings.ini".render = mkGtkSettings;
-    "gtk-4.0/settings.ini".render = mkGtkSettings;
-    "gtk-3.0/gtk.css".render = mkGtkCss;
-    "gtk-4.0/gtk.css".render = mkGtkCss;
-    ".themes/adw-gtk3".render = mkFlattenedGtkTheme;
-
-    reload = builtins.concatStringsSep " " [
-      "if grep -q '^gtk-application-prefer-dark-theme=1' \"${configDir}/gtk-3.0/settings.ini\";"
-      "then ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true;"
-      "else ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true;"
-      "fi"
-    ];
+  sumi.file = {
+    ".gtkrc-2.0" = {
+      dependsOn = ["theme"];
+      render = ctx: mkGtkrc ctx.values.theme;
+    };
+    "gtk-3.0/settings.ini" = {
+      dependsOn = ["theme"];
+      render = ctx: mkGtkSettings ctx.values.theme;
+    };
+    "gtk-4.0/settings.ini" = {
+      dependsOn = ["theme"];
+      render = ctx: mkGtkSettings ctx.values.theme;
+    };
+    "gtk-3.0/gtk.css" = {
+      dependsOn = ["theme"];
+      render = ctx: mkGtkCss ctx.values.theme;
+    };
+    "gtk-4.0/gtk.css" = {
+      dependsOn = ["theme"];
+      render = ctx: mkGtkCss ctx.values.theme;
+    };
+    ".themes/adw-gtk3" = {
+      dependsOn = ["theme"];
+      render = ctx: mkFlattenedGtkTheme ctx.values.theme;
+    };
   };
+
+  sumi.program.gtk.reload = builtins.concatStringsSep " " [
+    "if grep -q '^gtk-application-prefer-dark-theme=1' \"${configDir}/gtk-3.0/settings.ini\";"
+    "then ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true;"
+    "else ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true;"
+    "fi"
+  ];
 }

@@ -1,10 +1,10 @@
 {...}: {
-  sumi.programs.cargo = {
+  sumi.file = {
     ".cargo/config.toml".text = ''
       [net]
       git-fetch-with-cli = true
     '';
-
-    reload = [];
   };
+
+  sumi.program.cargo.reload = [];
 }

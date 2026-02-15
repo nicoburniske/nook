@@ -59,10 +59,10 @@
 in {
   environment.systemPackages = [pkgs.lazygit];
 
-  sumi.programs.lazygit = {
-    "lazygit/config.yml".render = theme:
-      yamlFormat.generate "sumi-lazygit-${theme.name}.yml" (mkSettings theme);
-
-    reload = [];
+  sumi.file."lazygit/config.yml" = {
+    dependsOn = ["theme"];
+    render = ctx: yamlFormat.generate "sumi-lazygit-${ctx.selection.theme}.yml" (mkSettings ctx.values.theme);
   };
+
+  sumi.program.lazygit.reload = [];
 }

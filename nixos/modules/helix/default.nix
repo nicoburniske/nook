@@ -181,16 +181,21 @@ in {
     nixd
   ];
 
-  sumi.programs.helix = {
-    "helix/config.toml".render = theme:
-      tomlFormat.generate "sumi-helix-config-${theme.name}.toml" (baseSettings // {theme = theme.meta.helix or theme.name;});
+  sumi.file = {
+    "helix/config.toml" = {
+      dependsOn = ["theme"];
+      render = ctx: let
+        theme = ctx.values.theme;
+      in
+        tomlFormat.generate "sumi-helix-config-${ctx.selection.theme}.toml" (baseSettings // {theme = theme.meta.helix or ctx.selection.theme;});
+    };
 
     "helix/languages.toml".source = tomlFormat.generate "sumi-helix-languages.toml" languages;
     "helix/themes/modus.toml".source = ./themes/modus.toml;
     "helix/themes/melissa-light.toml".source = ./themes/melissa-light.toml;
     "helix/themes/space-age.toml".source = ./themes/space-age.toml;
     "helix/themes/gruvbox.toml".source = ./themes/gruvbox.toml;
-
-    reload = "${pkgs.procps}/bin/pkill -USR1 hx || true";
   };
+
+  sumi.program.helix.reload = "${pkgs.procps}/bin/pkill -USR1 hx || true";
 }

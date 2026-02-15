@@ -4,7 +4,7 @@
 in {
   environment.systemPackages = [pkgs.kitty];
 
-  sumi.programs.kitty = {
+  sumi.file = {
     "kitty/kitty.conf".text = ''
       shell_integration no-rc no-title
 
@@ -85,7 +85,10 @@ in {
       map --mode unlocked escape pop_keyboard_mode
     '';
 
-    "kitty/themes/sumi.conf".render = renderTheme;
+    "kitty/themes/sumi.conf" = {
+      dependsOn = ["theme"];
+      render = ctx: renderTheme ctx.values.theme;
+    };
     "kitty/tab_bar.py".source = ./tab_bar.py;
 
     "kitty/quick-access-terminal.conf".text = ''
@@ -94,7 +97,7 @@ in {
       columns 50
       kitty_override tab_bar_style=hidden
     '';
-
-    reload = "${pkgs.procps}/bin/pkill -USR1 kitty || true";
   };
+
+  sumi.program.kitty.reload = "${pkgs.procps}/bin/pkill -USR1 kitty || true";
 }

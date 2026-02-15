@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = [pkgs.television];
 
-  sumi.programs.television = {
+  sumi.file = {
     "television/cable/files.toml".text = ''
       [metadata]
       name = "files"
@@ -54,7 +54,7 @@
       command = "just {}"
       mode = "execute"
     '';
-
-    reload = [];
   };
+
+  sumi.program.television.reload = [];
 }
