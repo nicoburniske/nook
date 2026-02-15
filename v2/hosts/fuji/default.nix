@@ -22,6 +22,7 @@
       sumi
       fonts
       kitty
+      yazi
       git
       cargo
       inputs.nix-homebrew.darwinModules.nix-homebrew

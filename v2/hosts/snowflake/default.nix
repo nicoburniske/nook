@@ -24,6 +24,7 @@
       fonts
       hypr
       kitty
+      yazi
       git
       cargo
     ];
