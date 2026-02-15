@@ -1,5 +1,5 @@
 {...}: let
-  tabTitle = "{'stack ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
+  tabTitle = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
   renderTheme = import ./_theme.nix;
   mkKittyModule = {
     pkgs,
