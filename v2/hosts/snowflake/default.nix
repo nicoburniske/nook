@@ -25,6 +25,8 @@
       hypr
       kitty
       yazi
+      fzf
+      ohMyPosh
       git
       cargo
     ];
