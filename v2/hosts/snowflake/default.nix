@@ -23,6 +23,7 @@
       sumi
       fonts
       hypr
+      kitty
       git
       cargo
     ];

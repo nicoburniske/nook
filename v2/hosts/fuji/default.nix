@@ -21,6 +21,7 @@
       ./configuration.nix
       sumi
       fonts
+      kitty
       git
       cargo
       inputs.nix-homebrew.darwinModules.nix-homebrew
