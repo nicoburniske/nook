@@ -217,10 +217,10 @@
       };
 
       "helix/languages.toml".source = tomlFormat.generate "sumi-helix-languages.toml" languages;
-      "helix/themes/modus.toml".source = ./_themes/modus.toml;
-      "helix/themes/melissa-light.toml".source = ./_themes/melissa-light.toml;
-      "helix/themes/space-age.toml".source = ./_themes/space-age.toml;
-      "helix/themes/gruvbox.toml".source = ./_themes/gruvbox.toml;
+      "helix/themes/modus.toml".source = ./themes/modus.toml;
+      "helix/themes/melissa-light.toml".source = ./themes/melissa-light.toml;
+      "helix/themes/space-age.toml".source = ./themes/space-age.toml;
+      "helix/themes/gruvbox.toml".source = ./themes/gruvbox.toml;
     };
 
     sumi.program.helix.reload =
