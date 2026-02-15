@@ -14,12 +14,9 @@
     };
 
   sharedTheme = {
-    opacity =
-      lib.optionalAttrs
-      pkgs.stdenv.isLinux
-      {
-        terminal = 0.90;
-      };
+    opacity = {
+      terminal = 0.90;
+    };
 
     fonts = {
       monospace = {

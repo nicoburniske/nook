@@ -6,8 +6,6 @@
     configHome = config.lib.sumi.paths.config;
   in {
     enable = true;
-    histSize = 999999999;
-    histFile = "$HOME/.zsh_history";
 
     interactiveShellInit = ''
       WORDCHARS=''${WORDCHARS//[\/]}
@@ -85,6 +83,8 @@ in {
     programs.zsh =
       common
       // {
+        histFile = "$HOME/.zsh_history";
+        histSize = 999999999;
         enableCompletion = true;
         setOptions = [
           "HIST_IGNORE_DUPS"
@@ -128,6 +128,11 @@ in {
     programs.zsh =
       common
       // {
+        variables = {
+          HISTFILE = "$HOME/.zsh_history";
+          HISTSIZE = "999999999";
+          SAVEHIST = "999999999";
+        };
         enableCompletion = true;
         enableAutosuggestions = true;
         enableSyntaxHighlighting = true;
