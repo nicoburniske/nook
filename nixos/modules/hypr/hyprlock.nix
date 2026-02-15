@@ -4,14 +4,8 @@
     render = ctx: let
       theme = ctx.values.theme;
       rgb = hex: "rgb(${hex})";
-      imagePath =
-        if theme.image == null
-        then ""
-        else toString theme.image;
-      fontFamily =
-        if theme.fonts == null
-        then "Berkeley Mono"
-        else theme.fonts.serif.name;
+      imagePath = toString theme.image;
+      fontFamily = theme.fonts.serif.name;
     in
       with theme.colors; ''
         animations {
