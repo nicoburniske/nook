@@ -15,7 +15,10 @@
 
   sharedTheme = {
     opacity = {
-      terminal = 0.90;
+      terminal =
+        if pkgs.stdenv.isLinux
+        then 0.90
+        else 1.0;
     };
 
     fonts = {
