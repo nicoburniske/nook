@@ -32,6 +32,10 @@
       helix
       fzf
       ohMyPosh
+      lazygit
+      opencode
+      television
+      zsh
       git
       cargo
     ];

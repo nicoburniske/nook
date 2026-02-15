@@ -24,11 +24,7 @@ in {
     ../../../nixos/modules/btop.nix
     ../../../nixos/modules/comically.nix
     ../../../nixos/modules/gtk
-    ../../../nixos/modules/lazygit.nix
-    ../../../nixos/modules/opencode.nix
     ../../../nixos/modules/packages.nix
-    ../../../nixos/modules/television.nix
-    ../../../nixos/modules/zsh.nix
   ];
 
   nixpkgs.config.allowUnfree = true;

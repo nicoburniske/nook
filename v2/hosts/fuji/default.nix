@@ -27,6 +27,10 @@
       helix
       fzf
       ohMyPosh
+      lazygit
+      opencode
+      television
+      zsh
       git
       cargo
       inputs.nix-homebrew.darwinModules.nix-homebrew
