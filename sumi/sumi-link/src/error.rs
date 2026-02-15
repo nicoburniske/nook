@@ -33,6 +33,9 @@ pub enum AppError {
     #[error("manifest contains invalid home directory '{home}'")]
     InvalidHome { home: String },
 
+    #[error("manifest contains missing source paths: {paths}")]
+    MissingSources { paths: String },
+
     #[error("failed to serialize snapshot: {0}")]
     SerializeSnapshot(#[source] serde_json::Error),
 

@@ -233,7 +233,7 @@ fn replace_policy_replaces_conflicting_directory() {
 }
 
 #[test]
-fn missing_source_fails_entry_but_continues() {
+fn missing_source_is_hard_error() {
     let td = tempdir().expect("create tempdir");
     let home = td.path().join("home");
     let state = td.path().join("state");
@@ -258,24 +258,19 @@ fn missing_source_fails_entry_but_continues() {
     let engine = Engine {
         conflict_policy: ConflictPolicy::Backup,
     };
-    let summary = engine
+    let err = engine
         .apply(
             Manifest::load(&manifest_path).expect("load manifest"),
             &state,
             "gruvbox",
         )
-        .expect("apply should continue");
+        .expect_err("missing sources should fail before apply");
 
-    assert_eq!(summary.failed, 1);
-    assert_points_to(&home.join(".config/app/a.conf"), &src);
+    assert!(err
+        .to_string()
+        .contains("manifest contains missing source paths"));
+    assert!(!home.join(".config/app/a.conf").exists());
     assert!(!home.join(".config/app/b.conf").exists());
-
-    let snapshot =
-        Snapshot::read(&state.join("snapshot.json"), "gruvbox".to_string()).expect("read snapshot");
-    assert_eq!(snapshot.files.len(), 1);
-    assert!(snapshot
-        .files
-        .contains_key(home.join(".config/app/a.conf").to_string_lossy().as_ref()));
 }
 
 #[test]
