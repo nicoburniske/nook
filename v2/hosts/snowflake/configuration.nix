@@ -35,7 +35,6 @@ in {
     ../../../nixos/modules/swaync
     ../../../nixos/modules/television.nix
     ../../../nixos/modules/zsh.nix
-    ../../../nixos/modules/yazi
   ];
 
   nixpkgs.config.allowUnfree = true;
