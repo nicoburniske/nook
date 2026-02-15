@@ -1,5 +1,5 @@
 {
-  description = "Sumi: facet-based runtime config switching for NixOS";
+  description = "Sumi: facet-based runtime config switching for NixOS and nix-darwin";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -22,10 +22,38 @@
 
       flake = {
         nixosModules = {
-          default = {...}: {
+          default = {
+            config,
+            lib,
+            ...
+          }: {
             imports = [
-              ./modules/nixos.nix
+              ./default.nix
             ];
+
+            config = lib.mkIf (config.sumi.enable or false) {
+              system.userActivationScripts.sumi = ''
+                ${config.sumi.package}/bin/sumi switch || true
+              '';
+            };
+          };
+        };
+
+        darwinModules = {
+          default = {
+            config,
+            lib,
+            ...
+          }: {
+            imports = [
+              ./default.nix
+            ];
+
+            config = lib.mkIf (config.sumi.enable or false) {
+              system.activationScripts.sumi.text = ''
+                ${config.sumi.package}/bin/sumi switch || true
+              '';
+            };
           };
         };
       };

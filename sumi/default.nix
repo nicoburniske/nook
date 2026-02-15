@@ -175,16 +175,10 @@ in {
       description = "Default selected variant per facet. Overrides facet defaults.";
     };
 
-    user = lib.mkOption {
-      type = with types; nullOr str;
-      default = null;
-      description = "Primary user name for modules that need a home directory fallback.";
-    };
-
     homeDirectory = lib.mkOption {
       type = with types; nullOr str;
       default = null;
-      description = "Home directory Sumi should manage. If null, derived from sumi.user.";
+      description = "Home directory Sumi should manage.";
     };
 
     configDirectory = lib.mkOption {
@@ -251,8 +245,6 @@ in {
       resolvedHomeDirectory =
         if cfg.homeDirectory != null
         then cfg.homeDirectory
-        else if cfg.user != null && lib.hasAttrByPath ["users" "users" cfg.user "home"] config
-        then config.users.users.${cfg.user}.home
         else null;
 
       resolvedConfigDirectory =
@@ -529,8 +521,8 @@ in {
       };
 
       manifestPath = pkgs.writeText "sumi-manifest.json" (builtins.toJSON manifest);
-      baseCli = pkgs.callPackage ../pkgs/sumi-cli.nix {};
-      sumiLink = pkgs.callPackage ../pkgs/sumi-link.nix {};
+      baseCli = pkgs.callPackage ./pkgs/sumi-cli.nix {};
+      sumiLink = pkgs.callPackage ./pkgs/sumi-link.nix {};
 
       stateDirectoryExport = lib.optionalString (cfg.stateDirectory != null) ''
         export SUMI_STATE_DIR="${cfg.stateDirectory}"
@@ -548,9 +540,6 @@ in {
         exec ${baseCli}/bin/sumi "$@"
       '';
 
-      refreshSelection = pkgs.writeShellScript "sumi-refresh-selection" ''
-        ${wrappedCli}/bin/sumi switch || true
-      '';
     in {
       assertions = [
         {
@@ -571,11 +560,7 @@ in {
         }
         {
           assertion = resolvedHomeDirectory != null;
-          message = "sumi.homeDirectory or sumi.user must be set when sumi.enable = true.";
-        }
-        {
-          assertion = cfg.user == null || lib.hasAttrByPath ["users" "users" cfg.user "home"] config;
-          message = "sumi.user must reference an existing users.users.<name>.home entry.";
+          message = "sumi.homeDirectory must be set when sumi.enable = true.";
         }
         {
           assertion = resolvedConfigDirectory != null;
@@ -632,26 +617,6 @@ in {
 
       environment.etc."sumi/manifest.json".source = manifestPath;
       environment.systemPackages = [wrappedCli];
-
-      system.userActivationScripts.sumi = ''
-        ${refreshSelection}
-      '';
-
-      systemd.user.services.sumi-reapply-selection = {
-        description = "Reapply current Sumi selection on session start";
-        partOf = ["hyprland-session.target"];
-        after = ["hyprland-session.target"];
-        wantedBy = ["hyprland-session.target"];
-
-        unitConfig = {
-          ConditionEnvironment = "WAYLAND_DISPLAY";
-        };
-
-        serviceConfig = {
-          Type = "oneshot";
-          ExecStart = refreshSelection;
-        };
-      };
 
       sumi.generated.manifest = manifestPath;
       sumi.package = wrappedCli;
