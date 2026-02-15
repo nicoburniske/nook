@@ -28,7 +28,6 @@
 
     unitConfig = {
       StartLimitIntervalSec = 0;
-      ConditionEnvironment = "WAYLAND_DISPLAY";
     };
 
     serviceConfig = {

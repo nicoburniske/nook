@@ -49,10 +49,6 @@ in {
     after = ["hyprland-session.target"];
     wantedBy = ["hyprland-session.target"];
 
-    unitConfig = {
-      ConditionEnvironment = "WAYLAND_DISPLAY";
-    };
-
     serviceConfig = {
       Type = "dbus";
       BusName = "org.freedesktop.Notifications";

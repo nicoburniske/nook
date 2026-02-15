@@ -9,10 +9,11 @@
   ];
 
   systemdActivation =
-    "${pkgs.dbus}/bin/dbus-update-activation-environment --systemd "
+    "${pkgs.systemd}/bin/systemctl --user import-environment "
     + builtins.concatStringsSep " " systemdVariables
-    + " && ${pkgs.systemd}/bin/systemctl --user stop hyprland-session.target"
-    + " && ${pkgs.systemd}/bin/systemctl --user start hyprland-session.target";
+    + "; ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd "
+    + builtins.concatStringsSep " " systemdVariables
+    + " || true; ${pkgs.systemd}/bin/systemctl --user start hyprland-session.target";
 
   mkBindLines = prefix: entries:
     builtins.concatStringsSep "\n" (builtins.map (entry: "${prefix}=${entry}") entries);
