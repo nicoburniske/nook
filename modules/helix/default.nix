@@ -132,9 +132,9 @@
         normal =
           common
           // {
-            "C-g" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current lazygit >/dev/null";
-            "C-f" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current ${yaziPicker}/bin/hx-yazi-picker %{buffer_name} >/dev/null";
-            "C-t" = ":sh kitty @ launch --type=overlay --cwd=\"$(pwd)\" --window-title=current >/dev/null";
+            "C-g" = ":sh kitty @ launch --copy-env --type=overlay --cwd=current --window-title=current ${pkgs.lazygit}/bin/lazygit >/dev/null";
+            "C-f" = ":sh kitty @ launch --copy-env --type=overlay --cwd=current --window-title=current ${yaziPicker}/bin/hx-yazi-picker %{buffer_name} >/dev/null";
+            "C-t" = ":sh kitty @ launch --copy-env --type=overlay --cwd=current --window-title=current >/dev/null";
             "C-l" = "goto_next_buffer";
             "C-h" = "goto_previous_buffer";
             "C-x" = ":buffer-close";
