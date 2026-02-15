@@ -50,7 +50,7 @@
         ];
 
         config = lib.mkIf (config.sumi.enable or false) {
-          system.activationScripts.sumi.text = ''
+          system.activationScripts.postActivation.text = lib.mkAfter ''
             ${config.sumi.package}/bin/sumi switch || true
           '';
         };
