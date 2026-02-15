@@ -385,3 +385,68 @@ fn update_replaces_wrong_old_symlink_when_policy_replace() {
     assert_eq!(summary.failed, 0);
     assert_points_to(&target, &src_new);
 }
+
+#[test]
+fn update_of_managed_symlink_does_not_backup_in_backup_policy() {
+    let td = tempdir().expect("create tempdir");
+    let home = td.path().join("home");
+    let state = td.path().join("state");
+    let sources = td.path().join("sources");
+    fs::create_dir_all(&home).expect("create home");
+    fs::create_dir_all(&sources).expect("create sources");
+
+    let src_old = write_file(&sources.join("old"), "old");
+    let src_new = write_file(&sources.join("new"), "new");
+
+    let target = home.join(".config/app/a.conf");
+    if let Some(parent) = target.parent() {
+        fs::create_dir_all(parent).expect("create target parent");
+    }
+    symlink(&src_old, &target).expect("seed old symlink");
+
+    let mut files = std::collections::BTreeMap::new();
+    files.insert(
+        target.to_string_lossy().into_owned(),
+        src_old.to_string_lossy().into_owned(),
+    );
+    Snapshot {
+        version: 1,
+        selection: btreemap_theme("gruvbox"),
+        updated_at: "0".to_string(),
+        files,
+    }
+    .write_atomic(&state.join("snapshot.json"))
+    .expect("write seeded snapshot");
+
+    let manifest_path = td.path().join("manifest.json");
+    write_manifest(&manifest_path, &home, &[(".config/app/a.conf", &src_new)]);
+
+    let engine = Engine {
+        conflict_policy: ConflictPolicy::Backup,
+    };
+    let summary = engine
+        .apply(
+            Manifest::load(&manifest_path).expect("load manifest"),
+            &state,
+            &HashMap::new(),
+        )
+        .expect("apply");
+
+    assert_eq!(summary.updated, 1);
+    assert_eq!(summary.failed, 0);
+    assert_points_to(&target, &src_new);
+    assert_eq!(count_backup_siblings(&target), 0);
+}
+
+fn count_backup_siblings(target: &Path) -> usize {
+    let Some(parent) = target.parent() else {
+        return 0;
+    };
+    let needle = format!("{}.sumi.bak.", target.display());
+    fs::read_dir(parent)
+        .expect("read target parent")
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.to_string_lossy().starts_with(&needle))
+        .count()
+}

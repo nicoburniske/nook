@@ -106,10 +106,17 @@ impl Engine {
         }
 
         for target in &update_paths {
+            let expected_old = old_files
+                .get(target)
+                .expect("update path must exist in old map");
             let source = desired
                 .get(target)
                 .expect("update path must exist in desired map");
-            match self.ensure_link(Path::new(target), Path::new(source)) {
+            match self.ensure_link(
+                Path::new(target),
+                Path::new(source),
+                Some(Path::new(expected_old)),
+            ) {
                 Ok(true) => updated += 1,
                 Ok(false) => {}
                 Err(err) => {
@@ -123,7 +130,7 @@ impl Engine {
             let source = desired
                 .get(target)
                 .expect("create path must exist in desired map");
-            match self.ensure_link(Path::new(target), Path::new(source)) {
+            match self.ensure_link(Path::new(target), Path::new(source), None) {
                 Ok(true) => created += 1,
                 Ok(false) => {}
                 Err(err) => {
@@ -178,7 +185,12 @@ impl Engine {
         Ok(true)
     }
 
-    fn ensure_link(&self, target: &Path, source: &Path) -> Result<bool, std::io::Error> {
+    fn ensure_link(
+        &self,
+        target: &Path,
+        source: &Path,
+        expected_old_source: Option<&Path>,
+    ) -> Result<bool, std::io::Error> {
         if !source.exists() {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
@@ -191,7 +203,19 @@ impl Engine {
         }
 
         if target.exists() || target.is_symlink() {
-            self.handle_conflict(target)?;
+            if let Some(expected_old) = expected_old_source {
+                if path_points_to(target, expected_old).unwrap_or(false) {
+                    remove_target(target)?;
+                    info!(
+                        "removed managed target '{}' before relink",
+                        target.display()
+                    );
+                } else {
+                    self.handle_conflict(target)?;
+                }
+            } else {
+                self.handle_conflict(target)?;
+            }
         }
 
         if let Some(parent) = target.parent() {
