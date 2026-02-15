@@ -21,13 +21,11 @@ in {
     apple-silicon.nixosModules.apple-silicon-support
 
     ../../../nixos/modules/helix
-    ../../../nixos/modules/fzf.nix
     ../../../nixos/modules/bat.nix
     ../../../nixos/modules/btop.nix
     ../../../nixos/modules/comically.nix
     ../../../nixos/modules/gtk
     ../../../nixos/modules/lazygit.nix
-    ../../../nixos/modules/oh-my-posh.nix
     ../../../nixos/modules/opencode.nix
     ../../../nixos/modules/packages.nix
     ../../../nixos/modules/quickshell
