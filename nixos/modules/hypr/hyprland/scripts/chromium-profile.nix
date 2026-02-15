@@ -1,7 +1,5 @@
 {pkgs}:
-pkgs.writeScriptBin "chromium-profile" ''
-  #!${pkgs.nushell}/bin/nu
-
+pkgs.writeNuScriptBin "chromium-profile" ''
   let chromium = "${pkgs.ungoogled-chromium}/bin/chromium"
   let rofi = "${pkgs.rofi}/bin/rofi"
   let data_dir = ([$env.HOME ".config" "chromium"] | path join)

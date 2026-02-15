@@ -1,71 +1,93 @@
 {pkgs, ...}: let
   tomlFormat = pkgs.formats.toml {};
 
-  clipboard = "wl-copy";
+  clipboard = "${pkgs.wl-clipboard}/bin/wl-copy";
 
-  copyLineRef = pkgs.writeShellScriptBin "hx-copy-line-reference" ''
-    buffer_name="$1"
-    cursor_line="$2"
-    selection_line_start="$3"
-    selection_line_end="$4"
+  copyLineRef = pkgs.writeNuScriptBin "hx-copy-line-reference" ''
+    def main [buffer_name: string, cursor_line: string, selection_line_start: string, selection_line_end: string] {
+      let output = if $selection_line_start != $selection_line_end {
+        $"($buffer_name):($selection_line_start)-($selection_line_end)"
+      } else {
+        $"($buffer_name):($cursor_line)"
+      }
 
-    if [ "$selection_line_start" != "$selection_line_end" ]; then
-      printf "%s:%s-%s" "$buffer_name" "$selection_line_start" "$selection_line_end" | ${clipboard}
-    else
-      printf "%s:%s" "$buffer_name" "$cursor_line" | ${clipboard}
-    fi
+      $output | ^${clipboard}
+    }
   '';
 
-  copyLineUrl = pkgs.writeShellScriptBin "hx-copy-line-url" ''
-    buffer_name="$1"
-    cursor_line="$2"
-    selection_line_start="$3"
-    selection_line_end="$4"
+  copyLineUrl = pkgs.writeNuScriptBin "hx-copy-line-url" ''
+    def main [buffer_name: string, cursor_line: string, selection_line_start: string, selection_line_end: string] {
+      let remote_result = (do { ^git remote get-url origin } | complete)
+      if $remote_result.exit_code != 0 {
+        exit 1
+      }
 
-    url=$(git remote get-url origin 2>/dev/null)
+      let raw_url = ($remote_result.stdout | str trim)
+      if $raw_url == "" {
+        exit 1
+      }
 
-    if [ -z "$url" ]; then
-      return 1
-    fi
+      let repo_url = if ($raw_url | str starts-with "git@") {
+        let no_prefix = ($raw_url | str replace --regex '^git@' "")
+        let with_slash = ($no_prefix | str replace ':' '/')
+        let no_git_suffix = ($with_slash | str replace --regex '\\.git$' "")
+        $"https://($no_git_suffix)"
+      } else {
+        ($raw_url | str replace --regex '\\.git$' "")
+      }
 
-    url=''${url#git@}
-    url=''${url/:/\/}
-    url=''${url%.git}
-    url="https://''$url"
+      let branch_result = (do { ^git rev-parse --abbrev-ref HEAD } | complete)
+      let branch = if $branch_result.exit_code == 0 {
+        ($branch_result.stdout | str trim)
+      } else {
+        "HEAD"
+      }
 
-    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "HEAD")
+      let output = if $selection_line_start != $selection_line_end {
+        $"($repo_url)/blob/($branch)/($buffer_name)#L($selection_line_start)-L($selection_line_end)"
+      } else {
+        $"($repo_url)/blob/($branch)/($buffer_name)#L($cursor_line)"
+      }
 
-    if [ "$selection_line_start" != "$selection_line_end" ]; then
-      printf "%s/blob/%s/%s#L%s-L%s" "$url" "$branch" "$buffer_name" "$selection_line_start" "$selection_line_end" | ${clipboard}
-    else
-      printf "%s/blob/%s/%s#L%s" "$url" "$branch" "$buffer_name" "$cursor_line" | ${clipboard}
-    fi
+      $output | ^${clipboard}
+    }
   '';
 
-  yaziPicker = pkgs.writeShellScriptBin "hx-yazi-picker" ''
-    buffer_name="$1"
+  yaziPicker = pkgs.writeNuScriptBin "hx-yazi-picker" ''
+    def main [buffer_name?: string] {
+      let yazi_result = if (($buffer_name | default "") != "") {
+        (do { ^${pkgs.yazi}/bin/yazi $buffer_name --chooser-file /dev/stdout } | complete)
+      } else {
+        (do { ^${pkgs.yazi}/bin/yazi --chooser-file /dev/stdout } | complete)
+      }
 
-    if [ -n "$buffer_name" ]; then
-      paths=$(
-        ${pkgs.yazi}/bin/yazi "$buffer_name" --chooser-file=/dev/stdout |
-          while IFS= read -r path || [ -n "$path" ]; do
-            printf "%q " "$path"
-          done
-      )
-    else
-      paths=$(
-        ${pkgs.yazi}/bin/yazi --chooser-file=/dev/stdout |
-          while IFS= read -r path || [ -n "$path" ]; do
-            printf "%q " "$path"
-          done
-      )
-    fi
+      if $yazi_result.exit_code != 0 {
+        exit 0
+      }
 
-    if [[ -n "$paths" ]]; then
-      kitty @ send-text --match 'state:overlay_parent' '\x1b'
-      kitty @ send-text --match 'state:overlay_parent' ":open $paths"
-      kitty @ send-text --match 'state:overlay_parent' '\r'
-    fi
+      let paths = (
+        $yazi_result.stdout
+        | lines
+        | where {|path| ($path | str trim) != "" }
+      )
+
+      if (($paths | length) == 0) {
+        exit 0
+      }
+
+      let quoted_paths = (
+        $paths
+        | each {|path|
+            let escaped = ($path | str replace --all '"' '\\"')
+            $"\"($escaped)\""
+          }
+        | str join " "
+      )
+
+      ^kitty @ send-text --match "state:overlay_parent" "\u{1b}"
+      ^kitty @ send-text --match "state:overlay_parent" $":open ($quoted_paths)"
+      ^kitty @ send-text --match "state:overlay_parent" "\r"
+    }
   '';
 
   baseSettings = {

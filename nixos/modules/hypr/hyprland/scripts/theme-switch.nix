@@ -1,21 +1,32 @@
 {pkgs}:
-pkgs.writeShellScriptBin "theme-switch" ''
-  set -euo pipefail
+pkgs.writeNuScriptBin "theme-switch" ''
+  let kitten = "${pkgs.kitty}/bin/kitten"
+  let nu_bin = "${pkgs.nushell}/bin/nu"
 
-  kitten quick-access-terminal \
-    --instance-group theme-selector \
-    ${pkgs.bash}/bin/bash -lc '
-      set -euo pipefail
-      themes=$(sumi facets theme 2>/dev/null || true)
+  ^$kitten quick-access-terminal --instance-group theme-selector $nu_bin -c '
+    let fzf = "${pkgs.fzf}/bin/fzf"
+    let themes_result = (do { ^sumi facets theme } | complete)
 
-      theme=$(printf "%s\n" "$themes" | ${pkgs.fzf}/bin/fzf \
-        --prompt="Select theme: " \
-        --layout=reverse \
-        --border=rounded \
-        --color=dark)
+    if $themes_result.exit_code != 0 {
+      exit 0
+    }
 
-      if [ -n "$theme" ]; then
-        sumi switch "theme=$theme"
-      fi
-    '
+    let themes = ($themes_result.stdout | str trim)
+    if $themes == "" {
+      exit 0
+    }
+
+    let pick = (do {
+      $themes | ^$fzf --prompt "Select theme: " --layout reverse --border rounded --color dark
+    } | complete)
+
+    if $pick.exit_code != 0 {
+      exit 0
+    }
+
+    let theme = ($pick.stdout | str trim)
+    if $theme != "" {
+      ^sumi switch $"theme=($theme)"
+    }
+  '
 ''
