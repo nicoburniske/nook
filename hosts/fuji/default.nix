@@ -19,6 +19,7 @@
   in {
     imports = with modules; [
       ./configuration.nix
+      ./packages.nix
       sumi
       fonts
       writeNuScriptBin
