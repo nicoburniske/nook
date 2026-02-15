@@ -539,7 +539,6 @@ in {
         ${homeDirectoryExport}
         exec ${baseCli}/bin/sumi "$@"
       '';
-
     in {
       assertions = [
         {
