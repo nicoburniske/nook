@@ -18,9 +18,8 @@ in {
 
   imports = [
     ./hardware-configuration.nix
+    ./packages.nix
     apple-silicon.nixosModules.apple-silicon-support
-
-    ../../../nixos/modules/packages.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
