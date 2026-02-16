@@ -94,6 +94,8 @@
               'no_op
               "I"
               'no_op
+              "q"
+              ':buffer-close!
               "o"
               'no_op
               "O"
@@ -297,6 +299,8 @@
   (when (currently-in-labelled-buffer? FILE-TREE)
     (define file-to-open (current-tree-entry))
     (when (string? file-to-open)
+      ;; Close tree buffer so normal buffer navigation does not keep returning here.
+      (helix.buffer-close!)
       (helix.open file-to-open)
       (set-normal-mode!))))
 
@@ -375,6 +379,7 @@
     (when idx
       (helix.goto-line (+ idx 1))
       (helix.static.goto_line_start)
+      (focus-line-near-top!)
       (set! moved-to-target? #t))
     (set! *file-tree-target-path* #f))
 
