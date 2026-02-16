@@ -2,9 +2,12 @@
 (require (prefix-in helix. "helix/commands.scm"))
 (require (prefix-in helix.static. "helix/static.scm"))
 (require "cogs/file-tree.scm")
+(require "cogs/copy.scm")
 
 (provide shell
          git-add
+         copy-line-reference
+         copy-line-url
          open-helix-scm
          open-init-scm
          create-file-tree
