@@ -1,8 +1,21 @@
 (require "helix/editor.scm")
 (require (prefix-in helix. "helix/commands.scm"))
 (require (prefix-in helix.static. "helix/static.scm"))
+(require "cogs/file-tree.scm")
 
-(provide shell git-add open-helix-scm open-init-scm)
+(provide shell
+         git-add
+         open-helix-scm
+         open-init-scm
+         create-file-tree
+         fold-directory
+         unfold-all-one-level
+         open-file-from-picker
+         create-file
+         create-directory
+         fold-all
+         FILE-TREE
+         FILE-TREE-KEYBINDINGS)
 
 (define (current-path)
   (let* ([focus (editor-focus)]
