@@ -1,5 +1,6 @@
 (require "splash.scm")
 (require "cogs/keymaps.scm")
+(require "helix/editor.scm")
 
 (define file-tree-base (deep-copy-global-keybindings))
 (merge-keybindings file-tree-base FILE-TREE-KEYBINDINGS)
@@ -25,5 +26,8 @@
     (or (null? argv)
         (= (length argv) 1))))
 
-(when (plain-launch?)
+(define (initial-launch?)
+  (null? (editor-all-documents)))
+
+(when (and (plain-launch?) (initial-launch?))
   (show-splash))
