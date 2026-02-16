@@ -60,11 +60,7 @@
   (for-each-index (lambda (index line) (frame-set-string! frame x (+ y index) line string-text))
                   splash-split
                   0)
-
-  (frame-set-string! frame x (+ y splash-depth 3) "<space>f to open the file picker" keyword)
-  (frame-set-string! frame x (+ y splash-depth 4) "<space>? to see all the commands" keyword)
-  (frame-set-string! frame x (+ y splash-depth 5) ":theme <name> to change themes" keyword)
-  (frame-set-string! frame x (+ y splash-depth 6) ":evalp to evaluate a steel expression" keyword))
+)
 
 (define (splash-event-handler _ event)
   (if (key-event? event) event-result/ignore-and-close event-result/ignore))

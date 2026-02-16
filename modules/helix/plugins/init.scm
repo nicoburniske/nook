@@ -18,5 +18,10 @@
               (r ":copy-line-reference")
               (u ":copy-line-url")))))
 
-(when (equal? (command-line) '("hx"))
+(define (plain-launch?)
+  (let ([argv (command-line)])
+    (or (null? argv)
+        (= (length argv) 1))))
+
+(when (plain-launch?)
   (show-splash))

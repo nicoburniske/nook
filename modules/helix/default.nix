@@ -17,12 +17,8 @@
 
     hx = pkgs.writeShellScriptBin "hx" ''
       set -eu
-
       export HELIX_STEEL_CONFIG="${config.lib.sumi.paths.config}/helix/plugins"
-
-      exec "${helixSteelPackage}/bin/hx" \
-        -c "${config.lib.sumi.paths.config}/helix/config.toml" \
-        "$@"
+      exec "${helixSteelPackage}/bin/hx" "$@"
     '';
   in {
     environment.systemPackages = [
