@@ -26,7 +26,6 @@
       kitty
       yazi
       helix
-      helixPlugin
       fzf
       ohMyPosh
       lazygit
