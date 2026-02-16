@@ -61,9 +61,7 @@
 (require (only-in "labelled-buffers.scm"
                   make-new-labelled-buffer!
                   temporarily-switch-focus
-                  open-or-switch-focus
                   currently-in-labelled-buffer?
-                  open-labelled-buffer
                   maybe-fetch-doc-id
                   fetch-doc-id))
 
@@ -127,8 +125,18 @@
 (define *file-tree* '())
 (define *directories* (hash))
 (define *ignore-set* (hashset "target" ".git"))
-(define *file-tree-last-doc* #f)
 (define *file-tree-target-path* #f)
+(define *file-tree-root* #f)
+
+(define (path-clean path)
+  (if (and (string? path)
+           (> (string-length path) 1)
+           (equal? (substring path (- (string-length path) 1) (string-length path)) "/"))
+      (substring path 0 (- (string-length path) 1))
+      path))
+
+(define (path=? left right)
+  (equal? (path-clean left) (path-clean right)))
 
 (define (set-normal-mode!)
   (define normal-mode (string->editor-mode "normal"))
@@ -136,32 +144,49 @@
     (editor-set-mode! normal-mode)))
 
 (define (current-doc-path)
-  (editor-document->path (current-doc-id)))
+  (path-clean (editor-document->path (current-doc-id))))
+
+(define (file-directory path)
+  (if (and (string? path) (not (is-dir? path)))
+      (path-clean (trim-end-matches path (file-name path)))
+      (path-clean path)))
+
+(define (resolve-tree-root target-path)
+  (define workspace (helix-find-workspace))
+  (cond
+    [(and (string? workspace) (not (equal? workspace "/"))) (path-clean workspace)]
+    [(string? target-path) (file-directory target-path)]
+    [else (path-clean (helix.static.get-helix-cwd))]))
 
 (define (path-parent path)
-  (with-handler (lambda (_) path)
-                (canonicalize-path (string-append path "/.."))))
+  (if (not (string? path))
+      path
+      (let* ([clean (path-clean path)]
+             [name (file-name clean)])
+         (if (or (equal? clean "/") (equal? name "") (equal? name clean))
+             clean
+            (path-clean (trim-end-matches clean name))))))
 
 (define (unfold-path-to-target! root target)
   (when (and (string? root) (string? target))
-    (define start
-      (if (is-dir? target)
-          target
-          (trim-end-matches target (file-name target))))
+    (define root-path (path-clean root))
+    (define target-path (path-clean target))
+    (define start (file-directory target-path))
     (define (loop path)
       (when (and (string? path) (not (equal? path "")))
         (set! *directories* (hash-insert *directories* path #f))
-        (unless (equal? path root)
+        (unless (path=? path root-path)
           (define parent (path-parent path))
-          (unless (equal? parent path)
+          (unless (path=? parent path)
             (loop parent)))))
     (loop start)))
 
 (define (list-index-of-path entries path)
+  (define target (path-clean path))
   (define (loop idx rest)
     (cond
       [(null? rest) #f]
-      [(equal? (car rest) path) idx]
+      [(path=? (car rest) target) idx]
       [else (loop (+ idx 1) (cdr rest))]))
   (loop 0 entries))
 
@@ -205,7 +230,11 @@
         '()
         (begin
           (writer-thunk
-           (string-append padding (if (is-dir? path) (format-dir path) (path->symbol path)) name))
+           (string-append padding
+                          (if (is-dir? path)
+                              (format-dir path)
+                              (path->symbol path))
+                          name))
           (cond
             [(is-file? path) path]
             [(is-dir? path)
@@ -231,7 +260,6 @@
   (when (currently-in-labelled-buffer? FILE-TREE)
     (define file-to-open (list-ref *file-tree* (helix.static.get-current-line-number)))
     (helix.open file-to-open)
-    (set! *file-tree-last-doc* (let* ([focus (editor-focus)]) (editor->doc-id focus)))
     (set-normal-mode!)))
 
 ;; Initialize all roots to be flat so that we don't blow things up, recursion only goes in to things
@@ -252,12 +280,14 @@
     (make-new-labelled-buffer! #:label FILE-TREE)))
 
 (define (render-file-tree)
+  (define root (or *file-tree-root* (helix-find-workspace)))
+
   (helix.static.select_all)
   (helix.static.delete_selection)
 
   ;; Update the current file tree value
   (set! *file-tree*
-        (tree (helix-find-workspace)
+        (tree root
               (lambda (str)
                 (helix.static.insert_string str)
                 (helix.static.open_below)
@@ -276,9 +306,9 @@
   (if (currently-in-labelled-buffer? FILE-TREE)
       (void)
       (begin
-        (set! *file-tree-last-doc* (current-doc-id))
         (set! *file-tree-target-path* (current-doc-path))
-        (unfold-path-to-target! (helix-find-workspace) *file-tree-target-path*)
+        (set! *file-tree-root* (resolve-tree-root *file-tree-target-path*))
+        (unfold-path-to-target! *file-tree-root* *file-tree-target-path*)
         (create-file-tree-buffer-if-needed)
         (editor-switch-action! (fetch-doc-id FILE-TREE) (Action/Replace))
         (render-file-tree))))
