@@ -15,7 +15,8 @@
           (prevAttrs.patches or [])
           ++ [
             ./patches/hide-bufferline-entries.patch
-            ./patches/signal-core-reload-separate-from-steel.patch
+            ./patches/core-reload-signal.patch
+            ./patches/search-in-directory.patch
           ];
         cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
       });

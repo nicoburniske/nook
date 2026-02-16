@@ -14,6 +14,7 @@
          fold-directory
          unfold-all-one-level
          open-file-from-picker
+         search-in-selected-directory
          delete-path
          rename-path
          create-path

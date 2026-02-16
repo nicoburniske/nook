@@ -1,0 +1,98 @@
+diff --git a/helix-term/src/commands.rs b/helix-term/src/commands.rs
+index 79ff2ed..48f9365 100644
+--- a/helix-term/src/commands.rs
++++ b/helix-term/src/commands.rs
+@@ -2465,7 +2465,7 @@ fn make_search_word_bounded(cx: &mut Context) {
+     }
+ }
+ 
+-fn global_search(cx: &mut Context) {
++pub(crate) fn search_in_dir(cx: &mut Context, search_root: PathBuf) {
+     #[derive(Debug)]
+     struct FileResult {
+         path: PathBuf,
+@@ -2484,6 +2484,7 @@ fn new(path: &Path, line_num: usize) -> Self {
+ 
+     struct GlobalSearchConfig {
+         smart_case: bool,
++        search_root: PathBuf,
+         file_picker_config: helix_view::editor::FilePickerConfig,
+         directory_style: Style,
+         number_style: Style,
+@@ -2493,6 +2494,7 @@ struct GlobalSearchConfig {
+     let config = cx.editor.config();
+     let config = GlobalSearchConfig {
+         smart_case: config.search.smart_case,
++        search_root,
+         file_picker_config: config.file_picker.clone(),
+         directory_style: cx.editor.theme.get("ui.text.directory"),
+         number_style: cx.editor.theme.get("constant.numeric.integer"),
+@@ -2501,7 +2503,11 @@ struct GlobalSearchConfig {
+ 
+     let columns = [
+         PickerColumn::new("path", |item: &FileResult, config: &GlobalSearchConfig| {
+-            let path = helix_stdx::path::get_relative_path(&item.path);
++            let path = item
++                .path
++                .strip_prefix(&config.search_root)
++                .map(Cow::Borrowed)
++                .unwrap_or_else(|_| helix_stdx::path::get_relative_path(&item.path));
+ 
+             let directories = path
+                 .parent()
+@@ -2533,7 +2539,7 @@ struct GlobalSearchConfig {
+             return async { Ok(()) }.boxed();
+         }
+ 
+-        let search_root = helix_stdx::env::current_working_dir();
++        let search_root = config.search_root.clone();
+         if !search_root.exists() {
+             return async { Err(anyhow::anyhow!("Current working directory does not exist")) }
+                 .boxed();
+@@ -2693,6 +2699,10 @@ struct GlobalSearchConfig {
+     cx.push_layer(Box::new(overlaid(picker)));
+ }
+ 
++fn global_search(cx: &mut Context) {
++    search_in_dir(cx, helix_stdx::env::current_working_dir());
++}
++
+ enum Extend {
+     Above,
+     Below,
+diff --git a/helix-term/src/commands/engine/steel/mod.rs b/helix-term/src/commands/engine/steel/mod.rs
+index 5e3171e..875d1f3 100644
+--- a/helix-term/src/commands/engine/steel/mod.rs
++++ b/helix-term/src/commands/engine/steel/mod.rs
+@@ -72,7 +72,7 @@
+ use steel::{rvals::Custom, steel_vm::builtin::BuiltInModule};
+ 
+ use crate::{
+-    commands::{insert, TYPABLE_COMMAND_LIST},
++    commands::{insert, search_in_dir, TYPABLE_COMMAND_LIST},
+     compositor::{self, Component, Compositor},
+     config::Config,
+     events::{OnModeSwitch, PostCommand, PostInsertChar},
+@@ -775,7 +775,21 @@ fn load_typed_commands(engine: &mut Engine, generate_sources: bool) {
+ 
+     module
+         .register_fn_with_ctx(CTX, "goto-column", goto_column_impl)
+-        .register_fn_with_ctx(CTX, "goto-line", goto_line_impl);
++        .register_fn_with_ctx(CTX, "goto-line", goto_line_impl)
++        .register_fn_with_ctx(CTX, "search-in-directory", |cx: &mut Context, path: String| {
++            search_in_dir(cx, PathBuf::from(path))
++        });
++
++    builtin_typable_command_module.push_str(
++        r#"
++(provide search-in-directory)
++
++;;@doc
++;;Run global search scoped to the provided directory
++(define (search-in-directory path)
++    (helix.search-in-directory path))
++"#,
++    );
+ 
+     if generate_sources {
+         generate_module("commands.scm", &builtin_typable_command_module);
