@@ -115,7 +115,7 @@
               ':unfold-all-one-level
               "o"
               ':open-file-from-picker
-              "n"
+              "a"
               ':create-path
               "F"
               ':fold-all)))
