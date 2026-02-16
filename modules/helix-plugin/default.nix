@@ -24,7 +24,11 @@
         "$@"
     '';
   in {
-    environment.systemPackages = [hxPlugin];
+    environment.systemPackages = [
+      hxPlugin
+      pkgs.nil
+      pkgs.nixd
+    ];
 
     sumi.file = {
       "helix-plugin/config.toml" = {
@@ -36,12 +40,104 @@
             theme = theme.meta.helix or ctx.selection.theme;
 
             editor = {
-              line-number = "relative";
+              bufferline = "always";
               cursorline = true;
               color-modes = true;
               true-color = true;
+              end-of-line-diagnostics = "hint";
+              popup-border = "all";
+              cursor-shape = {
+                insert = "bar";
+                select = "underline";
+              };
+              file-picker.hidden = false;
+              lsp = {
+                display-messages = true;
+                goto-reference-include-declaration = false;
+              };
+              inline-diagnostics.cursor-line = "info";
+            };
+            keys = let
+              common = {
+                X = "extend_line_above";
+                space = {
+                  q = ":quit";
+                  Q = ":quit!";
+                  w = ":write";
+                  W = ":write!";
+                  x = ":bc!";
+                  "C-r" = ":rla";
+                };
+              };
+            in {
+              normal =
+                common
+                // {
+                  "C-l" = "goto_next_buffer";
+                  "C-h" = "goto_previous_buffer";
+                  "C-x" = ":buffer-close";
+                };
+              select = common;
             };
           };
+      };
+
+      "helix-plugin/languages.toml".source = tomlFormat.generate "sumi-helix-plugin-languages.toml" {
+        language = [
+          {
+            name = "rust";
+            language-servers = ["rust-analyzer"];
+          }
+          {
+            name = "markdown";
+            language-servers = ["marksman"];
+          }
+          {
+            name = "nix";
+            language-servers = [
+              "nil"
+              "nixd"
+            ];
+            formatter = {
+              command = "alejandra";
+              args = ["-"];
+            };
+            auto-format = true;
+          }
+          {
+            name = "dart";
+            language-servers = ["dart"];
+          }
+          {
+            name = "toml";
+            language-servers = ["taplo"];
+            formatter = {
+              command = "taplo";
+              args = [
+                "fmt"
+                "-"
+              ];
+            };
+            auto-format = true;
+          }
+        ];
+
+        language-server = {
+          rust-analyzer = {
+            command = "rust-analyzer";
+            config = {
+              checkOnSave.enable = true;
+              procMacro.enable = true;
+            };
+          };
+
+          nixd = {
+            command = "nixd";
+            args = ["--semantic-tokens=true"];
+          };
+
+          dart.command = "dart";
+        };
       };
 
       "helix-plugin/plugins".source = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/helix-plugin/plugins";
