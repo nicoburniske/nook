@@ -49,6 +49,7 @@
 (provide fold-directory
          unfold-all-one-level
          open-file-from-picker
+         delete-path
          create-file
          create-directory
          fold-all
@@ -100,7 +101,7 @@
               "O"
               'no_op
               "d"
-              'no_op
+              ':delete-path
               "A-d"
               'no_op
               "F"
@@ -281,6 +282,39 @@
     (define file-to-open (list-ref *file-tree* (helix.static.get-current-line-number)))
     (helix.open file-to-open)
     (set-normal-mode!)))
+
+(define (shell-escape path)
+  (define (escape-char ch)
+    (cond
+      [(char=? ch #\\) "\\\\"]
+      [(char=? ch #\") "\\\""]
+      [(char=? ch #\$) "\\$"]
+      [(char=? ch #\`) "\\`"]
+      [else (string ch)]))
+  (apply string-append (map escape-char (string->list path))))
+
+(define (refresh-after-delete target attempts)
+  (if (or (<= attempts 0) (not (path-exists? target)))
+      (refresh-file-tree)
+      (enqueue-thread-local-callback-with-delay
+        50
+        (lambda ()
+          (refresh-after-delete target (- attempts 1))))))
+
+;;@doc
+;; Delete selected file or directory.
+(define (delete-path)
+  (when (currently-in-labelled-buffer? FILE-TREE)
+    (define target (list-ref *file-tree* (helix.static.get-current-line-number)))
+    (helix-prompt!
+     (string-append "Delete " (file-name target) "? [y/N] ")
+     (lambda (answer)
+       (when (or (equal? answer "y") (equal? answer "Y"))
+         (define quoted (string-append "\"" (shell-escape target) "\""))
+         (if (is-dir? target)
+             (helix.run-shell-command (string-append "rm -rf -- " quoted))
+             (helix.run-shell-command (string-append "rm -f -- " quoted)))
+          (refresh-after-delete target 40))))))
 
 ;; Initialize all roots to be flat so that we don't blow things up, recursion only goes in to things
 ;; that are expanded
