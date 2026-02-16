@@ -3,7 +3,9 @@
 (require "helix/misc.scm")
 (require-builtin helix/core/text as text.)
 
-(provide copy-line-reference copy-line-url)
+(provide copy-location
+         copy-location-snippet
+         copy-location-url)
 
 (define (current-doc-id)
   (let* ([focus (editor-focus)])
@@ -52,6 +54,24 @@
       (string-append "#L" (number->string start))
       (string-append "#L" (number->string start) "-L" (number->string end))))
 
+(define (trim-trailing-newlines value)
+  (if (and (string? value)
+           (> (string-length value) 0)
+           (or (ends-with? value "\n")
+               (ends-with? value "\r")))
+      (trim-trailing-newlines (substring value 0 (- (string-length value) 1)))
+      value))
+
+(define (current-selection-or-line-text)
+  (define selected (helix.static.current-highlighted-text!))
+  (if (and (string? selected) (> (string-length selected) 0))
+      (remove-min-leading-whitespace selected)
+      (let* ([rope (editor->text (current-doc-id))]
+             [range (current-line-range)]
+             [start (list-ref range 0)]
+             [line-rope (text.rope->line rope (- start 1))])
+        (trim-trailing-newlines (text.rope->string line-rope)))))
+
 (define (starts-with? value prefix)
   (not (equal? (trim-start-matches value prefix) value)))
 
@@ -71,13 +91,12 @@
       path))
 
 (define (trim-left-whitespace value)
-  (if (or (starts-with? value " ") (starts-with? value "\t"))
+  (if (starts-with? value " ")
       (trim-left-whitespace (substring value 1 (string-length value)))
       value))
 
 (define (trim-right-whitespace value)
   (if (or (ends-with? value " ")
-          (ends-with? value "\t")
           (ends-with? value "\n")
           (ends-with? value "\r"))
       (trim-right-whitespace (substring value 0 (- (string-length value) 1)))
@@ -85,6 +104,32 @@
 
 (define (trim-whitespace value)
   (trim-right-whitespace (trim-left-whitespace value)))
+
+(define (leading-indent-width line)
+  (let loop ([chars (string->list line)] [count 0])
+    (if (null? chars)
+        count
+        (if (char=? (car chars) #\space)
+            (loop (cdr chars) (+ count 1))
+            count))))
+
+(define (drop-leading-indent line strip-count)
+  (let loop ([chars (string->list line)] [remaining strip-count])
+    (if (or (= remaining 0) (null? chars))
+        (list->string chars)
+        (if (char=? (car chars) #\space)
+            (loop (cdr chars) (- remaining 1))
+            (list->string chars)))))
+
+(define (remove-min-leading-whitespace text)
+  (define lines (split-many text "\n"))
+  (define non-empty-lines
+    (filter (lambda (line) (not (equal? (trim-whitespace line) ""))) lines))
+  (define strip-count
+    (if (null? non-empty-lines)
+        0
+        (apply min (map leading-indent-width non-empty-lines))))
+  (string-join (map (lambda (line) (drop-leading-indent line strip-count)) lines) "\n"))
 
 (define (read-file-or-false path)
   (with-handler (lambda (_) #f)
@@ -156,17 +201,30 @@
 
 ;;@doc
 ;; Copy `path:line` reference for current cursor line or selection.
-(define (copy-line-reference)
+(define (copy-location)
   (define path (path-relative-to-workspace (current-path)))
   (if (string? path)
       (let ([line-spec (line-range-ref)])
         (copy-to-clipboard (string-append path ":" line-spec))
-        (set-status! "Copied line reference"))
-      (set-status! "copy-line-reference requires a file-backed buffer")))
+        (set-status! "Copied location"))
+      (set-status! "copy-location requires a file-backed buffer")))
+
+;;@doc
+;; Copy `path:line` reference plus selected code.
+(define (copy-location-snippet)
+  (define path (path-relative-to-workspace (current-path)))
+  (if (string? path)
+      (let* ([line-spec (line-range-ref)]
+             [reference (string-append path ":" line-spec)]
+             [selected-text (current-selection-or-line-text)]
+             [payload (string-append reference "\n\n" selected-text)])
+        (copy-to-clipboard payload)
+        (set-status! "Copied location and snippet"))
+      (set-status! "copy-location-snippet requires a file-backed buffer")))
 
 ;;@doc
 ;; Copy Git web URL for current cursor line or selection.
-(define (copy-line-url)
+(define (copy-location-url)
   (define relative-path (path-relative-to-workspace (current-path)))
   (define workspace (helix-find-workspace))
   (if (and (string? relative-path) (string? workspace))
@@ -184,6 +242,6 @@
                                       relative-path
                                       line-anchor)])
               (copy-to-clipboard url)
-              (set-status! "Copied line URL"))
+              (set-status! "Copied location URL"))
             (set-warning! "Could not resolve git remote.origin.url")))
-      (set-status! "copy-line-url requires a file-backed buffer")))
+      (set-status! "copy-location-url requires a file-backed buffer")))

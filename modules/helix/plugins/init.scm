@@ -10,13 +10,15 @@
                 (C-g ":sh kitty @ launch --copy-env --type=overlay --cwd=current --window-title=current lazygit >/dev/null")
                 (space
                   (l
-                    (r ":copy-line-reference")
-                    (u ":copy-line-url"))))
+                    (r ":copy-location")
+                    (s ":copy-location-snippet")
+                    (u ":copy-location-url"))))
         (select
           (space
             (l
-              (r ":copy-line-reference")
-              (u ":copy-line-url")))))
+              (r ":copy-location")
+              (s ":copy-location-snippet")
+              (u ":copy-location-url")))))
 
 (define (plain-launch?)
   (let ([argv (command-line)])

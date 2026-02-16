@@ -6,8 +6,9 @@
 
 (provide shell
          git-add
-         copy-line-reference
-         copy-line-url
+         copy-location
+         copy-location-snippet
+         copy-location-url
          open-helix-scm
          open-init-scm
          create-file-tree
