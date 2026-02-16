@@ -14,7 +14,7 @@
         patches =
           (prevAttrs.patches or [])
           ++ [
-            ./patches/bufferline-use-doc-name.patch
+            ./patches/hide-bufferline-entries.patch
             ./patches/signal-core-reload-separate-from-steel.patch
           ];
         cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
@@ -73,11 +73,13 @@
                 };
               };
             in {
-              normal = common // {
-                "C-l" = "goto_next_buffer";
-                "C-h" = "goto_previous_buffer";
-                "C-x" = ":buffer-close";
-              };
+              normal =
+                common
+                // {
+                  "C-l" = "goto_next_buffer";
+                  "C-h" = "goto_previous_buffer";
+                  "C-x" = ":buffer-close";
+                };
               select = common;
             };
           };
