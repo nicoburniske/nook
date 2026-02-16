@@ -150,6 +150,10 @@
   (when normal-mode
     (editor-set-mode! normal-mode)))
 
+(define (focus-line-near-top!)
+  (with-handler (lambda (_) void)
+                (helix.static.align_view_center)))
+
 (define (current-doc-path)
   (path-clean (editor-document->path (current-doc-id))))
 
@@ -353,6 +357,7 @@
 
 (define (render-file-tree)
   (define root (or *file-tree-root* (helix-find-workspace)))
+  (define moved-to-target? #f)
 
   (helix.static.select_all)
   (helix.static.delete_selection)
@@ -369,8 +374,14 @@
     (define idx (list-index-of-path *file-tree* *file-tree-target-path*))
     (when idx
       (helix.goto-line (+ idx 1))
-      (helix.static.goto_line_start))
+      (helix.static.goto_line_start)
+      (set! moved-to-target? #t))
     (set! *file-tree-target-path* #f))
+
+  (unless moved-to-target?
+    (when (> (length *file-tree*) 0)
+      (helix.goto-line 1)
+      (helix.static.goto_line_start)))
 
   (set-normal-mode!))
 
