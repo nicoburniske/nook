@@ -60,9 +60,8 @@
   (define last-focused (currently-focused))
   (define last-mode (editor-mode))
 
-  ;; Open up the new labelled buffer in a vertical split, set the language accordingly
-  ;; if it has been passed in
-  (helix.vsplit-new)
+  ;; Open up the new labelled buffer in the current view.
+  (helix.new)
 
   ;; Label this buffer - it will now show up instead of `[scratch]`
   (set-scratch-buffer-name! (string-append "[" label "]"))
@@ -95,11 +94,15 @@
 
 (define (open-or-switch-focus document-id)
   (define maybe-view-id? (editor-doc-in-view? document-id))
-  (if maybe-view-id? (editor-set-focus! maybe-view-id?) (editor-switch! document-id)))
+  (if maybe-view-id?
+      (editor-set-focus! maybe-view-id?)
+      (editor-switch-action! document-id (Action/Replace))))
 
 (define (open-labelled-buffer label)
   (open-or-switch-focus (hash-ref *temporary-buffer-map* label)))
 
 (define (currently-in-labelled-buffer? label)
   (define requested-label (hash-try-get *temporary-buffer-map* label))
-  (equal? (doc-id->usize requested-label) (doc-id->usize (get-current-doc-id))))
+  (if requested-label
+      (equal? (doc-id->usize requested-label) (doc-id->usize (get-current-doc-id)))
+      #f))
