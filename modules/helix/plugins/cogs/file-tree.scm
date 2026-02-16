@@ -50,6 +50,7 @@
          unfold-all-one-level
          open-file-from-picker
          delete-path
+         rename-path
          create-path
          fold-all
          FILE-TREE
@@ -100,10 +101,12 @@
               'no_op
               "O"
               'no_op
-              "d"
-              ':delete-path
-              "A-d"
-              'no_op
+               "d"
+               ':delete-path
+               "r"
+               ':rename-path
+               "A-d"
+               'no_op
               "F"
               'no_op
               "tab"
@@ -346,7 +349,39 @@
             (if (is-dir? target)
                 (helix.run-shell-command (string-append "rm -rf -- " quoted))
                 (helix.run-shell-command (string-append "rm -f -- " quoted)))
-            (refresh-when-path-missing target)))))))
+             (refresh-when-path-missing target)))))))
+
+;;@doc
+;; Rename selected file or directory.
+(define (rename-path)
+  (when (currently-in-labelled-buffer? FILE-TREE)
+    (define source (current-tree-entry))
+    (when (string? source)
+      (define source-name (file-name source))
+      (define source-parent (path-parent source))
+      (helix-prompt!
+       (string-append "Rename " source-name " to: ")
+       (lambda (answer)
+         (when (and (string? answer)
+                    (not (equal? answer ""))
+                    (not (equal? answer source-name)))
+           (define destination
+             (if (and (> (string-length answer) 0)
+                      (equal? (substring answer 0 1) "/"))
+                 (path-clean answer)
+                 (path-clean (string-append source-parent "/" answer))))
+           (when (and (string? destination)
+                      (not (equal? destination ""))
+                      (not (path=? destination source)))
+             (define quoted-source (string-append "\"" (shell-escape source) "\""))
+             (define quoted-destination (string-append "\"" (shell-escape destination) "\""))
+             (helix.run-shell-command (string-append "mv -- " quoted-source " " quoted-destination))
+             (set! *file-tree-target-path* destination)
+             (unfold-path-to-target! *file-tree-root* destination)
+             (refresh-when destination
+                           (lambda (path)
+                             (and (path-exists? path)
+                                  (not (path-exists? source))))))))))))
 
 ;; Initialize all roots to be flat so that we don't blow things up, recursion only goes in to things
 ;; that are expanded
