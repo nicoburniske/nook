@@ -91,6 +91,8 @@
               'no_op
               "C-x"
               'no_op
+              "C-f"
+              'no_op
               "a"
               'no_op
               "I"
@@ -119,17 +121,49 @@
 ;; This needs to be globally unique
 (define FILE-TREE "github.com/mattwparas/helix-config/file-tree")
 
-(define file-tree-open-to-side 'left)
-
-;; TODO: This should probably be a contract
-(define (file-tree-set-side! side)
-  (unless (or (equal? side 'left) (equal? side 'right))
-    (error! "file-tree-set-side! requires either the 'left or 'right"))
-  (set! file-tree-open-to-side side))
+(define (file-tree-set-side! _)
+  (void))
 
 (define *file-tree* '())
 (define *directories* (hash))
 (define *ignore-set* (hashset "target" ".git"))
+(define *file-tree-last-doc* #f)
+(define *file-tree-target-path* #f)
+
+(define (set-normal-mode!)
+  (define normal-mode (string->editor-mode "normal"))
+  (when normal-mode
+    (editor-set-mode! normal-mode)))
+
+(define (current-doc-path)
+  (editor-document->path (current-doc-id)))
+
+(define (path-parent path)
+  (with-handler (lambda (_) path)
+                (canonicalize-path (string-append path "/.."))))
+
+(define (unfold-path-to-target! root target)
+  (when (and (string? root) (string? target))
+    (define start
+      (if (is-dir? target)
+          target
+          (trim-end-matches target (file-name target))))
+    (define (loop path)
+      (when (and (string? path) (not (equal? path "")))
+        (set! *directories* (hash-insert *directories* path #f))
+        (unless (equal? path root)
+          (define parent (path-parent path))
+          (unless (equal? parent path)
+            (loop parent)))))
+    (loop start)))
+
+(define (list-index-of-path entries path)
+  (define (loop idx rest)
+    (cond
+      [(null? rest) #f]
+      [(equal? (car rest) path) idx]
+      [else (loop (+ idx 1) (cdr rest))]))
+  (loop 0 entries))
 
 (define (fold! directory)
   (set! *directories* (hash-insert *directories* directory #t)))
@@ -196,44 +230,58 @@
 (define (open-file-from-picker)
   (when (currently-in-labelled-buffer? FILE-TREE)
     (define file-to-open (list-ref *file-tree* (helix.static.get-current-line-number)))
-    (helix.open file-to-open)))
+    (helix.open file-to-open)
+    (set! *file-tree-last-doc* (let* ([focus (editor-focus)]) (editor->doc-id focus)))
+    (set-normal-mode!)))
 
 ;; Initialize all roots to be flat so that we don't blow things up, recursion only goes in to things
 ;; that are expanded
-(define (create-file-tree)
+(define (current-doc-id)
+  (let* ([focus (editor-focus)])
+    (editor->doc-id focus)))
+
+(define (create-file-tree-buffer-if-needed)
 
   ;; The doc id, or #false if it is not in the map
   (define doc-id (maybe-fetch-doc-id FILE-TREE))
 
   (unless doc-id
-    (make-new-labelled-buffer! #:label FILE-TREE #:side file-tree-open-to-side))
+    (make-new-labelled-buffer! #:label FILE-TREE))
 
   (unless (editor-doc-exists? (fetch-doc-id FILE-TREE))
-    (make-new-labelled-buffer! #:label FILE-TREE #:side file-tree-open-to-side))
+    (make-new-labelled-buffer! #:label FILE-TREE)))
 
-  (temporarily-switch-focus
-   (lambda ()
-     (open-labelled-buffer FILE-TREE)
+(define (render-file-tree)
+  (helix.static.select_all)
+  (helix.static.delete_selection)
 
-     ;; Open depending on the setting
-     (cond
-       [(equal? file-tree-open-to-side 'left) (helix.static.move-window-far-left)]
-       [(equal? file-tree-open-to-side 'right) (helix.static.move-window-far-right)]
-       [else void])
+  ;; Update the current file tree value
+  (set! *file-tree*
+        (tree (helix-find-workspace)
+              (lambda (str)
+                (helix.static.insert_string str)
+                (helix.static.open_below)
+                (helix.static.goto_line_start))))
 
-     ;;
-     (helix.static.move-window-far-left)
+  (when (and *file-tree-target-path* (string? *file-tree-target-path*))
+    (define idx (list-index-of-path *file-tree* *file-tree-target-path*))
+    (when idx
+      (helix.goto-line (+ idx 1))
+      (helix.static.goto_line_start))
+    (set! *file-tree-target-path* #f))
 
-     (helix.static.select_all)
-     (helix.static.delete_selection)
+  (set-normal-mode!))
 
-     ;; Update the current file tree value
-     (set! *file-tree*
-           (tree (helix-find-workspace)
-                 (lambda (str)
-                   (helix.static.insert_string str)
-                   (helix.static.open_below)
-                   (helix.static.goto_line_start)))))))
+(define (create-file-tree)
+  (if (currently-in-labelled-buffer? FILE-TREE)
+      (void)
+      (begin
+        (set! *file-tree-last-doc* (current-doc-id))
+        (set! *file-tree-target-path* (current-doc-path))
+        (unfold-path-to-target! (helix-find-workspace) *file-tree-target-path*)
+        (create-file-tree-buffer-if-needed)
+        (editor-switch-action! (fetch-doc-id FILE-TREE) (Action/Replace))
+        (render-file-tree))))
 
 ;;@doc
 ;; Fold the directory that we're currently hovering over
@@ -265,7 +313,7 @@
      (lambda (result)
        (define file-name (string-append (trim-start-matches prompt "New file: ") result))
        (temporarily-switch-focus (lambda ()
-                                   (helix.vsplit-new)
+                                   (helix.new)
                                    (helix.open file-name)
                                    (helix.write file-name)
                                    (helix.quit)))
@@ -280,18 +328,8 @@
 
   (define current-selection (helix.static.current-selection-object))
   ; (define line-number (helix.static.get-current-line-number))
-  (define last-mode (editor-mode))
 
-  (helix.static.select_all)
-  (helix.static.delete_selection)
-
-  ;; Update the current file tree value
-  (set! *file-tree*
-        (tree (helix-find-workspace)
-              (lambda (str)
-                (helix.static.insert_string str)
-                (helix.static.open_below)
-                (helix.static.goto_line_start))))
+  (render-file-tree)
 
   ;; Set it BACK to where we were previously!
   ;; TODO: Currently the following bug exists:
@@ -302,12 +340,11 @@
   ;; way for now is to just disallow that command in the file tree
   ;; buffer since I haven't yet figured out how to get it working.
   (helix.static.set-current-selection-object! current-selection)
-
-  (editor-set-mode! last-mode))
+  (set-normal-mode!))
 
 (define (refresh-file-tree)
   (temporarily-switch-focus (lambda ()
-                              (open-labelled-buffer FILE-TREE)
+                              (editor-switch-action! (fetch-doc-id FILE-TREE) (Action/Replace))
                               (update-file-tree))))
 
 ;;@doc
