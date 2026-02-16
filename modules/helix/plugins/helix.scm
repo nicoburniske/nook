@@ -15,6 +15,7 @@
          unfold-all-one-level
          open-file-from-picker
          delete-path
+         rename-path
          create-path
          fold-all
          FILE-TREE
