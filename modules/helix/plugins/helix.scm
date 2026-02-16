@@ -15,8 +15,7 @@
          unfold-all-one-level
          open-file-from-picker
          delete-path
-         create-file
-         create-directory
+         create-path
          fold-all
          FILE-TREE
          FILE-TREE-KEYBINDINGS)

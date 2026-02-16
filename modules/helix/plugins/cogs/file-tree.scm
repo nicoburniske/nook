@@ -50,8 +50,7 @@
          unfold-all-one-level
          open-file-from-picker
          delete-path
-         create-file
-         create-directory
+         create-path
          fold-all
          FILE-TREE
          FILE-TREE-KEYBINDINGS
@@ -61,7 +60,6 @@
 ;; labelled buffers ->
 (require (only-in "labelled-buffers.scm"
                   make-new-labelled-buffer!
-                  temporarily-switch-focus
                   currently-in-labelled-buffer?
                   maybe-fetch-doc-id
                   fetch-doc-id))
@@ -113,7 +111,7 @@
               "o"
               ':open-file-from-picker
               "n"
-              (hash "f" ':create-file "d" ':create-directory)
+              ':create-path
               "F"
               ':fold-all)))
 
@@ -135,6 +133,14 @@
            (equal? (substring path (- (string-length path) 1) (string-length path)) "/"))
       (substring path 0 (- (string-length path) 1))
       path))
+
+(define (ends-with? value suffix)
+  (if (< (string-length value) (string-length suffix))
+      #f
+      (equal? (substring value
+                         (- (string-length value) (string-length suffix))
+                         (string-length value))
+              suffix)))
 
 (define (path=? left right)
   (equal? (path-clean left) (path-clean right)))
@@ -190,6 +196,12 @@
       [(path=? (car rest) target) idx]
       [else (loop (+ idx 1) (cdr rest))]))
   (loop 0 entries))
+
+(define (current-tree-entry)
+  (define idx (helix.static.get-current-line-number))
+  (if (and (>= idx 0) (< idx (length *file-tree*)))
+      (list-ref *file-tree* idx)
+      #f))
 
 (define (fold! directory)
   (set! *directories* (hash-insert *directories* directory #t)))
@@ -279,9 +291,10 @@
 ;; Open the currently selected line
 (define (open-file-from-picker)
   (when (currently-in-labelled-buffer? FILE-TREE)
-    (define file-to-open (list-ref *file-tree* (helix.static.get-current-line-number)))
-    (helix.open file-to-open)
-    (set-normal-mode!)))
+    (define file-to-open (current-tree-entry))
+    (when (string? file-to-open)
+      (helix.open file-to-open)
+      (set-normal-mode!))))
 
 (define (shell-escape path)
   (define (escape-char ch)
@@ -293,28 +306,39 @@
       [else (string ch)]))
   (apply string-append (map escape-char (string->list path))))
 
-(define (refresh-after-delete target attempts)
-  (if (or (<= attempts 0) (not (path-exists? target)))
-      (refresh-file-tree)
-      (enqueue-thread-local-callback-with-delay
-        50
-        (lambda ()
-          (refresh-after-delete target (- attempts 1))))))
+(define (refresh-when target predicate)
+  (define max-attempts 40)
+  (define (loop attempts)
+    (if (or (<= attempts 0)
+            (predicate target))
+        (refresh-file-tree)
+        (enqueue-thread-local-callback-with-delay
+         50
+         (lambda ()
+           (loop (- attempts 1))))))
+  (loop max-attempts))
+
+(define (refresh-when-path-exists target)
+  (refresh-when target path-exists?))
+
+(define (refresh-when-path-missing target)
+  (refresh-when target (lambda (path) (not (path-exists? path)))))
 
 ;;@doc
 ;; Delete selected file or directory.
 (define (delete-path)
   (when (currently-in-labelled-buffer? FILE-TREE)
-    (define target (list-ref *file-tree* (helix.static.get-current-line-number)))
-    (helix-prompt!
-     (string-append "Delete " (file-name target) "? [y/N] ")
-     (lambda (answer)
-       (when (or (equal? answer "y") (equal? answer "Y"))
-         (define quoted (string-append "\"" (shell-escape target) "\""))
-         (if (is-dir? target)
-             (helix.run-shell-command (string-append "rm -rf -- " quoted))
-             (helix.run-shell-command (string-append "rm -f -- " quoted)))
-          (refresh-after-delete target 40))))))
+    (define target (current-tree-entry))
+    (when (string? target)
+      (helix-prompt!
+       (string-append "Delete " (file-name target) "? [y/N] ")
+       (lambda (answer)
+         (when (or (equal? answer "y") (equal? answer "Y"))
+           (define quoted (string-append "\"" (shell-escape target) "\""))
+            (if (is-dir? target)
+                (helix.run-shell-command (string-append "rm -rf -- " quoted))
+                (helix.run-shell-command (string-append "rm -f -- " quoted)))
+            (refresh-when-path-missing target)))))))
 
 ;; Initialize all roots to be flat so that we don't blow things up, recursion only goes in to things
 ;; that are expanded
@@ -323,14 +347,8 @@
     (editor->doc-id focus)))
 
 (define (create-file-tree-buffer-if-needed)
-
-  ;; The doc id, or #false if it is not in the map
-  (define doc-id (maybe-fetch-doc-id FILE-TREE))
-
-  (unless doc-id
-    (make-new-labelled-buffer! #:label FILE-TREE #:display-name "tree"))
-
-  (unless (editor-doc-exists? (fetch-doc-id FILE-TREE))
+  (when (or (not (maybe-fetch-doc-id FILE-TREE))
+            (not (editor-doc-exists? (fetch-doc-id FILE-TREE))))
     (make-new-labelled-buffer! #:label FILE-TREE #:display-name "tree")))
 
 (define (render-file-tree)
@@ -371,8 +389,8 @@
 ;; Fold the directory that we're currently hovering over
 (define (fold-directory)
   (when (currently-in-labelled-buffer? FILE-TREE)
-    (define directory-to-fold (list-ref *file-tree* (helix.static.get-current-line-number)))
-    (when (is-dir? directory-to-fold)
+    (define directory-to-fold (current-tree-entry))
+    (when (and (string? directory-to-fold) (is-dir? directory-to-fold))
       (begin
         ;; If its already folded, unfold it
         (if (hash-try-get *directories* directory-to-fold)
@@ -382,31 +400,36 @@
         (update-file-tree)))))
 
 ;;@doc
-;; Create a file under wherever we are
-(define (create-file)
+;; Create a file or directory under wherever we are.
+;; If input ends with '/', a directory is created.
+(define (create-path)
   (when (currently-in-labelled-buffer? FILE-TREE)
-    (define currently-selected (list-ref *file-tree* (helix.static.get-current-line-number)))
+    (define currently-selected (current-tree-entry))
     (define prompt
-      (if (is-dir? currently-selected)
-          (string-append "New file: " currently-selected "/")
-          (string-append "New file: "
-                         (trim-end-matches currently-selected (file-name currently-selected)))))
+      (if (and (string? currently-selected) (is-dir? currently-selected))
+          (string-append "New path: " currently-selected "/")
+          (if (string? currently-selected)
+              (string-append "New path: "
+                             (trim-end-matches currently-selected (file-name currently-selected)))
+              (string-append "New path: " (or *file-tree-root* (helix-find-workspace)) "/"))))
 
     (helix-prompt!
      prompt
      (lambda (result)
-       (define file-name (string-append (trim-start-matches prompt "New file: ") result))
-       (temporarily-switch-focus (lambda ()
-                                   (helix.new)
-                                   (helix.open file-name)
-                                   (helix.write file-name)
-                                   (helix.quit)))
+       (when (and (string? result) (not (equal? result "")))
+         (define path-name (string-append (trim-start-matches prompt "New path: ") result))
+         (define target-path
+           (if (ends-with? path-name "/")
+               (trim-end-matches path-name "/")
+               path-name))
+         (when (not (equal? target-path ""))
+           (if (ends-with? path-name "/")
+               (hx.create-directory target-path)
+               (let ([quoted (string-append "\"" (shell-escape target-path) "\"")])
+                 (hx.create-directory (file-directory target-path))
+                 (helix.run-shell-command (string-append "touch -- " quoted))))
 
-       ;; TODO:
-       ;; This is happening before the write is finished, so its not working. We will have to manually insert
-       ;; the new file into the right spot in the tree, which would require rewriting this to have a proper sorted
-       ;; tree representation in memory, which we don't yet have. For now, we can just do this I guess
-       (enqueue-thread-local-callback refresh-file-tree)))))
+           (refresh-when-path-exists target-path)))))))
 
 (define (update-file-tree)
 
@@ -427,27 +450,9 @@
   (set-normal-mode!))
 
 (define (refresh-file-tree)
-  (temporarily-switch-focus (lambda ()
-                              (editor-switch-action! (fetch-doc-id FILE-TREE) (Action/Replace))
-                              (update-file-tree))))
-
-;;@doc
-;; Create a new directory
-(define (create-directory)
-  (when (currently-in-labelled-buffer? FILE-TREE)
-    (define currently-selected (list-ref *file-tree* (helix.static.get-current-line-number)))
-    (define prompt
-      (if (is-dir? currently-selected)
-          (string-append "New directory: " currently-selected "/")
-          (string-append "New directory: "
-                         (trim-end-matches currently-selected (file-name currently-selected)))))
-
-    (helix-prompt! prompt
-                   (lambda (result)
-                     (define directory-name
-                       (string-append (trim-start-matches prompt "New directory: ") result))
-                     (hx.create-directory directory-name)
-                     (enqueue-thread-local-callback refresh-file-tree)))))
+  (when (editor-doc-exists? (fetch-doc-id FILE-TREE))
+    (editor-switch-action! (fetch-doc-id FILE-TREE) (Action/Replace))
+    (update-file-tree)))
 
 ;;@doc
 ;; Fold all of the directories
