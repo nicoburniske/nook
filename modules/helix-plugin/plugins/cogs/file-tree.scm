@@ -252,7 +252,11 @@
                            (map (fn (x) (tree-rec x (string-append padding "    ")))
                                 (merge-sort (read-dir path) #:comparator string<?)))))]
             [else void]))))
-  (flatten (tree-rec p "")))
+
+  ;; Do not render the root itself as an entry. Start from its children.
+  (if (is-dir? p)
+      (flatten (map (fn (x) (tree-rec x "")) (merge-sort (read-dir p) #:comparator string<?)))
+      (flatten (tree-rec p ""))))
 
 ;;@doc
 ;; Open the currently selected line
