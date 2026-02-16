@@ -15,7 +15,6 @@
           (prevAttrs.patches or [])
           ++ [
             ./patches/hide-bufferline-entries.patch
-            ./patches/core-reload-signal.patch
             ./patches/search-in-directory.patch
           ];
         cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
@@ -154,8 +153,8 @@
 
     sumi.program.helix.reload =
       if pkgs.stdenv.isDarwin
-      then "/usr/bin/pkill -USR2 hx || true"
-      else "${pkgs.procps}/bin/pkill -USR2 hx || true";
+      then "/usr/bin/pkill -USR1 hx || true"
+      else "${pkgs.procps}/bin/pkill -USR1 hx || true";
   };
 in {
   flake.modules.nixos.helix = mkHelixModule;
