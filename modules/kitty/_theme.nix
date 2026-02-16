@@ -2,6 +2,7 @@ theme:
 with theme.colors.withHashtag; ''
   font_family ${theme.fonts.monospace.name}
   font_size ${toString theme.fonts.sizes.terminal}
+  symbol_map U+E000-U+F8FF ${theme.fonts.emoji.name}
   background_opacity ${toString theme.opacity.terminal}
 
   background ${base00}
