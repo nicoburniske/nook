@@ -289,10 +289,10 @@
   (define doc-id (maybe-fetch-doc-id FILE-TREE))
 
   (unless doc-id
-    (make-new-labelled-buffer! #:label FILE-TREE))
+    (make-new-labelled-buffer! #:label FILE-TREE #:display-name "tree"))
 
   (unless (editor-doc-exists? (fetch-doc-id FILE-TREE))
-    (make-new-labelled-buffer! #:label FILE-TREE)))
+    (make-new-labelled-buffer! #:label FILE-TREE #:display-name "tree")))
 
 (define (render-file-tree)
   (define root (or *file-tree-root* (helix-find-workspace)))

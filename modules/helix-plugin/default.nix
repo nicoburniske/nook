@@ -11,6 +11,7 @@
         includeGrammarIf = grammar: grammar.name != "go-format-string";
       }).overrideAttrs
       (prevAttrs: {
+        patches = (prevAttrs.patches or []) ++ [./patches/bufferline-use-doc-name.patch];
         cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
       });
 

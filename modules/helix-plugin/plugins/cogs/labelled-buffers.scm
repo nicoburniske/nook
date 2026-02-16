@@ -53,8 +53,11 @@
 ;; Creates a new labelled buffer that can be access by the key `label`.
 ;; Optionally sets the language type if provided
 (define (make-new-labelled-buffer! #:label label
+                                   #:display-name (display-name #f)
                                    #:language-type (language-type #f)
                                    #:side (side 'none))
+
+  (define visible-name (if display-name display-name label))
 
   ;; Save our last state to return to it afterwards
   (define last-focused (currently-focused))
@@ -64,7 +67,7 @@
   (helix.new)
 
   ;; Label this buffer - it will now show up instead of `[scratch]`
-  (set-scratch-buffer-name! (string-append "[" label "]"))
+  (set-scratch-buffer-name! visible-name)
 
   (when (eq? side 'left)
     (helix.static.move-window-far-left))
