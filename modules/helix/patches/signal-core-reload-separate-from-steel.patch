@@ -1,0 +1,47 @@
+diff --git a/helix-term/src/application.rs b/helix-term/src/application.rs
+index ec3df9b..005ce6c 100644
+--- a/helix-term/src/application.rs
++++ b/helix-term/src/application.rs
+@@ -273,6 +273,7 @@ pub fn new(args: Args, config: Config, lang_loader: syntax::Loader) -> Result<Se
+             signal::SIGTSTP,
+             signal::SIGCONT,
+             signal::SIGUSR1,
++            signal::SIGUSR2,
+             signal::SIGTERM,
+             signal::SIGINT,
+         ])
+@@ -437,6 +438,14 @@ pub fn handle_config_events(&mut self, config_event: ConfigEvent) {
+     }
+ 
+     fn refresh_config(&mut self) {
++        self.refresh_config_with_scripting(true);
++    }
++
++    fn refresh_config_core(&mut self) {
++        self.refresh_config_with_scripting(false);
++    }
++
++    fn refresh_config_with_scripting(&mut self, reinitialize_scripting: bool) {
+         let mut refresh_config = || -> Result<(), Error> {
+             let default_config = Config::load_default()
+                 .map_err(|err| anyhow::anyhow!("Failed to load config: {}", err))?;
+@@ -471,7 +480,7 @@ fn refresh_config(&mut self) {
+             // Store new config
+             self.config.store(Arc::new(default_config));
+ 
+-            {
++            if reinitialize_scripting {
+                 crate::commands::ScriptingEngine::reinitialize();
+ 
+                 let syn_loader = self.editor.syn_loader.clone();
+@@ -607,6 +616,10 @@ pub async fn handle_signals(&mut self, signal: i32) -> bool {
+                 self.refresh_config();
+                 self.render().await;
+             }
++            signal::SIGUSR2 => {
++                self.refresh_config_core();
++                self.render().await;
++            }
+             signal::SIGTERM | signal::SIGINT => {
+                 self.restore_term().unwrap();
+                 return false;
