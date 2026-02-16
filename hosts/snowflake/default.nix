@@ -31,6 +31,7 @@
       quickshell
       gtk
       helix
+      helixPlugin
       fzf
       ohMyPosh
       lazygit

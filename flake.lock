@@ -94,6 +94,28 @@
         "type": "github"
       }
     },
+    "helix-steel": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1771207600,
+        "narHash": "sha256-sCytET1N+eOs9bTTlDtV3hRc/g4eclwYWDBRu8uue/8=",
+        "owner": "mattwparas",
+        "repo": "helix",
+        "rev": "df8f82a548fd018e9d040ff7b379ed177ff8809c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mattwparas",
+        "ref": "steel-event-system",
+        "repo": "helix",
+        "type": "github"
+      }
+    },
     "homebrew-cask": {
       "flake": false,
       "locked": {
@@ -240,6 +262,7 @@
       "inputs": {
         "apple-silicon": "apple-silicon",
         "flake-parts": "flake-parts",
+        "helix-steel": "helix-steel",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
         "import-tree": "import-tree",
@@ -249,6 +272,27 @@
         "nixpkgs": "nixpkgs",
         "opencode": "opencode",
         "sumi": "sumi"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "helix-steel",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1770952264,
+        "narHash": "sha256-CjymNrJZWBtpavyuTkfPVPaZkwzIzGaf0E/3WgcwM14=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "ec6a3d5cdf14bb5a1dd03652bd3f6351004d2188",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
       }
     },
     "sumi": {
