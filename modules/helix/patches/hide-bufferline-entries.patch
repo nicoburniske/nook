@@ -1,0 +1,20 @@
+diff --git a/helix-term/src/ui/editor.rs b/helix-term/src/ui/editor.rs
+index afc88ef..4e1ca0e 100644
+--- a/helix-term/src/ui/editor.rs
++++ b/helix-term/src/ui/editor.rs
+@@ -616,6 +616,15 @@ pub fn render_bufferline(editor: &Editor, viewport: Rect, surface: &mut Surface)
+         let current_doc = view!(editor).doc;
+ 
+         for doc in editor.documents() {
++            let hide_in_bufferline = doc
++                .name
++                .as_deref()
++                .map_or(false, |name| name.starts_with("_hidden"));
++
++            if hide_in_bufferline {
++                continue;
++            }
++
+             let fname = doc
+                 .path()
+                 .unwrap_or(&scratch)

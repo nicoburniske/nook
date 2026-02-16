@@ -357,7 +357,7 @@
 (define (create-file-tree-buffer-if-needed)
   (when (or (not (maybe-fetch-doc-id FILE-TREE))
             (not (editor-doc-exists? (fetch-doc-id FILE-TREE))))
-    (make-new-labelled-buffer! #:label FILE-TREE #:display-name "tree")))
+    (make-new-labelled-buffer! #:label FILE-TREE #:display-name "_hidden_tree")))
 
 (define (render-file-tree)
   (define root (or *file-tree-root* (helix-find-workspace)))
