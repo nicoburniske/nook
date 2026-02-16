@@ -108,19 +108,12 @@ in {
   flake.modules.nixos.kitty = {pkgs, ...}:
     mkKittyModule {
       inherit pkgs;
-      reloadCommand = "${pkgs.procps}/bin/pkill -USR1 -x kitty || true";
+      reloadCommand = "${pkgs.procps}/bin/pkill -USR1 -x .kitty-wrapped || true";
     };
 
   flake.modules.darwin.kitty = {pkgs, ...}:
     mkKittyModule {
       inherit pkgs;
-      reloadCommand = ''
-        ${pkgs.nushell}/bin/nu -c '
-            ps
-            | where name =~ "kitty"
-            | get pid
-            | each {|pid| do { ^kill -USR1 $pid } | complete }
-        '
-      '';
+      reloadCommand = "pkill -USR1 -x .kitty-wrapped || true";
     };
 }
