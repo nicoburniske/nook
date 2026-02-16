@@ -44,7 +44,6 @@ in {
     casks = [
       "raycast"
       "coolterm"
-      "ghostty"
       "zed"
       "docker-desktop"
       "zen"
@@ -87,7 +86,7 @@ in {
 
       persistent-apps = [
         "/System/Applications/Messages.app"
-        "/Applications/Ghostty.app"
+        "/Applications/Nix Apps/kitty.app"
         "/Applications/Zen.app"
         "/Applications/Roam.app"
         "/System/Applications/Passwords.app"
