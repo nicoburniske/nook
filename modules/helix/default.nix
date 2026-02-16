@@ -11,7 +11,12 @@
         includeGrammarIf = grammar: grammar.name != "go-format-string";
       }).overrideAttrs
       (prevAttrs: {
-        patches = (prevAttrs.patches or []) ++ [./patches/bufferline-use-doc-name.patch];
+        patches =
+          (prevAttrs.patches or [])
+          ++ [
+            ./patches/bufferline-use-doc-name.patch
+            ./patches/signal-core-reload-separate-from-steel.patch
+          ];
         cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
       });
 
@@ -146,8 +151,8 @@
 
     sumi.program.helix.reload =
       if pkgs.stdenv.isDarwin
-      then "/usr/bin/pkill -USR1 hx || true"
-      else "${pkgs.procps}/bin/pkill -USR1 hx || true";
+      then "/usr/bin/pkill -USR2 hx || true"
+      else "${pkgs.procps}/bin/pkill -USR2 hx || true";
   };
 in {
   flake.modules.nixos.helix = mkHelixModule;
