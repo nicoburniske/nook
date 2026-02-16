@@ -74,54 +74,34 @@
 ;; File Tree keybindings
 (define FILE-TREE-KEYBINDINGS
   (hash "normal"
-        (hash "i"
-              'no_op
-              "v"
-              'no_op
-              "|"
-              'no_op
-              "!"
-              'no_op
-              "A-!"
-              'no_op
-              "$"
-              'no_op
-              "C-a"
-              'no_op
-              "C-x"
-              'no_op
-              "C-f"
-              'no_op
-              "a"
-              'no_op
-              "I"
-              'no_op
-              "q"
-              ':buffer-close!
-              "o"
-              'no_op
-              "O"
-              'no_op
-               "d"
-               ':delete-path
-               "r"
-               ':rename-path
-               "A-d"
-               'no_op
-              "F"
-              'no_op
-              "tab"
-              ':fold-directory
-              "E"
-              ':unfold-all-one-level
-              "o"
-              ':open-file-from-picker
-              "a"
-              ':create-path
-              "s"
-              ':search-in-selected-directory
-              "F"
-              ':fold-all)))
+        (hash "i" 'no_op
+              "v" 'no_op
+              "|" 'no_op
+              "!" 'no_op
+              "A-!" 'no_op
+              "$" 'no_op
+              "C-a" 'no_op
+              "C-x" 'no_op
+              "C-f" 'no_op
+              "u" 'no_op
+              "U" 'no_op
+              "A-u" 'no_op
+              "A-U" 'no_op
+              "a" 'no_op
+              "I" 'no_op
+              "q" ':buffer-close!
+              "o" 'no_op
+              "O" 'no_op
+              "d" ':delete-path
+              "r" ':rename-path
+              "A-d" 'no_op
+              "F" 'no_op
+              "tab" ':fold-directory
+              "E" ':unfold-all-one-level
+              "o" ':open-file-from-picker
+              "a" ':create-path
+              "s" ':search-in-selected-directory
+              "F" ':fold-all)))
 
 ;; This needs to be globally unique
 (define FILE-TREE "github.com/mattwparas/helix-config/file-tree")
