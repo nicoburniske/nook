@@ -17,5 +17,6 @@
     alejandra
     taplo
     presenterm
+    nushell
   ];
 }
