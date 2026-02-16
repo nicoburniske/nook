@@ -37,6 +37,7 @@
       comically
       git
       cargo
+      hammerspoon
       inputs.nix-homebrew.darwinModules.nix-homebrew
       {
         nix-homebrew = {

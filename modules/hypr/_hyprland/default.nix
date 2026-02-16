@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  inputs,
+  pkgs,
+  ...
+}: let
   keybinds = import ./_keybinds.nix;
 
   systemdVariables = [
@@ -18,7 +22,7 @@
   mkBindLines = prefix: entries:
     builtins.concatStringsSep "\n" (builtins.map (entry: "${prefix}=${entry}") entries);
 
-  themeSwitch = import ./_scripts/theme-switch.nix {inherit pkgs;};
+  themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
   chromiumProfile = import ./_scripts/chromium-profile.nix {inherit pkgs;};
 in {
   environment.systemPackages = [

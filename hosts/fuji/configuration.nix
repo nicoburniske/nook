@@ -68,20 +68,6 @@ in {
     brews = [];
   };
 
-  launchd.user.agents.hammerspoon = {
-    path = [config.environment.systemPath];
-    serviceConfig = {
-      ProgramArguments = [
-        "/Applications/Hammerspoon.app/Contents/MacOS/Hammerspoon"
-        "-n"
-      ];
-      RunAtLoad = true;
-      KeepAlive = true;
-      StandardOutPath = "/tmp/hammerspoon.out.log";
-      StandardErrorPath = "/tmp/hammerspoon.err.log";
-    };
-  };
-
   security = {
     pam.services.sudo_local = {
       enable = true;
