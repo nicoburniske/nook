@@ -114,6 +114,22 @@ in {
   flake.modules.darwin.kitty = {pkgs, ...}:
     mkKittyModule {
       inherit pkgs;
-      reloadCommand = "${pkgs.kitty}/bin/kitten @ load-config";
+      reloadCommand = ''
+        ${pkgs.nushell}/bin/nu -c '
+          let failed = (
+            glob /tmp/kitty-*
+            | path basename
+            | parse "kitty-{pid}"
+            | get pid
+            | each {|pid|
+                let signaled = (do { ^kill -USR1 $pid } | complete)
+                $signaled.exit_code != 0
+              }
+            | any {|did_fail| $did_fail }
+          )
+
+          if $failed { exit 1 } else { exit 0 }
+        '
+      '';
     };
 }
