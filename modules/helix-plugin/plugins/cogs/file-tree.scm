@@ -219,6 +219,17 @@
 
         " ")))
 
+(define (entry-name path)
+  (file-name path))
+
+(define (path-sort<? left right)
+  (define left-dir? (is-dir? left))
+  (define right-dir? (is-dir? right))
+  (cond
+    [(and left-dir? (not right-dir?)) #t]
+    [(and (not left-dir?) right-dir?) #f]
+    [else (string<? (entry-name left) (entry-name right))]))
+
 ;; Simple tree implementation
 ;; Walks the file structure and prints without much fancy formatting
 ;; Returns a list of the visited files for convenience
@@ -249,13 +260,13 @@
                      (list path)
 
                      (cons path
-                           (map (fn (x) (tree-rec x (string-append padding "    ")))
-                                (merge-sort (read-dir path) #:comparator string<?)))))]
+                            (map (fn (x) (tree-rec x (string-append padding "    ")))
+                                 (merge-sort (read-dir path) #:comparator path-sort<?)))))]
             [else void]))))
 
   ;; Do not render the root itself as an entry. Start from its children.
   (if (is-dir? p)
-      (flatten (map (fn (x) (tree-rec x "")) (merge-sort (read-dir p) #:comparator string<?)))
+      (flatten (map (fn (x) (tree-rec x "")) (merge-sort (read-dir p) #:comparator path-sort<?)))
       (flatten (tree-rec p ""))))
 
 ;;@doc
