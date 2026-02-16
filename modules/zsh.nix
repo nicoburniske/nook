@@ -55,6 +55,17 @@
       eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${configHome}/ohmyposh/config.json")"
     '';
   };
+
+  direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+    settings = {
+      global = {
+        hide_env_diff = true;
+        log_filter = "^$";
+      };
+    };
+  };
 in {
   flake.modules.nixos.zsh = {
     config,
@@ -63,16 +74,7 @@ in {
   }: let
     common = mkZshCommon {inherit config pkgs;};
   in {
-    programs.direnv = {
-      enable = true;
-      nix-direnv.enable = true;
-      settings = {
-        global = {
-          hide_env_diff = true;
-          log_filter = "^$";
-        };
-      };
-    };
+    programs.direnv = direnv;
 
     programs.zoxide = {
       enable = true;
@@ -123,6 +125,8 @@ in {
   }: let
     common = mkZshCommon {inherit config pkgs;};
   in {
+    programs.direnv = direnv;
+
     environment.systemPackages = [pkgs.zoxide];
 
     programs.zsh =
