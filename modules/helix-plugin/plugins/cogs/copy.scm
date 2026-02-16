@@ -1,13 +1,16 @@
 (require "helix/editor.scm")
 (require (prefix-in helix.static. "helix/static.scm"))
 (require "helix/misc.scm")
+(require-builtin helix/core/text as text.)
 
 (provide copy-line-reference copy-line-url)
 
+(define (current-doc-id)
+  (let* ([focus (editor-focus)])
+    (editor->doc-id focus)))
+
 (define (current-path)
-  (let* ([focus (editor-focus)]
-         [focus-doc-id (editor->doc-id focus)])
-    (editor-document->path focus-doc-id)))
+  (editor-document->path (current-doc-id)))
 
 (define (path-relative-to-workspace path)
   (define workspace (helix-find-workspace))
@@ -17,8 +20,37 @@
       (let ([trimmed (trim-start-matches path prefix)])
         (if (equal? trimmed path) path trimmed))))
 
-(define (current-line-number-string)
-  (number->string (+ 1 (helix.static.get-current-line-number))))
+(define (current-line-range)
+  (define selection (helix.static.current-selection-object))
+  (define primary (helix.static.selection->primary-range selection))
+  (define from (helix.static.range->from primary))
+  (define to (helix.static.range->to primary))
+  (define rope (editor->text (current-doc-id)))
+
+  (define start-line (+ 1 (text.rope-char->line rope from)))
+  (define inclusive-end-char
+    (if (> to from)
+        (- to 1)
+        to))
+  (define end-line (+ 1 (text.rope-char->line rope inclusive-end-char)))
+
+  (list start-line end-line))
+
+(define (line-range-ref)
+  (define range (current-line-range))
+  (define start (list-ref range 0))
+  (define end (list-ref range 1))
+  (if (= start end)
+      (number->string start)
+      (string-append (number->string start) "-" (number->string end))))
+
+(define (line-range-url)
+  (define range (current-line-range))
+  (define start (list-ref range 0))
+  (define end (list-ref range 1))
+  (if (= start end)
+      (string-append "#L" (number->string start))
+      (string-append "#L" (number->string start) "-L" (number->string end))))
 
 (define (starts-with? value prefix)
   (not (equal? (trim-start-matches value prefix) value)))
@@ -123,20 +155,19 @@
   (set-register! #\" (list value)))
 
 ;;@doc
-;; Copy `path:line` reference for current cursor line.
+;; Copy `path:line` reference for current cursor line or selection.
 (define (copy-line-reference)
   (define path (path-relative-to-workspace (current-path)))
   (if (string? path)
-      (let ([line (current-line-number-string)])
-        (copy-to-clipboard (string-append path ":" line))
+      (let ([line-spec (line-range-ref)])
+        (copy-to-clipboard (string-append path ":" line-spec))
         (set-status! "Copied line reference"))
       (set-status! "copy-line-reference requires a file-backed buffer")))
 
 ;;@doc
-;; Copy Git web URL for current cursor line.
+;; Copy Git web URL for current cursor line or selection.
 (define (copy-line-url)
-  (define absolute-path (current-path))
-  (define relative-path (path-relative-to-workspace absolute-path))
+  (define relative-path (path-relative-to-workspace (current-path)))
   (define workspace (helix-find-workspace))
   (if (and (string? relative-path) (string? workspace))
       (let* ([git-dir (resolve-git-dir workspace)]
@@ -144,15 +175,14 @@
              [head-content (and (string? git-dir) (read-file-or-false (string-append (path-clean git-dir) "/HEAD")))]
              [origin-url (and (string? config-content) (extract-origin-url config-content))]
              [branch (if (string? head-content) (extract-branch-name head-content) "HEAD")]
-             [line (current-line-number-string)])
+             [line-anchor (line-range-url)])
         (if (string? origin-url)
             (let ([url (string-append (remote->https origin-url)
                                       "/blob/"
                                       branch
                                       "/"
                                       relative-path
-                                      "#L"
-                                      line)])
+                                      line-anchor)])
               (copy-to-clipboard url)
               (set-status! "Copied line URL"))
             (set-warning! "Could not resolve git remote.origin.url")))

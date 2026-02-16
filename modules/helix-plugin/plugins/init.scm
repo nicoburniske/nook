@@ -11,7 +11,12 @@
                 (space
                   (l
                     (r ":copy-line-reference")
-                    (u ":copy-line-url")))))
+                    (u ":copy-line-url"))))
+        (select
+          (space
+            (l
+              (r ":copy-line-reference")
+              (u ":copy-line-url")))))
 
 (when (equal? (command-line) '("hx"))
   (show-splash))
