@@ -49,6 +49,7 @@
 (provide fold-directory
          unfold-all-one-level
          open-file-from-picker
+         search-in-selected-directory
          delete-path
          rename-path
          create-path
@@ -117,6 +118,8 @@
               ':open-file-from-picker
               "a"
               ':create-path
+              "s"
+              ':search-in-selected-directory
               "F"
               ':fold-all)))
 
@@ -306,6 +309,16 @@
       (helix.buffer-close!)
       (helix.open file-to-open)
       (set-normal-mode!))))
+
+;;@doc
+;; Start global search scoped to selected directory.
+(define (search-in-selected-directory)
+  (when (currently-in-labelled-buffer? FILE-TREE)
+    (define directory (current-tree-entry))
+    (when (and (string? directory) (is-dir? directory))
+      ;; Keep file tree behavior consistent with opening files from the tree.
+      (helix.buffer-close!)
+      (helix.search-in-directory directory))))
 
 (define (shell-escape path)
   (define (escape-char ch)
