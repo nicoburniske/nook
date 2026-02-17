@@ -179,8 +179,8 @@
 
 (define (tree-format-dir state directory)
   (if (tree-directory-folded? state directory)
-      ">  "
-      "v  "))
+      " "
+      " "))
 
 (define (hidden-directory-name? name)
   (and (string? name)
