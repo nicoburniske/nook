@@ -1121,9 +1121,10 @@
   (define popup-area (area x y popup-width popup-height))
   (define content-x (+ x 2))
   (define content-y (+ y 1))
+  (define ribbon-y (+ y (- popup-height 2)))
   (define content-width (max 1 (- popup-width 4)))
 
-  (define visible-count (max 1 (- popup-height 2)))
+  (define visible-count (max 1 (- popup-height 3)))
   (when (not (= (unbox (FileTreePopupState-max-length state)) visible-count))
     (set-box! (FileTreePopupState-max-length state) visible-count)
     (popup-ensure-window! state))
@@ -1137,6 +1138,10 @@
   (define border-style row-style)
   (define selected-style (style-with-bold (theme-scope "ui.menu.selected")))
   (define popup-style (style))
+  (define copy-ribbon-style
+    (style-with-bold (style-bg (style-fg row-style Color/Black) Color/LightYellow)))
+  (define move-ribbon-style
+    (style-with-bold (style-bg (style-fg row-style Color/Black) Color/LightCyan)))
 
   (buffer/clear-with frame popup-area popup-style)
   (block/render frame popup-area (make-block popup-style border-style "all" "rounded"))
@@ -1162,6 +1167,30 @@
           (frame-set-string! frame content-x row text row-style*))
         visible-entries
         0))
+
+  (define transfer-kind
+    (if (popup-transfer-active? state)
+        (unbox (FileTreePopupState-transfer-kind state))
+        #f))
+  (define ribbon-text
+    (cond
+      [(equal? transfer-kind 'copy) " COPY MODE "]
+      [(equal? transfer-kind 'move) " MOVE MODE "]
+      [else #f]))
+  (define ribbon-style
+    (cond
+      [(equal? transfer-kind 'copy) copy-ribbon-style]
+      [(equal? transfer-kind 'move) move-ribbon-style]
+      [else popup-style]))
+
+  (frame-set-string! frame content-x ribbon-y blank-line popup-style)
+  (when ribbon-text
+    (define centered-text (popup-truncate ribbon-text content-width))
+    (define ribbon-x
+      (+ content-x
+         (max 0 (exact (round (/ (- content-width (string-length centered-text)) 2))))))
+    (frame-set-string! frame content-x ribbon-y blank-line ribbon-style)
+    (frame-set-string! frame ribbon-x ribbon-y centered-text ribbon-style))
 
   (popup-delete-confirm-render state popup-area popup-style border-style row-style frame))
 
