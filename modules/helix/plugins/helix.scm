@@ -12,17 +12,7 @@
          open-helix-scm
          open-init-scm
          create-file-tree
-         create-file-tree-popup
-         fold-directory
-         unfold-all-one-level
-         open-file-from-picker
-         search-in-selected-directory
-         delete-path
-         rename-path
-         create-path
-         fold-all
-         FILE-TREE
-         FILE-TREE-KEYBINDINGS)
+         create-file-tree-popup)
 
 (define (current-path)
   (let* ([focus (editor-focus)]
