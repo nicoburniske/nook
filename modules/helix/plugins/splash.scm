@@ -3,70 +3,121 @@
 
 (provide show-splash)
 
-(define (for-each-index func lst index)
+(define SPLASH-FRAME-MS 70)
+(define SPLASH-SHIMMER-SLANT-ROW-STEP 2)
+
+(define (splash-for-each-index func lst index)
   (if (null? lst)
       void
       (begin
         (func index (car lst))
-        (when (null? lst)
-          (return! void))
-        (for-each-index func (cdr lst) (+ index 1)))))
+        (splash-for-each-index func (cdr lst) (+ index 1)))))
 
-(define splash
+
+                                        
+(define splash-logo
   "
  .
  ###x.        .|
  d#####x,   ,v||
-  '+#####v||||||
-     ,v|||||+'.      _     _           _
-  ,v|||||^'>####    | |   | |   ___   | | (_) __  __
- |||||^'  .v####    | |___| |  /   \\  | |  _  \\ \\/ /
- ||||=..v#####P'    |  ___  | /  ^  | | | | |  \\  /
- ''v'>#####P'       | |   | | |  ---  | | | |  /  \\
- ,######/P||x.      |_|   |_|  \\___/  |_| |_| /_/\\_\\
+  '+#####v||||||    ░██                  ░██ ░██           
+     ,v|||||+'.     ░██                  ░██               
+  ,v|||||^'>####    ░████████   ░██████  ░██ ░██ ░██   ░██ 
+ |||||^'  .v####    ░██    ░██ ░██   ░██ ░██ ░██  ░██ ░██  
+ ||||=..v#####P'    ░██    ░██ ░████████ ░██ ░██   ░████   
+ ''v'>#####P'       ░██    ░██ ░██       ░██ ░██  ░██ ░██  
+ ,######/P||x.      ░██    ░██  ░██████  ░██ ░██ ░██   ░██ 
  ####P' \"x|||||,
  |/'       'x|||    (A (post-modern (modal (text editor)))).
   '           '|")
 
-(define splash-split (split-many splash "\n"))
+(define splash-logo-lines (split-many splash-logo "\n"))
+(define splash-logo-width (apply max (map string-length splash-logo-lines)))
+(define splash-logo-depth (length splash-logo-lines))
 
-(define max-width (apply max (map string-length splash-split)))
-(define splash-depth (length splash-split))
+(struct SplashState (tick running?))
 
-(struct Splash ())
+(define (splash-truncate text max-length)
+  (if (<= max-length 0)
+      ""
+      (if (> (string-length text) max-length)
+          (substring text 0 max-length)
+          text)))
+
+(define (splash-shimmer-column tick)
+  (- (modulo tick (+ splash-logo-width 14)) 7))
+
+(define (splash-paint-shimmer-char! frame x row visible-line column style)
+  (when (and (>= column 0)
+             (< column (string-length visible-line))
+             (not (equal? (substring visible-line column (+ column 1)) " ")))
+    (frame-set-string! frame
+                       (+ x column)
+                       row
+                       (substring visible-line column (+ column 1))
+                       style)))
+
+(define (splash-render-logo! frame rect x y shimmer-column base-style soft-shimmer-style strong-shimmer-style)
+  (define right (+ (area-x rect) (area-width rect)))
+  (splash-for-each-index
+   (lambda (index line)
+     (define row (+ y index))
+     (when (< row (+ (area-y rect) (area-height rect)))
+       (define available-width (max 0 (- right x)))
+       (when (> available-width 0)
+         (define visible-line (splash-truncate line available-width))
+         (define shimmer-center (- shimmer-column (quotient index SPLASH-SHIMMER-SLANT-ROW-STEP)))
+         (frame-set-string! frame x row visible-line base-style)
+         (splash-paint-shimmer-char! frame x row visible-line (- shimmer-center 1) soft-shimmer-style)
+         (splash-paint-shimmer-char! frame x row visible-line shimmer-center strong-shimmer-style)
+         (splash-paint-shimmer-char! frame x row visible-line (+ shimmer-center 1) soft-shimmer-style))))
+   splash-logo-lines
+   0))
 
 (define (splash-render state rect frame)
-  (define half-parent-width (+ 10 max-width))
+  (define left (area-x rect))
+  (define top (area-y rect))
+  (define width (area-width rect))
+  (define height (area-height rect))
+  (define tick (unbox (SplashState-tick state)))
 
-  (define half-parent-height (round (/ (area-height rect) 4)))
-  (define starting-x-offset (exact (- (round (/ (area-width rect) 2)) (round (/ max-width 2)) 5)))
-  (define starting-y-offset (round (/ (area-height rect) 4)))
+  (define logo-style (theme-scope "string"))
+  (define shimmer-soft-style (style-fg logo-style Color/LightBlue))
+  (define shimmer-strong-style (style-with-bold (style-fg logo-style Color/LightCyan)))
 
-  (define block-area
-    (area starting-x-offset
-          (- starting-y-offset 1)
-          half-parent-width
-          (+ 10
-             (if (> (+ half-parent-height starting-y-offset) (area-height rect))
-                 (- (area-height rect) starting-y-offset)
-                 half-parent-height))))
+  (define layout-height splash-logo-depth)
+  (define x (+ left (max 0 (exact (round (/ (- width splash-logo-width) 2))))))
+  (define y (+ top (max 0 (exact (round (/ (- height layout-height) 2.6))))))
 
-  (define x (- (round (/ (area-width rect) 2)) (round (/ max-width 2))))
-  (define y (area-y block-area))
+  (splash-render-logo! frame
+                       rect
+                       x
+                       y
+                       (splash-shimmer-column tick)
+                       logo-style
+                       shimmer-soft-style
+                       shimmer-strong-style))
 
-  (define string-text (theme-scope "string"))
-  (define keyword (theme-scope "keyword"))
+(define (splash-schedule-next-frame! state)
+  (when (unbox (SplashState-running? state))
+    (enqueue-thread-local-callback-with-delay
+     SPLASH-FRAME-MS
+     (lambda ()
+       (when (unbox (SplashState-running? state))
+         (set-box! (SplashState-tick state) (+ (unbox (SplashState-tick state)) 1))
+         (splash-schedule-next-frame! state))))))
 
-  (for-each-index (lambda (index line) (frame-set-string! frame x (+ y index) line string-text))
-                  splash-split
-                  0)
-)
-
-(define (splash-event-handler _ event)
-  (if (key-event? event) event-result/ignore-and-close event-result/ignore))
+(define (splash-event-handler state event)
+  (if (key-event? event)
+      (begin
+        (set-box! (SplashState-running? state) #f)
+        event-result/ignore-and-close)
+      event-result/ignore))
 
 (define (show-splash)
+  (define state (SplashState (box 0) (box #t)))
+  (splash-schedule-next-frame! state)
   (push-component! (new-component! "splash-screen"
-                                   (Splash)
+                                   state
                                    splash-render
                                    (hash "handle_event" splash-event-handler))))
