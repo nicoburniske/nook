@@ -58,15 +58,13 @@
     }
     // forAllSystems (system: let
       pkgs = nixpkgs.legacyPackages.${system};
-      sumiCli = pkgs.callPackage ./pkgs/sumi-cli.nix {};
-      sumiLink = pkgs.callPackage ./pkgs/sumi-link.nix {};
+      sumi = pkgs.callPackage ./cli/default.nix {};
     in {
       formatter = pkgs.alejandra;
 
       packages = {
-        default = sumiCli;
-        sumi = sumiCli;
-        sumi-link = sumiLink;
+        default = sumi;
+        inherit sumi;
       };
 
       devShells = {
@@ -85,12 +83,7 @@
       apps = {
         default = {
           type = "app";
-          program = "${sumiCli}/bin/sumi";
-        };
-
-        sumi-link = {
-          type = "app";
-          program = "${sumiLink}/bin/sumi-link";
+          program = "${sumi}/bin/sumi";
         };
       };
     });

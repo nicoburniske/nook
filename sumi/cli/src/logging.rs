@@ -1,12 +1,6 @@
 use log::{Level, LevelFilter, Metadata, Record};
 
-pub fn init(verbosity: u8) {
-    let level = match verbosity {
-        0 => LevelFilter::Info,
-        1 => LevelFilter::Debug,
-        _ => LevelFilter::Trace,
-    };
-
+pub fn init(level: LevelFilter) {
     static LOGGER: StderrLogger = StderrLogger;
     let _ = log::set_logger(&LOGGER);
     log::set_max_level(level);
@@ -31,6 +25,7 @@ impl log::Log for StderrLogger {
             Level::Debug => "DEBUG",
             Level::Trace => "TRACE",
         };
+
         eprintln!("[{level}] {}", record.args());
     }
 

@@ -1,0 +1,22 @@
+mod cli;
+mod core;
+mod error;
+mod logging;
+mod model;
+
+use std::process::ExitCode;
+
+fn main() -> ExitCode {
+    let cli: cli::Cli = clap::Parser::parse();
+    logging::init(cli.log_level.into());
+
+    smol::block_on(async move {
+        match cli::command::run(cli).await {
+            Ok(code) => code,
+            Err(err) => {
+                log::error!("{err}");
+                ExitCode::from(1)
+            }
+        }
+    })
+}

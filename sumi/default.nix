@@ -700,8 +700,7 @@ in {
       };
 
       manifestPath = pkgs.writeText "sumi-manifest.json" (builtins.toJSON manifest);
-      baseCli = pkgs.callPackage ./pkgs/sumi-cli.nix {};
-      sumiLink = pkgs.callPackage ./pkgs/sumi-link.nix {};
+      baseCli = pkgs.callPackage ./cli/default.nix {};
 
       xdgEnv =
         lib.filterAttrs (_: value: value != null)
@@ -716,7 +715,6 @@ in {
         lib.filterAttrs (_: value: value != null)
         {
           SUMI_MANIFEST = manifestPath;
-          SUMI_LINK_BIN = "${sumiLink}/bin/sumi-link";
           SUMI_STATE_DIR = resolvedSumiStateDirectory;
           SUMI_HOME_DIR = resolvedHomeDirectory;
         }
