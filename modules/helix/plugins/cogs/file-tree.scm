@@ -857,12 +857,15 @@
              [cursor (popup-input-modal-cursor-clamped modal)]
              [text-room (max 0 (- max-width 1))]
              [max-start (max 0 (- (string-length input) text-room))]
-             [window-start (popup-clamp (- cursor (quotient text-room 2)) 0 max-start)]
+             [window-start (if (< cursor text-room)
+                               0
+                               (- cursor (- text-room 1)))]
+             [window-start (popup-clamp window-start 0 max-start)]
              [window-end (min (string-length input) (+ window-start text-room))]
              [visible-text (substring input window-start window-end)]
              [cursor-col (popup-clamp (- cursor window-start)
-                                      0
-                                      (string-length visible-text))])
+                                       0
+                                       (max 0 (- max-width 1)))])
         (list visible-text cursor-col))))
 
 (define (file-tree-input-modal-event-handler modal event)
@@ -912,39 +915,53 @@
 (define (file-tree-input-modal-render modal rect frame)
   (define width (area-width rect))
   (define height (area-height rect))
-  (define modal-width (max 48 (min (- width 8) 112)))
+  (define modal-width (max 32 (min (- width 8) 38)))
   (define modal-height 7)
   (define modal-x (+ (area-x rect) (max 0 (exact (round (/ (- width modal-width) 2))))))
   (define modal-y (+ (area-y rect) (max 0 (exact (round (/ (- height modal-height) 2))))))
   (define modal-area (area modal-x modal-y modal-width modal-height))
   (define inner-width (max 1 (- modal-width 2)))
   (define row-style (theme-scope "ui.text"))
-  (define border-style row-style)
+  (define focused-border-style (style-with-bold (style-fg row-style Color/LightBlue)))
+  (define label-style (style-with-bold row-style))
   (define popup-style (style))
-  (define title-text (popup-truncate (FileTreeInputModalState-title modal) inner-width))
+  (define input-text-style row-style)
+  (define input-cursor-style (style-with-reversed row-style))
+  (define input-title
+    (popup-truncate (FileTreeInputModalState-title modal)
+                    (max 1 (- inner-width 8))))
   (define action (popup-input-modal-action-label modal))
   (define footer-text (popup-truncate (string-append "[Enter] " action " [Esc] cancel") inner-width))
-  (define blank-line (make-string inner-width #\space))
-  (define input-state (popup-input-modal-visible-state modal inner-width))
+  (define input-box-x (+ modal-x 2))
+  (define input-box-y (+ modal-y 2))
+  (define input-box-width (max 6 (- modal-width 4)))
+  (define input-box-height 3)
+  (define input-box-area (area input-box-x input-box-y input-box-width input-box-height))
+  (define input-width (max 1 (- input-box-width 2)))
+  (define input-state (popup-input-modal-visible-state modal input-width))
   (define input-content (list-ref input-state 0))
   (define cursor-col (list-ref input-state 1))
-  (define cursor-style (style-with-reversed row-style))
+  (define input-x (+ input-box-x 1))
+  (define input-y (+ input-box-y 1))
+  (define input-row-blank (make-string input-width #\space))
   (define cursor-glyph
     (if (< cursor-col (string-length input-content))
         (substring input-content cursor-col (+ cursor-col 1))
         " "))
+  (define titled-border (popup-truncate (string-append " " input-title " ")
+                                         (max 1 (- input-box-width 4))))
+  (define border-title-x (+ input-box-x 2))
   (define (centered-col text)
     (+ modal-x 1 (max 0 (exact (round (/ (- inner-width (string-length text)) 2))))))
 
   (buffer/clear-with frame modal-area popup-style)
-  (block/render frame modal-area (make-block popup-style border-style "all" "rounded"))
-  (frame-set-string! frame (+ modal-x 1) (+ modal-y 1) blank-line popup-style)
-  (frame-set-string! frame (centered-col title-text) (+ modal-y 1) title-text row-style)
-  (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) blank-line popup-style)
-  (define input-x (centered-col input-content))
-  (frame-set-string! frame input-x (+ modal-y 3) input-content row-style)
-  (frame-set-string! frame (+ input-x cursor-col) (+ modal-y 3) cursor-glyph cursor-style)
-  (frame-set-string! frame (+ modal-x 1) (+ modal-y 5) blank-line popup-style)
+
+  (block/render frame input-box-area (make-block popup-style focused-border-style "all" "plain"))
+  (frame-set-string! frame border-title-x input-box-y titled-border label-style)
+  (frame-set-string! frame input-x input-y input-row-blank popup-style)
+  (frame-set-string! frame input-x input-y input-content input-text-style)
+  (frame-set-string! frame (+ input-x cursor-col) input-y cursor-glyph input-cursor-style)
+
   (frame-set-string! frame (centered-col footer-text) (+ modal-y 5) footer-text row-style))
 
 (define (popup-fold-all! state)
