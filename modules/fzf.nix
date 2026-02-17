@@ -1,8 +1,13 @@
 {...}: let
-  fzfModule = {pkgs, ...}: {
+  fzfModule = {
+    config,
+    pkgs,
+    ...
+  }: {
     environment.systemPackages = [pkgs.fzf];
+    environment.variables.FZF_DEFAULT_OPTS_FILE = "${config.lib.sumi.paths.config}/fzf/fzfrc";
 
-    sumi.file.".fzfrc" = {
+    sumi.configFile."fzf/fzfrc" = {
       dependsOn = ["theme"];
       render = ctx: let
         theme = ctx.values.theme;

@@ -30,7 +30,7 @@ in {
     chromiumProfile
   ];
 
-  sumi.file = {
+  sumi.configFile = {
     "hypr/hyprland.conf" = {
       dependsOn = ["theme"];
       render = ctx: let

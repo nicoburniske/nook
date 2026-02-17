@@ -2,7 +2,7 @@
   batModule = {pkgs, ...}: {
     environment.systemPackages = [pkgs.bat];
 
-    sumi.file = {
+    sumi.configFile = {
       "bat/config".text = "--theme=base16-sumi\n";
 
       "bat/themes/base16-sumi.tmTheme" = {

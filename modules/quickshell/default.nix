@@ -18,7 +18,7 @@
   in {
     environment.systemPackages = [pkgs.quickshell];
 
-    sumi.file = {
+    sumi.configFile = {
       "quickshell/shell.qml" = {
         dependsOn = ["theme"];
         render = ctx: let

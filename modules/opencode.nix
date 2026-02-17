@@ -4,7 +4,7 @@
   in {
     environment.systemPackages = [opencodePackage];
 
-    sumi.file = {
+    sumi.configFile = {
       "opencode/config.json".text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
         autoupdate = false;

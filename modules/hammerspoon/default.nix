@@ -6,19 +6,27 @@
     ...
   }: let
     themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
+    hammerspoonConfigDir = "${config.lib.sumi.paths.config}/hammerspoon";
+    hammerspoonLauncher = pkgs.writeShellScriptBin "sumi-hammerspoon-launch" ''
+      set -eu
+      /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile "${hammerspoonConfigDir}/init.lua"
+      exec /Applications/Hammerspoon.app/Contents/MacOS/Hammerspoon -n
+    '';
   in {
-    environment.systemPackages = [themeSwitch];
+    environment.systemPackages = [
+      themeSwitch
+      hammerspoonLauncher
+    ];
 
-    sumi.file = {
-      ".hammerspoon".source = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/hammerspoon/config";
+    sumi.configFile = {
+      "hammerspoon".source = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/hammerspoon/config";
     };
 
     launchd.user.agents.hammerspoon = {
       path = [config.environment.systemPath];
       serviceConfig = {
         ProgramArguments = [
-          "/Applications/Hammerspoon.app/Contents/MacOS/Hammerspoon"
-          "-n"
+          "${hammerspoonLauncher}/bin/sumi-hammerspoon-launch"
         ];
         RunAtLoad = true;
         KeepAlive = true;

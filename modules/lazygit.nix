@@ -56,7 +56,7 @@
   in {
     environment.systemPackages = [pkgs.lazygit];
 
-    sumi.file."lazygit/config.yml" = {
+    sumi.configFile."lazygit/config.yml" = {
       dependsOn = ["theme"];
       render = ctx: yamlFormat.generate "sumi-lazygit-${ctx.selection.theme}.yml" (mkSettings ctx.values.theme);
     };

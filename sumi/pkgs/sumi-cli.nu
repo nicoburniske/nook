@@ -48,13 +48,43 @@ def default_selection [manifest] {
   $manifest.defaultSelection? | default {}
 }
 
+def normalize_selection [manifest selection] {
+  let facets = ($manifest.facets? | default {})
+  let defaults = (default_selection $manifest)
+  mut out = {}
+
+  for facet in (($facets | columns) | sort) {
+    let facet_info = ($facets | get $facet)
+    let variants = ((($facet_info.variants? | default {}) | columns) | sort)
+    if (($variants | length) == 0) {
+      continue
+    }
+
+    let manifest_default = ($facet_info.default? | default ($variants | get 0))
+    let fallback = ($defaults | get -o $facet | default $manifest_default)
+    let candidate = ($selection | get -o $facet | default $fallback)
+
+    if ($variants | any {|value| $value == $candidate }) {
+      $out = ($out | upsert $facet $candidate)
+    } else if ($variants | any {|value| $value == $fallback }) {
+      $out = ($out | upsert $facet $fallback)
+    } else {
+      $out = ($out | upsert $facet ($variants | get 0))
+    }
+  }
+
+  $out
+}
+
 def get_selection [ctx] {
   let current_path = [$ctx.state_dir "current.json"] | path join
-  if ($current_path | path exists) {
-    ((open $current_path).selection? | default (default_selection $ctx.manifest))
+  let selection = if ($current_path | path exists) {
+    (open $current_path).selection? | default (default_selection $ctx.manifest)
   } else {
     default_selection $ctx.manifest
   }
+
+  normalize_selection $ctx.manifest $selection
 }
 
 def parse_selection_overrides [items: list<string>] {
@@ -169,7 +199,7 @@ def switch_cmd [ctx, args: list<string>] {
 
   let current = (get_selection $ctx)
   let overrides = (parse_selection_overrides $args)
-  let selection = ($current | merge $overrides)
+  let selection = (normalize_selection $ctx.manifest ($current | merge $overrides))
 
   let conflict_policy = (($env.SUMI_CONFLICT_POLICY? | default "backup"))
   let sumi_link_bin = (($env.SUMI_LINK_BIN? | default "sumi-link"))

@@ -9,8 +9,8 @@
       delta
     ];
 
-    sumi.file = {
-      ".gitconfig".text = lib.generators.toGitINI {
+    sumi.configFile = {
+      "git/config".text = lib.generators.toGitINI {
         user = {
           name = "Nico Burniske";
           email = "nicoburniske@gmail.com";

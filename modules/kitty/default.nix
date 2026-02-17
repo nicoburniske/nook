@@ -4,7 +4,7 @@
   mkKittyModule = {pkgs, ...}: {
     environment.systemPackages = [pkgs.kitty];
 
-    sumi.file = {
+    sumi.configFile = {
       "kitty/kitty.conf".text = ''
         shell_integration no-rc no-title
 
