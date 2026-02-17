@@ -1,7 +1,7 @@
 (require "helix/editor.scm")
 (require (prefix-in helix. "helix/commands.scm"))
 (require (prefix-in helix.static. "helix/static.scm"))
-(require "cogs/file-tree.scm")
+(require "cogs/file-tree/init.scm")
 (require "cogs/copy.scm")
 (require "cogs/toast.scm")
 
@@ -14,8 +14,7 @@
          toast-error
          open-helix-scm
          open-init-scm
-         create-file-tree
-         create-file-tree-popup)
+         create-file-tree)
 
 (define (current-path)
   (let* ([focus (editor-focus)]
