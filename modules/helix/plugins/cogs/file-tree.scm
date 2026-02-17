@@ -4,6 +4,7 @@
 (require "helix/misc.scm")
 (require "helix/editor.scm")
 (require "helix/components.scm")
+(require "toast.scm")
 ; (require "steel/sorting/merge-sort.scm")
 
 ;;; -----------------------------------------------------------------
@@ -579,7 +580,7 @@
   (if (not (popup-transfer-valid? source transfer-kind))
       (begin
         (popup-clear-transfer! state)
-        (set-warning! "Transfer source is no longer available")
+        (toast-error "Transfer source is no longer available")
         event-result/consume)
       (let* ([source-clean (path-clean source)]
              [destination (popup-paste-destination-directory state)]
@@ -587,16 +588,16 @@
 
         (cond
           [(not (and (string? destination) (is-dir? destination)))
-           (set-warning! "Invalid paste destination")
+           (toast-error "Invalid paste destination")
            event-result/consume]
 
           [(and (is-dir? source-clean)
                 (path-descendant-or-same? destination source-clean))
-           (set-warning! "Cannot paste a directory into itself")
+           (toast-error "Cannot paste a directory into itself")
            event-result/consume]
 
           [(path-exists? target-path)
-           (set-warning! "Paste target already exists")
+           (toast-error "Paste target already exists")
            event-result/consume]
 
           [(path=? target-path source-clean)

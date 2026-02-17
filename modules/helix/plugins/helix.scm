@@ -3,12 +3,15 @@
 (require (prefix-in helix.static. "helix/static.scm"))
 (require "cogs/file-tree.scm")
 (require "cogs/copy.scm")
+(require "cogs/toast.scm")
 
 (provide shell
          git-add
          copy-location
          copy-location-snippet
          copy-location-url
+         toast-success
+         toast-error
          open-helix-scm
          open-init-scm
          create-file-tree
