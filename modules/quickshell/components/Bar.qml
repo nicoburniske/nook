@@ -6,6 +6,7 @@ Scope {
   id: bar
 
   required property var theme
+  property bool isHyprland: false
   property string activePopup: ""
   property int segmentSlant: 6
 
@@ -38,9 +39,9 @@ Scope {
           anchors.rightMargin: 10
           spacing: 6
 
-          Workspaces {
-            screen: panel.screen
-            theme: bar.theme
+          Loader {
+            active: bar.isHyprland
+            sourceComponent: workspaceComponent
           }
 
           Item {
@@ -131,6 +132,15 @@ Scope {
               text: Qt.formatDateTime(clock.date, "ddd MMM dd hh:mm").toLowerCase()
             }
           }
+        }
+      }
+
+      Component {
+        id: workspaceComponent
+
+        Workspaces {
+          screen: panel.screen
+          theme: bar.theme
         }
       }
     }

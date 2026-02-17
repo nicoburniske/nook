@@ -17,13 +17,13 @@
     + builtins.concatStringsSep " " systemdVariables
     + "; ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd "
     + builtins.concatStringsSep " " systemdVariables
-    + " || true; ${pkgs.systemd}/bin/systemctl --user start hyprland-session.target";
+    + " || true; ${pkgs.systemd}/bin/systemctl --user start compositor-session.target";
 
   mkBindLines = prefix: entries:
     builtins.concatStringsSep "\n" (map (entry: "${prefix}=${entry}") entries);
 
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
-  chromiumProfile = import ./_scripts/chromium-profile.nix {inherit pkgs;};
+  chromiumProfile = import (inputs.self + "/common/chromium-profile.nix") {inherit pkgs;};
 in {
   environment.systemPackages = [
     themeSwitch

@@ -46,9 +46,9 @@
 
     systemd.user.services.swaync = {
       description = "Sway Notification Center";
-      partOf = ["hyprland-session.target"];
-      after = ["hyprland-session.target"];
-      wantedBy = ["hyprland-session.target"];
+      partOf = ["compositor-session.target"];
+      after = ["compositor-session.target"];
+      wantedBy = ["compositor-session.target"];
 
       serviceConfig = {
         Type = "dbus";
