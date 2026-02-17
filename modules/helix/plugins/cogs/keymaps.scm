@@ -2,8 +2,7 @@
 
 (require "helix/configuration.scm")
 
-(provide *reverse-buffer-map-insert*
-         merge-keybindings
+(provide merge-keybindings
          set-global-buffer-or-extension-keymap
          add-global-keybinding
          deep-copy-global-keybindings
@@ -37,11 +36,6 @@
   ;; Filter out anything without values - so we only want strings on the
   ;; right hand side
   (transduce doc-map (filtering (lambda (p) (string? (cdr p)))) (into-hashmap)))
-
-;;@doc
-;; Insert a value into the reverse buffer map
-(define (*reverse-buffer-map-insert* key value)
-  (helix.keymaps.#%add-reverse-mapping key value))
 
 ;; Marshall values in and out of keybindings, referencing the associated values
 ;; within steel
