@@ -295,13 +295,24 @@
           (set-box! (FileTreePopupState-cursor state) idx))
         (popup-ensure-window! state))))
 
-(define (popup-move-cursor! state delta)
+(define (popup-move-cursor-wrap! state delta)
   (define entries (unbox (FileTreePopupState-entries state)))
   (define count (length entries))
   (when (> count 0)
     (define cursor-box (FileTreePopupState-cursor state))
     (set-box! cursor-box (modulo (+ (unbox cursor-box) delta count) count))
     (popup-ensure-window! state)))
+
+(define (popup-move-cursor-clamped! state delta)
+  (define entries (unbox (FileTreePopupState-entries state)))
+  (define count (length entries))
+  (when (> count 0)
+    (define cursor-box (FileTreePopupState-cursor state))
+    (set-box! cursor-box (popup-clamp (+ (unbox cursor-box) delta) 0 (- count 1)))
+    (popup-ensure-window! state)))
+
+(define (popup-quarter-page-size state)
+  (max 1 (quotient (max 1 (unbox (FileTreePopupState-max-length state))) 4)))
 
 (define (popup-current-entry state)
   (define entries (unbox (FileTreePopupState-entries state)))
@@ -364,14 +375,8 @@
   (if (not entry)
       event-result/consume
       (let ([target (popup-entry-path entry)])
-        (if (popup-entry-directory? entry)
-            (begin
-              (popup-toggle-directory! state target)
-              (popup-refresh! state target)
-              event-result/consume)
-            (begin
-              (helix.open target)
-              event-result/close)))))
+        (helix.open target)
+        event-result/close)))
 
 (define (popup-enter-directory! state)
   (define entry (popup-current-entry state))
@@ -513,25 +518,46 @@
 
 (define (file-tree-popup-event-handler state event)
   (define char (key-event-char event))
+  (define modifier (key-event-modifier event))
 
   (cond
     [(key-event-escape? event) event-result/close]
     [(and (char? char) (equal? char #\q)) event-result/close]
 
     [(key-event-down? event)
-     (popup-move-cursor! state 1)
+     (popup-move-cursor-clamped! state 1)
      event-result/consume]
 
     [(key-event-up? event)
-     (popup-move-cursor! state -1)
+     (popup-move-cursor-clamped! state -1)
      event-result/consume]
 
     [(and (char? char) (equal? char #\j))
-     (popup-move-cursor! state 1)
+     (popup-move-cursor-wrap! state 1)
      event-result/consume]
 
     [(and (char? char) (equal? char #\k))
-     (popup-move-cursor! state -1)
+     (popup-move-cursor-wrap! state -1)
+     event-result/consume]
+
+    [(key-event-page-down? event)
+     (popup-move-cursor-clamped! state (popup-quarter-page-size state))
+     event-result/consume]
+
+    [(key-event-page-up? event)
+     (popup-move-cursor-clamped! state (- (popup-quarter-page-size state)))
+     event-result/consume]
+
+    [(and (char? char)
+          (equal? modifier key-modifier-ctrl)
+          (equal? char #\d))
+     (popup-move-cursor-clamped! state (popup-quarter-page-size state))
+     event-result/consume]
+
+    [(and (char? char)
+          (equal? modifier key-modifier-ctrl)
+          (equal? char #\u))
+     (popup-move-cursor-clamped! state (- (popup-quarter-page-size state)))
      event-result/consume]
 
     [(and (char? char) (equal? char #\h))
@@ -548,8 +574,8 @@
 
     [(key-event-tab? event)
      (if (equal? (key-event-modifier event) key-modifier-shift)
-         (popup-move-cursor! state -1)
-         (popup-move-cursor! state 1))
+         (popup-move-cursor-clamped! state -1)
+         (popup-move-cursor-clamped! state 1))
      event-result/consume]
 
     [(key-event-enter? event)
