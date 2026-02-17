@@ -143,7 +143,8 @@
          window-start
          max-length
          center-next-render
-         show-hidden-directories))
+         show-hidden-directories
+         delete-confirm-path))
 
 (define (popup-for-each-index func lst index)
   (if (null? lst)
@@ -433,26 +434,101 @@
   (popup-refresh! state focus-path)
   event-result/consume)
 
-(define (popup-delete-path! state)
+(define (popup-delete-confirm-open? state)
+  (string? (unbox (FileTreePopupState-delete-confirm-path state))))
+
+(define (popup-open-delete-confirm! state)
   (define entry (popup-current-entry state))
   (when entry
-    (define target (popup-entry-path entry))
-    (define fallback-focus (path-parent target))
-    (helix-prompt!
-     (string-append "Delete " (file-name target) "? [y/N] ")
-     (lambda (answer)
-       (when (or (equal? answer "y") (equal? answer "Y"))
-         (define quoted (string-append "\"" (shell-escape target) "\""))
-         (if (is-dir? target)
-             (helix.run-shell-command (string-append "rm -rf -- " quoted))
-             (helix.run-shell-command (string-append "rm -f -- " quoted)))
-         (set-box! (FileTreePopupState-directories state)
-                   (popup-unfold-path-to-target
-                    (unbox (FileTreePopupState-directories state))
-                    (FileTreePopupState-root state)
-                    fallback-focus))
-         (popup-refresh-when state target (lambda (path) (not (path-exists? path))) fallback-focus)))))
+    (set-box! (FileTreePopupState-delete-confirm-path state) (popup-entry-path entry)))
   event-result/consume)
+
+(define (popup-close-delete-confirm! state)
+  (set-box! (FileTreePopupState-delete-confirm-path state) #f)
+  event-result/consume)
+
+(define (popup-confirm-delete! state)
+  (define target (unbox (FileTreePopupState-delete-confirm-path state)))
+  (popup-close-delete-confirm! state)
+  (when (and (string? target) (not (equal? target "")))
+    (define fallback-focus (path-parent target))
+    (define quoted (string-append "\"" (shell-escape target) "\""))
+    (if (is-dir? target)
+        (helix.run-shell-command (string-append "rm -rf -- " quoted))
+        (helix.run-shell-command (string-append "rm -f -- " quoted)))
+    (set-box! (FileTreePopupState-directories state)
+              (popup-unfold-path-to-target
+               (unbox (FileTreePopupState-directories state))
+               (FileTreePopupState-root state)
+               fallback-focus))
+    (popup-refresh-when state target (lambda (path) (not (path-exists? path))) fallback-focus))
+  event-result/consume)
+
+(define (popup-delete-confirm-event-handler state event)
+  (define char (key-event-char event))
+  (cond
+    [(key-event-escape? event)
+     (popup-close-delete-confirm! state)]
+
+    [(and (char? char)
+          (or (equal? char #\n)
+              (equal? char #\N)))
+     (popup-close-delete-confirm! state)]
+
+    [(key-event-enter? event)
+     (popup-confirm-delete! state)]
+
+    [(and (char? char)
+          (or (equal? char #\y)
+              (equal? char #\Y)))
+     (popup-confirm-delete! state)]
+
+    [else event-result/consume-without-rerender]))
+
+(define (popup-delete-confirm-render state popup-area popup-style border-style row-style frame)
+  (define target (unbox (FileTreePopupState-delete-confirm-path state)))
+  (when (string? target)
+    (define popup-width (area-width popup-area))
+    (define popup-height (area-height popup-area))
+    (define modal-width (max 40 (min (- popup-width 4) 96)))
+    (define modal-height 7)
+    (define modal-x (+ (area-x popup-area) (max 0 (exact (round (/ (- popup-width modal-width) 2))))))
+    (define modal-y (+ (area-y popup-area) (max 0 (exact (round (/ (- popup-height modal-height) 2))))))
+    (define modal-area (area modal-x modal-y modal-width modal-height))
+    (define inner-width (max 1 (- modal-width 2)))
+    (define title-text (popup-truncate "delete file" inner-width))
+    (define target-name (file-name target))
+    (define target-text
+      (popup-truncate
+       (if (and (string? target-name) (not (equal? target-name "")))
+           target-name
+           target)
+       inner-width))
+    (define footer-yes "[Y]es")
+    (define footer-no "[N]o")
+    (define footer-gap " ")
+    (define footer-text (popup-truncate (string-append footer-yes footer-gap footer-no) inner-width))
+    (define blank-line (make-string inner-width #\space))
+    (define yes-style (style-fg row-style Color/Green))
+    (define no-style (style-fg row-style Color/Red))
+    (define (centered-col text)
+      (+ modal-x 1 (max 0 (exact (round (/ (- inner-width (string-length text)) 2))))))
+
+    (buffer/clear-with frame modal-area popup-style)
+    (block/render frame modal-area (make-block popup-style border-style "all" "rounded"))
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 1) blank-line popup-style)
+    (frame-set-string! frame (centered-col title-text) (+ modal-y 1) title-text row-style)
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) blank-line popup-style)
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) target-text row-style)
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 5) blank-line popup-style)
+    (define footer-x (centered-col footer-text))
+    (frame-set-string! frame footer-x (+ modal-y 5) footer-yes yes-style)
+    (frame-set-string! frame (+ footer-x (string-length footer-yes)) (+ modal-y 5) footer-gap row-style)
+    (frame-set-string! frame
+                       (+ footer-x (string-length footer-yes) (string-length footer-gap))
+                       (+ modal-y 5)
+                       footer-no
+                       no-style)))
 
 (define (popup-rename-path! state)
   (define entry (popup-current-entry state))
@@ -540,6 +616,9 @@
   (define modifier (key-event-modifier event))
 
   (cond
+    [(popup-delete-confirm-open? state)
+     (popup-delete-confirm-event-handler state event)]
+
     [(key-event-escape? event) event-result/close]
     [(and (char? char) (equal? char #\q)) event-result/close]
 
@@ -607,7 +686,7 @@
      (popup-rename-path! state)]
 
     [(and (char? char) (equal? char #\d))
-     (popup-delete-path! state)]
+     (popup-open-delete-confirm! state)]
 
     [(and (char? char) (equal? char #\s))
      (popup-search-selected-directory! state)]
@@ -665,17 +744,19 @@
 
   (if (null? entries)
       (frame-set-string! frame content-x content-y "(empty)" row-style)
-      (popup-for-each-index
-       (lambda (index entry)
-         (define row (+ content-y index))
-         (define selected? (= index selected-index))
-         (define style (if selected? selected-style row-style))
+       (popup-for-each-index
+        (lambda (index entry)
+          (define row (+ content-y index))
+          (define selected? (= index selected-index))
+          (define style (if selected? selected-style row-style))
          (define fill-style (if selected? selected-style popup-style))
          (define text (popup-truncate (popup-entry-display entry) content-width))
          (frame-set-string! frame content-x row blank-line fill-style)
          (frame-set-string! frame content-x row text style))
-       visible-entries
-       0)))
+        visible-entries
+        0))
+
+  (popup-delete-confirm-render state popup-area popup-style border-style row-style frame))
 
 (define (create-file-tree-popup)
   (define target-path (current-doc-path))
@@ -689,6 +770,7 @@
                         (box 0)
                         (box 1)
                         (box #t)
+                        (box #f)
                         (box #f)))
 
   (popup-refresh! state target-path)
