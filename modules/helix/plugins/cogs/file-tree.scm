@@ -50,7 +50,7 @@
 (provide create-file-tree
          create-file-tree-popup)
 
-(define *ignore-set* (hashset "target" ".git"))
+(define *ignore-set* (hashset "target"))
 
 (define *extension-map*
   (hash "rs" " "
@@ -142,7 +142,8 @@
          cursor
          window-start
          max-length
-         center-next-render))
+         center-next-render
+         show-hidden-directories))
 
 (define (popup-for-each-index func lst index)
   (if (null? lst)
@@ -194,6 +195,13 @@
       ">  "
       "v  "))
 
+(define (hidden-directory-name? name)
+  (and (string? name)
+       (> (string-length name) 0)
+       (equal? (substring name 0 1) ".")
+       (not (equal? name "."))
+       (not (equal? name ".."))))
+
 (define (popup-concat-map func lst)
   (if (null? lst)
       '()
@@ -204,7 +212,10 @@
   (define (tree-rec path padding)
     (define name (file-name path))
 
-    (if (hashset-contains? *ignore-set* name)
+    (if (or (hashset-contains? *ignore-set* name)
+            (and (is-dir? path)
+                 (not (unbox (FileTreePopupState-show-hidden-directories state)))
+                 (hidden-directory-name? name)))
         '()
         (cond
           [(is-file? path)
@@ -414,6 +425,14 @@
         event-result/close)
       event-result/consume))
 
+(define (popup-toggle-hidden-directories! state)
+  (define current-entry (popup-current-entry state))
+  (define focus-path (if current-entry (popup-entry-path current-entry) #f))
+  (define show-hidden-box (FileTreePopupState-show-hidden-directories state))
+  (set-box! show-hidden-box (not (unbox show-hidden-box)))
+  (popup-refresh! state focus-path)
+  event-result/consume)
+
 (define (popup-delete-path! state)
   (define entry (popup-current-entry state))
   (when entry
@@ -593,6 +612,9 @@
     [(and (char? char) (equal? char #\s))
      (popup-search-selected-directory! state)]
 
+    [(and (char? char) (equal? char #\.))
+     (popup-toggle-hidden-directories! state)]
+
     [(and (char? char) (equal? char #\F))
      (popup-fold-all! state)]
 
@@ -666,7 +688,8 @@
                         (box 0)
                         (box 0)
                         (box 1)
-                        (box #t)))
+                        (box #t)
+                        (box #f)))
 
   (popup-refresh! state target-path)
 
