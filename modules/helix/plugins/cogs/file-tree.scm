@@ -58,9 +58,6 @@
         "nix" " "
         "md" " "))
 
-(define (helix-prompt! prompt-str thunk)
-  (push-component! (prompt prompt-str thunk)))
-
 (define (current-doc-id)
   (let* ([focus (editor-focus)])
     (editor->doc-id focus)))
@@ -144,7 +141,16 @@
          max-length
          center-next-render
          show-hidden-directories
-         delete-confirm-path))
+         delete-confirm-path
+         input-modal))
+
+(struct FileTreeInputModalState
+        (kind
+         title
+         prefix
+         input
+         cursor
+         source-path))
 
 (define (popup-for-each-index func lst index)
   (if (null? lst)
@@ -178,6 +184,23 @@
       (if (> (string-length text) max-length)
           (substring text 0 max-length)
           text)))
+
+(define (string-insert-at value index fragment)
+  (define clamped-index (popup-clamp index 0 (string-length value)))
+  (string-append (substring value 0 clamped-index)
+                 fragment
+                 (substring value clamped-index (string-length value))))
+
+(define (string-remove-at value index)
+  (if (or (< index 0) (>= index (string-length value)))
+      value
+      (string-append (substring value 0 index)
+                     (substring value (+ index 1) (string-length value)))))
+
+(define (ensure-trailing-slash path)
+  (if (and (string? path) (not (ends-with? path "/")))
+      (string-append path "/")
+      path))
 
 (define (popup-clamp value lower upper)
   (max lower (min upper value)))
@@ -440,6 +463,7 @@
 (define (popup-open-delete-confirm! state)
   (define entry (popup-current-entry state))
   (when entry
+    (set-box! (FileTreePopupState-input-modal state) #f)
     (set-box! (FileTreePopupState-delete-confirm-path state) (popup-entry-path entry)))
   event-result/consume)
 
@@ -530,70 +554,263 @@
                        footer-no
                        no-style)))
 
-(define (popup-rename-path! state)
-  (define entry (popup-current-entry state))
-  (when entry
-    (define source (popup-entry-path entry))
-    (define source-name (file-name source))
-    (define source-parent (path-parent source))
-    (helix-prompt!
-     (string-append "Rename " source-name " to: ")
-     (lambda (answer)
-       (when (and (string? answer)
-                  (not (equal? answer ""))
-                  (not (equal? answer source-name)))
-         (define destination
-           (if (and (> (string-length answer) 0)
-                    (equal? (substring answer 0 1) "/"))
-               (path-clean answer)
-               (path-clean (string-append source-parent "/" answer))))
-         (when (and (string? destination)
-                    (not (equal? destination ""))
-                    (not (path=? destination source)))
-           (define quoted-source (string-append "\"" (shell-escape source) "\""))
-           (define quoted-destination (string-append "\"" (shell-escape destination) "\""))
-           (helix.run-shell-command (string-append "mv -- " quoted-source " " quoted-destination))
-           (set-box! (FileTreePopupState-directories state)
-                     (popup-unfold-path-to-target
-                      (unbox (FileTreePopupState-directories state))
-                      (FileTreePopupState-root state)
-                      destination))
-           (popup-refresh-when state
-                               destination
-                               (lambda (path)
-                                 (and (path-exists? path)
-                                      (not (path-exists? source))))
-                               destination))))))
+(define (popup-input-modal-open? state)
+  (FileTreeInputModalState? (unbox (FileTreePopupState-input-modal state))))
+
+(define (popup-open-input-modal! state kind title prefix initial-input source-path)
+  (define input-value (if (string? initial-input) initial-input ""))
+  (set-box! (FileTreePopupState-delete-confirm-path state) #f)
+  (set-box! (FileTreePopupState-input-modal state)
+            (FileTreeInputModalState kind
+                                     title
+                                     prefix
+                                     (box input-value)
+                                     (box (string-length input-value))
+                                     source-path))
   event-result/consume)
 
-(define (popup-create-path! state)
+(define (popup-close-input-modal! state)
+  (set-box! (FileTreePopupState-input-modal state) #f)
+  event-result/consume)
+
+(define (popup-input-modal-action-label modal)
+  (if (equal? (FileTreeInputModalState-kind modal) 'rename)
+      "rename"
+      "create"))
+
+(define (popup-open-create-input! state)
   (define base-path (popup-selected-base-path state))
-  (define prompt (string-append "New path: " base-path "/"))
+  (popup-open-input-modal! state 'create "create path" (ensure-trailing-slash base-path) "" #f))
 
-  (helix-prompt!
-   prompt
-   (lambda (result)
-     (when (and (string? result) (not (equal? result "")))
-       (define path-name (string-append (trim-start-matches prompt "New path: ") result))
-       (define target-path
-         (if (ends-with? path-name "/")
-             (trim-end-matches path-name "/")
-             path-name))
-       (when (not (equal? target-path ""))
-         (if (ends-with? path-name "/")
-             (hx.create-directory target-path)
-             (let ([quoted (string-append "\"" (shell-escape target-path) "\"")])
-               (hx.create-directory (file-directory target-path))
-               (helix.run-shell-command (string-append "touch -- " quoted))))
+(define (popup-open-rename-input! state)
+  (define entry (popup-current-entry state))
+  (if entry
+      (let* ([source (popup-entry-path entry)]
+             [source-name (file-name source)]
+             [source-parent (path-parent source)]
+             [prefix (ensure-trailing-slash source-parent)])
+        (popup-open-input-modal! state 'rename "rename path" prefix source-name source))
+      event-result/consume))
 
-         (set-box! (FileTreePopupState-directories state)
-                   (popup-unfold-path-to-target
-                    (unbox (FileTreePopupState-directories state))
-                    (FileTreePopupState-root state)
-                    target-path))
-         (popup-refresh-when state target-path path-exists? target-path)))))
+(define (popup-submit-create-input! state modal)
+  (define result (unbox (FileTreeInputModalState-input modal)))
+  (define prefix (FileTreeInputModalState-prefix modal))
+  (when (and (string? result) (not (equal? result "")))
+    (define path-name (string-append prefix result))
+    (define target-path
+      (if (ends-with? path-name "/")
+          (trim-end-matches path-name "/")
+          path-name))
+    (when (not (equal? target-path ""))
+      (if (ends-with? path-name "/")
+          (hx.create-directory target-path)
+          (let ([quoted (string-append "\"" (shell-escape target-path) "\"")])
+            (hx.create-directory (file-directory target-path))
+            (helix.run-shell-command (string-append "touch -- " quoted))))
 
+      (set-box! (FileTreePopupState-directories state)
+                (popup-unfold-path-to-target
+                 (unbox (FileTreePopupState-directories state))
+                 (FileTreePopupState-root state)
+                 target-path))
+      (popup-refresh-when state target-path path-exists? target-path))))
+
+(define (popup-submit-rename-input! state modal)
+  (define source (FileTreeInputModalState-source-path modal))
+  (define answer (unbox (FileTreeInputModalState-input modal)))
+  (define prefix (FileTreeInputModalState-prefix modal))
+
+  (when (and (string? source)
+             (string? answer)
+             (not (equal? answer "")))
+    (define source-name (file-name source))
+    (define destination
+      (if (and (> (string-length answer) 0)
+               (equal? (substring answer 0 1) "/"))
+          (path-clean answer)
+          (path-clean (string-append prefix answer))))
+
+    (when (and (string? destination)
+               (not (equal? destination ""))
+               (not (equal? answer source-name))
+               (not (path=? destination source)))
+      (define quoted-source (string-append "\"" (shell-escape source) "\""))
+      (define quoted-destination (string-append "\"" (shell-escape destination) "\""))
+      (helix.run-shell-command (string-append "mv -- " quoted-source " " quoted-destination))
+      (set-box! (FileTreePopupState-directories state)
+                (popup-unfold-path-to-target
+                 (unbox (FileTreePopupState-directories state))
+                 (FileTreePopupState-root state)
+                 destination))
+      (popup-refresh-when state
+                          destination
+                          (lambda (path)
+                            (and (path-exists? path)
+                                 (not (path-exists? source))))
+                          destination))))
+
+(define (popup-submit-input-modal! state)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (popup-close-input-modal! state)
+    (if (equal? (FileTreeInputModalState-kind modal) 'rename)
+        (popup-submit-rename-input! state modal)
+        (popup-submit-create-input! state modal)))
   event-result/consume)
+
+(define (popup-input-modal-cursor-clamped modal)
+  (popup-clamp (unbox (FileTreeInputModalState-cursor modal))
+               0
+               (string-length (unbox (FileTreeInputModalState-input modal)))))
+
+(define (popup-input-modal-backspace! state)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (define cursor-box (FileTreeInputModalState-cursor modal))
+    (define input-box (FileTreeInputModalState-input modal))
+    (define input (unbox input-box))
+    (define cursor (popup-input-modal-cursor-clamped modal))
+    (set-box! cursor-box cursor)
+    (when (> cursor 0)
+      (set-box! input-box (string-remove-at input (- cursor 1)))
+      (set-box! cursor-box (- cursor 1))))
+  event-result/consume)
+
+(define (popup-input-modal-delete-forward! state)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (define cursor-box (FileTreeInputModalState-cursor modal))
+    (define input-box (FileTreeInputModalState-input modal))
+    (define input (unbox input-box))
+    (define cursor (popup-input-modal-cursor-clamped modal))
+    (set-box! cursor-box cursor)
+    (when (< cursor (string-length input))
+      (set-box! input-box (string-remove-at input cursor))))
+  event-result/consume)
+
+(define (popup-input-modal-append-char! state ch)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (define cursor-box (FileTreeInputModalState-cursor modal))
+    (define input-box (FileTreeInputModalState-input modal))
+    (define input (unbox input-box))
+    (define cursor (popup-input-modal-cursor-clamped modal))
+    (set-box! cursor-box cursor)
+    (set-box! input-box (string-insert-at input cursor (string ch)))
+    (set-box! cursor-box (+ cursor 1)))
+  event-result/consume)
+
+(define (popup-input-modal-move-cursor! state delta)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (define cursor-box (FileTreeInputModalState-cursor modal))
+    (define cursor (popup-input-modal-cursor-clamped modal))
+    (define max-cursor (string-length (unbox (FileTreeInputModalState-input modal))))
+    (set-box! cursor-box (popup-clamp (+ cursor delta) 0 max-cursor)))
+  event-result/consume)
+
+(define (popup-input-modal-move-home! state)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (set-box! (FileTreeInputModalState-cursor modal) 0))
+  event-result/consume)
+
+(define (popup-input-modal-move-end! state)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (set-box! (FileTreeInputModalState-cursor modal)
+              (string-length (unbox (FileTreeInputModalState-input modal)))))
+  event-result/consume)
+
+(define (popup-input-modal-visible-state modal max-width)
+  (if (<= max-width 0)
+      (list "" 0)
+      (let* ([prefix (FileTreeInputModalState-prefix modal)]
+             [input (unbox (FileTreeInputModalState-input modal))]
+             [cursor (popup-input-modal-cursor-clamped modal)]
+             [full-text (string-append prefix input)]
+             [text-room (max 0 (- max-width 1))]
+             [absolute-cursor (+ (string-length prefix) cursor)]
+             [max-start (max 0 (- (string-length full-text) text-room))]
+             [window-start (popup-clamp (- absolute-cursor (quotient text-room 2)) 0 max-start)]
+             [window-end (min (string-length full-text) (+ window-start text-room))]
+             [visible-text (substring full-text window-start window-end)]
+             [cursor-col (popup-clamp (- absolute-cursor window-start)
+                                      0
+                                      (max 0 (- max-width 1)))])
+        (list visible-text cursor-col))))
+
+(define (popup-input-modal-event-handler state event)
+  (define char (key-event-char event))
+  (define modifier (key-event-modifier event))
+  (cond
+    [(key-event-escape? event)
+     (popup-close-input-modal! state)]
+
+    [(key-event-enter? event)
+     (popup-submit-input-modal! state)]
+
+    [(key-event-backspace? event)
+     (popup-input-modal-backspace! state)]
+
+    [(key-event-delete? event)
+     (popup-input-modal-delete-forward! state)]
+
+    [(key-event-left? event)
+     (popup-input-modal-move-cursor! state -1)]
+
+    [(key-event-right? event)
+     (popup-input-modal-move-cursor! state 1)]
+
+    [(key-event-home? event)
+     (popup-input-modal-move-home! state)]
+
+    [(key-event-end? event)
+     (popup-input-modal-move-end! state)]
+
+    [(and (char? char)
+          (not (equal? modifier key-modifier-ctrl))
+          (not (equal? modifier key-modifier-alt))
+          (not (equal? modifier key-modifier-super)))
+     (popup-input-modal-append-char! state char)]
+
+    [else event-result/consume-without-rerender]))
+
+(define (popup-input-modal-render state popup-area popup-style border-style row-style frame)
+  (define modal (unbox (FileTreePopupState-input-modal state)))
+  (when (FileTreeInputModalState? modal)
+    (define popup-width (area-width popup-area))
+    (define popup-height (area-height popup-area))
+    (define modal-width (max 48 (min (- popup-width 4) 112)))
+    (define modal-height 7)
+    (define modal-x (+ (area-x popup-area) (max 0 (exact (round (/ (- popup-width modal-width) 2))))))
+    (define modal-y (+ (area-y popup-area) (max 0 (exact (round (/ (- popup-height modal-height) 2))))))
+    (define modal-area (area modal-x modal-y modal-width modal-height))
+    (define inner-width (max 1 (- modal-width 2)))
+    (define title-text (popup-truncate (FileTreeInputModalState-title modal) inner-width))
+    (define action (popup-input-modal-action-label modal))
+    (define footer-text (popup-truncate (string-append "[Enter] " action " [Esc] cancel") inner-width))
+    (define blank-line (make-string inner-width #\space))
+    (define input-state (popup-input-modal-visible-state modal inner-width))
+    (define input-content (list-ref input-state 0))
+    (define cursor-col (list-ref input-state 1))
+    (define cursor-style (style-with-reversed row-style))
+    (define cursor-glyph
+      (if (< cursor-col (string-length input-content))
+          (substring input-content cursor-col (+ cursor-col 1))
+          " "))
+    (define (centered-col text)
+      (+ modal-x 1 (max 0 (exact (round (/ (- inner-width (string-length text)) 2))))))
+
+    (buffer/clear-with frame modal-area popup-style)
+    (block/render frame modal-area (make-block popup-style border-style "all" "rounded"))
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 1) blank-line popup-style)
+    (frame-set-string! frame (centered-col title-text) (+ modal-y 1) title-text row-style)
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) blank-line popup-style)
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) input-content row-style)
+    (frame-set-string! frame (+ modal-x 1 cursor-col) (+ modal-y 3) cursor-glyph cursor-style)
+    (frame-set-string! frame (+ modal-x 1) (+ modal-y 5) blank-line popup-style)
+    (frame-set-string! frame (centered-col footer-text) (+ modal-y 5) footer-text row-style)))
 
 (define (popup-fold-all! state)
   (set-box! (FileTreePopupState-directories state)
@@ -616,6 +833,9 @@
   (define modifier (key-event-modifier event))
 
   (cond
+    [(popup-input-modal-open? state)
+     (popup-input-modal-event-handler state event)]
+
     [(popup-delete-confirm-open? state)
      (popup-delete-confirm-event-handler state event)]
 
@@ -680,10 +900,10 @@
      (popup-open-selection! state)]
 
     [(and (char? char) (equal? char #\a))
-     (popup-create-path! state)]
+     (popup-open-create-input! state)]
 
     [(and (char? char) (equal? char #\r))
-     (popup-rename-path! state)]
+     (popup-open-rename-input! state)]
 
     [(and (char? char) (equal? char #\d))
      (popup-open-delete-confirm! state)]
@@ -756,6 +976,7 @@
         visible-entries
         0))
 
+  (popup-input-modal-render state popup-area popup-style border-style row-style frame)
   (popup-delete-confirm-render state popup-area popup-style border-style row-style frame))
 
 (define (create-file-tree-popup)
@@ -770,6 +991,7 @@
                         (box 0)
                         (box 1)
                         (box #t)
+                        (box #f)
                         (box #f)
                         (box #f)))
 
