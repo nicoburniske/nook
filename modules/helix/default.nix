@@ -31,7 +31,7 @@
       pkgs.nixd
     ];
 
-    sumi.file = {
+    sumi.configFile = {
       "helix/config.toml" = {
         dependsOn = ["theme"];
         render = ctx: let

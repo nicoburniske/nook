@@ -2,7 +2,7 @@
   televisionModule = {pkgs, ...}: {
     environment.systemPackages = [pkgs.television];
 
-    sumi.file = {
+    sumi.configFile = {
       "television/cable/files.toml".text = ''
         [metadata]
         name = "files"

@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  sumi.file."hypr/hyprpaper.conf" = {
+  sumi.configFile."hypr/hyprpaper.conf" = {
     dependsOn = ["theme"];
     render = ctx: let
       theme = ctx.values.theme;

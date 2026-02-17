@@ -93,7 +93,7 @@
   in {
     environment.systemPackages = [yaziPackage];
 
-    sumi.file = {
+    sumi.configFile = {
       "yazi/yazi.toml".source = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
       "yazi/keymap.toml".source = tomlFormat.generate "sumi-yazi-keymap.toml" yaziKeymap;
       "yazi/theme.toml" = {

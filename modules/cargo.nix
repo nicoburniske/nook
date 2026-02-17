@@ -1,7 +1,9 @@
 {...}: let
-  cargoModule = {
-    sumi.file = {
-      ".cargo/config.toml".text = ''
+  cargoModule = {config, ...}: {
+    environment.variables.CARGO_HOME = "${config.lib.sumi.paths.data}/cargo";
+
+    sumi.dataFile = {
+      "cargo/config.toml".text = ''
         [net]
         git-fetch-with-cli = true
       '';

@@ -83,9 +83,10 @@
       '';
   in {
     programs.dconf.enable = true;
+    environment.variables.GTK2_RC_FILES = "${configDir}/gtk-2.0/gtkrc";
 
-    sumi.file = {
-      ".gtkrc-2.0" = {
+    sumi.configFile = {
+      "gtk-2.0/gtkrc" = {
         dependsOn = ["theme"];
         render = ctx: mkGtkrc ctx.values.theme;
       };
@@ -105,7 +106,10 @@
         dependsOn = ["theme"];
         render = ctx: mkGtkCss ctx.values.theme;
       };
-      ".themes/adw-gtk3" = {
+    };
+
+    sumi.dataFile = {
+      "themes/adw-gtk3" = {
         dependsOn = ["theme"];
         render = ctx: mkFlattenedGtkTheme ctx.values.theme;
       };

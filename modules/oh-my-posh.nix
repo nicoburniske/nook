@@ -2,7 +2,7 @@
   ohMyPoshModule = {pkgs, ...}: {
     environment.systemPackages = [pkgs.oh-my-posh];
 
-    sumi.file."ohmyposh/config.json" = {
+    sumi.configFile."ohmyposh/config.json" = {
       dependsOn = ["theme"];
       render = ctx: let
         theme = ctx.values.theme;

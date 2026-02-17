@@ -2,7 +2,7 @@
   btopModule = {pkgs, ...}: {
     environment.systemPackages = [pkgs.btop];
 
-    sumi.file = {
+    sumi.configFile = {
       "btop/btop.conf".text = ''
         color_theme = "sumi"
       '';

@@ -4,7 +4,7 @@
       pkgs.rofi
     ];
 
-    sumi.file."rofi/config.rasi" = {
+    sumi.configFile."rofi/config.rasi" = {
       dependsOn = ["theme"];
       render = ctx: let
         theme = ctx.values.theme;

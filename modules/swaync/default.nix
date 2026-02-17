@@ -10,7 +10,7 @@
       pkgs.swaynotificationcenter
     ];
 
-    sumi.file = {
+    sumi.configFile = {
       "swaync/config.json".text = "{}\n";
 
       "swaync/style.css" = {
