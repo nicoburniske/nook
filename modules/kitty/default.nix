@@ -1,10 +1,7 @@
 {...}: let
   tabTitle = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
   renderTheme = import ./_theme.nix;
-  mkKittyModule = {
-    pkgs,
-    reloadCommand,
-  }: {
+  mkKittyModule = {pkgs, ...}: {
     environment.systemPackages = [pkgs.kitty];
 
     sumi.file = {
@@ -102,18 +99,12 @@
       '';
     };
 
-    sumi.program.kitty.reload = reloadCommand;
+    sumi.program.kitty.reload =
+      if pkgs.stdenv.isDarwin
+      then "/usr/bin/pkill -USR1 .kitty-wrapped"
+      else "${pkgs.procps}/bin/pkill -USR1 .kitty-wrapped";
   };
 in {
-  flake.modules.nixos.kitty = {pkgs, ...}:
-    mkKittyModule {
-      inherit pkgs;
-      reloadCommand = "${pkgs.procps}/bin/pkill -USR1 -x .kitty-wrapped || true";
-    };
-
-  flake.modules.darwin.kitty = {pkgs, ...}:
-    mkKittyModule {
-      inherit pkgs;
-      reloadCommand = "pkill -USR1 -x .kitty-wrapped || true";
-    };
+  flake.modules.nixos.kitty = mkKittyModule;
+  flake.modules.darwin.kitty = mkKittyModule;
 }

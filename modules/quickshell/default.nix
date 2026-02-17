@@ -63,7 +63,7 @@
       "quickshell/components".source = config.lib.sumi.mkOutOfStoreSymlink "${quickshellRoot}/components";
     };
 
-    sumi.program.quickshell.reload = "${pkgs.systemd}/bin/systemctl --user restart quickshell.service || true";
+    sumi.program.quickshell.reload = "${pkgs.systemd}/bin/systemctl --user restart quickshell.service";
 
     systemd.user.services.quickshell = {
       description = "Quickshell";

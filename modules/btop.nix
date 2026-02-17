@@ -58,8 +58,6 @@
           '';
       };
     };
-
-    sumi.program.btop.reload = [];
   };
 in {
   flake.modules.nixos.btop = btopModule;

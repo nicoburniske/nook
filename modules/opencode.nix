@@ -228,8 +228,6 @@
           };
       };
     };
-
-    sumi.program.opencode.reload = [];
   };
 in {
   flake.modules.nixos.opencode = opencodeModule;

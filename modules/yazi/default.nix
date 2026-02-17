@@ -104,8 +104,6 @@
       "yazi/plugins/tv-files.yazi".source = tvFilesPlugin;
       "yazi/plugins/tv-text.yazi".source = tvTextPlugin;
     };
-
-    sumi.program.yazi.reload = [];
   };
 in {
   flake.modules.nixos.yazi = {pkgs, ...}:

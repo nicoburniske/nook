@@ -75,8 +75,6 @@
           };
         };
     };
-
-    sumi.program."oh-my-posh".reload = [];
   };
 in {
   flake.modules.nixos.ohMyPosh = ohMyPoshModule;
