@@ -14,7 +14,6 @@
         patches =
           (prevAttrs.patches or [])
           ++ [
-            ./patches/hide-bufferline-entries.patch
             ./patches/search-in-directory.patch
           ];
         cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
