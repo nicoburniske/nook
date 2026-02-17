@@ -704,8 +704,12 @@
                        footer-no
                        no-style)))
 
-(define (popup-open-input-modal! state kind title prefix initial-input source-path)
+(define (popup-open-input-modal! state kind title prefix initial-input source-path initial-cursor)
   (define input-value (if (string? initial-input) initial-input ""))
+  (define cursor-value
+    (if (number? initial-cursor)
+        (popup-clamp initial-cursor 0 (string-length input-value))
+        (string-length input-value)))
   (set-box! (FileTreePopupState-delete-confirm-path state) #f)
 
   (push-component!
@@ -715,10 +719,10 @@
                                             title
                                             prefix
                                             (box input-value)
-                                            (box (string-length input-value))
+                                            (box cursor-value)
                                             source-path)
-                   file-tree-input-modal-render
-                   (hash "handle_event" file-tree-input-modal-event-handler)))
+                    file-tree-input-modal-render
+                    (hash "handle_event" file-tree-input-modal-event-handler)))
 
   event-result/consume)
 
@@ -729,7 +733,7 @@
 
 (define (popup-open-create-input! state)
   (define base-path (popup-selected-base-path state))
-  (popup-open-input-modal! state 'create "create path" (ensure-trailing-slash base-path) "" #f))
+  (popup-open-input-modal! state 'create "create" (ensure-trailing-slash base-path) "" #f #f))
 
 (define (popup-open-rename-input! state)
   (define entry (popup-current-entry state))
@@ -737,8 +741,26 @@
       (let* ([source (popup-entry-path entry)]
              [source-name (file-name source)]
              [source-parent (path-parent source)]
-             [prefix (ensure-trailing-slash source-parent)])
-        (popup-open-input-modal! state 'rename "rename path" prefix source-name source))
+             [prefix (ensure-trailing-slash source-parent)]
+             [name-length (string-length source-name)]
+             [last-dot-index
+              (let loop ([chars (string->list source-name)] [idx 0] [last-dot #f])
+                (if (null? chars)
+                    last-dot
+                    (loop (cdr chars)
+                          (+ idx 1)
+                          (if (char=? (car chars) #\.) idx last-dot))))]
+             [rename-cursor
+              (if (and last-dot-index (> last-dot-index 0) (< last-dot-index (- name-length 1)))
+                  last-dot-index
+                  name-length)])
+        (popup-open-input-modal! state
+                                 'rename
+                                 "rename"
+                                 prefix
+                                 source-name
+                                 source
+                                 rename-cursor))
       event-result/consume))
 
 (define (popup-submit-create-input! state modal)
