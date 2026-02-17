@@ -7,7 +7,7 @@
 (set-global-buffer-or-extension-keymap (hash FILE-TREE file-tree-base))
 
 (keymap (global)
-        (normal (C-f ":create-file-tree")
+        (normal (C-f ":create-file-tree-popup")
                 (C-g ":sh kitty @ launch --copy-env --type=overlay --cwd=current --window-title=current lazygit >/dev/null")
                 (space
                   (l

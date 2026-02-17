@@ -12,6 +12,7 @@
          open-helix-scm
          open-init-scm
          create-file-tree
+         create-file-tree-popup
          fold-directory
          unfold-all-one-level
          open-file-from-picker

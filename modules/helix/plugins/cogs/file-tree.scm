@@ -3,6 +3,7 @@
 (require (prefix-in helix.static. "helix/static.scm"))
 (require "helix/misc.scm")
 (require "helix/editor.scm")
+(require "helix/components.scm")
 ; (require "steel/sorting/merge-sort.scm")
 
 ;;; -----------------------------------------------------------------
@@ -57,6 +58,7 @@
          FILE-TREE
          FILE-TREE-KEYBINDINGS
          create-file-tree
+         create-file-tree-popup
          file-tree-set-side!)
 
 ;; labelled buffers ->
@@ -519,3 +521,518 @@
           (transduce *directories* (mapping (lambda (x) (list (list-ref x 0) #f))) (into-hashmap)))
 
     (refresh-file-tree)))
+
+(struct FileTreePopupState
+        (root
+         entries
+         directories
+         cursor
+         window-start
+         max-length
+         center-next-render))
+
+(define (popup-for-each-index func lst index)
+  (if (null? lst)
+      void
+      (begin
+        (func index (car lst))
+        (popup-for-each-index func (cdr lst) (+ index 1)))))
+
+(define (popup-entry path directory? display)
+  (list path directory? display))
+
+(define (popup-entry-path entry)
+  (list-ref entry 0))
+
+(define (popup-entry-directory? entry)
+  (list-ref entry 1))
+
+(define (popup-entry-display entry)
+  (list-ref entry 2))
+
+(define (popup-valid-entry? entry)
+  (and (list? entry)
+       (= (length entry) 3)
+       (string? (list-ref entry 0))
+       (boolean? (list-ref entry 1))
+       (string? (list-ref entry 2))))
+
+(define (popup-truncate text max-length)
+  (if (<= max-length 0)
+      ""
+      (if (> (string-length text) max-length)
+          (substring text 0 max-length)
+          text)))
+
+(define (popup-clamp value lower upper)
+  (max lower (min upper value)))
+
+(define (popup-directory-folded? state directory)
+  (define directories-box (FileTreePopupState-directories state))
+  (define directories (unbox directories-box))
+  (if (hash-contains? directories directory)
+      (hash-try-get directories directory)
+      (begin
+        (set-box! directories-box (hash-insert directories directory #t))
+        #t)))
+
+(define (popup-format-dir state directory)
+  (if (popup-directory-folded? state directory)
+      ">  "
+      "v  "))
+
+(define (popup-concat-map func lst)
+  (if (null? lst)
+      '()
+      (append (func (car lst))
+              (popup-concat-map func (cdr lst)))))
+
+(define (popup-tree state root)
+  (define (tree-rec path padding)
+    (define name (file-name path))
+
+    (if (hashset-contains? *ignore-set* name)
+        '()
+        (cond
+          [(is-file? path)
+           (list (popup-entry path #f (string-append padding (path->symbol path) name)))]
+          [(is-dir? path)
+           (define folded? (popup-directory-folded? state path))
+           (define entry (popup-entry path #t (string-append padding (popup-format-dir state path) name)))
+           (if folded?
+               (list entry)
+               (cons entry
+                     (popup-concat-map
+                      (fn (x) (tree-rec x (string-append padding "    ")))
+                      (merge-sort (read-dir path) #:comparator path-sort<?))))]
+          [else '()])))
+
+  (if (is-dir? root)
+      (popup-concat-map
+       (fn (x) (tree-rec x ""))
+       (merge-sort (read-dir root) #:comparator path-sort<?))
+      (tree-rec root "")))
+
+(define (popup-list-index-of-path entries path)
+  (if (not (string? path))
+      #f
+      (let ([target (path-clean path)])
+        (define (loop idx rest)
+          (cond
+            [(null? rest) #f]
+            [(path=? (popup-entry-path (car rest)) target) idx]
+            [else (loop (+ idx 1) (cdr rest))]))
+        (loop 0 entries))))
+
+(define (popup-ensure-window! state)
+  (define entries (unbox (FileTreePopupState-entries state)))
+  (define count (length entries))
+  (define cursor-box (FileTreePopupState-cursor state))
+  (define window-start-box (FileTreePopupState-window-start state))
+
+  (if (= count 0)
+      (begin
+        (set-box! cursor-box 0)
+        (set-box! window-start-box 0))
+      (begin
+        (define visible (max 1 (unbox (FileTreePopupState-max-length state))))
+        (set-box! cursor-box (popup-clamp (unbox cursor-box) 0 (- count 1)))
+
+        (define max-window-start (max 0 (- count visible)))
+        (set-box! window-start-box (popup-clamp (unbox window-start-box) 0 max-window-start))
+
+        (when (< (unbox cursor-box) (unbox window-start-box))
+          (set-box! window-start-box (unbox cursor-box)))
+
+        (when (> (unbox cursor-box) (+ (unbox window-start-box) (- visible 1)))
+          (set-box! window-start-box
+                    (popup-clamp (- (unbox cursor-box) (- visible 1))
+                                 0
+                                 max-window-start))))))
+
+(define (popup-center-cursor-window! state)
+  (define entries (unbox (FileTreePopupState-entries state)))
+  (define count (length entries))
+  (when (> count 0)
+    (define visible (max 1 (unbox (FileTreePopupState-max-length state))))
+    (define cursor (unbox (FileTreePopupState-cursor state)))
+    (define max-window-start (max 0 (- count visible)))
+    (define half-visible (quotient visible 2))
+    (set-box! (FileTreePopupState-window-start state)
+              (popup-clamp (- cursor half-visible) 0 max-window-start))))
+
+(define (popup-refresh! state focus-path)
+  (define root (FileTreePopupState-root state))
+  (define raw-entries
+    (if (and (string? root) (path-exists? root))
+        (popup-tree state root)
+        '()))
+
+  (define entries (filter popup-valid-entry? raw-entries))
+
+  (set-box! (FileTreePopupState-entries state) entries)
+
+  (if (null? entries)
+      (begin
+        (set-box! (FileTreePopupState-cursor state) 0)
+        (set-box! (FileTreePopupState-window-start state) 0))
+      (begin
+        (define idx (popup-list-index-of-path entries focus-path))
+        (when idx
+          (set-box! (FileTreePopupState-cursor state) idx))
+        (popup-ensure-window! state))))
+
+(define (popup-move-cursor! state delta)
+  (define entries (unbox (FileTreePopupState-entries state)))
+  (define count (length entries))
+  (when (> count 0)
+    (define cursor-box (FileTreePopupState-cursor state))
+    (set-box! cursor-box (modulo (+ (unbox cursor-box) delta count) count))
+    (popup-ensure-window! state)))
+
+(define (popup-current-entry state)
+  (define entries (unbox (FileTreePopupState-entries state)))
+  (define idx (unbox (FileTreePopupState-cursor state)))
+  (if (and (>= idx 0) (< idx (length entries)))
+      (list-ref entries idx)
+      #f))
+
+(define (popup-set-directory-folded! state directory folded?)
+  (define directories-box (FileTreePopupState-directories state))
+  (set-box! directories-box (hash-insert (unbox directories-box) directory folded?)))
+
+(define (popup-toggle-directory! state directory)
+  (define directories (unbox (FileTreePopupState-directories state)))
+  (define folded?
+    (if (hash-contains? directories directory)
+        (hash-try-get directories directory)
+        #t))
+  (popup-set-directory-folded! state directory (not folded?)))
+
+(define (popup-unfold-path-to-target directories root target)
+  (if (and (string? root) (string? target))
+      (let* ([root-path (path-clean root)]
+             [target-path (path-clean target)]
+             [start (file-directory target-path)])
+        (define (loop path acc)
+          (if (and (string? path) (not (equal? path "")))
+              (let ([next (hash-insert acc path #f)])
+                (if (path=? path root-path)
+                    next
+                    (let ([parent (path-parent path)])
+                      (if (path=? parent path)
+                          next
+                          (loop parent next)))))
+              acc))
+        (loop start directories))
+      directories))
+
+(define (popup-refresh-when state target predicate focus-path)
+  (define max-attempts 40)
+  (define (loop attempts)
+    (if (or (<= attempts 0) (predicate target))
+        (popup-refresh! state focus-path)
+        (enqueue-thread-local-callback-with-delay
+         50
+         (lambda ()
+           (loop (- attempts 1))))))
+  (loop max-attempts))
+
+(define (popup-selected-base-path state)
+  (define entry (popup-current-entry state))
+  (define root (FileTreePopupState-root state))
+  (cond
+    [(and entry (popup-entry-directory? entry)) (popup-entry-path entry)]
+    [(and entry (string? (popup-entry-path entry))) (file-directory (popup-entry-path entry))]
+    [else root]))
+
+(define (popup-open-selection! state)
+  (define entry (popup-current-entry state))
+  (if (not entry)
+      event-result/consume
+      (let ([target (popup-entry-path entry)])
+        (if (popup-entry-directory? entry)
+            (begin
+              (popup-toggle-directory! state target)
+              (popup-refresh! state target)
+              event-result/consume)
+            (begin
+              (helix.open target)
+              event-result/close)))))
+
+(define (popup-enter-directory! state)
+  (define entry (popup-current-entry state))
+  (if (and entry (popup-entry-directory? entry))
+      (let ([target (popup-entry-path entry)])
+        (when (popup-directory-folded? state target)
+          (popup-set-directory-folded! state target #f))
+        (popup-refresh! state target)
+        event-result/consume)
+      event-result/consume))
+
+(define (popup-go-parent! state)
+  (define entry (popup-current-entry state))
+  (if (not entry)
+      event-result/consume
+      (let* ([target (popup-entry-path entry)]
+             [directory? (popup-entry-directory? entry)])
+        (if (and directory? (not (popup-directory-folded? state target)))
+            (begin
+              (popup-set-directory-folded! state target #t)
+              (popup-refresh! state target)
+              event-result/consume)
+            (let ([parent (if directory? (path-parent target) (file-directory target))])
+              (if (and (string? parent) (not (path=? parent target)))
+                  (begin
+                    (popup-refresh! state parent)
+                    event-result/consume)
+                  event-result/consume))))))
+
+(define (popup-search-selected-directory! state)
+  (define entry (popup-current-entry state))
+  (if (and entry (popup-entry-directory? entry))
+      (begin
+        (helix.search-in-directory (popup-entry-path entry))
+        event-result/close)
+      event-result/consume))
+
+(define (popup-delete-path! state)
+  (define entry (popup-current-entry state))
+  (when entry
+    (define target (popup-entry-path entry))
+    (define fallback-focus (path-parent target))
+    (helix-prompt!
+     (string-append "Delete " (file-name target) "? [y/N] ")
+     (lambda (answer)
+       (when (or (equal? answer "y") (equal? answer "Y"))
+         (define quoted (string-append "\"" (shell-escape target) "\""))
+         (if (is-dir? target)
+             (helix.run-shell-command (string-append "rm -rf -- " quoted))
+             (helix.run-shell-command (string-append "rm -f -- " quoted)))
+         (set-box! (FileTreePopupState-directories state)
+                   (popup-unfold-path-to-target
+                    (unbox (FileTreePopupState-directories state))
+                    (FileTreePopupState-root state)
+                    fallback-focus))
+         (popup-refresh-when state target (lambda (path) (not (path-exists? path))) fallback-focus)))))
+  event-result/consume)
+
+(define (popup-rename-path! state)
+  (define entry (popup-current-entry state))
+  (when entry
+    (define source (popup-entry-path entry))
+    (define source-name (file-name source))
+    (define source-parent (path-parent source))
+    (helix-prompt!
+     (string-append "Rename " source-name " to: ")
+     (lambda (answer)
+       (when (and (string? answer)
+                  (not (equal? answer ""))
+                  (not (equal? answer source-name)))
+         (define destination
+           (if (and (> (string-length answer) 0)
+                    (equal? (substring answer 0 1) "/"))
+               (path-clean answer)
+               (path-clean (string-append source-parent "/" answer))))
+         (when (and (string? destination)
+                    (not (equal? destination ""))
+                    (not (path=? destination source)))
+           (define quoted-source (string-append "\"" (shell-escape source) "\""))
+           (define quoted-destination (string-append "\"" (shell-escape destination) "\""))
+           (helix.run-shell-command (string-append "mv -- " quoted-source " " quoted-destination))
+           (set-box! (FileTreePopupState-directories state)
+                     (popup-unfold-path-to-target
+                      (unbox (FileTreePopupState-directories state))
+                      (FileTreePopupState-root state)
+                      destination))
+           (popup-refresh-when state
+                               destination
+                               (lambda (path)
+                                 (and (path-exists? path)
+                                      (not (path-exists? source))))
+                               destination))))))
+  event-result/consume)
+
+(define (popup-create-path! state)
+  (define base-path (popup-selected-base-path state))
+  (define prompt (string-append "New path: " base-path "/"))
+
+  (helix-prompt!
+   prompt
+   (lambda (result)
+     (when (and (string? result) (not (equal? result "")))
+       (define path-name (string-append (trim-start-matches prompt "New path: ") result))
+       (define target-path
+         (if (ends-with? path-name "/")
+             (trim-end-matches path-name "/")
+             path-name))
+       (when (not (equal? target-path ""))
+         (if (ends-with? path-name "/")
+             (hx.create-directory target-path)
+             (let ([quoted (string-append "\"" (shell-escape target-path) "\"")])
+               (hx.create-directory (file-directory target-path))
+               (helix.run-shell-command (string-append "touch -- " quoted))))
+
+         (set-box! (FileTreePopupState-directories state)
+                   (popup-unfold-path-to-target
+                    (unbox (FileTreePopupState-directories state))
+                    (FileTreePopupState-root state)
+                    target-path))
+         (popup-refresh-when state target-path path-exists? target-path)))))
+
+  event-result/consume)
+
+(define (popup-fold-all! state)
+  (set-box! (FileTreePopupState-directories state)
+            (transduce (unbox (FileTreePopupState-directories state))
+                       (mapping (lambda (x) (list (list-ref x 0) #t)))
+                       (into-hashmap)))
+  (popup-refresh! state #f)
+  event-result/consume)
+
+(define (popup-unfold-all-one-level! state)
+  (set-box! (FileTreePopupState-directories state)
+            (transduce (unbox (FileTreePopupState-directories state))
+                       (mapping (lambda (x) (list (list-ref x 0) #f)))
+                       (into-hashmap)))
+  (popup-refresh! state #f)
+  event-result/consume)
+
+(define (file-tree-popup-event-handler state event)
+  (define char (key-event-char event))
+
+  (cond
+    [(key-event-escape? event) event-result/close]
+    [(and (char? char) (equal? char #\q)) event-result/close]
+
+    [(key-event-down? event)
+     (popup-move-cursor! state 1)
+     event-result/consume]
+
+    [(key-event-up? event)
+     (popup-move-cursor! state -1)
+     event-result/consume]
+
+    [(and (char? char) (equal? char #\j))
+     (popup-move-cursor! state 1)
+     event-result/consume]
+
+    [(and (char? char) (equal? char #\k))
+     (popup-move-cursor! state -1)
+     event-result/consume]
+
+    [(and (char? char) (equal? char #\h))
+     (popup-go-parent! state)]
+
+    [(and (char? char) (equal? char #\l))
+     (popup-enter-directory! state)]
+
+    [(key-event-left? event)
+     (popup-go-parent! state)]
+
+    [(key-event-right? event)
+     (popup-enter-directory! state)]
+
+    [(key-event-tab? event)
+     (if (equal? (key-event-modifier event) key-modifier-shift)
+         (popup-move-cursor! state -1)
+         (popup-move-cursor! state 1))
+     event-result/consume]
+
+    [(key-event-enter? event)
+     (popup-open-selection! state)]
+
+    [(and (char? char) (equal? char #\a))
+     (popup-create-path! state)]
+
+    [(and (char? char) (equal? char #\r))
+     (popup-rename-path! state)]
+
+    [(and (char? char) (equal? char #\d))
+     (popup-delete-path! state)]
+
+    [(and (char? char) (equal? char #\s))
+     (popup-search-selected-directory! state)]
+
+    [(and (char? char) (equal? char #\F))
+     (popup-fold-all! state)]
+
+    [(and (char? char) (equal? char #\E))
+     (popup-unfold-all-one-level! state)]
+
+    [else event-result/consume-without-rerender]))
+
+(define (file-tree-popup-render state rect frame)
+  (define width (area-width rect))
+  (define height (area-height rect))
+
+  (define popup-width (max 56 (min 120 (- width 6))))
+  (define popup-height-target (exact (round (/ (* height 2) 3))))
+  (define popup-height (popup-clamp popup-height-target 8 (max 8 (- height 2))))
+
+  (define x (max 0 (exact (round (/ (- width popup-width) 2)))))
+  (define y (max 0 (exact (round (/ (- height popup-height) 2)))))
+
+  (define popup-area (area x y popup-width popup-height))
+  (define content-x (+ x 2))
+  (define content-y (+ y 1))
+  (define content-width (max 1 (- popup-width 4)))
+
+  (define visible-count (max 1 (- popup-height 2)))
+  (set-box! (FileTreePopupState-max-length state) visible-count)
+
+  (when (unbox (FileTreePopupState-center-next-render state))
+    (popup-center-cursor-window! state)
+    (set-box! (FileTreePopupState-center-next-render state) #f))
+
+  (popup-ensure-window! state)
+
+  (define row-style (theme-scope "ui.text"))
+  (define border-style row-style)
+  (define selected-style (style-with-bold (theme-scope "ui.menu.selected")))
+  (define popup-style (style))
+
+  (buffer/clear-with frame popup-area popup-style)
+  (block/render frame popup-area (make-block popup-style border-style "all" "rounded"))
+
+  (define entries (unbox (FileTreePopupState-entries state)))
+  (define start (unbox (FileTreePopupState-window-start state)))
+  (define cursor (unbox (FileTreePopupState-cursor state)))
+  (define visible-entries (slice entries start visible-count))
+  (define selected-index (- cursor start))
+  (define blank-line (make-string content-width #\space))
+
+  (if (null? entries)
+      (frame-set-string! frame content-x content-y "(empty)" row-style)
+      (popup-for-each-index
+       (lambda (index entry)
+         (define row (+ content-y index))
+         (define selected? (= index selected-index))
+         (define style (if selected? selected-style row-style))
+         (define fill-style (if selected? selected-style popup-style))
+         (define text (popup-truncate (popup-entry-display entry) content-width))
+         (frame-set-string! frame content-x row blank-line fill-style)
+         (frame-set-string! frame content-x row text style))
+       visible-entries
+       0)))
+
+(define (create-file-tree-popup)
+  (define target-path (current-doc-path))
+  (define root (resolve-tree-root target-path))
+  (define directories (popup-unfold-path-to-target (hash) root target-path))
+  (define state
+    (FileTreePopupState root
+                        (box '())
+                        (box directories)
+                        (box 0)
+                        (box 0)
+                        (box 1)
+                        (box #t)))
+
+  (popup-refresh! state target-path)
+
+  (push-component!
+   (new-component! "file-tree-popup"
+                   state
+                   file-tree-popup-render
+                   (hash "handle_event" file-tree-popup-event-handler))))
