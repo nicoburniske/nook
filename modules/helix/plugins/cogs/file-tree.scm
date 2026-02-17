@@ -141,11 +141,11 @@
          max-length
          center-next-render
          show-hidden-directories
-         delete-confirm-path
-         input-modal))
+         delete-confirm-path))
 
 (struct FileTreeInputModalState
-        (kind
+        (tree-state
+         kind
          title
          prefix
          input
@@ -463,7 +463,6 @@
 (define (popup-open-delete-confirm! state)
   (define entry (popup-current-entry state))
   (when entry
-    (set-box! (FileTreePopupState-input-modal state) #f)
     (set-box! (FileTreePopupState-delete-confirm-path state) (popup-entry-path entry)))
   event-result/consume)
 
@@ -554,23 +553,22 @@
                        footer-no
                        no-style)))
 
-(define (popup-input-modal-open? state)
-  (FileTreeInputModalState? (unbox (FileTreePopupState-input-modal state))))
-
 (define (popup-open-input-modal! state kind title prefix initial-input source-path)
   (define input-value (if (string? initial-input) initial-input ""))
   (set-box! (FileTreePopupState-delete-confirm-path state) #f)
-  (set-box! (FileTreePopupState-input-modal state)
-            (FileTreeInputModalState kind
-                                     title
-                                     prefix
-                                     (box input-value)
-                                     (box (string-length input-value))
-                                     source-path))
-  event-result/consume)
 
-(define (popup-close-input-modal! state)
-  (set-box! (FileTreePopupState-input-modal state) #f)
+  (push-component!
+   (new-component! "file-tree-input-modal"
+                   (FileTreeInputModalState state
+                                            kind
+                                            title
+                                            prefix
+                                            (box input-value)
+                                            (box (string-length input-value))
+                                            source-path)
+                   file-tree-input-modal-render
+                   (hash "handle_event" file-tree-input-modal-event-handler)))
+
   event-result/consume)
 
 (define (popup-input-modal-action-label modal)
@@ -649,168 +647,154 @@
                                  (not (path-exists? source))))
                           destination))))
 
-(define (popup-submit-input-modal! state)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (popup-close-input-modal! state)
-    (if (equal? (FileTreeInputModalState-kind modal) 'rename)
-        (popup-submit-rename-input! state modal)
-        (popup-submit-create-input! state modal)))
-  event-result/consume)
+(define (popup-submit-input-modal! modal)
+  (define state (FileTreeInputModalState-tree-state modal))
+  (if (equal? (FileTreeInputModalState-kind modal) 'rename)
+      (popup-submit-rename-input! state modal)
+      (popup-submit-create-input! state modal)))
 
 (define (popup-input-modal-cursor-clamped modal)
   (popup-clamp (unbox (FileTreeInputModalState-cursor modal))
                0
                (string-length (unbox (FileTreeInputModalState-input modal)))))
 
-(define (popup-input-modal-backspace! state)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (define cursor-box (FileTreeInputModalState-cursor modal))
-    (define input-box (FileTreeInputModalState-input modal))
-    (define input (unbox input-box))
-    (define cursor (popup-input-modal-cursor-clamped modal))
-    (set-box! cursor-box cursor)
-    (when (> cursor 0)
-      (set-box! input-box (string-remove-at input (- cursor 1)))
-      (set-box! cursor-box (- cursor 1))))
-  event-result/consume)
+(define (popup-input-modal-backspace! modal)
+  (define cursor-box (FileTreeInputModalState-cursor modal))
+  (define input-box (FileTreeInputModalState-input modal))
+  (define input (unbox input-box))
+  (define cursor (popup-input-modal-cursor-clamped modal))
+  (set-box! cursor-box cursor)
+  (when (> cursor 0)
+    (set-box! input-box (string-remove-at input (- cursor 1)))
+    (set-box! cursor-box (- cursor 1))))
 
-(define (popup-input-modal-delete-forward! state)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (define cursor-box (FileTreeInputModalState-cursor modal))
-    (define input-box (FileTreeInputModalState-input modal))
-    (define input (unbox input-box))
-    (define cursor (popup-input-modal-cursor-clamped modal))
-    (set-box! cursor-box cursor)
-    (when (< cursor (string-length input))
-      (set-box! input-box (string-remove-at input cursor))))
-  event-result/consume)
+(define (popup-input-modal-delete-forward! modal)
+  (define cursor-box (FileTreeInputModalState-cursor modal))
+  (define input-box (FileTreeInputModalState-input modal))
+  (define input (unbox input-box))
+  (define cursor (popup-input-modal-cursor-clamped modal))
+  (set-box! cursor-box cursor)
+  (when (< cursor (string-length input))
+    (set-box! input-box (string-remove-at input cursor))))
 
-(define (popup-input-modal-append-char! state ch)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (define cursor-box (FileTreeInputModalState-cursor modal))
-    (define input-box (FileTreeInputModalState-input modal))
-    (define input (unbox input-box))
-    (define cursor (popup-input-modal-cursor-clamped modal))
-    (set-box! cursor-box cursor)
-    (set-box! input-box (string-insert-at input cursor (string ch)))
-    (set-box! cursor-box (+ cursor 1)))
-  event-result/consume)
+(define (popup-input-modal-append-char! modal ch)
+  (define cursor-box (FileTreeInputModalState-cursor modal))
+  (define input-box (FileTreeInputModalState-input modal))
+  (define input (unbox input-box))
+  (define cursor (popup-input-modal-cursor-clamped modal))
+  (set-box! cursor-box cursor)
+  (set-box! input-box (string-insert-at input cursor (string ch)))
+  (set-box! cursor-box (+ cursor 1)))
 
-(define (popup-input-modal-move-cursor! state delta)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (define cursor-box (FileTreeInputModalState-cursor modal))
-    (define cursor (popup-input-modal-cursor-clamped modal))
-    (define max-cursor (string-length (unbox (FileTreeInputModalState-input modal))))
-    (set-box! cursor-box (popup-clamp (+ cursor delta) 0 max-cursor)))
-  event-result/consume)
+(define (popup-input-modal-move-cursor! modal delta)
+  (define cursor-box (FileTreeInputModalState-cursor modal))
+  (define cursor (popup-input-modal-cursor-clamped modal))
+  (define max-cursor (string-length (unbox (FileTreeInputModalState-input modal))))
+  (set-box! cursor-box (popup-clamp (+ cursor delta) 0 max-cursor)))
 
-(define (popup-input-modal-move-home! state)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (set-box! (FileTreeInputModalState-cursor modal) 0))
-  event-result/consume)
+(define (popup-input-modal-move-home! modal)
+  (set-box! (FileTreeInputModalState-cursor modal) 0))
 
-(define (popup-input-modal-move-end! state)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (set-box! (FileTreeInputModalState-cursor modal)
-              (string-length (unbox (FileTreeInputModalState-input modal)))))
-  event-result/consume)
+(define (popup-input-modal-move-end! modal)
+  (set-box! (FileTreeInputModalState-cursor modal)
+            (string-length (unbox (FileTreeInputModalState-input modal)))))
 
 (define (popup-input-modal-visible-state modal max-width)
   (if (<= max-width 0)
       (list "" 0)
-      (let* ([prefix (FileTreeInputModalState-prefix modal)]
-             [input (unbox (FileTreeInputModalState-input modal))]
+      (let* ([input (unbox (FileTreeInputModalState-input modal))]
              [cursor (popup-input-modal-cursor-clamped modal)]
-             [full-text (string-append prefix input)]
              [text-room (max 0 (- max-width 1))]
-             [absolute-cursor (+ (string-length prefix) cursor)]
-             [max-start (max 0 (- (string-length full-text) text-room))]
-             [window-start (popup-clamp (- absolute-cursor (quotient text-room 2)) 0 max-start)]
-             [window-end (min (string-length full-text) (+ window-start text-room))]
-             [visible-text (substring full-text window-start window-end)]
-             [cursor-col (popup-clamp (- absolute-cursor window-start)
+             [max-start (max 0 (- (string-length input) text-room))]
+             [window-start (popup-clamp (- cursor (quotient text-room 2)) 0 max-start)]
+             [window-end (min (string-length input) (+ window-start text-room))]
+             [visible-text (substring input window-start window-end)]
+             [cursor-col (popup-clamp (- cursor window-start)
                                       0
-                                      (max 0 (- max-width 1)))])
+                                      (string-length visible-text))])
         (list visible-text cursor-col))))
 
-(define (popup-input-modal-event-handler state event)
+(define (file-tree-input-modal-event-handler modal event)
   (define char (key-event-char event))
   (define modifier (key-event-modifier event))
   (cond
     [(key-event-escape? event)
-     (popup-close-input-modal! state)]
+     event-result/close]
 
     [(key-event-enter? event)
-     (popup-submit-input-modal! state)]
+     (popup-submit-input-modal! modal)
+     event-result/close]
 
     [(key-event-backspace? event)
-     (popup-input-modal-backspace! state)]
+     (popup-input-modal-backspace! modal)
+     event-result/consume]
 
     [(key-event-delete? event)
-     (popup-input-modal-delete-forward! state)]
+     (popup-input-modal-delete-forward! modal)
+     event-result/consume]
 
     [(key-event-left? event)
-     (popup-input-modal-move-cursor! state -1)]
+     (popup-input-modal-move-cursor! modal -1)
+     event-result/consume]
 
     [(key-event-right? event)
-     (popup-input-modal-move-cursor! state 1)]
+     (popup-input-modal-move-cursor! modal 1)
+     event-result/consume]
 
     [(key-event-home? event)
-     (popup-input-modal-move-home! state)]
+     (popup-input-modal-move-home! modal)
+     event-result/consume]
 
     [(key-event-end? event)
-     (popup-input-modal-move-end! state)]
+     (popup-input-modal-move-end! modal)
+     event-result/consume]
 
     [(and (char? char)
           (not (equal? modifier key-modifier-ctrl))
           (not (equal? modifier key-modifier-alt))
           (not (equal? modifier key-modifier-super)))
-     (popup-input-modal-append-char! state char)]
+     (popup-input-modal-append-char! modal char)
+     event-result/consume]
 
     [else event-result/consume-without-rerender]))
 
-(define (popup-input-modal-render state popup-area popup-style border-style row-style frame)
-  (define modal (unbox (FileTreePopupState-input-modal state)))
-  (when (FileTreeInputModalState? modal)
-    (define popup-width (area-width popup-area))
-    (define popup-height (area-height popup-area))
-    (define modal-width (max 48 (min (- popup-width 4) 112)))
-    (define modal-height 7)
-    (define modal-x (+ (area-x popup-area) (max 0 (exact (round (/ (- popup-width modal-width) 2))))))
-    (define modal-y (+ (area-y popup-area) (max 0 (exact (round (/ (- popup-height modal-height) 2))))))
-    (define modal-area (area modal-x modal-y modal-width modal-height))
-    (define inner-width (max 1 (- modal-width 2)))
-    (define title-text (popup-truncate (FileTreeInputModalState-title modal) inner-width))
-    (define action (popup-input-modal-action-label modal))
-    (define footer-text (popup-truncate (string-append "[Enter] " action " [Esc] cancel") inner-width))
-    (define blank-line (make-string inner-width #\space))
-    (define input-state (popup-input-modal-visible-state modal inner-width))
-    (define input-content (list-ref input-state 0))
-    (define cursor-col (list-ref input-state 1))
-    (define cursor-style (style-with-reversed row-style))
-    (define cursor-glyph
-      (if (< cursor-col (string-length input-content))
-          (substring input-content cursor-col (+ cursor-col 1))
-          " "))
-    (define (centered-col text)
-      (+ modal-x 1 (max 0 (exact (round (/ (- inner-width (string-length text)) 2))))))
+(define (file-tree-input-modal-render modal rect frame)
+  (define width (area-width rect))
+  (define height (area-height rect))
+  (define modal-width (max 48 (min (- width 8) 112)))
+  (define modal-height 7)
+  (define modal-x (+ (area-x rect) (max 0 (exact (round (/ (- width modal-width) 2))))))
+  (define modal-y (+ (area-y rect) (max 0 (exact (round (/ (- height modal-height) 2))))))
+  (define modal-area (area modal-x modal-y modal-width modal-height))
+  (define inner-width (max 1 (- modal-width 2)))
+  (define row-style (theme-scope "ui.text"))
+  (define border-style row-style)
+  (define popup-style (style))
+  (define title-text (popup-truncate (FileTreeInputModalState-title modal) inner-width))
+  (define action (popup-input-modal-action-label modal))
+  (define footer-text (popup-truncate (string-append "[Enter] " action " [Esc] cancel") inner-width))
+  (define blank-line (make-string inner-width #\space))
+  (define input-state (popup-input-modal-visible-state modal inner-width))
+  (define input-content (list-ref input-state 0))
+  (define cursor-col (list-ref input-state 1))
+  (define cursor-style (style-with-reversed row-style))
+  (define cursor-glyph
+    (if (< cursor-col (string-length input-content))
+        (substring input-content cursor-col (+ cursor-col 1))
+        " "))
+  (define (centered-col text)
+    (+ modal-x 1 (max 0 (exact (round (/ (- inner-width (string-length text)) 2))))))
 
-    (buffer/clear-with frame modal-area popup-style)
-    (block/render frame modal-area (make-block popup-style border-style "all" "rounded"))
-    (frame-set-string! frame (+ modal-x 1) (+ modal-y 1) blank-line popup-style)
-    (frame-set-string! frame (centered-col title-text) (+ modal-y 1) title-text row-style)
-    (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) blank-line popup-style)
-    (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) input-content row-style)
-    (frame-set-string! frame (+ modal-x 1 cursor-col) (+ modal-y 3) cursor-glyph cursor-style)
-    (frame-set-string! frame (+ modal-x 1) (+ modal-y 5) blank-line popup-style)
-    (frame-set-string! frame (centered-col footer-text) (+ modal-y 5) footer-text row-style)))
+  (buffer/clear-with frame modal-area popup-style)
+  (block/render frame modal-area (make-block popup-style border-style "all" "rounded"))
+  (frame-set-string! frame (+ modal-x 1) (+ modal-y 1) blank-line popup-style)
+  (frame-set-string! frame (centered-col title-text) (+ modal-y 1) title-text row-style)
+  (frame-set-string! frame (+ modal-x 1) (+ modal-y 3) blank-line popup-style)
+  (define input-x (centered-col input-content))
+  (frame-set-string! frame input-x (+ modal-y 3) input-content row-style)
+  (frame-set-string! frame (+ input-x cursor-col) (+ modal-y 3) cursor-glyph cursor-style)
+  (frame-set-string! frame (+ modal-x 1) (+ modal-y 5) blank-line popup-style)
+  (frame-set-string! frame (centered-col footer-text) (+ modal-y 5) footer-text row-style))
 
 (define (popup-fold-all! state)
   (set-box! (FileTreePopupState-directories state)
@@ -833,9 +817,6 @@
   (define modifier (key-event-modifier event))
 
   (cond
-    [(popup-input-modal-open? state)
-     (popup-input-modal-event-handler state event)]
-
     [(popup-delete-confirm-open? state)
      (popup-delete-confirm-event-handler state event)]
 
@@ -939,13 +920,14 @@
   (define content-width (max 1 (- popup-width 4)))
 
   (define visible-count (max 1 (- popup-height 2)))
-  (set-box! (FileTreePopupState-max-length state) visible-count)
+  (when (not (= (unbox (FileTreePopupState-max-length state)) visible-count))
+    (set-box! (FileTreePopupState-max-length state) visible-count)
+    (popup-ensure-window! state))
 
   (when (unbox (FileTreePopupState-center-next-render state))
     (popup-center-cursor-window! state)
-    (set-box! (FileTreePopupState-center-next-render state) #f))
-
-  (popup-ensure-window! state)
+    (set-box! (FileTreePopupState-center-next-render state) #f)
+    (popup-ensure-window! state))
 
   (define row-style (theme-scope "ui.text"))
   (define border-style row-style)
@@ -964,19 +946,18 @@
 
   (if (null? entries)
       (frame-set-string! frame content-x content-y "(empty)" row-style)
-       (popup-for-each-index
+        (popup-for-each-index
         (lambda (index entry)
           (define row (+ content-y index))
           (define selected? (= index selected-index))
           (define style (if selected? selected-style row-style))
-         (define fill-style (if selected? selected-style popup-style))
-         (define text (popup-truncate (popup-entry-display entry) content-width))
-         (frame-set-string! frame content-x row blank-line fill-style)
-         (frame-set-string! frame content-x row text style))
+          (define text (popup-truncate (popup-entry-display entry) content-width))
+          (when selected?
+            (frame-set-string! frame content-x row blank-line selected-style))
+          (frame-set-string! frame content-x row text style))
         visible-entries
         0))
 
-  (popup-input-modal-render state popup-area popup-style border-style row-style frame)
   (popup-delete-confirm-render state popup-area popup-style border-style row-style frame))
 
 (define (create-file-tree-popup)
@@ -991,7 +972,6 @@
                         (box 0)
                         (box 1)
                         (box #t)
-                        (box #f)
                         (box #f)
                         (box #f)))
 
