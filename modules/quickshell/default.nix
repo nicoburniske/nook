@@ -32,6 +32,9 @@
             Scope {
               id: root
 
+              property bool isHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
+                && Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== ""
+
               property var theme: ({
                 base00: "${base00}",
                 base01: "${base01}",
@@ -55,6 +58,7 @@
 
               Bar {
                 theme: root.theme
+                isHyprland: root.isHyprland
               }
             }
           '';
@@ -67,9 +71,9 @@
 
     systemd.user.services.quickshell = {
       description = "Quickshell";
-      partOf = ["hyprland-session.target"];
-      after = ["hyprland-session.target"];
-      wantedBy = ["hyprland-session.target"];
+      partOf = ["compositor-session.target"];
+      after = ["compositor-session.target"];
+      wantedBy = ["compositor-session.target"];
 
       serviceConfig = {
         ExecStart = "${pkgs.quickshell}/bin/qs -n";

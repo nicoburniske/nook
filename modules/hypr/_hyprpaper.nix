@@ -31,9 +31,9 @@
 
   systemd.user.services.hyprpaper = {
     description = "Hyprpaper wallpaper daemon";
-    partOf = ["hyprland-session.target"];
-    after = ["hyprland-session.target"];
-    wantedBy = ["hyprland-session.target"];
+    partOf = ["compositor-session.target"];
+    after = ["compositor-session.target"];
+    wantedBy = ["compositor-session.target"];
 
     unitConfig = {
       StartLimitIntervalSec = 0;

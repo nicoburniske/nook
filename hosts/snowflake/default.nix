@@ -23,7 +23,9 @@
       sumi
       fonts
       writeNuScriptBin
+      compositor
       hypr
+      niri
       kitty
       yazi
       rofi
