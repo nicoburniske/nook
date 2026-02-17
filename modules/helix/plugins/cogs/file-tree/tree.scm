@@ -440,8 +440,8 @@
         #f))
   (define ribbon-text
     (cond
-      [(equal? transfer-kind 'copy) " COPY MODE "]
-      [(equal? transfer-kind 'move) " MOVE MODE "]
+      [(equal? transfer-kind 'copy) " COPY "]
+      [(equal? transfer-kind 'move) " MOVE "]
       [else #f]))
   (define ribbon-style
     (cond
