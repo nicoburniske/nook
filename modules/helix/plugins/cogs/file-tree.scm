@@ -664,7 +664,7 @@
   (when (string? target)
     (define popup-width (area-width popup-area))
     (define popup-height (area-height popup-area))
-    (define modal-width (max 40 (min (- popup-width 4) 96)))
+    (define modal-width (max 32 (min (- popup-width 4) 42)))
     (define modal-height 7)
     (define modal-x (+ (area-x popup-area) (max 0 (exact (round (/ (- popup-width modal-width) 2))))))
     (define modal-y (+ (area-y popup-area) (max 0 (exact (round (/ (- popup-height modal-height) 2))))))
