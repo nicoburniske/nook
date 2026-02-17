@@ -56,8 +56,6 @@
         mode = "execute"
       '';
     };
-
-    sumi.program.television.reload = [];
   };
 in {
   flake.modules.nixos.television = televisionModule;

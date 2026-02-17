@@ -99,7 +99,7 @@
       };
     };
 
-    sumi.program.bat.reload = "bat cache --build >/dev/null 2>&1 || true";
+    sumi.program.bat.reload = "bat cache --build";
   };
 in {
   flake.modules.nixos.bat = batModule;

@@ -42,7 +42,7 @@
       };
     };
 
-    sumi.program.swaync.reload = "${pkgs.systemd}/bin/systemctl --user restart swaync.service || true";
+    sumi.program.swaync.reload = "${pkgs.systemd}/bin/systemctl --user restart swaync.service";
 
     systemd.user.services.swaync = {
       description = "Sway Notification Center";

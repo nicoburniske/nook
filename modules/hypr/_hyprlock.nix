@@ -73,6 +73,4 @@
         }
       '';
   };
-
-  sumi.program.hyprlock.reload = [];
 }

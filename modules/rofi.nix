@@ -330,7 +330,5 @@
           }
         '';
     };
-
-    sumi.program.rofi.reload = [];
   };
 }

@@ -20,7 +20,7 @@
     + " || true; ${pkgs.systemd}/bin/systemctl --user start hyprland-session.target";
 
   mkBindLines = prefix: entries:
-    builtins.concatStringsSep "\n" (builtins.map (entry: "${prefix}=${entry}") entries);
+    builtins.concatStringsSep "\n" (map (entry: "${prefix}=${entry}") entries);
 
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
   chromiumProfile = import ./_scripts/chromium-profile.nix {inherit pkgs;};
@@ -156,5 +156,5 @@ in {
     };
   };
 
-  sumi.program.hyprland.reload = "${pkgs.hyprland}/bin/hyprctl reload || true";
+  sumi.program.hyprland.reload = "${pkgs.hyprland}/bin/hyprctl reload";
 }
