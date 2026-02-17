@@ -489,65 +489,123 @@
       transfer-kind
       #f))
 
-(define (popup-select-copy! state)
+(define (popup-select-transfer! state transfer-kind)
   (define entry (popup-current-entry state))
   (when entry
     (set-box! (FileTreePopupState-transfer-path state) (popup-entry-path entry))
-    (set-box! (FileTreePopupState-transfer-kind state) 'copy))
+    (set-box! (FileTreePopupState-transfer-kind state) transfer-kind))
   event-result/consume)
+
+(define (popup-select-copy! state)
+  (popup-select-transfer! state 'copy))
+
+(define (popup-select-move! state)
+  (popup-select-transfer! state 'move))
+
+(define (popup-transfer-style-kind transfer-kind)
+  (cond
+    [(equal? transfer-kind 'move) 'move]
+    [(equal? transfer-kind 'copy) 'copy]
+    [else #f]))
+
+(define (popup-transfer-styles row-style selected-style transfer-kind)
+  (cond
+    [(equal? transfer-kind 'move)
+     (list (style-with-bold (style-fg row-style Color/LightCyan))
+           (style-with-bold (style-fg selected-style Color/LightCyan)))]
+    [(equal? transfer-kind 'copy)
+     (list (style-with-bold (style-fg row-style Color/LightYellow))
+           (style-with-bold (style-fg selected-style Color/LightYellow)))]
+    [else (list row-style selected-style)]))
+
+(define (popup-row-style row-style selected-style transfer-kind selected?)
+  (define styles (popup-transfer-styles row-style selected-style (popup-transfer-style-kind transfer-kind)))
+  (define non-selected-style (list-ref styles 0))
+  (define selected-style* (list-ref styles 1))
+  (if selected? selected-style* non-selected-style))
+
+(define (popup-transfer-row? transfer-kind)
+  (or (equal? transfer-kind 'copy)
+      (equal? transfer-kind 'move)))
+
+(define (popup-transfer-row-style row-style selected-style transfer-kind selected?)
+  (if (popup-transfer-row? transfer-kind)
+      (popup-row-style row-style selected-style transfer-kind selected?)
+      (if selected? selected-style row-style)))
+
+(define (popup-transfer-valid? source transfer-kind)
+  (and (string? source)
+       (symbol? transfer-kind)
+       (path-exists? source)))
+
+(define (popup-paste-destination-directory state)
+  (define destination-base (popup-selected-base-path state))
+  (cond
+    [(and (string? destination-base) (is-dir? destination-base)) destination-base]
+    [(string? destination-base) (file-directory destination-base)]
+    [else (FileTreePopupState-root state)]))
+
+(define (popup-run-transfer! transfer-kind source destination)
+  (define quoted-source (string-append "\"" (shell-escape source) "\""))
+  (define quoted-destination (string-append "\"" (shell-escape destination) "\""))
+  (if (equal? transfer-kind 'move)
+      (helix.run-shell-command (string-append "mv " quoted-source " " quoted-destination))
+      (if (is-dir? source)
+          (helix.run-shell-command (string-append "cp -R " quoted-source " " quoted-destination))
+          (helix.run-shell-command (string-append "cp " quoted-source " " quoted-destination)))))
+
+(define (popup-post-transfer-refresh! state transfer-kind source target-path)
+  (set-box! (FileTreePopupState-directories state)
+            (popup-unfold-path-to-target
+             (unbox (FileTreePopupState-directories state))
+             (FileTreePopupState-root state)
+             target-path))
+
+  (if (equal? transfer-kind 'move)
+      (begin
+        (popup-clear-transfer! state)
+        (popup-refresh-when state
+                            source
+                            (lambda (path)
+                              (and (not (path-exists? path))
+                                   (path-exists? target-path)))
+                            target-path))
+      (popup-refresh-when state target-path path-exists? target-path)))
 
 (define (popup-paste-transfer! state)
   (define source (unbox (FileTreePopupState-transfer-path state)))
   (define transfer-kind (unbox (FileTreePopupState-transfer-kind state)))
 
-  (if (not (and (string? source) (symbol? transfer-kind) (path-exists? source)))
+  (if (not (popup-transfer-valid? source transfer-kind))
       (begin
         (popup-clear-transfer! state)
+        (set-warning! "Transfer source is no longer available")
         event-result/consume)
       (let* ([source-clean (path-clean source)]
-             [destination-base (popup-selected-base-path state)]
-             [destination
-              (cond
-                [(and (string? destination-base) (is-dir? destination-base)) destination-base]
-                [(string? destination-base) (file-directory destination-base)]
-                [else (FileTreePopupState-root state)])])
+             [destination (popup-paste-destination-directory state)]
+             [target-path (path-clean (string-append destination "/" (file-name source-clean)))])
 
-        (if (not (and (string? destination) (is-dir? destination)))
-            event-result/consume
-            (if (and (is-dir? source-clean)
-                     (path-descendant-or-same? destination source-clean))
-                event-result/consume
-                (let* ([target-path (path-clean (string-append destination "/" (file-name source-clean)))]
-                       [quoted-source (string-append "\"" (shell-escape source-clean) "\"")]
-                       [quoted-destination (string-append "\"" (shell-escape destination) "\"")])
+        (cond
+          [(not (and (string? destination) (is-dir? destination)))
+           (set-warning! "Invalid paste destination")
+           event-result/consume]
 
-                  (if (path=? target-path source-clean)
-                      event-result/consume
-                      (begin
-                        (if (equal? transfer-kind 'move)
-                            (helix.run-shell-command
-                             (string-append "mv -- " quoted-source " " quoted-destination))
-                            (helix.run-shell-command
-                             (string-append "cp -a -- " quoted-source " " quoted-destination)))
+          [(and (is-dir? source-clean)
+                (path-descendant-or-same? destination source-clean))
+           (set-warning! "Cannot paste a directory into itself")
+           event-result/consume]
 
-                        (set-box! (FileTreePopupState-directories state)
-                                  (popup-unfold-path-to-target
-                                   (unbox (FileTreePopupState-directories state))
-                                   (FileTreePopupState-root state)
-                                   target-path))
+          [(path-exists? target-path)
+           (set-warning! "Paste target already exists")
+           event-result/consume]
 
-                        (if (equal? transfer-kind 'move)
-                            (begin
-                              (popup-clear-transfer! state)
-                              (popup-refresh-when state
-                                                  source-clean
-                                                  (lambda (path)
-                                                    (and (not (path-exists? path))
-                                                         (path-exists? target-path)))
-                                                  target-path))
-                            (popup-refresh-when state target-path path-exists? target-path))
+          [(path=? target-path source-clean)
+           event-result/consume]
 
-                        event-result/consume))))))))
+          [else
+           (popup-run-transfer! transfer-kind source-clean destination)
+           (popup-post-transfer-refresh! state transfer-kind source-clean target-path)
+           event-result/consume]))))
 
 (define (popup-delete-confirm-open? state)
   (string? (unbox (FileTreePopupState-delete-confirm-path state))))
@@ -986,6 +1044,9 @@
     [(and (char? char) (equal? char #\y))
      (popup-select-copy! state)]
 
+    [(and (char? char) (equal? char #\x))
+     (popup-select-move! state)]
+
     [(and (char? char) (equal? char #\p))
      (popup-paste-transfer! state)]
 
@@ -1035,8 +1096,6 @@
   (define row-style (theme-scope "ui.text"))
   (define border-style row-style)
   (define selected-style (style-with-bold (theme-scope "ui.menu.selected")))
-  (define copied-style (style-with-bold (style-fg row-style Color/LightYellow)))
-  (define selected-copied-style (style-with-bold (style-fg selected-style Color/LightYellow)))
   (define popup-style (style))
 
   (buffer/clear-with frame popup-area popup-style)
@@ -1056,12 +1115,7 @@
           (define row (+ content-y index))
           (define selected? (= index selected-index))
           (define transfer-kind (popup-transfer-kind-for-entry state (popup-entry-path entry)))
-          (define copied? (equal? transfer-kind 'copy))
-          (define row-style*
-            (cond
-              [selected? (if copied? selected-copied-style selected-style)]
-              [copied? copied-style]
-              [else row-style]))
+          (define row-style* (popup-transfer-row-style row-style selected-style transfer-kind selected?))
           (define text (popup-truncate (popup-entry-display entry) content-width))
           (when selected?
             (frame-set-string! frame content-x row blank-line row-style*))
