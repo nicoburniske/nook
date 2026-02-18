@@ -32,6 +32,7 @@
       swaync
       quickshell
       vlc
+      thunar
       gtk
       helix
       fzf
