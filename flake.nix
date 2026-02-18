@@ -1,18 +1,26 @@
 {
-  description = "Multi-host Nix configuration for NixOS and macOS";
+  description = "multi host nix config";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    opencode.url = "github:anomalyco/opencode/dev";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    import-tree.url = "github:vic/import-tree";
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
+    opencode = {
+      url = "github:anomalyco/opencode/dev";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    stylix = {
-      url = "github:danth/stylix";
+    helix-steel = {
+      url = "github:mattwparas/helix/steel-event-system";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sumi = {
+      url = "path:./sumi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -21,18 +29,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    zen-browser = {
-      url = "github:0xc000022070/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # nixos
     apple-silicon = {
       url = "github:nix-community/nixos-apple-silicon";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # macOS-specific
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -51,74 +52,23 @@
     };
   };
 
-  outputs = inputs @ {
-    self,
-    nixpkgs,
-    nixpkgs-master,
-    home-manager,
-    nix-ld,
-    stylix,
-    apple-silicon,
-    nix-darwin,
-    nix-homebrew,
-    homebrew-core,
-    homebrew-cask,
-    zen-browser,
-    ...
-  }: {
-    nixosConfigurations.snowflake = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
-      specialArgs = {inherit inputs apple-silicon stylix;};
-      modules = [
-        ./nixos/configuration.nix
-        ./nixos/hardware-configuration.nix
-        nix-ld.nixosModules.nix-ld
-        home-manager.nixosModules.home-manager
-        {
-          programs.nix-ld.dev.enable = true;
-        }
-        {
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.nico = import ./nixos/home.nix;
-          home-manager.extraSpecialArgs = {inherit inputs;};
-          home-manager.sharedModules = [
-            stylix.homeModules.stylix
-            zen-browser.homeModules.twilight
-          ];
-        }
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+      imports = [
+        inputs.flake-parts.flakeModules.modules
+        ./configurations.nix
+        (inputs.import-tree ./modules)
+        ./hosts/snowflake
+        ./hosts/fuji
       ];
-    };
 
-    darwinConfigurations.fuji = nix-darwin.lib.darwinSystem {
-      system = "aarch64-darwin";
-      specialArgs = {inherit inputs stylix;};
-      modules = [
-        ./macos/configuration.nix
-        home-manager.darwinModules.home-manager
-        {
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.nicoburniske = import ./macos/home.nix;
-          home-manager.extraSpecialArgs = {inherit inputs;};
-          home-manager.sharedModules = [
-            stylix.homeModules.stylix
-          ];
-        }
-        nix-homebrew.darwinModules.nix-homebrew
-        {
-          nix-homebrew = {
-            enable = true;
-            enableRosetta = true;
-            user = "nicoburniske";
-            taps = {
-              "homebrew/homebrew-core" = homebrew-core;
-              "homebrew/homebrew-cask" = homebrew-cask;
-            };
-            mutableTaps = false;
-          };
-        }
+      systems = [
+        "aarch64-linux"
+        "aarch64-darwin"
       ];
+
+      perSystem = {pkgs, ...}: {
+        formatter = pkgs.alejandra;
+      };
     };
-  };
 }

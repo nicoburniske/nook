@@ -1,0 +1,38 @@
+{pkgs, ...}: {
+  environment.systemPackages = with pkgs; [
+    just
+    gh
+    ripgrep
+    delta
+    tokei
+    marksman
+    bun
+    ffmpeg
+    lua-language-server
+    rustup
+    cmake
+    fastfetch
+    qbittorrent
+    alejandra
+    taplo
+    fd
+    presenterm
+    ungoogled-chromium
+    wl-clipboard
+    brightnessctl
+    wiremix
+    jmtpfs
+    usbutils
+    cutecom
+    bluetui
+    obs-studio
+    nautilus
+    file-roller
+    zip
+    unzip
+    unrar
+    sparrow
+    readest
+    pavucontrol
+  ];
+}
