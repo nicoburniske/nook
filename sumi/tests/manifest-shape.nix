@@ -112,36 +112,28 @@
       reload = [
         {
           command = "echo reload";
-          name = "demo-reload";
-          type = "command";
-          registration = "program-demo";
+          registration = "demo";
           when = {
             theme = ["dark"];
           };
         }
         {
           command = "echo reload";
-          name = "demo-reload";
-          type = "command";
-          registration = "program-demo";
+          registration = "demo";
           when = {
             theme = ["light"];
           };
         }
         {
           command = "echo tone=dark";
-          name = "demo-generated-reload";
-          type = "command";
-          registration = "program-demo-generated";
+          registration = "demo-generated";
           when = {
             theme = ["dark"];
           };
         }
         {
           command = "echo tone=light";
-          name = "demo-generated-reload";
-          type = "command";
-          registration = "program-demo-generated";
+          registration = "demo-generated";
           when = {
             theme = ["light"];
           };
