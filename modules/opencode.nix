@@ -17,8 +17,8 @@
       };
 
       "opencode/themes/sumi.json" = {
-        dependsOn = ["theme"];
-        render = ctx: let
+        watch = ["theme"];
+        generate = ctx: let
           theme = ctx.values.theme;
         in
           builtins.toJSON {

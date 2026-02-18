@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   sumi.configFile."hypr/hyprpaper.conf" = {
-    dependsOn = ["theme"];
-    render = ctx: let
+    watch = ["theme"];
+    generate = ctx: let
       theme = ctx.values.theme;
       imagePath =
         if theme.image == null
@@ -18,7 +18,16 @@
     '';
   };
 
-  sumi.program.hyprpaper.reload = "${pkgs.systemd}/bin/systemctl --user restart hyprpaper.service || true";
+  sumi.program.hyprpaper = {
+    watch = ["theme"];
+    reload = ctx: let
+      theme = ctx.values.theme;
+      imagePath = toString theme.image;
+    in ''
+      ${pkgs.hyprland}/bin/hyprctl hyprpaper preload "${imagePath}"
+      ${pkgs.hyprland}/bin/hyprctl hyprpaper wallpaper ",${imagePath},cover"
+    '';
+  };
 
   systemd.user.services.hyprpaper = {
     description = "Hyprpaper wallpaper daemon";

@@ -3,6 +3,7 @@ use super::{
     write_json_atomic, write_selection, ConflictPolicy,
 };
 use crate::model::{CurrentSelection, Snapshot};
+use serde_json::json;
 use std::collections::BTreeMap;
 use std::fs;
 use std::os::unix::fs::symlink;
@@ -179,21 +180,28 @@ fn duplicate_paths_in_manifest_is_error() {
         let src1 = write_file(&sources.join("a"), "one");
         let src2 = write_file(&sources.join("b"), "two");
         let manifest_path = td.path().join("manifest.json");
-        let text = format!(
-            r#"{{
-  "version": 1,
-  "home": "{}",
-  "facets": {{ "theme": {{ "default": "gruvbox", "variants": {{ "gruvbox": {{}} }} }} }},
-  "defaultSelection": {{ "theme": "gruvbox" }},
-  "files": [
-    {{ "path": ".config/app/a.conf", "rules": [{{"source": "{}"}}] }},
-    {{ "path": ".config/app/a.conf", "rules": [{{"source": "{}"}}] }}
-  ]
-}}"#,
-            escape_json_path(&home),
-            escape_json_path(&src1),
-            escape_json_path(&src2)
-        );
+        let text = serde_json::to_string_pretty(&json!({
+            "version": 1,
+            "home": home.to_string_lossy(),
+            "facets": {
+                "theme": {
+                    "default": "gruvbox",
+                    "variants": { "gruvbox": {} }
+                }
+            },
+            "defaultSelection": { "theme": "gruvbox" },
+            "files": [
+                {
+                    "path": ".config/app/a.conf",
+                    "rules": [{ "source": src1.to_string_lossy() }]
+                },
+                {
+                    "path": ".config/app/a.conf",
+                    "rules": [{ "source": src2.to_string_lossy() }]
+                }
+            ]
+        }))
+        .expect("serialize manifest");
         fs::write(&manifest_path, text).expect("write manifest");
 
         let err = apply(
@@ -423,32 +431,28 @@ fn write_manifest(manifest_path: &Path, home: &Path, entries: &[(&str, &Path)]) 
     let files = entries
         .iter()
         .map(|(path, source)| {
-            format!(
-                "{{\"path\":\"{}\",\"rules\":[{{\"source\":\"{}\"}}]}}",
-                escape_json_str(path),
-                escape_json_path(source)
-            )
+            json!({
+                "path": path,
+                "rules": [{ "source": source.to_string_lossy() }]
+            })
         })
         .collect::<Vec<_>>()
-        .join(",");
+        ;
 
-    let text = format!(
-        r#"{{
-  "version": 1,
-  "home": "{}",
-  "facets": {{
-    "theme": {{
-      "default": "gruvbox",
-      "variants": {{ "gruvbox": {{}}, "modus": {{}} }}
-    }}
-  }},
-  "defaultSelection": {{ "theme": "gruvbox" }},
-  "files": [{}],
-  "hooks": {{ "reload": [] }}
-}}"#,
-        escape_json_path(home),
-        files
-    );
+    let text = serde_json::to_string_pretty(&json!({
+        "version": 1,
+        "home": home.to_string_lossy(),
+        "facets": {
+            "theme": {
+                "default": "gruvbox",
+                "variants": { "gruvbox": {}, "modus": {} }
+            }
+        },
+        "defaultSelection": { "theme": "gruvbox" },
+        "files": files,
+        "hooks": { "reload": [] }
+    }))
+    .expect("serialize manifest");
 
     fs::write(manifest_path, text).expect("write manifest");
 }
@@ -457,35 +461,32 @@ fn write_manifest_rules(manifest_path: &Path, home: &Path, path: &str, by_theme:
     let rules = by_theme
         .iter()
         .map(|(theme, source)| {
-            format!(
-                "{{\"when\":{{\"theme\":[\"{}\"]}},\"source\":\"{}\"}}",
-                escape_json_str(theme),
-                escape_json_path(source)
-            )
+            json!({
+                "when": { "theme": [theme] },
+                "source": source.to_string_lossy()
+            })
         })
         .collect::<Vec<_>>()
-        .join(",");
+        ;
 
-    let text = format!(
-        r#"{{
-  "version": 1,
-  "home": "{}",
-  "facets": {{
-    "theme": {{
-      "default": "gruvbox",
-      "variants": {{ "gruvbox": {{}}, "modus": {{}} }}
-    }}
-  }},
-  "defaultSelection": {{ "theme": "gruvbox" }},
-  "files": [
-    {{ "path": "{}", "rules": [ {} ] }}
-  ],
-  "hooks": {{ "reload": [] }}
-}}"#,
-        escape_json_path(home),
-        escape_json_str(path),
-        rules
-    );
+    let text = serde_json::to_string_pretty(&json!({
+        "version": 1,
+        "home": home.to_string_lossy(),
+        "facets": {
+            "theme": {
+                "default": "gruvbox",
+                "variants": { "gruvbox": {}, "modus": {} }
+            }
+        },
+        "defaultSelection": { "theme": "gruvbox" },
+        "files": [{
+            "path": path,
+            "rules": rules
+        }],
+        "hooks": { "reload": [] }
+    }))
+    .expect("serialize manifest");
+
     fs::write(manifest_path, text).expect("write manifest");
 }
 
@@ -495,19 +496,6 @@ fn assert_points_to(target: &Path, source: &Path) {
 
     let actual = fs::read_link(target).expect("read symlink target");
     assert_eq!(actual, source);
-}
-
-fn escape_json_path(path: &Path) -> String {
-    escape_json_str(&path.to_string_lossy())
-}
-
-fn escape_json_str(input: &str) -> String {
-    input
-        .replace('\\', "\\\\")
-        .replace('"', "\\\"")
-        .replace('\n', "\\n")
-        .replace('\r', "\\r")
-        .replace('\t', "\\t")
 }
 
 fn count_backup_siblings(target: &Path) -> usize {

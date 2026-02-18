@@ -6,8 +6,8 @@
       "bat/config".text = "--theme=base16-sumi\n";
 
       "bat/themes/base16-sumi.tmTheme" = {
-        dependsOn = ["theme"];
-        render = ctx: let
+        watch = ["theme"];
+        generate = ctx: let
           theme = ctx.values.theme;
         in
           with theme.colors; ''

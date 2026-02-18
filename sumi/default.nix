@@ -7,30 +7,15 @@
   types = lib.types;
   cfg = config.sumi or {};
 
-  selectorType = types.attrsOf (with types; either str (listOf str));
-
-  normalizeSelector = selector:
-    lib.mapAttrs (_: value:
-      if builtins.isString value
-      then [value]
-      else value)
-    selector;
-
   fileOptionType = types.submodule ({...}: {
     options = {
-      when = lib.mkOption {
-        type = selectorType;
-        default = {};
-        description = "Facet selector map used to conditionally include this file.";
-      };
-
-      dependsOn = lib.mkOption {
+      watch = lib.mkOption {
         type = types.listOf types.str;
         default = [];
-        description = "Facet keys this render function depends on. Required for render entries.";
+        description = "Facet keys this generated file depends on. Required for generate entries.";
       };
 
-      render = lib.mkOption {
+      generate = lib.mkOption {
         type = with types; nullOr (functionTo (oneOf [str path package]));
         default = null;
         description = "Function called as ctx: returns text or a source path/derivation.";
@@ -58,20 +43,16 @@
 
   programOptionType = types.submodule ({...}: {
     options = {
-      when = lib.mkOption {
-        type = selectorType;
-        default = {};
-        description = "Facet selector controlling when reload hooks should run.";
+      watch = lib.mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = "Facet keys this reload hook depends on.";
       };
 
       reload = lib.mkOption {
-        type = with types; either str (listOf str);
+        type = with types; oneOf [str (listOf str) (functionTo (either str (listOf str)))];
         default = [];
-        apply = value:
-          if builtins.isString value
-          then [value]
-          else value;
-        description = "Command or commands to run after switching selections.";
+        description = "Command(s) or function(ctx -> command(s)) to run after switching selections.";
       };
     };
   });
@@ -171,24 +152,10 @@
   fileMethodCount = file:
     lib.length
     (lib.filter (v: v != null) [
-      file.render
+      file.generate
       file.text
       file.source
     ]);
-
-  selectorUnknownFacets = selector: facetNames:
-    lib.filter (facet: !(builtins.elem facet facetNames)) (builtins.attrNames selector);
-
-  selectorInvalidValues = selector: facets:
-    lib.flatten
-    (lib.mapAttrsToList (facet: values: let
-      allowed = builtins.attrNames facets.${facet}.variants;
-      invalid = lib.filter (value: !(builtins.elem value allowed)) values;
-    in
-      if invalid == []
-      then []
-      else ["${facet}: invalid values ${lib.concatStringsSep ", " invalid}"])
-    selector);
 
   cartesianProductOfSets = attrs: let
     names = builtins.attrNames attrs;
@@ -427,7 +394,8 @@ in {
       inferredDefaultSelection = lib.mapAttrs (_: facet: facet.default) cfg.facets;
       resolvedDefaultSelection = inferredDefaultSelection // cfg.defaultSelection;
 
-      defaultSelectionUnknownFacets = selectorUnknownFacets cfg.defaultSelection facetNames;
+      defaultSelectionUnknownFacets =
+        lib.filter (facet: !(builtins.elem facet facetNames)) (builtins.attrNames cfg.defaultSelection);
 
       defaultSelectionInvalidValues =
         lib.filter (v: v != null)
@@ -473,14 +441,13 @@ in {
       mkNormalizedFiles = rootRelative: files:
         lib.mapAttrsToList (filePath: fileCfg: {
           path = mkManagedPath rootRelative (stripLeadingDotSlash filePath);
-          normalizedWhen = normalizeSelector fileCfg.when;
           inherit
             (fileCfg)
-            render
+            generate
             text
             source
             executable
-            dependsOn
+            watch
             ;
         })
         files;
@@ -499,7 +466,7 @@ in {
       normalizedPrograms =
         lib.mapAttrsToList (programName: programCfg: {
           name = programName;
-          when = normalizeSelector programCfg.when;
+          watch = programCfg.watch;
           reload = programCfg.reload;
         })
         cfg.program;
@@ -513,58 +480,40 @@ in {
             else file.path)
           normalizedFiles);
 
-      renderMissingDependsOn =
+      generateMissingWatch =
         lib.filter (v: v != null)
         (map (file:
-          if file.render != null && file.dependsOn == []
+          if file.generate != null && file.watch == []
           then file.path
           else null)
         normalizedFiles);
 
-      nonRenderWithDependsOn =
+      nonGenerateWithWatch =
         lib.filter (v: v != null)
         (map (file:
-          if file.render == null && file.dependsOn != []
+          if file.generate == null && file.watch != []
           then file.path
           else null)
         normalizedFiles);
 
-      fileSelectorFacetErrors =
+      fileWatchFacetErrors =
         lib.filter (v: v != null)
         (map (file: let
-          unknownWhen = selectorUnknownFacets file.normalizedWhen facetNames;
-          unknownDependsOn = lib.filter (facet: !(builtins.elem facet facetNames)) file.dependsOn;
+          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) file.watch;
         in
-          if unknownWhen == [] && unknownDependsOn == []
+          if unknownWatch == []
           then null
-          else "${file.path}: unknown facets (${lib.concatStringsSep ", " (unknownWhen ++ unknownDependsOn)})")
+          else "${file.path}: unknown watch facets (${lib.concatStringsSep ", " unknownWatch})")
         normalizedFiles);
 
-      fileSelectorValueErrors =
-        lib.filter (v: v != null)
-        (map (file: let
-          whenErrors =
-            if selectorUnknownFacets file.normalizedWhen facetNames == []
-            then selectorInvalidValues file.normalizedWhen cfg.facets
-            else [];
-        in
-          if whenErrors == []
-          then null
-          else "${file.path}: ${lib.concatStringsSep "; " whenErrors}")
-        normalizedFiles);
-
-      programSelectorErrors =
+      programWatchFacetErrors =
         lib.filter (v: v != null)
         (map (program: let
-          unknown = selectorUnknownFacets program.when facetNames;
-          valueErrors =
-            if unknown == []
-            then selectorInvalidValues program.when cfg.facets
-            else [];
+          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) program.watch;
         in
-          if unknown == [] && valueErrors == []
+          if unknownWatch == []
           then null
-          else "${program.name}: ${lib.concatStringsSep "; " ((map (f: "unknown facet ${f}") unknown) ++ valueErrors)}")
+          else "${program.name}: unknown watch facets (${lib.concatStringsSep ", " unknownWatch})")
         normalizedPrograms);
 
       filePaths = map (file: file.path) normalizedFiles;
@@ -590,83 +539,77 @@ in {
           else null)
         normalizedFiles);
 
-      renderRulesForFile = file: let
+      generateRulesForFile = file: let
         comboSpace =
-          if file.dependsOn == []
+          if file.watch == []
           then [{}]
-          else cartesianProductOfSets (lib.genAttrs file.dependsOn (facet: facetVariantNames.${facet}));
+          else cartesianProductOfSets (lib.genAttrs file.watch (facet: facetVariantNames.${facet}));
       in
-        lib.filter (rule: rule != null)
-        (map (combo: let
-          comboKeys = builtins.attrNames combo;
-          compatible = builtins.all (facet:
-            if builtins.hasAttr facet file.normalizedWhen
-            then builtins.elem combo.${facet} file.normalizedWhen.${facet}
-            else true)
-          comboKeys;
-        in
-          if !compatible
-          then null
-          else let
-            comboWhen = lib.mapAttrs (_: value: [value]) combo;
-            whenRule = file.normalizedWhen // comboWhen;
+        map (combo: let
+          comboWhen = lib.mapAttrs (_: value: [value]) combo;
+          selectionForGenerate = resolvedDefaultSelection // combo;
+          ruleHash = builtins.substring 0 8 (builtins.hashString "sha256" (builtins.toJSON comboWhen));
 
-            selectionBase = resolvedDefaultSelection // combo;
-            selectionForRender =
-              lib.foldl'
-              (acc: facet: let
-                allowed = whenRule.${facet};
-                current = acc.${facet};
-              in
-                if builtins.elem current allowed
-                then acc
-                else acc // {${facet} = builtins.head allowed;})
-              selectionBase
-              (builtins.attrNames whenRule);
-
-            ruleHash = builtins.substring 0 8 (builtins.hashString "sha256" (builtins.toJSON whenRule));
-
-            renderedSource =
-              if file.source != null
-              then file.source
-              else if file.text != null
+          generatedSource =
+            if file.source != null
+            then file.source
+            else if file.text != null
+            then
+              pkgs.writeTextFile {
+                name = "sumi-${sanitizePath file.path}-${ruleHash}";
+                text = file.text;
+                executable = file.executable;
+              }
+            else let
+              generated = file.generate (mkContext selectionForGenerate);
+            in
+              if builtins.isString generated
               then
                 pkgs.writeTextFile {
                   name = "sumi-${sanitizePath file.path}-${ruleHash}";
-                  text = file.text;
+                  text = generated;
                   executable = file.executable;
                 }
-              else let
-                rendered = file.render (mkContext selectionForRender);
-              in
-                if builtins.isString rendered
-                then
-                  pkgs.writeTextFile {
-                    name = "sumi-${sanitizePath file.path}-${ruleHash}";
-                    text = rendered;
-                    executable = file.executable;
-                  }
-                else rendered;
-          in {
-            when = whenRule;
-            source = renderedSource;
-          })
-        comboSpace);
+              else generated;
+        in {
+          when = comboWhen;
+          source = generatedSource;
+        })
+        comboSpace;
 
       filesWithRules =
-        map (file: file // {rules = renderRulesForFile file;}) normalizedFiles;
+        map (file: file // {rules = generateRulesForFile file;}) normalizedFiles;
 
       hookRules =
         lib.flatten
-        (map (program:
-          map (command: {
-            type = "command";
-            inherit command;
-            name = "${program.name}-reload";
-            registration = "program-${program.name}";
-            when = program.when;
-          })
-          program.reload)
+        (map (program: let
+          comboSpace =
+            if program.watch == []
+            then [{}]
+            else cartesianProductOfSets (lib.genAttrs program.watch (facet: facetVariantNames.${facet}));
+        in
+          lib.flatten
+          (map (combo: let
+            comboWhen = lib.mapAttrs (_: value: [value]) combo;
+            selectionForReload = resolvedDefaultSelection // combo;
+            reloadRaw =
+              if lib.isFunction program.reload
+              then program.reload (mkContext selectionForReload)
+              else program.reload;
+            reloadCommands =
+              if builtins.isString reloadRaw
+              then [reloadRaw]
+              else reloadRaw;
+          in
+            map (command: {
+              type = "command";
+              inherit command;
+              name = "${program.name}-reload";
+              registration = "program-${program.name}";
+              when = comboWhen;
+            })
+            reloadCommands)
+          comboSpace))
         normalizedPrograms);
 
       manifest = {
@@ -765,27 +708,23 @@ in {
         }
         {
           assertion = invalidFiles == [];
-          message = "sumi files must set exactly one of render, text, or source: ${lib.concatStringsSep ", " invalidFiles}";
+          message = "sumi files must set exactly one of generate, text, or source: ${lib.concatStringsSep ", " invalidFiles}";
         }
         {
-          assertion = renderMissingDependsOn == [];
-          message = "sumi render files must set dependsOn: ${lib.concatStringsSep ", " renderMissingDependsOn}";
+          assertion = generateMissingWatch == [];
+          message = "sumi generate files must set watch: ${lib.concatStringsSep ", " generateMissingWatch}";
         }
         {
-          assertion = nonRenderWithDependsOn == [];
-          message = "sumi dependsOn is only valid with render: ${lib.concatStringsSep ", " nonRenderWithDependsOn}";
+          assertion = nonGenerateWithWatch == [];
+          message = "sumi watch is only valid with generate: ${lib.concatStringsSep ", " nonGenerateWithWatch}";
         }
         {
-          assertion = fileSelectorFacetErrors == [];
-          message = "sumi file selector facet errors: ${lib.concatStringsSep "; " fileSelectorFacetErrors}";
+          assertion = fileWatchFacetErrors == [];
+          message = "sumi file watch facet errors: ${lib.concatStringsSep "; " fileWatchFacetErrors}";
         }
         {
-          assertion = fileSelectorValueErrors == [];
-          message = "sumi file selector value errors: ${lib.concatStringsSep "; " fileSelectorValueErrors}";
-        }
-        {
-          assertion = programSelectorErrors == [];
-          message = "sumi program selector errors: ${lib.concatStringsSep "; " programSelectorErrors}";
+          assertion = programWatchFacetErrors == [];
+          message = "sumi program watch facet errors: ${lib.concatStringsSep "; " programWatchFacetErrors}";
         }
         {
           assertion = sourceLiteralErrors == [];

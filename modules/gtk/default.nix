@@ -87,31 +87,31 @@
 
     sumi.configFile = {
       "gtk-2.0/gtkrc" = {
-        dependsOn = ["theme"];
-        render = ctx: mkGtkrc ctx.values.theme;
+        watch = ["theme"];
+        generate = ctx: mkGtkrc ctx.values.theme;
       };
       "gtk-3.0/settings.ini" = {
-        dependsOn = ["theme"];
-        render = ctx: mkGtkSettings ctx.values.theme;
+        watch = ["theme"];
+        generate = ctx: mkGtkSettings ctx.values.theme;
       };
       "gtk-4.0/settings.ini" = {
-        dependsOn = ["theme"];
-        render = ctx: mkGtkSettings ctx.values.theme;
+        watch = ["theme"];
+        generate = ctx: mkGtkSettings ctx.values.theme;
       };
       "gtk-3.0/gtk.css" = {
-        dependsOn = ["theme"];
-        render = ctx: mkGtkCss ctx.values.theme;
+        watch = ["theme"];
+        generate = ctx: mkGtkCss ctx.values.theme;
       };
       "gtk-4.0/gtk.css" = {
-        dependsOn = ["theme"];
-        render = ctx: mkGtkCss ctx.values.theme;
+        watch = ["theme"];
+        generate = ctx: mkGtkCss ctx.values.theme;
       };
     };
 
     sumi.dataFile = {
       "themes/adw-gtk3" = {
-        dependsOn = ["theme"];
-        render = ctx: mkFlattenedGtkTheme ctx.values.theme;
+        watch = ["theme"];
+        generate = ctx: mkFlattenedGtkTheme ctx.values.theme;
       };
     };
 

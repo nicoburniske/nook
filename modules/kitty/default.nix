@@ -86,8 +86,8 @@
       '';
 
       "kitty/themes/sumi.conf" = {
-        dependsOn = ["theme"];
-        render = ctx: renderTheme ctx.values.theme;
+        watch = ["theme"];
+        generate = ctx: renderTheme ctx.values.theme;
       };
       "kitty/tab_bar.py".source = ./tab_bar.py;
 

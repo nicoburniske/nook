@@ -8,8 +8,8 @@
       '';
 
       "btop/themes/sumi.theme" = {
-        dependsOn = ["theme"];
-        render = ctx: let
+        watch = ["theme"];
+        generate = ctx: let
           theme = ctx.values.theme;
         in
           with theme.colors.withHashtag; ''

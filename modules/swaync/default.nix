@@ -14,8 +14,8 @@
       "swaync/config.json".text = "{}\n";
 
       "swaync/style.css" = {
-        dependsOn = ["theme"];
-        render = ctx: let
+        watch = ["theme"];
+        generate = ctx: let
           theme = ctx.values.theme;
           fontFamily = theme.fonts.sansSerif.name;
           fontSize = toString theme.fonts.sizes.desktop;

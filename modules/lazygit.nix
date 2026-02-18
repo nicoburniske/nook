@@ -57,8 +57,8 @@
     environment.systemPackages = [pkgs.lazygit];
 
     sumi.configFile."lazygit/config.yml" = {
-      dependsOn = ["theme"];
-      render = ctx: yamlFormat.generate "sumi-lazygit-${ctx.selection.theme}.yml" (mkSettings ctx.values.theme);
+      watch = ["theme"];
+      generate = ctx: yamlFormat.generate "sumi-lazygit-${ctx.selection.theme}.yml" (mkSettings ctx.values.theme);
     };
 
     sumi.program.lazygit.reload = [];
