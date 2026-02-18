@@ -18,7 +18,6 @@
     fd
     presenterm
     ungoogled-chromium
-    vlc
     wl-clipboard
     brightnessctl
     wiremix

@@ -31,6 +31,7 @@
       rofi
       swaync
       quickshell
+      vlc
       gtk
       helix
       fzf
