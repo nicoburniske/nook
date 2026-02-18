@@ -32,7 +32,13 @@
                    (box #f)
                    (box #f)
                    (box #f)
-                   (box #f)))
+                   (box #f)
+                   (box #f)
+                   (box #f)
+                   (box "")
+                   (box 0)
+                   (box '())
+                   (box -1)))
 
   (tree-refresh! state target-path)
 
