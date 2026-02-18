@@ -602,10 +602,8 @@ in {
               else reloadRaw;
           in
             map (command: {
-              type = "command";
               inherit command;
-              name = "${program.name}-reload";
-              registration = "program-${program.name}";
+              registration = program.name;
               when = comboWhen;
             })
             reloadCommands)
@@ -633,8 +631,6 @@ in {
             inherit
               (hook)
               command
-              name
-              type
               registration
               when
               ;

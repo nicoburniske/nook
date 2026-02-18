@@ -36,11 +36,7 @@ pub async fn run_reload_hooks(
 }
 
 async fn run_hook(hook: Hook) -> HookResult {
-    let label = hook
-        .registration
-        .strip_prefix("program-")
-        .unwrap_or(&hook.registration)
-        .to_string();
+    let label = hook.registration.clone();
 
     if hook.command.trim().is_empty() {
         return HookResult {

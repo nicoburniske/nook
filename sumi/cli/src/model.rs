@@ -26,8 +26,6 @@ pub struct Facet {
 #[derive(Debug, Clone, Deserialize)]
 pub struct ManifestFile {
     pub path: String,
-    #[allow(dead_code)]
-    pub executable: Option<bool>,
     #[serde(default)]
     pub rules: Vec<FileRule>,
 }
