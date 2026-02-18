@@ -1,5 +1,6 @@
 ;; Shared state + behavior for file-tree components.
 
+(require "helix/components.scm")
 (require "helix/misc.scm")
 
 (provide FileTreeState
@@ -30,6 +31,8 @@
          tree-refresh!
          tree-clamp
          tree-truncate
+         tree-center-x
+         tree-popup-area
          tree-directory-folded?
          tree-ensure-window!
          tree-current-entry
@@ -181,6 +184,22 @@
 
 (define (tree-clamp value lower upper)
   (max lower (min upper value)))
+
+(define (tree-center-offset outer-size inner-size)
+  (max 0 (exact (round (/ (- outer-size inner-size) 2)))))
+
+(define (tree-center-x outer-x outer-width inner-width)
+  (+ outer-x (tree-center-offset outer-width inner-width)))
+
+(define (tree-popup-area rect)
+  (define width (area-width rect))
+  (define height (area-height rect))
+  (define tree-width (max 56 (min 120 (- width 6))))
+  (define tree-height-target (exact (round (/ (* height 2) 3))))
+  (define tree-height (tree-clamp tree-height-target 8 (max 8 (- height 2))))
+  (define tree-x (tree-center-x (area-x rect) width tree-width))
+  (define tree-y (+ (area-y rect) (tree-center-offset height tree-height)))
+  (area tree-x tree-y tree-width tree-height))
 
 (define (tree-directory-folded? state directory)
   (define directories-box (FileTreeState-directories state))

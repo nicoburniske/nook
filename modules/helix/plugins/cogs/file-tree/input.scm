@@ -271,12 +271,12 @@
     [else event-result/consume-without-rerender]))
 
 (define (file-tree-input-modal-render modal rect frame)
-  (define width (area-width rect))
-  (define height (area-height rect))
-  (define modal-width (max 32 (min (- width 8) 38)))
-  (define modal-height 7)
-  (define modal-x (+ (area-x rect) (max 0 (exact (round (/ (- width modal-width) 2))))))
-  (define modal-y (+ (area-y rect) (max 0 (exact (round (/ (- height modal-height) 2))))))
+  (define tree-area (tree-popup-area rect))
+  (define tree-width (area-width tree-area))
+  (define modal-width (max 32 (min (- tree-width 4) 42)))
+  (define modal-height 5)
+  (define modal-x (tree-center-x (area-x tree-area) tree-width modal-width))
+  (define modal-y (+ (area-y tree-area) 1))
   (define modal-area (area modal-x modal-y modal-width modal-height))
   (define inner-width (max 1 (- modal-width 2)))
   (define row-style (theme-scope "ui.text"))
@@ -291,7 +291,7 @@
   (define action (tree-input-modal-action-label modal))
   (define footer-text (tree-truncate (string-append "[Enter] " action " [Esc] cancel") inner-width))
   (define input-box-x (+ modal-x 2))
-  (define input-box-y (+ modal-y 2))
+  (define input-box-y (+ modal-y 1))
   (define input-box-width (max 6 (- modal-width 4)))
   (define input-box-height 3)
   (define input-box-area (area input-box-x input-box-y input-box-width input-box-height))
@@ -310,7 +310,7 @@
                                         (max 1 (- input-box-width 4))))
   (define border-title-x (+ input-box-x 2))
   (define (centered-col text)
-    (+ modal-x 1 (max 0 (exact (round (/ (- inner-width (string-length text)) 2))))))
+    (tree-center-x (+ modal-x 1) inner-width (string-length text)))
 
   (buffer/clear-with frame modal-area tree-style)
 
@@ -320,4 +320,4 @@
   (frame-set-string! frame input-x input-y input-content input-text-style)
   (frame-set-string! frame (+ input-x cursor-col) input-y cursor-glyph input-cursor-style)
 
-  (frame-set-string! frame (centered-col footer-text) (+ modal-y 5) footer-text row-style))
+  (frame-set-string! frame (centered-col footer-text) (+ modal-y 4) footer-text row-style))
