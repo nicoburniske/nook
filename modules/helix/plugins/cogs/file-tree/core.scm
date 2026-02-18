@@ -15,6 +15,12 @@
          FileTreeState-delete-confirm-path
          FileTreeState-transfer-path
          FileTreeState-transfer-kind
+         FileTreeState-search-visible
+         FileTreeState-search-focused
+         FileTreeState-search-query
+         FileTreeState-search-cursor
+         FileTreeState-search-matches
+         FileTreeState-search-active-index
          tree-unfold-path-to-target
          tree-refresh!
          tree-clamp
@@ -143,7 +149,13 @@
          show-hidden-directories
          delete-confirm-path
          transfer-path
-         transfer-kind))
+         transfer-kind
+         search-visible
+         search-focused
+         search-query
+         search-cursor
+         search-matches
+         search-active-index))
 
 (define (tree-entry path directory? display)
   (list path directory? display))

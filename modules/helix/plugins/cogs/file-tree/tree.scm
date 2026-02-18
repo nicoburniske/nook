@@ -4,6 +4,7 @@
 (require "./core.scm")
 (require "./delete.scm")
 (require "./input.scm")
+(require "./search.scm")
 
 (provide file-tree-event-handler
          file-tree-render)
@@ -277,11 +278,38 @@
 
   (cond
     [(key-event-escape? event)
-     (if (tree-transfer-active? state)
+     (if (tree-search-input-visible? state)
          (begin
+           (tree-search-clear! state)
            (tree-clear-transfer! state)
            event-result/consume)
-         event-result/close)]
+         (if (tree-transfer-active? state)
+             (begin
+               (tree-clear-transfer! state)
+               event-result/consume)
+             event-result/close))]
+
+    [(and (char? char) (equal? char #\/))
+     (tree-search-open! state)
+     event-result/consume]
+
+    [(tree-search-input-focused? state)
+     (tree-search-input-event-handler state event)]
+
+    [(and (char? char)
+          (equal? char #\n)
+          (tree-search-input-visible? state)
+          (not (null? (unbox (FileTreeState-search-matches state)))) )
+     (tree-search-jump-next! state)
+     event-result/consume]
+
+    [(and (char? char)
+          (equal? char #\N)
+          (tree-search-input-visible? state)
+          (not (null? (unbox (FileTreeState-search-matches state)))) )
+     (tree-search-jump-prev! state)
+     event-result/consume]
+
     [(and (char? char) (equal? char #\q)) event-result/close]
 
     [(key-event-down? event)
@@ -402,7 +430,8 @@
 
   (define row-style (theme-scope "ui.text"))
   (define border-style row-style)
-  (define selected-style (style-with-bold (theme-scope "ui.menu.selected")))
+  (define selected-style (theme-scope "ui.menu.selected"))
+  (define match-style (theme-scope "ui.menu"))
   (define tree-style (style))
   (define copy-ribbon-style
     (style-with-bold (style-bg (style-fg row-style Color/Black) Color/LightYellow)))
@@ -418,21 +447,29 @@
   (define visible-entries (slice entries start visible-count))
   (define selected-index (- cursor start))
   (define blank-line (make-string content-width #\space))
+  (define content-start-y content-y)
 
   (if (null? entries)
-      (frame-set-string! frame content-x content-y "(empty)" row-style)
+      (frame-set-string! frame content-x content-start-y "(empty)" row-style)
       (tree-for-each-index
        (lambda (index entry)
-         (define row (+ content-y index))
+         (define row (+ content-start-y index))
          (define selected? (= index selected-index))
+         (define match? (tree-search-match-path? state (tree-entry-path entry)))
          (define transfer-kind (tree-transfer-kind-for-entry state (tree-entry-path entry)))
-         (define row-style* (tree-transfer-row-style row-style selected-style transfer-kind selected?))
+         (define row-style-base (tree-transfer-row-style row-style selected-style transfer-kind selected?))
+         (define row-style*
+           (if (and match? (not selected?))
+               match-style
+               row-style-base))
          (define text (tree-truncate (tree-entry-display entry) content-width))
-         (when selected?
-           (frame-set-string! frame content-x row blank-line row-style*))
+         (when (or selected? match?)
+            (frame-set-string! frame content-x row blank-line row-style*))
          (frame-set-string! frame content-x row text row-style*))
        visible-entries
        0))
+
+  (tree-search-render-overlay! state frame content-x content-y content-width row-style tree-style)
 
   (define transfer-kind
     (if (tree-transfer-active? state)
