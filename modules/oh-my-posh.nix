@@ -36,14 +36,10 @@
                   };
                 }
                 {
-                  type = "command";
+                  type = "nix-shell";
                   style = "plain";
                   foreground = base0E;
-                  template = "{{ if .Output }} <${base0B}></> {{ end }}";
-                  properties = {
-                    command = "[[ -n \"$IN_NIX_SHELL\" ]] && echo \"$IN_NIX_SHELL\"";
-                    shell = "bash";
-                  };
+                  template = "{{ if ne .Type \"unknown\" }} <${base0B}></> {{ end }}";
                 }
               ];
             }
