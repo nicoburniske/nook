@@ -6,6 +6,8 @@
     ...
   }: let
     configDir = config.lib.sumi.paths.config;
+    homeDir = config.lib.sumi.paths.home;
+    gtkThemeName = "adw-gtk3";
     gtkCssTemplate = builtins.readFile ./gtk.css.mustache;
 
     bases = [
@@ -48,18 +50,23 @@
     in
       builtins.replaceStrings placeholders replacements gtkCssTemplate;
 
-    mkGtkSettings = theme: let
+    mkGtkSettings = gtkVersion: theme: let
       fontName = theme.fonts.sansSerif.name;
       fontSize = toString theme.fonts.sizes.applications;
       preferDark =
         if theme.polarity == "dark"
         then "1"
         else "0";
+      gtk4ColorScheme =
+        if theme.polarity == "dark"
+        then "2"
+        else "3";
     in ''
       [Settings]
       gtk-font-name=${fontName} ${fontSize}
-      gtk-theme-name=adw-gtk3
+      gtk-theme-name=${gtkThemeName}
       gtk-application-prefer-dark-theme=${preferDark}
+      ${lib.optionalString (gtkVersion == 4) "gtk-interface-color-scheme=${gtk4ColorScheme}"}
     '';
 
     mkGtkrc = theme: let
@@ -67,7 +74,7 @@
       fontSize = toString theme.fonts.sizes.applications;
     in ''
       gtk-font-name = "${fontName} ${fontSize}"
-      gtk-theme-name = "adw-gtk3"
+      gtk-theme-name = "${gtkThemeName}"
     '';
 
     mkFlattenedGtkTheme = theme: let
@@ -75,8 +82,8 @@
       cssFile = pkgs.writeText "sumi-gtk.css" css;
       suffix = builtins.substring 0 8 theme.colors.base00;
     in
-      pkgs.runCommandLocal "sumi-adw-gtk3-${suffix}" {} ''
-        cp --recursive "${pkgs.adw-gtk3}/share/themes/adw-gtk3" "$out"
+      pkgs.runCommandLocal "sumi-${gtkThemeName}-${suffix}" {} ''
+        cp --recursive "${pkgs.adw-gtk3}/share/themes/${gtkThemeName}" "$out"
         chmod -R u+w "$out"
         cat "${cssFile}" >> "$out/gtk-3.0/gtk.css"
         cat "${cssFile}" >> "$out/gtk-4.0/gtk.css"
@@ -92,11 +99,11 @@
       };
       "gtk-3.0/settings.ini" = {
         watch = ["theme"];
-        generate = ctx: mkGtkSettings ctx.values.theme;
+        generate = ctx: mkGtkSettings 3 ctx.values.theme;
       };
       "gtk-4.0/settings.ini" = {
         watch = ["theme"];
-        generate = ctx: mkGtkSettings ctx.values.theme;
+        generate = ctx: mkGtkSettings 4 ctx.values.theme;
       };
       "gtk-3.0/gtk.css" = {
         watch = ["theme"];
@@ -108,18 +115,29 @@
       };
     };
 
-    sumi.dataFile = {
-      "themes/adw-gtk3" = {
+    sumi.homeFile = {
+      ".themes/${gtkThemeName}" = {
         watch = ["theme"];
         generate = ctx: mkFlattenedGtkTheme ctx.values.theme;
       };
     };
 
-    sumi.program.gtk.reload = builtins.concatStringsSep " " [
-      "if grep -q '^gtk-application-prefer-dark-theme=1' \"${configDir}/gtk-3.0/settings.ini\";"
-      "then ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true;"
-      "else ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true;"
-      "fi"
-    ];
+    sumi.dataFile = {
+      "flatpak/overrides/global".text = ''
+        [Context]
+        filesystems=${homeDir}/.themes/${gtkThemeName}:ro
+
+        [Environment]
+        GTK_THEME=${gtkThemeName}
+      '';
+    };
+
+    sumi.program.gtk = {
+      watch = ["theme"];
+      reload = ctx:
+        if ctx.values.theme.polarity == "dark"
+        then "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true"
+        else "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true";
+    };
   };
 }
