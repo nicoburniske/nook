@@ -235,6 +235,12 @@ in {
       '';
     };
 
+    homeFile = lib.mkOption {
+      type = types.attrsOf fileOptionType;
+      default = {};
+      description = "Managed files keyed by path relative to home directory.";
+    };
+
     configFile = lib.mkOption {
       type = types.attrsOf fileOptionType;
       default = {};
@@ -296,6 +302,14 @@ in {
       resolvedHomeDirectory = cfg.homeDirectory;
 
       xdgSpec = {
+        home = {
+          optName = "homeDirectory";
+          optValue = resolvedHomeDirectory;
+          suffix = "";
+          fileOptionName = "homeFile";
+          files = cfg.homeFile;
+        };
+
         config = {
           optName = "configHome";
           optValue = cfg.configHome;
