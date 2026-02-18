@@ -62,7 +62,7 @@
 (define (tree-open-rename-input! state)
   (define entry (tree-current-entry state))
   (if entry
-      (let* ([source (tree-entry-path entry)]
+      (let* ([source (TreeEntry-path entry)]
              [source-name (file-name source)]
              [source-parent (path-parent source)]
              [prefix (ensure-trailing-slash source-parent)]

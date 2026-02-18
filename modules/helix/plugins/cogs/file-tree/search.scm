@@ -48,7 +48,7 @@
 (define (tree-search-entry-matches? entry query-lower)
   (if (= (string-length query-lower) 0)
       #f
-      (let* ([entry-name (file-name (tree-entry-path entry))]
+      (let* ([entry-name (file-name (TreeEntry-path entry))]
              [name-lower (string-downcase* entry-name)])
         (string-contains? name-lower query-lower))))
 
@@ -68,7 +68,7 @@
   (when (and (>= active-index 0) (< active-index (length matches)))
     (define focus-path (list-ref matches active-index))
     (define entries (unbox (FileTreeState-entries state)))
-    (define entry-paths (map tree-entry-path entries))
+    (define entry-paths (map TreeEntry-path entries))
     (define cursor-index (tree-search-list-index-of-path entry-paths focus-path))
     (when (number? cursor-index)
       (set-box! (FileTreeState-cursor state) cursor-index)
@@ -83,7 +83,7 @@
           acc
           (let ([entry (car rest)])
             (if (tree-search-entry-matches? entry query-lower)
-                (loop (cdr rest) (cons (tree-entry-path entry) acc))
+                (loop (cdr rest) (cons (TreeEntry-path entry) acc))
                 (loop (cdr rest) acc))))))
   (define matches (reverse matches-reversed))
   (set-box! (FileTreeState-search-matches state) matches)

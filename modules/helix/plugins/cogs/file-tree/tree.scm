@@ -14,12 +14,6 @@
       #f
       (equal? (substring value 0 (string-length prefix)) prefix)))
 
-(define (tree-entry-directory? entry)
-  (list-ref entry 1))
-
-(define (tree-entry-display entry)
-  (list-ref entry 2))
-
 (define (tree-for-each-index func lst index)
   (if (null? lst)
       void
@@ -65,14 +59,14 @@
   (define entry (tree-current-entry state))
   (if (not entry)
       event-result/consume
-      (let ([target (tree-entry-path entry)])
+      (let ([target (TreeEntry-path entry)])
         (helix.open target)
         event-result/close)))
 
 (define (tree-enter-directory! state)
   (define entry (tree-current-entry state))
-  (if (and entry (tree-entry-directory? entry))
-      (let ([target (tree-entry-path entry)])
+  (if (and entry (TreeEntry-directory entry))
+      (let ([target (TreeEntry-path entry)])
         (when (tree-directory-folded? state target)
           (tree-set-directory-folded! state target #f))
         (tree-refresh! state target)
@@ -83,8 +77,8 @@
   (define entry (tree-current-entry state))
   (if (not entry)
       event-result/consume
-      (let* ([target (tree-entry-path entry)]
-             [directory? (tree-entry-directory? entry)])
+      (let* ([target (TreeEntry-path entry)]
+             [directory? (TreeEntry-directory entry)])
         (if (and directory? (not (tree-directory-folded? state target)))
             (begin
               (tree-set-directory-folded! state target #t)
@@ -99,15 +93,15 @@
 
 (define (tree-search-selected-directory! state)
   (define entry (tree-current-entry state))
-  (if (and entry (tree-entry-directory? entry))
+  (if (and entry (TreeEntry-directory entry))
       (begin
-        (helix.search-in-directory (tree-entry-path entry))
+        (helix.search-in-directory (TreeEntry-path entry))
         event-result/close)
       event-result/consume))
 
 (define (tree-toggle-hidden-directories! state)
   (define current-entry (tree-current-entry state))
-  (define focus-path (if current-entry (tree-entry-path current-entry) #f))
+  (define focus-path (if current-entry (TreeEntry-path current-entry) #f))
   (define show-hidden-box (FileTreeState-show-hidden-directories state))
   (set-box! show-hidden-box (not (unbox show-hidden-box)))
   (tree-refresh! state focus-path)
@@ -141,7 +135,7 @@
 (define (tree-select-transfer! state transfer-kind)
   (define entry (tree-current-entry state))
   (when entry
-    (set-box! (FileTreeState-transfer-path state) (tree-entry-path entry))
+    (set-box! (FileTreeState-transfer-path state) (TreeEntry-path entry))
     (set-box! (FileTreeState-transfer-kind state) transfer-kind))
   event-result/consume)
 
@@ -455,14 +449,14 @@
        (lambda (index entry)
          (define row (+ content-start-y index))
          (define selected? (= index selected-index))
-         (define match? (tree-search-match-path? state (tree-entry-path entry)))
-         (define transfer-kind (tree-transfer-kind-for-entry state (tree-entry-path entry)))
+         (define match? (tree-search-match-path? state (TreeEntry-path entry)))
+         (define transfer-kind (tree-transfer-kind-for-entry state (TreeEntry-path entry)))
          (define row-style-base (tree-transfer-row-style row-style selected-style transfer-kind selected?))
          (define row-style*
            (if (and match? (not selected?))
                match-style
                row-style-base))
-         (define text (tree-truncate (tree-entry-display entry) content-width))
+         (define text (tree-truncate (TreeEntry-display entry) content-width))
          (when (or selected? match?)
             (frame-set-string! frame content-x row blank-line row-style*))
          (frame-set-string! frame content-x row text row-style*))
