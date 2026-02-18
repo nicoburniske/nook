@@ -21,11 +21,15 @@
          FileTreeState-search-cursor
          FileTreeState-search-matches
          FileTreeState-search-active-index
+         TreeEntry
+         TreeEntry?
+         TreeEntry-path
+         TreeEntry-directory
+         TreeEntry-display
          tree-unfold-path-to-target
          tree-refresh!
          tree-clamp
          tree-truncate
-         tree-entry-path
          tree-directory-folded?
          tree-ensure-window!
          tree-current-entry
@@ -157,18 +161,16 @@
          search-matches
          search-active-index))
 
-(define (tree-entry path directory? display)
-  (list path directory? display))
-
-(define (tree-entry-path entry)
-  (list-ref entry 0))
+(struct TreeEntry
+        (path
+         directory
+         display))
 
 (define (tree-valid-entry? entry)
-  (and (list? entry)
-       (= (length entry) 3)
-       (string? (list-ref entry 0))
-       (boolean? (list-ref entry 1))
-       (string? (list-ref entry 2))))
+  (and (TreeEntry? entry)
+       (string? (TreeEntry-path entry))
+       (boolean? (TreeEntry-directory entry))
+       (string? (TreeEntry-display entry))))
 
 (define (tree-truncate text max-length)
   (if (<= max-length 0)
@@ -218,10 +220,10 @@
         '()
         (cond
           [(is-file? path)
-           (list (tree-entry path #f (string-append padding (path->symbol path) name)))]
+           (list (TreeEntry path #f (string-append padding (path->symbol path) name)))]
           [(is-dir? path)
            (define folded? (tree-directory-folded? state path))
-           (define entry (tree-entry path #t (string-append padding (tree-format-dir state path) name)))
+           (define entry (TreeEntry path #t (string-append padding (tree-format-dir state path) name)))
            (if folded?
                (list entry)
                (cons entry
@@ -243,7 +245,7 @@
         (define (loop idx rest)
           (cond
             [(null? rest) #f]
-            [(path=? (tree-entry-path (car rest)) target) idx]
+            [(path=? (TreeEntry-path (car rest)) target) idx]
             [else (loop (+ idx 1) (cdr rest))]))
         (loop 0 entries))))
 
@@ -334,6 +336,6 @@
   (define entry (tree-current-entry state))
   (define root (FileTreeState-root state))
   (cond
-    [(and entry (list-ref entry 1)) (tree-entry-path entry)]
-    [(and entry (string? (tree-entry-path entry))) (file-directory (tree-entry-path entry))]
+    [(and entry (TreeEntry-directory entry)) (TreeEntry-path entry)]
+    [(and entry (string? (TreeEntry-path entry))) (file-directory (TreeEntry-path entry))]
     [else root]))

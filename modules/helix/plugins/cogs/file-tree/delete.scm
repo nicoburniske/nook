@@ -107,7 +107,7 @@
 (define (tree-open-delete-confirm! state)
   (define entry (tree-current-entry state))
   (when entry
-    (set-box! (FileTreeState-delete-confirm-path state) (tree-entry-path entry))
+    (set-box! (FileTreeState-delete-confirm-path state) (TreeEntry-path entry))
     (push-component!
      (new-component! "file-tree-delete-confirm"
                      state
