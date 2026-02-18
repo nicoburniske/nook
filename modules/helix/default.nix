@@ -33,8 +33,8 @@
 
     sumi.configFile = {
       "helix/config.toml" = {
-        dependsOn = ["theme"];
-        render = ctx: let
+        watch = ["theme"];
+        generate = ctx: let
           theme = ctx.values.theme;
         in
           tomlFormat.generate "sumi-helix-config-${ctx.selection.theme}.toml" {

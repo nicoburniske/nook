@@ -97,8 +97,8 @@
       "yazi/yazi.toml".source = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
       "yazi/keymap.toml".source = tomlFormat.generate "sumi-yazi-keymap.toml" yaziKeymap;
       "yazi/theme.toml" = {
-        dependsOn = ["theme"];
-        render = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.selection.theme}.toml" (mkTheme ctx.values.theme);
+        watch = ["theme"];
+        generate = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.selection.theme}.toml" (mkTheme ctx.values.theme);
       };
 
       "yazi/plugins/tv-files.yazi".source = tvFilesPlugin;

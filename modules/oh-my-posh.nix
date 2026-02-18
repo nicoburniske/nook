@@ -3,8 +3,8 @@
     environment.systemPackages = [pkgs.oh-my-posh];
 
     sumi.configFile."ohmyposh/config.json" = {
-      dependsOn = ["theme"];
-      render = ctx: let
+      watch = ["theme"];
+      generate = ctx: let
         theme = ctx.values.theme;
       in
         builtins.toJSON {

@@ -20,8 +20,8 @@
 
     sumi.configFile = {
       "quickshell/shell.qml" = {
-        dependsOn = ["theme"];
-        render = ctx: let
+        watch = ["theme"];
+        generate = ctx: let
           theme = ctx.values.theme;
           fonts = theme.fonts;
         in

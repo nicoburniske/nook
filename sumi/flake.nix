@@ -67,6 +67,12 @@
         inherit sumi;
       };
 
+      checks = {
+        manifest-shape = pkgs.callPackage ./tests/manifest-shape.nix {
+          lib = pkgs.lib;
+        };
+      };
+
       devShells = {
         default = pkgs.mkShell {
           packages = with pkgs; [

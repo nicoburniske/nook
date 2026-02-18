@@ -32,8 +32,8 @@ in {
 
   sumi.configFile = {
     "hypr/hyprland.conf" = {
-      dependsOn = ["theme"];
-      render = ctx: let
+      watch = ["theme"];
+      generate = ctx: let
         theme = ctx.values.theme;
         t = import ./_theme.nix theme;
         cursorTheme =

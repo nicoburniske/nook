@@ -1,7 +1,7 @@
 {...}: {
   sumi.configFile."hypr/hyprlock.conf" = {
-    dependsOn = ["theme"];
-    render = ctx: let
+    watch = ["theme"];
+    generate = ctx: let
       theme = ctx.values.theme;
       rgb = hex: "rgb(${hex})";
       imagePath = toString theme.image;
