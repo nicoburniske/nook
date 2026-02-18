@@ -14,16 +14,12 @@
 (define (current-doc-path)
   (path-clean (editor-document->path (current-doc-id))))
 
-(define (resolve-tree-root target-path)
-  (define workspace (helix-find-workspace))
-  (cond
-    [(and (string? workspace) (not (equal? workspace "/"))) (path-clean workspace)]
-    [(string? target-path) (file-directory target-path)]
-    [else (path-clean (helix.static.get-helix-cwd))]))
+(define (resolve-tree-root)
+  (path-clean (helix.static.get-helix-cwd)))
 
 (define (create-file-tree)
   (define target-path (current-doc-path))
-  (define root (resolve-tree-root target-path))
+  (define root (resolve-tree-root))
   (define directories (tree-unfold-path-to-target (hash) root target-path))
   (define state
     (FileTreeState root
