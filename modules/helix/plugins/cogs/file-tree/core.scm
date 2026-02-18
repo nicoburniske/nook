@@ -277,7 +277,7 @@
   (define root (FileTreeState-root state))
   (define raw-entries
     (if (and (string? root) (path-exists? root))
-        (tree-build state root)
+        (transduce (tree-build state root) (into-list))
         '()))
 
   (define entries (filter tree-valid-entry? raw-entries))
