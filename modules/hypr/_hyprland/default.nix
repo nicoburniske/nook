@@ -149,7 +149,7 @@ in {
         gesture=3, horizontal, workspace,
         layerrule=no_anim on, match:namespace rofi
 
-        monitor=eDP-1, 3456x2234@60, 0x0, 1.6
+        monitor=eDP-1, 3456x2234@120, 0x0, 1.6
         monitor=, preferred, auto, 1
 
         windowrule=scroll_touchpad 1.5, match:class kitty
