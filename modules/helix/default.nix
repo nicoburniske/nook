@@ -54,6 +54,7 @@
               file-picker.hidden = false;
               lsp = {
                 display-messages = true;
+                display-progress-messages = true;
                 goto-reference-include-declaration = false;
               };
               inline-diagnostics.cursor-line = "info";
