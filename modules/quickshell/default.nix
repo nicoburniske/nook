@@ -10,6 +10,8 @@
     runtimePackages = with pkgs; [
       bash
       pipewire
+      wireplumber
+      hyprland
       pavucontrol
       kitty
       bluetui
@@ -32,8 +34,17 @@
             Scope {
               id: root
 
-              property bool isHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
+              property string desktopEnv: (
+                Quickshell.env("XDG_CURRENT_DESKTOP")
+                || Quickshell.env("XDG_SESSION_DESKTOP")
+                || ""
+              ).toLowerCase()
+
+              property bool hasHyprSignature: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
                 && Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== ""
+
+              property bool isHyprland: root.desktopEnv.indexOf("hyprland") !== -1
+                || root.hasHyprSignature
 
               property var theme: ({
                 base00: "${base00}",
