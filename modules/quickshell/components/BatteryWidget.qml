@@ -9,6 +9,7 @@ Rectangle {
   required property var panelWindow
   required property var theme
   required property var popupState
+  property bool isHyprland: false
 
   color: "transparent"
   radius: theme.radius
@@ -60,7 +61,7 @@ Rectangle {
 
   function indicatorText() {
     if (!device || !device.ready || !device.isPresent) return batteryIcon();
-    return batteryIcon()+ " " + percentage() + "%" ;
+    return batteryIcon() + " " + percentage() + "%";
   }
 
   function statusText() {
@@ -253,26 +254,21 @@ Rectangle {
         }
       }
 
-      Text {
-        visible: !PowerProfiles.hasPerformanceProfile
-        text: "performance profile unavailable"
-        color: theme.base03
-        font.family: theme.monospaceFont
-        font.pixelSize: theme.fontSize
+      Loader {
+        active: root.isHyprland
+        sourceComponent: Component {
+          DisplayRefreshSection {
+            theme: root.theme
+            sectionWidth: content.width
+            active: root.popupState.activePopup === "battery"
+          }
+        }
       }
 
       Text {
         visible: root.degradationText().length > 0
         text: "degraded: " + root.degradationText()
         color: theme.danger
-        font.family: theme.monospaceFont
-        font.pixelSize: theme.fontSize
-      }
-
-      Text {
-        visible: PowerProfiles.holds.length > 0
-        text: "profile held by " + PowerProfiles.holds.length + " app(s)"
-        color: theme.base03
         font.family: theme.monospaceFont
         font.pixelSize: theme.fontSize
       }

@@ -111,6 +111,7 @@ Scope {
                 panelWindow: panel
                 theme: bar.theme
                 popupState: bar
+                isHyprland: bar.isHyprland
               }
             }
           }
