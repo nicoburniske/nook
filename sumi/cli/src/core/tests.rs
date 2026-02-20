@@ -2,12 +2,14 @@ use super::{
     apply, get_selection, load_manifest, parse_selection_overrides, read_snapshot,
     write_json_atomic, write_selection, ConflictPolicy,
 };
+use crate::error::AppError;
 use crate::model::{CurrentSelection, Snapshot};
 use serde_json::json;
 use std::collections::BTreeMap;
 use std::fs;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 use tempfile::tempdir;
 
 #[test]
@@ -413,6 +415,48 @@ fn parse_selection_overrides_rejects_invalid_pairs() {
     assert!(err.to_string().contains("expected facet=value"));
 }
 
+#[test]
+fn second_lock_times_out_while_first_is_held() {
+    smol::block_on(async {
+        let td = tempdir().expect("create tempdir");
+        let state = td.path().join("state");
+
+        let _first = super::lock::acquire_switch_lock_with_timeout(&state, Duration::from_secs(1))
+            .await
+            .expect("acquire first lock");
+
+        let err = super::lock::acquire_switch_lock_with_timeout(&state, Duration::from_millis(150))
+            .await
+            .expect_err("second lock should time out");
+
+        assert!(matches!(err, AppError::LockTimeout { .. }));
+    });
+}
+
+#[test]
+fn lock_is_released_on_drop_without_deleting_lockfile() {
+    smol::block_on(async {
+        let td = tempdir().expect("create tempdir");
+        let state = td.path().join("state");
+
+        {
+            let _first =
+                super::lock::acquire_switch_lock_with_timeout(&state, Duration::from_secs(1))
+                    .await
+                    .expect("acquire first lock");
+            let lock_text = fs::read_to_string(state.join("switch.lock"))
+                .expect("read lock metadata while lock is held");
+            assert!(lock_text.contains("pid="));
+        }
+
+        assert!(state.join("switch.lock").exists());
+
+        let _second = super::lock::acquire_switch_lock_with_timeout(&state, Duration::from_secs(1))
+            .await
+            .expect("acquire lock after first drop");
+    });
+}
+
 fn btreemap_theme(theme: &str) -> BTreeMap<String, String> {
     let mut selection = BTreeMap::new();
     selection.insert("theme".to_string(), theme.to_string());
@@ -436,8 +480,7 @@ fn write_manifest(manifest_path: &Path, home: &Path, entries: &[(&str, &Path)]) 
                 "rules": [{ "source": source.to_string_lossy() }]
             })
         })
-        .collect::<Vec<_>>()
-        ;
+        .collect::<Vec<_>>();
 
     let text = serde_json::to_string_pretty(&json!({
         "version": 1,
@@ -466,8 +509,7 @@ fn write_manifest_rules(manifest_path: &Path, home: &Path, path: &str, by_theme:
                 "source": source.to_string_lossy()
             })
         })
-        .collect::<Vec<_>>()
-        ;
+        .collect::<Vec<_>>();
 
     let text = serde_json::to_string_pretty(&json!({
         "version": 1,

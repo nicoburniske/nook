@@ -61,6 +61,9 @@ pub enum AppError {
         source: std::io::Error,
     },
 
+    #[error("timed out waiting for switch lock {path} after {waited_ms}ms")]
+    LockTimeout { path: PathBuf, waited_ms: u64 },
+
     #[error("failed to rename {from} to {to}: {source}")]
     RenamePath {
         from: PathBuf,
