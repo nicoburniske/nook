@@ -100,6 +100,29 @@ pub fn parse_selection_overrides(items: &[String]) -> Result<BTreeMap<String, St
     Ok(out)
 }
 
+pub fn validate_selection_overrides(
+    manifest: &Manifest,
+    overrides: &BTreeMap<String, String>,
+) -> Result<(), AppError> {
+    for (facet, value) in overrides {
+        let data = manifest
+            .facets
+            .get(facet)
+            .ok_or_else(|| AppError::UnknownFacet {
+                facet: facet.clone(),
+            })?;
+
+        if !data.variants.contains_key(value) {
+            return Err(AppError::InvalidFacetValue {
+                facet: facet.clone(),
+                value: value.clone(),
+            });
+        }
+    }
+
+    Ok(())
+}
+
 pub fn normalize_selection(
     manifest: &Manifest,
     selection: &BTreeMap<String, String>,

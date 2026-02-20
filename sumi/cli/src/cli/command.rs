@@ -1,7 +1,7 @@
 use crate::cli::{Cli, Command, FacetsArgs, SelectionArgs, SwitchArgs};
 use crate::core::{
     self, apply, doctor, get_selection, parse_selection_overrides, run_reload_hooks,
-    write_selection, ConflictPolicy,
+    validate_selection_overrides, write_selection, ConflictPolicy,
 };
 use crate::error::AppError;
 use crate::model::Manifest;
@@ -43,12 +43,14 @@ async fn run_switch(
 
     let current = get_selection(&ctx.manifest, &ctx.state_dir).await?;
     let overrides = parse_selection_overrides(&args.set)?;
+    validate_selection_overrides(&ctx.manifest, &overrides)?;
+
     let mut merged = current;
     for (key, value) in overrides {
         merged.insert(key, value);
     }
 
-    let selection = core::normalize_selection(&ctx.manifest, &merged);
+    let selection = merged;
     let conflict_policy = conflict_policy_from_env()?;
 
     println!("Linking selection files...");

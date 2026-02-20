@@ -1,6 +1,6 @@
 use super::{
     apply, get_selection, load_manifest, parse_selection_overrides, read_snapshot,
-    write_json_atomic, write_selection, ConflictPolicy,
+    validate_selection_overrides, write_json_atomic, write_selection, ConflictPolicy,
 };
 use crate::error::AppError;
 use crate::model::{CurrentSelection, Snapshot};
@@ -413,6 +413,46 @@ fn selection_round_trip_filters_invalid_variant() {
 fn parse_selection_overrides_rejects_invalid_pairs() {
     let err = parse_selection_overrides(&["theme".to_string()]).expect_err("must fail");
     assert!(err.to_string().contains("expected facet=value"));
+}
+
+#[test]
+fn validate_selection_overrides_rejects_unknown_facet() {
+    smol::block_on(async {
+        let td = tempdir().expect("create tempdir");
+        let home = td.path().join("home");
+        fs::create_dir_all(&home).expect("create home");
+
+        let manifest_path = td.path().join("manifest.json");
+        write_manifest(&manifest_path, &home, &[]);
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
+
+        let mut set = BTreeMap::new();
+        set.insert("density".to_string(), "compact".to_string());
+
+        let err = validate_selection_overrides(&manifest, &set).expect_err("must fail");
+        assert!(err.to_string().contains("unknown facet 'density'"));
+    });
+}
+
+#[test]
+fn validate_selection_overrides_rejects_invalid_variant() {
+    smol::block_on(async {
+        let td = tempdir().expect("create tempdir");
+        let home = td.path().join("home");
+        fs::create_dir_all(&home).expect("create home");
+
+        let manifest_path = td.path().join("manifest.json");
+        write_manifest(&manifest_path, &home, &[]);
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
+
+        let mut set = BTreeMap::new();
+        set.insert("theme".to_string(), "typoed-theme".to_string());
+
+        let err = validate_selection_overrides(&manifest, &set).expect_err("must fail");
+        assert!(err
+            .to_string()
+            .contains("invalid value 'typoed-theme' for facet 'theme'"));
+    });
 }
 
 #[test]
