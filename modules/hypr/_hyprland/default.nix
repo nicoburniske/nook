@@ -147,7 +147,7 @@ in {
 
         exec=hyprctl setcursor ${cursorTheme} 24
         gesture=3, horizontal, workspace,
-        layerrule=no_anim on, match:namespace rofi
+        layerrule=no_anim on, match:namespace fuzzel
 
         monitor=eDP-1, 3456x2234@120, 0x0, 1.6
         monitor=, preferred, auto, 1

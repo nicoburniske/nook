@@ -6,7 +6,7 @@
     "$mod, G, fullscreen, 0"
     "CTRL ALT super, Q, exit"
     "CTRL $mod, L, exec, hyprlock"
-    "$mod, Space, exec, rofi -show drun"
+    "$mod, Space, exec, fuzzel"
     "$mod, B, exec, chromium-profile"
     "CTRL $mod, Space, exec, theme-switch"
     "$mod, P, exec, hyprshot -m output -o ~/screenshots"

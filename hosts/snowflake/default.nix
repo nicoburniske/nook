@@ -28,7 +28,7 @@
       niri
       kitty
       yazi
-      rofi
+      fuzzel
       swaync
       quickshell
       vlc

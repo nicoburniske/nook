@@ -1,7 +1,7 @@
 {pkgs}:
 pkgs.writeNuScriptBin "chromium-profile" ''
   let chromium = "${pkgs.ungoogled-chromium}/bin/chromium"
-  let rofi = "${pkgs.rofi}/bin/rofi"
+  let fuzzel = "${pkgs.fuzzel}/bin/fuzzel"
   let data_dir = ([$env.HOME ".config" "chromium"] | path join)
   let local_state = ([$data_dir "Local State"] | path join)
 
@@ -35,13 +35,13 @@ pkgs.writeNuScriptBin "chromium-profile" ''
   }
 
   let menu = ($profiles | get name | str join "\n")
-  let rofi_result = (do { $menu | ^$rofi -dmenu -i -p "Chromium profile" } | complete)
+  let fuzzel_result = (do { $menu | ^$fuzzel --dmenu --prompt "chrome> " } | complete)
 
-  if $rofi_result.exit_code != 0 {
+  if $fuzzel_result.exit_code != 0 {
     exit 0
   }
 
-  let selection = ($rofi_result.stdout | str trim)
+  let selection = ($fuzzel_result.stdout | str trim)
   if $selection == "" {
     exit 0
   }

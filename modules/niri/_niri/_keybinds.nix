@@ -1,6 +1,6 @@
 [
   ''Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "kitty"; }''
-  ''Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "rofi" "-show" "drun"; }''
+  ''Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "fuzzel"; }''
   ''Mod+B repeat=false hotkey-overlay-title="Browser" { spawn "chromium-profile"; }''
   ''Ctrl+Mod+Space repeat=false hotkey-overlay-title="Switch theme" { spawn "theme-switch"; }''
 
