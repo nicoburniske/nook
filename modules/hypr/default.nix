@@ -4,6 +4,7 @@
       ./_hyprland
       ./_hyprlock.nix
       ./_hyprpaper.nix
+      ./_greetd.nix
     ];
 
     environment.systemPackages = with pkgs; [

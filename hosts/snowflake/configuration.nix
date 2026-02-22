@@ -131,16 +131,7 @@ in {
   programs = {
     hyprland.enable = true;
     zsh.enable = true;
-    regreet = {
-      enable = true;
-      settings.default_session = {
-        command = "Hyprland";
-        user = host.user;
-      };
-    };
   };
-
-  services.greetd.enable = true;
 
   environment.systemPackages = with pkgs; [
     git
