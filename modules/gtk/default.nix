@@ -8,47 +8,11 @@
     configDir = config.lib.sumi.paths.config;
     homeDir = config.lib.sumi.paths.home;
     gtkThemeName = "adw-gtk3";
-    gtkCssTemplate = builtins.readFile ./gtk.css.mustache;
-
-    bases = [
-      "base00"
-      "base01"
-      "base02"
-      "base03"
-      "base04"
-      "base05"
-      "base06"
-      "base07"
-      "base08"
-      "base09"
-      "base0A"
-      "base0B"
-      "base0C"
-      "base0D"
-      "base0E"
-      "base0F"
-    ];
-
-    mkGtkCss = theme: let
-      c = theme.colors;
-      base01 = c.base01;
-      hexAt = idx: builtins.substring idx 2 base01;
-      placeholders =
-        (map (base: "{{${base}-hex}}") bases)
-        ++ [
-          "{{base01-dec-r}}"
-          "{{base01-dec-g}}"
-          "{{base01-dec-b}}"
-        ];
-      replacements =
-        (map (base: c.${base}) bases)
-        ++ [
-          (toString (lib.fromHexString (hexAt 0)))
-          (toString (lib.fromHexString (hexAt 2)))
-          (toString (lib.fromHexString (hexAt 4)))
-        ];
-    in
-      builtins.replaceStrings placeholders replacements gtkCssTemplate;
+    mkGtkCss = theme:
+      config.lib.sumi.renderBase16Mustache {
+        inherit theme;
+        template = ./gtk.css.mustache;
+      };
 
     mkGtkSettings = gtkVersion: theme: let
       fontName = theme.fonts.sansSerif.name;

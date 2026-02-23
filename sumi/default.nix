@@ -296,6 +296,51 @@ in {
         pkgs.runCommandLocal drvName {} ''
           ln -s ${lib.escapeShellArg pathStr} "$out"
         '';
+
+      lib.sumi.renderBase16Mustache = {
+        theme,
+        template,
+      }: let
+        bases = [
+          "base00"
+          "base01"
+          "base02"
+          "base03"
+          "base04"
+          "base05"
+          "base06"
+          "base07"
+          "base08"
+          "base09"
+          "base0A"
+          "base0B"
+          "base0C"
+          "base0D"
+          "base0E"
+          "base0F"
+        ];
+        templateText =
+          if builtins.isPath template
+          then builtins.readFile template
+          else template;
+        c = theme.colors;
+        hexAt = idx: builtins.substring idx 2 c.base01;
+        placeholders =
+          (map (base: "{{${base}-hex}}") bases)
+          ++ [
+            "{{base01-dec-r}}"
+            "{{base01-dec-g}}"
+            "{{base01-dec-b}}"
+          ];
+        replacements =
+          (map (base: c.${base}) bases)
+          ++ [
+            (toString (lib.fromHexString (hexAt 0)))
+            (toString (lib.fromHexString (hexAt 2)))
+            (toString (lib.fromHexString (hexAt 4)))
+          ];
+      in
+        builtins.replaceStrings placeholders replacements templateText;
     }
 
     (lib.mkIf (cfg.enable or false) (let
