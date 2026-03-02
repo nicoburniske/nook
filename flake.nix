@@ -19,6 +19,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    helium-nix = {
+      url = "github:schembriaiden/helium-browser-nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     sumi = {
       url = "path:./sumi";
       inputs.nixpkgs.follows = "nixpkgs";

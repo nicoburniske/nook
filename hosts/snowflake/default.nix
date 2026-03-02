@@ -35,6 +35,7 @@
       thunar
       gtk
       helix
+      helium
       fzf
       ohMyPosh
       lazygit
