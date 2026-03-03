@@ -34,5 +34,6 @@
     sparrow
     readest
     pavucontrol
+    asahi-bless
   ];
 }
