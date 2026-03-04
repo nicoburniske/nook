@@ -26,6 +26,8 @@ in {
 
   nixpkgs.overlays = [
     (final: prev: {
+      hyprland = inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.hyprland;
+      xdg-desktop-portal-hyprland = inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
       ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
     })
   ];

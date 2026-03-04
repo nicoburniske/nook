@@ -86,9 +86,10 @@ in {
           }
         }
 
-        dwindle {
-          preserve_split=true
-          pseudotile=true
+        scrolling {
+          column_width=0.5
+          focus_fit_method=1
+          follow_focus=true
         }
 
         general {
@@ -97,7 +98,7 @@ in {
           col.inactive_border=${t.general.inactiveBorder}
           gaps_in=5
           gaps_out=10,20,20,20
-          layout=dwindle
+          layout=scrolling
           resize_on_border=true
         }
 
