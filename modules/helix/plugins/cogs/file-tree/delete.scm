@@ -20,7 +20,7 @@
     (set-box! (FileTreeState-directories state)
               (tree-unfold-path-to-target
                (unbox (FileTreeState-directories state))
-               (FileTreeState-root state)
+               (unbox (FileTreeState-root state))
                fallback-focus))
     (tree-refresh-when state target (lambda (path) (not (path-exists? path))) fallback-focus)))
 

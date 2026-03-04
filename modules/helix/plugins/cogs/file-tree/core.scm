@@ -295,7 +295,7 @@
                                  max-window-start))))))
 
 (define (tree-refresh! state focus-path)
-  (define root (FileTreeState-root state))
+  (define root (unbox (FileTreeState-root state)))
   (define raw-entries
     (if (and (string? root) (path-exists? root))
         (transduce (tree-build state root) (into-list))
@@ -353,7 +353,7 @@
 
 (define (tree-selected-base-path state)
   (define entry (tree-current-entry state))
-  (define root (FileTreeState-root state))
+  (define root (unbox (FileTreeState-root state)))
   (cond
     [(and entry (TreeEntry-directory entry)) (TreeEntry-path entry)]
     [(and entry (string? (TreeEntry-path entry))) (file-directory (TreeEntry-path entry))]

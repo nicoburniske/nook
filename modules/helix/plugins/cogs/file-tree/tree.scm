@@ -73,6 +73,24 @@
         event-result/consume)
       event-result/consume))
 
+(define (tree-reroot-to-parent! state focus-path)
+  (define root-box (FileTreeState-root state))
+  (define root (unbox root-box))
+  (define parent-root (path-parent root))
+  (define directories-box (FileTreeState-directories state))
+  (if (and (string? parent-root)
+           (not (path=? parent-root root)))
+      (begin
+        (set-box! root-box parent-root)
+        (set-box! directories-box
+                  (tree-unfold-path-to-target
+                   (unbox directories-box)
+                   parent-root
+                   focus-path))
+        (tree-refresh! state focus-path)
+        event-result/consume)
+      event-result/consume))
+
 (define (tree-go-parent! state)
   (define entry (tree-current-entry state))
   (if (not entry)
@@ -84,12 +102,15 @@
               (tree-set-directory-folded! state target #t)
               (tree-refresh! state target)
               event-result/consume)
-            (let ([parent (if directory? (path-parent target) (file-directory target))])
-              (if (and (string? parent) (not (path=? parent target)))
-                  (begin
-                    (tree-refresh! state parent)
-                    event-result/consume)
-                  event-result/consume))))))
+            (let* ([parent (if directory? (path-parent target) (file-directory target))]
+                   [root (unbox (FileTreeState-root state))])
+              (cond
+                [(or (not (string? parent)) (path=? parent target)) event-result/consume]
+                [(path=? parent root)
+                 (tree-reroot-to-parent! state target)]
+                [else
+                 (tree-refresh! state parent)
+                 event-result/consume]))))))
 
 (define (tree-search-selected-directory! state)
   (define entry (tree-current-entry state))
@@ -186,7 +207,7 @@
   (cond
     [(and (string? destination-base) (is-dir? destination-base)) destination-base]
     [(string? destination-base) (file-directory destination-base)]
-    [else (FileTreeState-root state)]))
+    [else (unbox (FileTreeState-root state))]))
 
 (define (tree-run-transfer! transfer-kind source destination)
   (define quoted-source (string-append "\"" (shell-escape source) "\""))
@@ -201,7 +222,7 @@
   (set-box! (FileTreeState-directories state)
             (tree-unfold-path-to-target
              (unbox (FileTreeState-directories state))
-             (FileTreeState-root state)
+             (unbox (FileTreeState-root state))
              target-path))
 
   (tree-clear-transfer! state)

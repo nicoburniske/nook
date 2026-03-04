@@ -118,7 +118,7 @@
       (set-box! (FileTreeState-directories state)
                 (tree-unfold-path-to-target
                  (unbox (FileTreeState-directories state))
-                 (FileTreeState-root state)
+                 (unbox (FileTreeState-root state))
                  target-path))
       (tree-refresh-when state target-path path-exists? target-path))))
 
@@ -147,11 +147,11 @@
       (set-box! (FileTreeState-directories state)
                 (tree-unfold-path-to-target
                  (unbox (FileTreeState-directories state))
-                 (FileTreeState-root state)
+                 (unbox (FileTreeState-root state))
                  destination))
       (tree-refresh-when state
-                          destination
-                          (lambda (path)
+                           destination
+                           (lambda (path)
                             (and (path-exists? path)
                                  (not (path-exists? source))))
                           destination))))
