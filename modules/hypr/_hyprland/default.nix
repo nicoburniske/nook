@@ -25,6 +25,19 @@
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
   chromiumProfile = import (inputs.self + "/common/chromium-profile.nix") {inherit pkgs;};
 in {
+  nixpkgs.overlays = [
+    (final: prev: {
+      hyprland =
+        (inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.hyprland).overrideAttrs
+        (old: {
+          patches = (old.patches or []) ++ [./patches/force-vertical-workspace-swipe.patch];
+        });
+      xdg-desktop-portal-hyprland = inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+    })
+  ];
+
+  programs.hyprland.package = pkgs.hyprland;
+
   environment.systemPackages = [
     themeSwitch
     chromiumProfile
@@ -63,7 +76,7 @@ in {
           animation=layersOut, 1, 1.5, linear, fade
           animation=fadeLayersIn, 1, 1.79, almostLinear
           animation=fadeLayersOut, 1, 1.39, almostLinear
-          animation=workspaces, 0, 1, default
+          animation=workspaces, 0, 0, ease
           enabled=true
         }
 
@@ -149,6 +162,7 @@ in {
         exec=hyprctl setcursor ${cursorTheme} 24
         gesture=3, left, dispatcher, layoutmsg, move +col
         gesture=3, right, dispatcher, layoutmsg, move -col
+        gesture=3, vertical, workspace
         layerrule=no_anim on, match:namespace fuzzel
 
         monitor=eDP-1, 3456x2234@120, 0x0, 1.6
