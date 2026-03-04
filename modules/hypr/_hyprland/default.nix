@@ -24,6 +24,13 @@
 
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
   chromiumProfile = import (inputs.self + "/common/chromium-profile.nix") {inherit pkgs;};
+  workspaceLayoutToggle = pkgs.writeNuScriptBin "hypr-workspace-layout-toggle" ''
+    let active = (hyprctl activeworkspace -j | from json)
+    let workspace = $active.id
+    let currentLayout = (($active.tiledLayout? | default "") | str downcase)
+    let nextLayout = if $currentLayout == "dwindle" { "scrolling" } else { "dwindle" }
+    hyprctl keyword workspace $"($workspace),layout:($nextLayout)" | ignore
+  '';
 in {
   nixpkgs.overlays = [
     (final: prev: {
@@ -41,6 +48,7 @@ in {
   environment.systemPackages = [
     themeSwitch
     chromiumProfile
+    workspaceLayoutToggle
   ];
 
   sumi.configFile = {
