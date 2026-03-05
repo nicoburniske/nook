@@ -35,11 +35,10 @@ in {
   nixpkgs.overlays = [
     (final: prev: {
       hyprland =
-        (inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.hyprland).overrideAttrs
+        (prev.hyprland).overrideAttrs
         (old: {
           patches = (old.patches or []) ++ [./patches/force-vertical-workspace-swipe.patch];
         });
-      xdg-desktop-portal-hyprland = inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
     })
   ];
 
