@@ -12,10 +12,6 @@
 
     mkSettings = theme: let
       colors = theme.colors.withHashtag;
-      pagerTheme =
-        if theme.polarity == "light"
-        then "--light"
-        else "--dark";
     in {
       os = {
         edit = sendToHelix ":open {{filename}}";
@@ -23,9 +19,8 @@
       };
 
       git = {
-        colorArg = "always";
         pagers = [
-          {pager = "delta --true-color=never --paging=never --line-numbers ${pagerTheme}";}
+          {externalDiffCommand = "difft --color=always --background=${theme.polarity}";}
         ];
         overrideGpg = true;
       };

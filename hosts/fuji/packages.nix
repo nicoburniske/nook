@@ -1,10 +1,9 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     just
     gh
     ripgrep
-    delta
+    difftastic
     tokei
     marksman
     bun

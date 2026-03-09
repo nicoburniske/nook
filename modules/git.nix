@@ -6,7 +6,7 @@
   }: {
     environment.systemPackages = with pkgs; [
       git
-      delta
+      difftastic
     ];
 
     sumi.configFile = {
@@ -18,14 +18,18 @@
         };
         commit.gpgsign = true;
         gpg.format = "ssh";
-        alias.ca = "commit --amend --no-edit";
+        alias = {
+          ca = "commit --amend --no-edit";
+          dlog = "log -p --ext-diff";
+          dshow = "show --ext-diff";
+        };
         push.autoSetupRemote = true;
         pull.rebase = true;
         rerere.enabled = true;
         core = {
-          pager = "delta";
           editor = "hx";
         };
+        diff.external = "difft";
         url = {
           "git@github.com:" = {
             insteadOf = "https://github.com/";
@@ -33,12 +37,6 @@
           "https://github.com/rust-lang/crates.io-index" = {
             insteadOf = "https://github.com/rust-lang/crates.io-index";
           };
-        };
-        delta = {
-          navigate = true;
-          side-by-side = true;
-          line-numbers = true;
-          hyperlinks = true;
         };
       };
     };
