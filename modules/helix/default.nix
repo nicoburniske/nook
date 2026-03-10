@@ -58,6 +58,7 @@
                 goto-reference-include-declaration = false;
               };
               inline-diagnostics.cursor-line = "info";
+              soft-wrap.enable = true;
             };
 
             keys = let
