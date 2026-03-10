@@ -3,7 +3,6 @@
     just
     gh
     ripgrep
-    difftastic
     tokei
     marksman
     bun
