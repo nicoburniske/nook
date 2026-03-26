@@ -23,7 +23,7 @@
     sumi.configFile = {
       "quickshell/shell.qml" = {
         watch = ["theme"];
-        generate = ctx: let
+        value = ctx: let
           theme = ctx.values.theme;
           fonts = theme.fonts;
         in
@@ -75,10 +75,13 @@
           '';
       };
 
-      "quickshell/components".source = config.lib.sumi.mkOutOfStoreSymlink "${quickshellRoot}/components";
+      "quickshell/components".value = config.lib.sumi.mkOutOfStoreSymlink "${quickshellRoot}/components";
     };
 
-    sumi.program.quickshell.reload = "${pkgs.systemd}/bin/systemctl --user restart quickshell.service";
+    sumi.hook.quickshell = {
+      watch = ["theme"];
+      command = "${pkgs.systemd}/bin/systemctl --user restart quickshell.service";
+    };
 
     systemd.user.services.quickshell = {
       description = "Quickshell";

@@ -53,7 +53,7 @@ in {
   sumi.configFile = {
     "hypr/hyprland.conf" = {
       watch = ["theme"];
-      generate = ctx: let
+      value = ctx: let
         theme = ctx.values.theme;
         t = import ./_theme.nix theme;
         cursorTheme =
@@ -180,5 +180,8 @@ in {
     };
   };
 
-  sumi.program.hyprland.reload = "${pkgs.hyprland}/bin/hyprctl reload";
+  sumi.hook.hyprland = {
+    watch = ["theme"];
+    command = "${pkgs.hyprland}/bin/hyprctl reload";
+  };
 }

@@ -35,7 +35,9 @@
 
         config = lib.mkIf (config.sumi.enable or false) {
           system.userActivationScripts.sumi = ''
-            ${config.sumi.package}/bin/sumi switch || true
+            if ! ${config.sumi.package}/bin/sumi switch; then
+              echo "sumi: switch failed during activation" >&2
+            fi
           '';
         };
       };
@@ -51,7 +53,9 @@
 
         config = lib.mkIf (config.sumi.enable or false) {
           system.activationScripts.postActivation.text = lib.mkAfter ''
-            ${config.sumi.package}/bin/sumi switch || true
+            if ! ${config.sumi.package}/bin/sumi switch; then
+              echo "sumi: switch failed during activation" >&2
+            fi
           '';
         };
       };

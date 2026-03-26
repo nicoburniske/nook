@@ -11,11 +11,11 @@
     ];
 
     sumi.configFile = {
-      "swaync/config.json".text = "{}\n";
+      "swaync/config.json".value = "{}\n";
 
       "swaync/style.css" = {
         watch = ["theme"];
-        generate = ctx: let
+        value = ctx: let
           theme = ctx.values.theme;
           fontFamily = theme.fonts.sansSerif.name;
           fontSize = toString theme.fonts.sizes.desktop;
@@ -42,7 +42,10 @@
       };
     };
 
-    sumi.program.swaync.reload = "${pkgs.systemd}/bin/systemctl --user restart swaync.service";
+    sumi.hook.swaync = {
+      watch = ["theme"];
+      command = "${pkgs.systemd}/bin/systemctl --user restart swaync.service";
+    };
 
     systemd.user.services.swaync = {
       description = "Sway Notification Center";

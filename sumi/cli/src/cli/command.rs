@@ -1,16 +1,16 @@
 use crate::cli::{Cli, Command, FacetsArgs, SelectionArgs, SwitchArgs};
+use crate::compile::CompiledManifest;
 use crate::core::{
-    self, apply, doctor, get_selection, parse_selection_overrides, run_reload_hooks,
-    validate_selection_overrides, write_selection, ConflictPolicy,
+    self, apply, changed_facets, doctor, get_selection, parse_selection_overrides,
+    run_reload_hooks, validate_selection_overrides, write_selection, ConflictPolicy,
 };
 use crate::error::AppError;
-use crate::model::Manifest;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 struct RuntimeContext {
-    manifest: Manifest,
+    manifest: CompiledManifest,
     home_dir: PathBuf,
     state_dir: PathBuf,
 }
@@ -45,7 +45,7 @@ async fn run_switch(
     let overrides = parse_selection_overrides(&args.set)?;
     validate_selection_overrides(&ctx.manifest, &overrides)?;
 
-    let mut merged = current;
+    let mut merged = current.clone();
     for (key, value) in overrides {
         merged.insert(key, value);
     }
@@ -68,12 +68,11 @@ async fn run_switch(
     print_apply_summary(&summary);
     if summary.failed > 0 {
         eprintln!("sumi: apply completed with partial failures");
+        return Ok(ExitCode::from(2));
     }
 
-    let hook_results = run_reload_hooks(&ctx.manifest, &selection).await;
-    if !hook_results.is_empty() {
-        println!("Running reload hooks in parallel...");
-    }
+    let changed = changed_facets(&current, &selection);
+    let hook_results = run_reload_hooks(&ctx.manifest, &selection, &changed).await;
 
     for result in &hook_results {
         if result.ok {
@@ -100,11 +99,7 @@ async fn run_switch(
     write_selection(&ctx.state_dir, &selection).await?;
     println!("Switched selection");
 
-    Ok(if summary.failed > 0 {
-        ExitCode::from(2)
-    } else {
-        ExitCode::SUCCESS
-    })
+    Ok(ExitCode::SUCCESS)
 }
 
 async fn run_facets(
@@ -112,6 +107,7 @@ async fn run_facets(
     args: FacetsArgs,
 ) -> Result<ExitCode, AppError> {
     let ctx = require_context(global_manifest, None).await?;
+    let selection = get_selection(&ctx.manifest, &ctx.state_dir).await?;
 
     if let Some(requested_facet) = args.facet {
         let facet =
@@ -123,15 +119,25 @@ async fn run_facets(
                 })?;
 
         for variant in facet.variants.keys() {
-            println!("{variant}");
+            let prefix = if selection.get(&requested_facet) == Some(variant) {
+                "*"
+            } else {
+                " "
+            };
+            println!("{prefix} {variant}");
         }
         return Ok(ExitCode::SUCCESS);
     }
 
     for (facet_name, facet) in &ctx.manifest.facets {
+        let current = selection
+            .get(facet_name)
+            .map(String::as_str)
+            .unwrap_or(facet.default.as_str());
         println!(
-            "{} default={} variants={}",
+            "{} current={} default={} variants={}",
             facet_name,
+            current,
             facet.default,
             facet.variants.len()
         );
@@ -221,12 +227,12 @@ async fn require_context(
     })
 }
 
-fn resolve_home_dir(manifest: &Manifest) -> Result<PathBuf, AppError> {
+fn resolve_home_dir(manifest: &CompiledManifest) -> Result<PathBuf, AppError> {
     let env_home = env::var("SUMI_HOME_DIR").unwrap_or_default();
     let resolved = if !env_home.is_empty() {
         PathBuf::from(env_home)
-    } else if !manifest.home.is_empty() {
-        PathBuf::from(&manifest.home)
+    } else if !manifest.home.as_os_str().is_empty() {
+        manifest.home.clone()
     } else {
         let home = env::var("HOME").unwrap_or_default();
         if home.is_empty() {

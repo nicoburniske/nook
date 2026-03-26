@@ -1,8 +1,11 @@
 mod cli;
+mod compile;
 mod core;
+mod dispatch;
 mod error;
 mod logging;
-mod model;
+mod manifest;
+mod state;
 
 use std::process::ExitCode;
 

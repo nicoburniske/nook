@@ -5,7 +5,7 @@
     environment.systemPackages = [pkgs.kitty];
 
     sumi.configFile = {
-      "kitty/kitty.conf".text = ''
+      "kitty/kitty.conf".value = ''
         shell_integration no-rc no-title
 
         active_tab_title_template ${tabTitle}
@@ -87,11 +87,11 @@
 
       "kitty/themes/sumi.conf" = {
         watch = ["theme"];
-        generate = ctx: renderTheme ctx.values.theme;
+        value = ctx: renderTheme ctx.values.theme;
       };
-      "kitty/tab_bar.py".source = ./tab_bar.py;
+      "kitty/tab_bar.py".value = ./tab_bar.py;
 
-      "kitty/quick-access-terminal.conf".text = ''
+      "kitty/quick-access-terminal.conf".value = ''
         edge center-sized
         lines 20
         columns 50
@@ -99,10 +99,13 @@
       '';
     };
 
-    sumi.program.kitty.reload =
-      if pkgs.stdenv.isDarwin
-      then "/usr/bin/pkill -USR1 .kitty-wrapped"
-      else "${pkgs.procps}/bin/pkill -USR1 .kitty-wrapped";
+    sumi.hook.kitty = {
+      watch = ["theme"];
+      command =
+        if pkgs.stdenv.isDarwin
+        then "/usr/bin/pkill -USR1 .kitty-wrapped"
+        else "${pkgs.procps}/bin/pkill -USR1 .kitty-wrapped";
+    };
   };
 in {
   flake.modules.nixos.kitty = mkKittyModule;

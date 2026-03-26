@@ -32,11 +32,11 @@ in {
   ];
 
   sumi.configFile = {
-    "niri/config.kdl.local".text = "\n";
+    "niri/config.kdl.local".value = "\n";
 
     "niri/config.kdl" = {
       watch = ["theme"];
-      generate = ctx: let
+      value = ctx: let
         theme = ctx.values.theme;
         t = import ./_theme.nix theme;
         cursorTheme =

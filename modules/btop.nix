@@ -3,13 +3,13 @@
     environment.systemPackages = [pkgs.btop];
 
     sumi.configFile = {
-      "btop/btop.conf".text = ''
+      "btop/btop.conf".value = ''
         color_theme = "sumi"
       '';
 
       "btop/themes/sumi.theme" = {
         watch = ["theme"];
-        generate = ctx: let
+        value = ctx: let
           theme = ctx.values.theme;
         in
           with theme.colors.withHashtag; ''

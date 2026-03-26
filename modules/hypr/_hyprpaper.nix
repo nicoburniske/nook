@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   sumi.configFile."hypr/hyprpaper.conf" = {
     watch = ["theme"];
-    generate = ctx: let
+    value = ctx: let
       theme = ctx.values.theme;
       imagePath =
         if theme.image == null
@@ -18,9 +18,9 @@
     '';
   };
 
-  sumi.program.hyprpaper = {
+  sumi.hook.hyprpaper = {
     watch = ["theme"];
-    reload = ctx: let
+    command = ctx: let
       theme = ctx.values.theme;
       imagePath = toString theme.image;
     in ''

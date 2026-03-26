@@ -4,7 +4,7 @@
 
     sumi.configFile."ohmyposh/config.json" = {
       watch = ["theme"];
-      generate = ctx: let
+      value = ctx: let
         theme = ctx.values.theme;
       in
         builtins.toJSON {

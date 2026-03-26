@@ -1,25 +1,41 @@
-def canonicalize-manifest [manifest] {
-  $manifest
-  | update files {|row|
-      $row.files
-      | each {|file|
-          if ("rules" in ($file | columns)) {
-            $file
-            | update rules {|file_row|
-                $file_row.rules
-                | each {|rule|
-                    if ("source" in ($rule | columns)) {
-                      $rule | reject source
-                    } else {
-                      $rule
-                    }
-                  }
-              }
+def canonicalize-dispatch [dispatch] {
+  let kind = ($dispatch | get kind)
+
+  if $kind == "static" {
+    $dispatch | reject value
+  } else {
+    let cases = (
+      $dispatch
+      | get cases
+      | each {|case|
+          if ("value" in ($case | columns)) {
+            $case | reject value
           } else {
-            $file
+            $case
           }
         }
-    }
+    )
+
+    $dispatch | merge {cases: $cases}
+  }
+}
+
+def canonicalize-file [file] {
+  if ("dispatch" in ($file | columns)) {
+    $file | merge {dispatch: (canonicalize-dispatch ($file | get dispatch))}
+  } else {
+    $file
+  }
+}
+
+def canonicalize-manifest [manifest] {
+  let files = (
+    $manifest
+    | get files
+    | each {|file| canonicalize-file $file }
+  )
+
+  $manifest | merge {files: $files}
 }
 
 def main [manifest_path: string expected_json: string] {

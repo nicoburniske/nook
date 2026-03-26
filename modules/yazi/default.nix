@@ -94,15 +94,15 @@
     environment.systemPackages = [yaziPackage];
 
     sumi.configFile = {
-      "yazi/yazi.toml".source = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
-      "yazi/keymap.toml".source = tomlFormat.generate "sumi-yazi-keymap.toml" yaziKeymap;
+      "yazi/yazi.toml".value = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
+      "yazi/keymap.toml".value = tomlFormat.generate "sumi-yazi-keymap.toml" yaziKeymap;
       "yazi/theme.toml" = {
         watch = ["theme"];
-        generate = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.selection.theme}.toml" (mkTheme ctx.values.theme);
+        value = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.selection.theme}.toml" (mkTheme ctx.values.theme);
       };
 
-      "yazi/plugins/tv-files.yazi".source = tvFilesPlugin;
-      "yazi/plugins/tv-text.yazi".source = tvTextPlugin;
+      "yazi/plugins/tv-files.yazi".value = tvFilesPlugin;
+      "yazi/plugins/tv-text.yazi".value = tvTextPlugin;
     };
   };
 in {

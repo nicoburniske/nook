@@ -7,11 +7,11 @@
     environment.systemPackages = [pkgs.bat];
 
     sumi.configFile = {
-      "bat/config".text = "--theme=base16-sumi\n";
+      "bat/config".value = "--theme=base16-sumi\n";
 
       "bat/themes/base16-sumi.tmTheme" = {
         watch = ["theme"];
-        generate = ctx: let
+        value = ctx: let
           theme = ctx.values.theme;
         in
           config.lib.sumi.renderBase16Mustache {
@@ -21,7 +21,10 @@
       };
     };
 
-    sumi.program.bat.reload = "bat cache --build";
+    sumi.hook.bat = {
+      watch = ["theme"];
+      command = "bat cache --build";
+    };
   };
 in {
   flake.modules.nixos.bat = batModule;

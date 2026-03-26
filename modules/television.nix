@@ -3,7 +3,7 @@
     environment.systemPackages = [pkgs.television];
 
     sumi.configFile = {
-      "television/cable/files.toml".text = ''
+      "television/cable/files.toml".value = ''
         [metadata]
         name = "files"
         description = "A channel to select files and directories"
@@ -16,7 +16,7 @@
         command = "bat -n --color=always '{}'"
       '';
 
-      "television/cable/text.toml".text = ''
+      "television/cable/text.toml".value = ''
         [metadata]
         name = "text"
         description = "A channel to find and select text from files"
@@ -35,7 +35,7 @@
         header = "{strip_ansi|split:\\::..2}"
       '';
 
-      "television/cable/just.toml".text = ''
+      "television/cable/just.toml".value = ''
         [metadata]
         name = "just"
         description = "A channel to select recipes from Justfiles"

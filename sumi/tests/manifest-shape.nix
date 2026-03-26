@@ -52,17 +52,17 @@
 
             configFile."demo/app.conf" = {
               watch = ["theme"];
-              generate = ctx: "tone=${ctx.values.theme.tone}";
+              value = ctx: "tone=${ctx.values.theme.tone}";
             };
 
-            program.demo = {
+            hook.demo = {
               watch = ["theme"];
-              reload = "echo reload";
+              command = "echo reload";
             };
 
-            program."demo-generated" = {
+            hook."demo-generated" = {
               watch = ["theme"];
-              reload = ctx: "echo tone=${ctx.values.theme.tone}";
+              command = ctx: "echo tone=${ctx.values.theme.tone}";
             };
           };
         };
@@ -72,7 +72,7 @@
 
   manifest = eval.config.sumi.generated.manifest;
   expected = builtins.toJSON {
-    version = 1;
+    version = 2;
     home = "/home/tester";
     defaultSelection = {
       theme = "light";
@@ -93,53 +93,48 @@
     files = [
       {
         path = ".config/demo/app.conf";
-        executable = false;
-        rules = [
-          {
-            when = {
-              theme = ["dark"];
-            };
-          }
-          {
-            when = {
-              theme = ["light"];
-            };
-          }
-        ];
+        dispatch = {
+          kind = "select";
+          facets = ["theme"];
+          cases = [
+            {
+              variants = ["dark"];
+            }
+            {
+              variants = ["light"];
+            }
+          ];
+        };
       }
     ];
-    hooks = {
-      reload = [
-        {
-          command = "echo reload";
-          registration = "demo";
-          when = {
-            theme = ["dark"];
-          };
-        }
-        {
-          command = "echo reload";
-          registration = "demo";
-          when = {
-            theme = ["light"];
-          };
-        }
-        {
-          command = "echo tone=dark";
-          registration = "demo-generated";
-          when = {
-            theme = ["dark"];
-          };
-        }
-        {
-          command = "echo tone=light";
-          registration = "demo-generated";
-          when = {
-            theme = ["light"];
-          };
-        }
-      ];
-    };
+    hooks = [
+      {
+        name = "demo";
+        watch = ["theme"];
+        dispatch = {
+          kind = "static";
+          value = "echo reload";
+        };
+      }
+      {
+        name = "demo-generated";
+        watch = ["theme"];
+        dispatch = {
+          kind = "select";
+          facets = ["theme"];
+          cases = [
+            {
+              variants = ["dark"];
+              value = "echo tone=dark";
+            }
+            {
+              variants = ["light"];
+              value = "echo tone=light";
+            }
+          ];
+        };
+      }
+    ];
   };
 in
   pkgs.runCommand "sumi-manifest-shape-test" {

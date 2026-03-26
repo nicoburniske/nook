@@ -19,7 +19,7 @@
     ];
 
     sumi.configFile = {
-      "hammerspoon".source = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/hammerspoon/config";
+      "hammerspoon".value = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/hammerspoon/config";
     };
 
     launchd.user.agents.hammerspoon = {
@@ -35,8 +35,11 @@
       };
     };
 
-    sumi.program.hammerspoon.reload = ''
-      /Applications/Hammerspoon.app/Contents/Frameworks/hs/hs -A -c "hs.reload()"
-    '';
+    sumi.hook.hammerspoon = {
+      watch = ["theme"];
+      command = ''
+        /Applications/Hammerspoon.app/Contents/Frameworks/hs/hs -A -c "hs.reload()"
+      '';
+    };
   };
 }

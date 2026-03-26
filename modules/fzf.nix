@@ -9,7 +9,7 @@
 
     sumi.configFile."fzf/fzfrc" = {
       watch = ["theme"];
-      generate = ctx: let
+      value = ctx: let
         theme = ctx.values.theme;
       in
         with theme.colors.withHashtag; ''

@@ -3,10 +3,12 @@ pub mod doctor;
 pub mod hook;
 pub mod lock;
 
+use crate::compile::{compile_manifest, CompiledManifest};
 use crate::error::AppError;
-use crate::model::{CurrentSelection, Manifest, Snapshot};
+use crate::manifest::Selection;
+use crate::state::{CurrentSelection, Snapshot};
 use serde::Serialize;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io::ErrorKind;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -16,7 +18,7 @@ pub use doctor::doctor;
 pub use hook::run_reload_hooks;
 pub use lock::acquire_switch_lock;
 
-pub async fn load_manifest(path: &Path) -> Result<Manifest, AppError> {
+pub async fn load_manifest(path: &Path) -> Result<CompiledManifest, AppError> {
     let bytes = smol::fs::read(path)
         .await
         .map_err(|source| AppError::ReadFile {
@@ -24,24 +26,23 @@ pub async fn load_manifest(path: &Path) -> Result<Manifest, AppError> {
             source,
         })?;
 
-    serde_json::from_slice(&bytes).map_err(|source| AppError::ParseJson {
+    let manifest = serde_json::from_slice(&bytes).map_err(|source| AppError::ParseJson {
         path: path.to_path_buf(),
         source,
-    })
+    })?;
+
+    compile_manifest(manifest)
 }
 
-pub async fn read_snapshot(
-    path: &Path,
-    selection: BTreeMap<String, String>,
-) -> Result<Snapshot, AppError> {
+pub async fn read_snapshot(path: &Path, selection: Selection) -> Result<Snapshot, AppError> {
     let bytes = match smol::fs::read(path).await {
         Ok(bytes) => bytes,
         Err(source) if source.kind() == ErrorKind::NotFound => {
             return Ok(Snapshot {
-                version: 1,
+                version: 2,
                 selection,
                 updated_at: unix_seconds_string(),
-                files: BTreeMap::new(),
+                files: Vec::new(),
             });
         }
         Err(source) => {
@@ -101,8 +102,8 @@ pub fn parse_selection_overrides(items: &[String]) -> Result<BTreeMap<String, St
 }
 
 pub fn validate_selection_overrides(
-    manifest: &Manifest,
-    overrides: &BTreeMap<String, String>,
+    manifest: &CompiledManifest,
+    overrides: &Selection,
 ) -> Result<(), AppError> {
     for (facet, value) in overrides {
         let data = manifest
@@ -123,35 +124,19 @@ pub fn validate_selection_overrides(
     Ok(())
 }
 
-pub fn normalize_selection(
-    manifest: &Manifest,
-    selection: &BTreeMap<String, String>,
-) -> BTreeMap<String, String> {
-    let mut out = BTreeMap::new();
+pub fn normalize_selection(manifest: &CompiledManifest, selection: &Selection) -> Selection {
+    let mut out = Selection::new();
 
     for (facet_name, facet) in &manifest.facets {
         if facet.variants.is_empty() {
             continue;
         }
 
-        let first_variant = facet
-            .variants
-            .keys()
-            .next()
-            .expect("variant key exists")
-            .to_string();
-
-        let manifest_default = if facet.default.is_empty() {
-            first_variant.clone()
-        } else {
-            facet.default.clone()
-        };
-
         let fallback = manifest
             .default_selection
             .get(facet_name)
             .cloned()
-            .unwrap_or_else(|| manifest_default.clone());
+            .unwrap_or_else(|| facet.default.clone());
 
         let candidate = selection
             .get(facet_name)
@@ -160,10 +145,8 @@ pub fn normalize_selection(
 
         let chosen = if facet.variants.contains_key(&candidate) {
             candidate
-        } else if facet.variants.contains_key(&fallback) {
-            fallback
         } else {
-            first_variant
+            fallback
         };
 
         out.insert(facet_name.clone(), chosen);
@@ -173,9 +156,9 @@ pub fn normalize_selection(
 }
 
 pub async fn get_selection(
-    manifest: &Manifest,
+    manifest: &CompiledManifest,
     state_dir: &Path,
-) -> Result<BTreeMap<String, String>, AppError> {
+) -> Result<Selection, AppError> {
     let current_path = state_dir.join("current.json");
     let selection = match read_current_selection(&current_path).await? {
         Some(current) => current.selection,
@@ -185,10 +168,7 @@ pub async fn get_selection(
     Ok(normalize_selection(manifest, &selection))
 }
 
-pub async fn write_selection(
-    state_dir: &Path,
-    selection: &BTreeMap<String, String>,
-) -> Result<(), AppError> {
+pub async fn write_selection(state_dir: &Path, selection: &Selection) -> Result<(), AppError> {
     let current = CurrentSelection {
         selection: selection.clone(),
         switched_at: unix_seconds_string(),
@@ -197,21 +177,12 @@ pub async fn write_selection(
     write_json_atomic(&current, &state_dir.join("current.json")).await
 }
 
-pub(crate) fn when_matches(
-    when: &BTreeMap<String, Vec<String>>,
-    selection: &BTreeMap<String, String>,
-) -> bool {
-    for (facet, allowed_values) in when {
-        let Some(current) = selection.get(facet) else {
-            return false;
-        };
+pub(crate) fn changed_facets(previous: &Selection, next: &Selection) -> BTreeSet<String> {
+    let keys: BTreeSet<String> = previous.keys().chain(next.keys()).cloned().collect();
 
-        if !allowed_values.iter().any(|value| value == current) {
-            return false;
-        }
-    }
-
-    true
+    keys.into_iter()
+        .filter(|facet| previous.get(facet) != next.get(facet))
+        .collect()
 }
 
 pub(crate) fn unix_seconds_string() -> String {

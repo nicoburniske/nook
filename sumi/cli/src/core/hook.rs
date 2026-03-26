@@ -1,7 +1,8 @@
-use super::when_matches;
-use crate::model::{Hook, Manifest};
+use crate::compile::{CompiledHook, CompiledManifest};
+use crate::dispatch::resolve_dispatch;
+use crate::manifest::Selection;
 use smol::process::Command;
-use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
 #[derive(Debug)]
 pub struct HookResult {
@@ -11,20 +12,19 @@ pub struct HookResult {
 }
 
 pub async fn run_reload_hooks(
-    manifest: &Manifest,
-    selection: &BTreeMap<String, String>,
+    manifest: &CompiledManifest,
+    selection: &Selection,
+    changed_facets: &BTreeSet<String>,
 ) -> Vec<HookResult> {
-    let matching: Vec<Hook> = manifest
+    let matching: Vec<(String, String)> = manifest
         .hooks
-        .reload
         .iter()
-        .filter(|hook| when_matches(&hook.when, selection))
-        .cloned()
+        .filter_map(|hook| resolve_hook(hook, selection, changed_facets))
         .collect();
 
     let mut tasks = Vec::new();
-    for hook in matching {
-        tasks.push(smol::spawn(async move { run_hook(hook).await }));
+    for (label, command) in matching {
+        tasks.push(smol::spawn(async move { run_hook(label, command).await }));
     }
 
     let mut results = Vec::new();
@@ -35,23 +35,31 @@ pub async fn run_reload_hooks(
     results
 }
 
-async fn run_hook(hook: Hook) -> HookResult {
-    let label = hook.registration.clone();
-
-    if hook.command.trim().is_empty() {
-        return HookResult {
-            ok: true,
-            label,
-            output: String::new(),
-        };
+fn resolve_hook(
+    hook: &CompiledHook,
+    selection: &Selection,
+    changed_facets: &BTreeSet<String>,
+) -> Option<(String, String)> {
+    if !hook
+        .watch
+        .iter()
+        .any(|facet| changed_facets.contains(facet))
+    {
+        return None;
     }
 
-    match Command::new("bash")
-        .arg("-lc")
-        .arg(&hook.command)
-        .output()
-        .await
-    {
+    let command = resolve_dispatch(&hook.dispatch, selection)?
+        .trim()
+        .to_string();
+    if command.is_empty() {
+        return None;
+    }
+
+    Some((hook.name.clone(), command))
+}
+
+async fn run_hook(label: String, command: String) -> HookResult {
+    match Command::new("bash").arg("-lc").arg(&command).output().await {
         Ok(output) => {
             let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
             let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -72,7 +80,7 @@ async fn run_hook(hook: Hook) -> HookResult {
         Err(err) => HookResult {
             ok: false,
             label,
-            output: format!("failed to run '{}': {}", hook.command, err),
+            output: format!("failed to run '{}': {}", command, err),
         },
     }
 }

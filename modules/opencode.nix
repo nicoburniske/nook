@@ -5,7 +5,7 @@
     environment.systemPackages = [opencodePackage];
 
     sumi.configFile = {
-      "opencode/config.json".text = builtins.toJSON {
+      "opencode/config.json".value = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
         autoupdate = false;
         theme = "sumi";
@@ -18,7 +18,7 @@
 
       "opencode/themes/sumi.json" = {
         watch = ["theme"];
-        generate = ctx: let
+        value = ctx: let
           theme = ctx.values.theme;
         in
           builtins.toJSON {

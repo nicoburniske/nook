@@ -59,35 +59,35 @@
     sumi.configFile = {
       "gtk-2.0/gtkrc" = {
         watch = ["theme"];
-        generate = ctx: mkGtkrc ctx.values.theme;
+        value = ctx: mkGtkrc ctx.values.theme;
       };
       "gtk-3.0/settings.ini" = {
         watch = ["theme"];
-        generate = ctx: mkGtkSettings 3 ctx.values.theme;
+        value = ctx: mkGtkSettings 3 ctx.values.theme;
       };
       "gtk-4.0/settings.ini" = {
         watch = ["theme"];
-        generate = ctx: mkGtkSettings 4 ctx.values.theme;
+        value = ctx: mkGtkSettings 4 ctx.values.theme;
       };
       "gtk-3.0/gtk.css" = {
         watch = ["theme"];
-        generate = ctx: mkGtkCss ctx.values.theme;
+        value = ctx: mkGtkCss ctx.values.theme;
       };
       "gtk-4.0/gtk.css" = {
         watch = ["theme"];
-        generate = ctx: mkGtkCss ctx.values.theme;
+        value = ctx: mkGtkCss ctx.values.theme;
       };
     };
 
     sumi.homeFile = {
       ".themes/${gtkThemeName}" = {
         watch = ["theme"];
-        generate = ctx: mkFlattenedGtkTheme ctx.values.theme;
+        value = ctx: mkFlattenedGtkTheme ctx.values.theme;
       };
     };
 
     sumi.dataFile = {
-      "flatpak/overrides/global".text = ''
+      "flatpak/overrides/global".value = ''
         [Context]
         filesystems=${homeDir}/.themes/${gtkThemeName}:ro
 
@@ -96,9 +96,9 @@
       '';
     };
 
-    sumi.program.gtk = {
+    sumi.hook.gtk = {
       watch = ["theme"];
-      reload = ctx:
+      command = ctx:
         if ctx.values.theme.polarity == "dark"
         then "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true"
         else "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true";

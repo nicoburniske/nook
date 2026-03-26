@@ -7,52 +7,35 @@
   types = lib.types;
   cfg = config.sumi or {};
 
+  fileValueType = with types; oneOf [str path package];
   fileOptionType = types.submodule ({...}: {
     options = {
       watch = lib.mkOption {
         type = types.listOf types.str;
         default = [];
-        description = "Facet keys this generated file depends on. Required for generate entries.";
+        description = "Facet keys this file reacts to. Required when value is a function.";
       };
 
-      generate = lib.mkOption {
-        type = with types; nullOr (functionTo (oneOf [str path package]));
+      value = lib.mkOption {
+        type = with types; nullOr (oneOf [fileValueType (functionTo fileValueType)]);
         default = null;
-        description = "Function called as ctx: returns text or a source path/derivation.";
-      };
-
-      text = lib.mkOption {
-        type = with types; nullOr lines;
-        default = null;
-        description = "Static text for this file.";
-      };
-
-      source = lib.mkOption {
-        type = with types; nullOr (oneOf [path package str]);
-        default = null;
-        description = "Source path to symlink directly (file or directory).";
-      };
-
-      executable = lib.mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether generated text files should be executable.";
+        description = "Static file content/source, or a function called as ctx: returning content or a source path.";
       };
     };
   });
 
-  programOptionType = types.submodule ({...}: {
+  hookOptionType = types.submodule ({...}: {
     options = {
       watch = lib.mkOption {
         type = types.listOf types.str;
         default = [];
-        description = "Facet keys this reload hook depends on.";
+        description = "Facet keys this hook reacts to.";
       };
 
-      reload = lib.mkOption {
-        type = with types; oneOf [str (listOf str) (functionTo (either str (listOf str)))];
-        default = [];
-        description = "Command(s) or function(ctx -> command(s)) to run after switching selections.";
+      command = lib.mkOption {
+        type = with types; nullOr (oneOf [str (functionTo str)]);
+        default = null;
+        description = "Shell command, or a function called as ctx: returning a shell command.";
       };
     };
   });
@@ -148,14 +131,6 @@
     if rootRelative == ""
     then key
     else "${rootRelative}/${key}";
-
-  fileMethodCount = file:
-    lib.length
-    (lib.filter (v: v != null) [
-      file.generate
-      file.text
-      file.source
-    ]);
 
   cartesianProductOfSets = attrs: let
     names = builtins.attrNames attrs;
@@ -265,10 +240,10 @@ in {
       description = "Managed files keyed by path relative to XDG state home.";
     };
 
-    program = lib.mkOption {
-      type = types.attrsOf programOptionType;
+    hook = lib.mkOption {
+      type = types.attrsOf hookOptionType;
       default = {};
-      description = "Program reload orchestration keyed by program name.";
+      description = "Runtime reload hooks keyed by hook name.";
     };
 
     generated = {
@@ -449,7 +424,6 @@ in {
 
       facetNames = builtins.attrNames cfg.facets;
       facetVariantNames = lib.mapAttrs (_: facet: builtins.attrNames facet.variants) cfg.facets;
-
       inferredDefaultSelection = lib.mapAttrs (_: facet: facet.default) cfg.facets;
       resolvedDefaultSelection = inferredDefaultSelection // cfg.defaultSelection;
 
@@ -470,7 +444,6 @@ in {
         lib.flatten
         (lib.mapAttrsToList (facet: data: let
           variants = facetVariantNames.${facet};
-          hasDefault = builtins.elem data.default variants;
         in
           (
             if variants == []
@@ -478,7 +451,7 @@ in {
             else []
           )
           ++ (
-            if hasDefault
+            if builtins.elem data.default variants
             then []
             else ["${facet}: default '${data.default}' missing from variants"]
           ))
@@ -502,10 +475,7 @@ in {
           path = mkManagedPath rootRelative (stripLeadingDotSlash filePath);
           inherit
             (fileCfg)
-            generate
-            text
-            source
-            executable
+            value
             watch
             ;
         })
@@ -522,58 +492,13 @@ in {
             mkNormalizedFiles home.rel home.files)
           (builtins.attrNames xdgSpec));
 
-      normalizedPrograms =
-        lib.mapAttrsToList (programName: programCfg: {
-          name = programName;
-          watch = programCfg.watch;
-          reload = programCfg.reload;
+      normalizedHooks =
+        lib.mapAttrsToList (hookName: hookCfg: {
+          name = hookName;
+          watch = hookCfg.watch;
+          command = hookCfg.command;
         })
-        cfg.program;
-
-      invalidFiles =
-        lib.filter (v: v != null)
-        (map
-          (file:
-            if fileMethodCount file == 1
-            then null
-            else file.path)
-          normalizedFiles);
-
-      generateMissingWatch =
-        lib.filter (v: v != null)
-        (map (file:
-          if file.generate != null && file.watch == []
-          then file.path
-          else null)
-        normalizedFiles);
-
-      nonGenerateWithWatch =
-        lib.filter (v: v != null)
-        (map (file:
-          if file.generate == null && file.watch != []
-          then file.path
-          else null)
-        normalizedFiles);
-
-      fileWatchFacetErrors =
-        lib.filter (v: v != null)
-        (map (file: let
-          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) file.watch;
-        in
-          if unknownWatch == []
-          then null
-          else "${file.path}: unknown watch facets (${lib.concatStringsSep ", " unknownWatch})")
-        normalizedFiles);
-
-      programWatchFacetErrors =
-        lib.filter (v: v != null)
-        (map (program: let
-          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) program.watch;
-        in
-          if unknownWatch == []
-          then null
-          else "${program.name}: unknown watch facets (${lib.concatStringsSep ", " unknownWatch})")
-        normalizedPrograms);
+        cfg.hook;
 
       filePaths = map (file: file.path) normalizedFiles;
       duplicatePaths =
@@ -581,120 +506,206 @@ in {
         (path: (lib.length (lib.filter (candidate: candidate == path) filePaths)) > 1)
         (lib.unique filePaths);
 
-      mkFacetValues = selection:
-        lib.mapAttrs (facet: variant: cfg.facets.${facet}.variants.${variant}) selection;
-
-      mkContext = selection: {
-        inherit selection;
-        facets = cfg.facets;
-        values = mkFacetValues selection;
-      };
-
-      sourceLiteralErrors =
+      filesMissingValue =
         lib.filter (v: v != null)
         (map (file:
-          if file.source != null && builtins.isPath file.source && !(builtins.pathExists file.source)
-          then "${file.path} -> ${toString file.source}"
+          if file.value == null
+          then file.path
           else null)
         normalizedFiles);
 
-      generateRulesForFile = file: let
-        comboSpace =
-          if file.watch == []
-          then [{}]
-          else cartesianProductOfSets (lib.genAttrs file.watch (facet: facetVariantNames.${facet}));
-      in
-        map (combo: let
-          comboWhen = lib.mapAttrs (_: value: [value]) combo;
-          selectionForGenerate = resolvedDefaultSelection // combo;
-          ruleHash = builtins.substring 0 8 (builtins.hashString "sha256" (builtins.toJSON comboWhen));
+      functionValueMissingWatch =
+        lib.filter (v: v != null)
+        (map (file:
+          if file.value != null && lib.isFunction file.value && file.watch == []
+          then file.path
+          else null)
+        normalizedFiles);
 
-          generatedSource =
-            if file.source != null
-            then file.source
-            else if file.text != null
-            then
-              pkgs.writeTextFile {
-                name = "sumi-${sanitizePath file.path}-${ruleHash}";
-                text = file.text;
-                executable = file.executable;
-              }
-            else let
-              generated = file.generate (mkContext selectionForGenerate);
-            in
-              if builtins.isString generated
-              then
-                pkgs.writeTextFile {
-                  name = "sumi-${sanitizePath file.path}-${ruleHash}";
-                  text = generated;
-                  executable = file.executable;
-                }
-              else generated;
-        in {
-          when = comboWhen;
-          source = generatedSource;
-        })
-        comboSpace;
+      staticValueWithWatch =
+        lib.filter (v: v != null)
+        (map (file:
+          if file.value != null && !(lib.isFunction file.value) && file.watch != []
+          then file.path
+          else null)
+        normalizedFiles);
 
-      filesWithRules =
-        map (file: file // {rules = generateRulesForFile file;}) normalizedFiles;
+      hookMissingCommand =
+        lib.filter (v: v != null)
+        (map (hook:
+          if hook.command == null
+          then hook.name
+          else null)
+        normalizedHooks);
 
-      hookRules =
-        lib.flatten
-        (map (program: let
-          comboSpace =
-            if program.watch == []
-            then [{}]
-            else cartesianProductOfSets (lib.genAttrs program.watch (facet: facetVariantNames.${facet}));
+      hookMissingWatch =
+        lib.filter (v: v != null)
+        (map (hook:
+          if hook.watch == []
+          then hook.name
+          else null)
+        normalizedHooks);
+
+      fileWatchFacetErrors =
+        lib.filter (v: v != null)
+        (map (file: let
+          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) file.watch;
+          duplicateWatch = lib.filter (facet: (lib.length (lib.filter (candidate: candidate == facet) file.watch)) > 1) (lib.unique file.watch);
         in
-          lib.flatten
-          (map (combo: let
-            comboWhen = lib.mapAttrs (_: value: [value]) combo;
-            selectionForReload = resolvedDefaultSelection // combo;
-            reloadRaw =
-              if lib.isFunction program.reload
-              then program.reload (mkContext selectionForReload)
-              else program.reload;
-            reloadCommands =
-              if builtins.isString reloadRaw
-              then [reloadRaw]
-              else reloadRaw;
-          in
-            map (command: {
-              inherit command;
-              registration = program.name;
-              when = comboWhen;
-            })
-            reloadCommands)
-          comboSpace))
-        normalizedPrograms);
+          if unknownWatch == [] && duplicateWatch == []
+          then null
+          else
+            "${file.path}: "
+            + lib.concatStringsSep "; "
+            (lib.filter (msg: msg != null) [
+              (
+                if unknownWatch == []
+                then null
+                else "unknown watch facets (${lib.concatStringsSep ", " unknownWatch})"
+              )
+              (
+                if duplicateWatch == []
+                then null
+                else "duplicate watch facets (${lib.concatStringsSep ", " duplicateWatch})"
+              )
+            ]))
+        normalizedFiles);
+
+      hookWatchFacetErrors =
+        lib.filter (v: v != null)
+        (map (hook: let
+          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) hook.watch;
+          duplicateWatch = lib.filter (facet: (lib.length (lib.filter (candidate: candidate == facet) hook.watch)) > 1) (lib.unique hook.watch);
+        in
+          if unknownWatch == [] && duplicateWatch == []
+          then null
+          else
+            "${hook.name}: "
+            + lib.concatStringsSep "; "
+            (lib.filter (msg: msg != null) [
+              (
+                if unknownWatch == []
+                then null
+                else "unknown watch facets (${lib.concatStringsSep ", " unknownWatch})"
+              )
+              (
+                if duplicateWatch == []
+                then null
+                else "duplicate watch facets (${lib.concatStringsSep ", " duplicateWatch})"
+              )
+            ]))
+        normalizedHooks);
+
+      valueLiteralErrors =
+        lib.filter (v: v != null)
+        (map (file:
+          if file.value != null && !(lib.isFunction file.value) && builtins.isPath file.value && !(builtins.pathExists file.value)
+          then "${file.path} -> ${toString file.value}"
+          else null)
+        normalizedFiles);
+
+      mkFacetValues = selection:
+        lib.mapAttrs (facet: variant: cfg.facets.${facet}.variants.${variant}) selection;
+
+      mkSelectionSubset = watch: selection:
+        builtins.listToAttrs
+        (map (facet: {
+            name = facet;
+            value = selection.${facet};
+          })
+          watch);
+
+      mkWatchedContext = watch: selection: let
+        watchedSelection = mkSelectionSubset watch selection;
+      in {
+        selection = watchedSelection;
+        facets = cfg.facets;
+        values = mkFacetValues watchedSelection;
+      };
+
+      materializeFileValue = file: ruleHash: rawValue:
+        if builtins.isString rawValue
+        then
+          pkgs.writeTextFile {
+            name = "sumi-${sanitizePath file.path}-${ruleHash}";
+            text = rawValue;
+          }
+        else rawValue;
+
+      mkStaticFileDispatch = file: {
+        kind = "static";
+        value = toString (materializeFileValue file "static" file.value);
+      };
+
+      mkDynamicFileDispatch = file: let
+        comboSpace = cartesianProductOfSets (lib.genAttrs file.watch (facet: facetVariantNames.${facet}));
+      in {
+        kind = "select";
+        facets = file.watch;
+        cases =
+          map (combo: let
+            selectionForValue = resolvedDefaultSelection // combo;
+            variants = map (facet: combo.${facet}) file.watch;
+            ruleHash = builtins.substring 0 8 (builtins.hashString "sha256" (builtins.toJSON variants));
+            rawValue = file.value (mkWatchedContext file.watch selectionForValue);
+          in {
+            inherit variants;
+            value = toString (materializeFileValue file ruleHash rawValue);
+          })
+          comboSpace;
+      };
+
+      compiledFiles =
+        map (file: {
+          inherit (file) path;
+          dispatch =
+            if lib.isFunction file.value
+            then mkDynamicFileDispatch file
+            else mkStaticFileDispatch file;
+        })
+        normalizedFiles;
+
+      mkStaticHookDispatch = hook: {
+        kind = "static";
+        value = hook.command;
+      };
+
+      mkDynamicHookDispatch = hook: let
+        comboSpace = cartesianProductOfSets (lib.genAttrs hook.watch (facet: facetVariantNames.${facet}));
+      in {
+        kind = "select";
+        facets = hook.watch;
+        cases =
+          map (combo: let
+            selectionForCommand = resolvedDefaultSelection // combo;
+          in {
+            variants = map (facet: combo.${facet}) hook.watch;
+            value = hook.command (mkWatchedContext hook.watch selectionForCommand);
+          })
+          comboSpace;
+      };
+
+      compiledHooks =
+        map (hook: {
+          inherit
+            (hook)
+            name
+            watch
+            ;
+          dispatch =
+            if lib.isFunction hook.command
+            then mkDynamicHookDispatch hook
+            else mkStaticHookDispatch hook;
+        })
+        normalizedHooks;
 
       manifest = {
-        version = 1;
+        version = 2;
         home = resolvedHomeDirectory;
         facets = cfg.facets;
         defaultSelection = resolvedDefaultSelection;
-        files =
-          map (file: {
-            inherit (file) path executable;
-            rules =
-              map (rule: {
-                when = rule.when;
-                source = toString rule.source;
-              })
-              file.rules;
-          })
-          filesWithRules;
-        hooks.reload =
-          map (hook: {
-            inherit
-              (hook)
-              command
-              registration
-              when
-              ;
-          })
-          hookRules;
+        files = compiledFiles;
+        hooks = compiledHooks;
       };
 
       manifestPath = pkgs.writeText "sumi-manifest.json" (builtins.toJSON manifest);
@@ -762,28 +773,36 @@ in {
           message = "sumi managed files contain duplicate destination paths: ${lib.concatStringsSep ", " duplicatePaths}";
         }
         {
-          assertion = invalidFiles == [];
-          message = "sumi files must set exactly one of generate, text, or source: ${lib.concatStringsSep ", " invalidFiles}";
+          assertion = filesMissingValue == [];
+          message = "sumi files must set value: ${lib.concatStringsSep ", " filesMissingValue}";
         }
         {
-          assertion = generateMissingWatch == [];
-          message = "sumi generate files must set watch: ${lib.concatStringsSep ", " generateMissingWatch}";
+          assertion = functionValueMissingWatch == [];
+          message = "sumi function-valued files must set watch: ${lib.concatStringsSep ", " functionValueMissingWatch}";
         }
         {
-          assertion = nonGenerateWithWatch == [];
-          message = "sumi watch is only valid with generate: ${lib.concatStringsSep ", " nonGenerateWithWatch}";
+          assertion = staticValueWithWatch == [];
+          message = "sumi static file values must not set watch: ${lib.concatStringsSep ", " staticValueWithWatch}";
         }
         {
           assertion = fileWatchFacetErrors == [];
           message = "sumi file watch facet errors: ${lib.concatStringsSep "; " fileWatchFacetErrors}";
         }
         {
-          assertion = programWatchFacetErrors == [];
-          message = "sumi program watch facet errors: ${lib.concatStringsSep "; " programWatchFacetErrors}";
+          assertion = hookMissingCommand == [];
+          message = "sumi hooks must set command: ${lib.concatStringsSep ", " hookMissingCommand}";
         }
         {
-          assertion = sourceLiteralErrors == [];
-          message = "sumi files reference missing path literals: ${lib.concatStringsSep ", " sourceLiteralErrors}";
+          assertion = hookMissingWatch == [];
+          message = "sumi hooks must set watch: ${lib.concatStringsSep ", " hookMissingWatch}";
+        }
+        {
+          assertion = hookWatchFacetErrors == [];
+          message = "sumi hook watch facet errors: ${lib.concatStringsSep "; " hookWatchFacetErrors}";
+        }
+        {
+          assertion = valueLiteralErrors == [];
+          message = "sumi files reference missing path literals: ${lib.concatStringsSep ", " valueLiteralErrors}";
         }
       ];
 

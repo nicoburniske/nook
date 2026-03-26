@@ -30,6 +30,9 @@ pub enum AppError {
     #[error("manifest contains invalid home directory '{home}'")]
     InvalidHome { home: String },
 
+    #[error("invalid manifest: {message}")]
+    InvalidManifest { message: String },
+
     #[error("manifest contains missing source paths: {paths}")]
     MissingSources { paths: String },
 

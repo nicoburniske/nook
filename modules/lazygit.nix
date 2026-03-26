@@ -53,10 +53,8 @@
 
     sumi.configFile."lazygit/config.yml" = {
       watch = ["theme"];
-      generate = ctx: yamlFormat.generate "sumi-lazygit-${ctx.selection.theme}.yml" (mkSettings ctx.values.theme);
+      value = ctx: yamlFormat.generate "sumi-lazygit-${ctx.selection.theme}.yml" (mkSettings ctx.values.theme);
     };
-
-    sumi.program.lazygit.reload = [];
   };
 in {
   flake.modules.nixos.lazygit = lazygitModule;

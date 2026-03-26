@@ -34,7 +34,7 @@
     sumi.configFile = {
       "helix/config.toml" = {
         watch = ["theme"];
-        generate = ctx: let
+        value = ctx: let
           theme = ctx.values.theme;
         in
           tomlFormat.generate "sumi-helix-config-${ctx.selection.theme}.toml" {
@@ -86,7 +86,7 @@
           };
       };
 
-      "helix/languages.toml".source = tomlFormat.generate "sumi-helix-languages.toml" {
+      "helix/languages.toml".value = tomlFormat.generate "sumi-helix-languages.toml" {
         language = [
           {
             name = "rust";
@@ -144,18 +144,21 @@
         };
       };
 
-      "helix/plugins".source = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/helix/plugins";
+      "helix/plugins".value = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/helix/plugins";
 
-      "helix/themes/modus.toml".source = ./themes/modus.toml;
-      "helix/themes/melissa-light.toml".source = ./themes/melissa-light.toml;
-      "helix/themes/space-age.toml".source = ./themes/space-age.toml;
-      "helix/themes/gruvbox.toml".source = ./themes/gruvbox.toml;
+      "helix/themes/modus.toml".value = ./themes/modus.toml;
+      "helix/themes/melissa-light.toml".value = ./themes/melissa-light.toml;
+      "helix/themes/space-age.toml".value = ./themes/space-age.toml;
+      "helix/themes/gruvbox.toml".value = ./themes/gruvbox.toml;
     };
 
-    sumi.program.helix.reload =
-      if pkgs.stdenv.isDarwin
-      then "/usr/bin/pkill -USR1 hx || true"
-      else "${pkgs.procps}/bin/pkill -USR1 hx || true";
+    sumi.hook.helix = {
+      watch = ["theme"];
+      command =
+        if pkgs.stdenv.isDarwin
+        then "/usr/bin/pkill -USR1 hx || true"
+        else "${pkgs.procps}/bin/pkill -USR1 hx || true";
+    };
   };
 in {
   flake.modules.nixos.helix = mkHelixModule;

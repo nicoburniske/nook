@@ -6,7 +6,7 @@
   }: {
     environment.systemPackages = [pkgs.thunar];
 
-    sumi.configFile."Thunar/thunarrc".text = lib.generators.toINI {} {
+    sumi.configFile."Thunar/thunarrc".value = lib.generators.toINI {} {
       Configuration = {
         DefaultView = "ThunarDetailsView";
         LastView = "ThunarDetailsView";

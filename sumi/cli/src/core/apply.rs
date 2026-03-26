@@ -1,6 +1,9 @@
-use super::{read_snapshot, unix_seconds_string, when_matches, write_json_atomic};
+use super::{read_snapshot, unix_seconds_string, write_json_atomic};
+use crate::compile::{CompiledFile, CompiledManifest};
+use crate::dispatch::resolve_dispatch;
 use crate::error::AppError;
-use crate::model::{FileRule, Manifest, ManifestFile, Snapshot};
+use crate::manifest::Selection;
+use crate::state::{ManagedFile, Snapshot};
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
@@ -22,14 +25,12 @@ pub struct ApplySummary {
 }
 
 pub async fn apply(
-    manifest: Manifest,
+    manifest: CompiledManifest,
     home_dir: &Path,
     state_dir: &Path,
-    set_overrides: &BTreeMap<String, String>,
+    set_overrides: &Selection,
     conflict_policy: ConflictPolicy,
 ) -> Result<ApplySummary, AppError> {
-    let _ = manifest.version;
-
     let selection = resolve_selection(&manifest, set_overrides)?;
     let desired = collect_desired_map(&manifest.files, &selection, home_dir)?;
 
@@ -49,20 +50,25 @@ pub async fn apply(
 
     let snapshot_path = state_dir.join("snapshot.json");
     let old_snapshot = read_snapshot(&snapshot_path, selection.clone()).await?;
-    let old_files = old_snapshot.files;
+    let old_files = old_snapshot.file_map();
+    let mut tracked_files = old_files.clone();
 
-    let old_keys: BTreeSet<String> = old_files.keys().cloned().collect();
-    let new_keys: BTreeSet<String> = desired.keys().cloned().collect();
+    let old_keys: BTreeSet<PathBuf> = old_files.keys().cloned().collect();
+    let new_keys: BTreeSet<PathBuf> = desired.keys().cloned().collect();
 
-    let remove_paths: Vec<String> = old_keys.difference(&new_keys).cloned().collect();
-    let create_paths: Vec<String> = new_keys.difference(&old_keys).cloned().collect();
+    let remove_paths: Vec<PathBuf> = old_keys.difference(&new_keys).cloned().collect();
+    let create_paths: Vec<PathBuf> = new_keys.difference(&old_keys).cloned().collect();
 
     let mut unchanged = 0usize;
     let mut update_paths = Vec::new();
     for key in old_keys.intersection(&new_keys) {
         let old_source = old_files.get(key).expect("key exists in old map");
         let new_source = desired.get(key).expect("key exists in new map");
-        if old_source == new_source {
+        if old_source == new_source
+            && path_points_to(key.as_path(), new_source.as_path())
+                .await
+                .unwrap_or(false)
+        {
             unchanged += 1;
         } else {
             update_paths.push(key.clone());
@@ -79,12 +85,17 @@ pub async fn apply(
             .get(target)
             .expect("remove path must exist in old map");
 
-        match remove_stale(conflict_policy, Path::new(target), expected_old).await {
-            Ok(true) => removed += 1,
-            Ok(false) => {}
+        match remove_stale(conflict_policy, target.as_path(), expected_old.as_path()).await {
+            Ok(true) => {
+                removed += 1;
+                tracked_files.remove(target);
+            }
+            Ok(false) => {
+                tracked_files.remove(target);
+            }
             Err(err) => {
                 failed += 1;
-                log::error!("remove failed for '{}': {}", target, err);
+                log::error!("remove failed for '{}': {}", target.display(), err);
             }
         }
     }
@@ -99,17 +110,22 @@ pub async fn apply(
 
         match ensure_link(
             conflict_policy,
-            Path::new(target),
-            Path::new(source),
-            Some(Path::new(expected_old)),
+            target.as_path(),
+            source.as_path(),
+            Some(expected_old),
         )
         .await
         {
-            Ok(true) => updated += 1,
-            Ok(false) => {}
+            Ok(true) => {
+                updated += 1;
+                tracked_files.insert(target.clone(), source.clone());
+            }
+            Ok(false) => {
+                tracked_files.insert(target.clone(), source.clone());
+            }
             Err(err) => {
                 failed += 1;
-                log::error!("update failed for '{}': {}", target, err);
+                log::error!("update failed for '{}': {}", target.display(), err);
             }
         }
     }
@@ -119,31 +135,29 @@ pub async fn apply(
             .get(target)
             .expect("create path must exist in desired map");
 
-        match ensure_link(conflict_policy, Path::new(target), Path::new(source), None).await {
-            Ok(true) => created += 1,
-            Ok(false) => {}
+        match ensure_link(conflict_policy, target.as_path(), source.as_path(), None).await {
+            Ok(true) => {
+                created += 1;
+                tracked_files.insert(target.clone(), source.clone());
+            }
+            Ok(false) => {
+                tracked_files.insert(target.clone(), source.clone());
+            }
             Err(err) => {
                 failed += 1;
-                log::error!("create failed for '{}': {}", target, err);
+                log::error!("create failed for '{}': {}", target.display(), err);
             }
         }
     }
 
-    let mut actual_files = BTreeMap::new();
-    for (target, source) in desired {
-        if path_points_to(Path::new(&target), Path::new(&source))
-            .await
-            .unwrap_or(false)
-        {
-            actual_files.insert(target, source);
-        }
-    }
-
     let snapshot = Snapshot {
-        version: 1,
+        version: 2,
         selection,
         updated_at: unix_seconds_string(),
-        files: actual_files,
+        files: tracked_files
+            .into_iter()
+            .map(|(target, source)| ManagedFile { target, source })
+            .collect(),
     };
     write_json_atomic(&snapshot, &snapshot_path).await?;
 
@@ -157,16 +171,10 @@ pub async fn apply(
 }
 
 fn resolve_selection(
-    manifest: &Manifest,
-    overrides: &BTreeMap<String, String>,
-) -> Result<BTreeMap<String, String>, AppError> {
+    manifest: &CompiledManifest,
+    overrides: &Selection,
+) -> Result<Selection, AppError> {
     let mut selection = manifest.default_selection.clone();
-
-    for (facet_name, facet) in &manifest.facets {
-        selection
-            .entry(facet_name.clone())
-            .or_insert_with(|| facet.default.clone());
-    }
 
     for (facet, value) in overrides {
         let data = manifest
@@ -190,41 +198,29 @@ fn resolve_selection(
 }
 
 fn collect_desired_map(
-    files: &[ManifestFile],
-    selection: &BTreeMap<String, String>,
+    files: &[CompiledFile],
+    selection: &Selection,
     home: &Path,
-) -> Result<BTreeMap<String, String>, AppError> {
+) -> Result<BTreeMap<PathBuf, PathBuf>, AppError> {
     let mut desired = BTreeMap::new();
-    let mut seen_paths = BTreeSet::new();
 
     for file in files {
-        if !seen_paths.insert(file.path.clone()) {
-            return Err(AppError::DuplicatePath {
-                path: file.path.clone(),
-            });
-        }
-
-        let maybe_rule = file.rules.iter().find(|rule| rule_matches(rule, selection));
-        let Some(rule) = maybe_rule else {
+        let Some(source) = resolve_dispatch(&file.dispatch, selection) else {
             continue;
         };
 
         let target = home.join(&file.path);
-        desired.insert(target.to_string_lossy().into_owned(), rule.source.clone());
+        desired.insert(target, source.clone());
     }
 
     Ok(desired)
 }
 
-fn rule_matches(rule: &FileRule, selection: &BTreeMap<String, String>) -> bool {
-    when_matches(&rule.when, selection)
-}
-
-async fn collect_missing_sources(desired: &BTreeMap<String, String>) -> Vec<String> {
+async fn collect_missing_sources(desired: &BTreeMap<PathBuf, PathBuf>) -> Vec<String> {
     let mut missing = Vec::new();
     for source in desired.values() {
-        if smol::fs::metadata(Path::new(source)).await.is_err() {
-            missing.push(source.clone());
+        if smol::fs::metadata(source).await.is_err() {
+            missing.push(source.display().to_string());
         }
     }
     missing
@@ -233,14 +229,15 @@ async fn collect_missing_sources(desired: &BTreeMap<String, String>) -> Vec<Stri
 async fn remove_stale(
     conflict_policy: ConflictPolicy,
     target: &Path,
-    expected_old_source: &str,
+    expected_old_source: &Path,
 ) -> Result<bool, std::io::Error> {
     if !path_exists_or_symlink(target).await? {
         return Ok(false);
     }
 
-    let expected = Path::new(expected_old_source);
-    let matches_expected = path_points_to(target, expected).await.unwrap_or(false);
+    let matches_expected = path_points_to(target, expected_old_source)
+        .await
+        .unwrap_or(false);
     if matches_expected {
         remove_target(target).await?;
         log::debug!("removed stale path '{}'", target.display());
