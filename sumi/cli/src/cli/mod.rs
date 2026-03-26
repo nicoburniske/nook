@@ -54,6 +54,9 @@ pub struct SwitchArgs {
 #[derive(Debug, Clone, clap::Args)]
 pub struct FacetsArgs {
     pub facet: Option<String>,
+
+    #[arg(long)]
+    pub json: bool,
 }
 
 #[derive(Debug, Clone, clap::Args)]

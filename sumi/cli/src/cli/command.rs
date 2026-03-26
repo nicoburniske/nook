@@ -5,6 +5,9 @@ use crate::core::{
     run_reload_hooks, validate_selection_overrides, write_selection, ConflictPolicy,
 };
 use crate::error::AppError;
+use crate::manifest::{FacetDef, Selection};
+use serde_json::{json, Map, Value};
+use std::collections::BTreeMap;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -118,29 +121,39 @@ async fn run_facets(
                     facet: requested_facet.clone(),
                 })?;
 
-        for variant in facet.variants.keys() {
-            let prefix = if selection.get(&requested_facet) == Some(variant) {
-                "*"
-            } else {
-                " "
-            };
-            println!("{prefix} {variant}");
+        if args.json {
+            let json = facet_json(&requested_facet, facet, &selection);
+            println!("{}", serde_json::to_string_pretty(&json).unwrap());
+        } else {
+            for variant in facet.variants.keys() {
+                let prefix = if selection.get(&requested_facet) == Some(variant) {
+                    "*"
+                } else {
+                    " "
+                };
+                println!("{prefix} {variant}");
+            }
         }
         return Ok(ExitCode::SUCCESS);
     }
 
-    for (facet_name, facet) in &ctx.manifest.facets {
-        let current = selection
-            .get(facet_name)
-            .map(String::as_str)
-            .unwrap_or(facet.default.as_str());
-        println!(
-            "{} current={} default={} variants={}",
-            facet_name,
-            current,
-            facet.default,
-            facet.variants.len()
-        );
+    if args.json {
+        let json = facets_json(&ctx.manifest.facets, &selection);
+        println!("{}", serde_json::to_string_pretty(&json).unwrap());
+    } else {
+        for (facet_name, facet) in &ctx.manifest.facets {
+            let current = selection
+                .get(facet_name)
+                .map(String::as_str)
+                .unwrap_or(facet.default.as_str());
+            println!(
+                "{} current={} default={} variants={}",
+                facet_name,
+                current,
+                facet.default,
+                facet.variants.len()
+            );
+        }
     }
 
     Ok(ExitCode::SUCCESS)
@@ -266,11 +279,35 @@ fn print_apply_summary(summary: &core::ApplySummary) {
     );
 }
 
+fn facets_json(facets: &BTreeMap<String, FacetDef>, selection: &Selection) -> Value {
+    Value::Object(
+        facets
+            .iter()
+            .map(|(facet_name, facet)| {
+                (facet_name.clone(), facet_json(facet_name, facet, selection))
+            })
+            .collect::<Map<String, Value>>(),
+    )
+}
+
+fn facet_json(facet_name: &str, facet: &FacetDef, selection: &Selection) -> Value {
+    let current = selection
+        .get(facet_name)
+        .cloned()
+        .unwrap_or_else(|| facet.default.clone());
+    let variants = facet.variants.keys().cloned().collect::<Vec<_>>();
+    json!({
+        "current": current,
+        "default": facet.default,
+        "variants": variants,
+    })
+}
+
 fn print_usage() {
     println!("sumi - facet-based runtime config switching");
     println!();
     println!("Usage:");
-    println!("  sumi [--manifest PATH] facets [facet]");
+    println!("  sumi [--manifest PATH] facets [facet] [--json]");
     println!("  sumi [--manifest PATH] selection [--json]");
     println!("  sumi [--manifest PATH] switch [facet=value]...");
     println!("  sumi [--manifest PATH] doctor");
