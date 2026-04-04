@@ -102,11 +102,11 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1772003810,
-        "narHash": "sha256-FfaHvYDfcWZ+0ZPkWDVywkglmQjBq0DoIqzl7TH2hXc=",
+        "lastModified": 1774493375,
+        "narHash": "sha256-KYfvrXdr4U+J9evCJ1AkWhv1/QFy5Telmc1KHor3xgA=",
         "owner": "schembriaiden",
         "repo": "helium-browser-nix-flake",
-        "rev": "9001c8ec8bb3a4b9103eca2f2fc707bda1401977",
+        "rev": "5339187341b31049c3116c8a52b2fc80362c83f3",
         "type": "github"
       },
       "original": {
@@ -244,11 +244,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1774243609,
-        "narHash": "sha256-6sB2IYqXYwoQS11Ev0u3b0lpAleTpvNv5iv4iqiCCR8=",
+        "lastModified": 1775126147,
+        "narHash": "sha256-J0dZU4atgcfo4QvM9D92uQ0Oe1eLTxBVXjJzdEMQpD0=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "4724d5647207377bede08da3212f809cbd94a648",
+        "rev": "8d8c1fa5b412c223ffa47410867813290cdedfef",
         "type": "github"
       },
       "original": {
@@ -265,11 +265,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773369225,
-        "narHash": "sha256-RdX1YcpWkUVqUqpN6dYNa9n2WNInKakckFvbhKLn3Y8=",
+        "lastModified": 1775188426,
+        "narHash": "sha256-rUjSoTPuCF2v6Tia7pu4l+t8+ayz4077Jcxt6vxqJmo=",
         "owner": "anomalyco",
         "repo": "opencode",
-        "rev": "8f8c74cfb862b4fd92914f2137b64fefd544fe33",
+        "rev": "500dcfc586e3787a329b51a74fec6d776d9165c1",
         "type": "github"
       },
       "original": {
