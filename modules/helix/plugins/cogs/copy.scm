@@ -91,12 +91,14 @@
       path))
 
 (define (trim-left-whitespace value)
-  (if (starts-with? value " ")
+  (if (or (starts-with? value " ")
+          (starts-with? value "\t"))
       (trim-left-whitespace (substring value 1 (string-length value)))
       value))
 
 (define (trim-right-whitespace value)
   (if (or (ends-with? value " ")
+          (ends-with? value "\t")
           (ends-with? value "\n")
           (ends-with? value "\r"))
       (trim-right-whitespace (substring value 0 (- (string-length value) 1)))
