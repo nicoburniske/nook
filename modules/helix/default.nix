@@ -53,6 +53,7 @@
               };
               file-picker.hidden = false;
               lsp = {
+                display-inlay-hints = true;
                 display-messages = true;
                 display-progress-messages = true;
                 goto-reference-include-declaration = false;
@@ -131,6 +132,11 @@
             command = "rust-analyzer";
             config = {
               checkOnSave.enable = true;
+              inlayHints = {
+                chainingHints.enable = true;
+                typeHints.enable = false;
+                parameterHints.enable = false;
+              };
               procMacro.enable = true;
             };
           };
