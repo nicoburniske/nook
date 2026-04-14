@@ -171,9 +171,9 @@ in {
     sharedTheme
     // {
       polarity = "dark";
-      image = ../assets/wallpapers/ashen-field.png;
+      image = ../assets/wallpapers/ashen.png;
       meta = {
-        helix = "ashen-field";
+        helix = "ashen";
       };
       opacity = {
         terminal = mkOpacity 0.95;
