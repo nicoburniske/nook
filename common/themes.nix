@@ -190,7 +190,7 @@ in {
         base08 = "c53030";
         base09 = "c4693d";
         base0A = "e5a72a";
-        base0B = "df6464";
+        base0B = "8ea84d";
         base0C = "d87c4a";
         base0D = "4a8b8b";
         base0E = "b14242";
