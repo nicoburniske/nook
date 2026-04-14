@@ -156,6 +156,7 @@
       "helix/themes/melissa-light.toml".value = ./themes/melissa-light.toml;
       "helix/themes/space-age.toml".value = ./themes/space-age.toml;
       "helix/themes/gruvbox.toml".value = ./themes/gruvbox.toml;
+      "helix/themes/ashen-field.toml".value = ./themes/ashen-field.toml;
     };
 
     sumi.hook.helix = {

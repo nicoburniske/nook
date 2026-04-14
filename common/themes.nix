@@ -3,6 +3,7 @@
   pkgs,
   ...
 }: let
+  # TODO: helix themes - voxed, seoul256-dark-hard, iroasetau
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
   mkTheme = base: let
@@ -160,6 +161,35 @@ in {
         base0D = "375cc6";
         base0E = "6448ca";
         base0F = "946830";
+      };
+    }
+  );
+
+  ashen = mkTheme (
+    sharedTheme
+    // {
+      polarity = "dark";
+      image = ../assets/wallpapers/ashen-field.png;
+      meta = {
+        helix = "ashen-field";
+      };
+      colors = {
+        base00 = "121212";
+        base01 = "151515";
+        base02 = "1d1d1d";
+        base03 = "323232";
+        base04 = "737373";
+        base05 = "b4b4b4";
+        base06 = "d5d5d5";
+        base07 = "e5e5e5";
+        base08 = "c53030";
+        base09 = "c4693d";
+        base0A = "e5a72a";
+        base0B = "df6464";
+        base0C = "d87c4a";
+        base0D = "4a8b8b";
+        base0E = "b14242";
+        base0F = "89492a";
       };
     }
   );
