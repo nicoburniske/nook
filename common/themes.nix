@@ -6,6 +6,11 @@
   # TODO: helix themes - voxed, seoul256-dark-hard, iroasetau
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
+  mkOpacity = opacity:
+    if pkgs.stdenv.isLinux
+    then opacity
+    else 1.0;
+
   mkTheme = base: let
     withHashtag = lib.mapAttrs (_: value: "#${value}") base.colors;
   in
@@ -16,10 +21,7 @@
 
   sharedTheme = {
     opacity = {
-      terminal =
-        if pkgs.stdenv.isLinux
-        then 0.90
-        else 1.0;
+      terminal = mkOpacity 0.90;
     };
 
     fonts = {
@@ -173,11 +175,14 @@ in {
       meta = {
         helix = "ashen-field";
       };
+      opacity = {
+        terminal = mkOpacity 0.95;
+      };
       colors = {
         base00 = "121212";
-        base01 = "151515";
-        base02 = "1d1d1d";
-        base03 = "323232";
+        base01 = "1d1d1d";
+        base02 = "252525";
+        base03 = "363636";
         base04 = "737373";
         base05 = "b4b4b4";
         base06 = "d5d5d5";
