@@ -151,7 +151,7 @@ info = { fg = "g_2", bg = "g_10" }
 hint = { fg = "g_4", bg = "g_10" }
 
 [palette]
-cursorline = "#191919"
+cursorline = "#261914"
 text = "#b4b4b4"
 red_flame = "#C53030"
 red_glowing = "#DF6464"

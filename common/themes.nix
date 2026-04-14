@@ -176,7 +176,7 @@ in {
         helix = "ashen";
       };
       opacity = {
-        terminal = mkOpacity 0.95;
+        terminal = mkOpacity 0.93;
       };
       colors = {
         base00 = "121212";
