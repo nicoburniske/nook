@@ -40,7 +40,7 @@
             "bold"
           ];
           optionsTextColor = [colors.base06];
-          selectedLineBgColor = [colors.base01];
+          selectedLineBgColor = ["reverse"];
           cherryPickedCommitBgColor = [colors.base02];
           cherryPickedCommitFgColor = [colors.base03];
           unstagedChangesColor = [colors.base08];
