@@ -111,7 +111,7 @@
   "bold",
 ] }
 
-"ui.selection" = { bg = "brown_dark" }
+"ui.selection" = { bg = "selection" }
 
 "ui.cursor.normal" = { fg = "background", bg = "orange_muted" }
 "ui.cursor.insert" = { fg = "background", bg = "g_7" }
@@ -151,7 +151,7 @@ info = { fg = "g_2", bg = "g_10" }
 hint = { fg = "g_4", bg = "g_10" }
 
 [palette]
-cursorline = "#261914"
+cursorline = "#221816"
 text = "#b4b4b4"
 red_flame = "#C53030"
 red_glowing = "#DF6464"
@@ -164,6 +164,7 @@ orange_golden = "#E5A72A"
 golden_muted = "#6D4D0D"
 brown = "#89492a"
 brown_dark = "#322119"
+selection = "#422b21"
 blue = "#4A8B8B"
 background = "#121212"
 g_1 = "#e5e5e5"
