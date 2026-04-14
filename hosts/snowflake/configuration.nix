@@ -14,7 +14,14 @@ in {
   system.configurationRevision = shortRev;
   system.nixos.label = rev;
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix = {
+    settings.experimental-features = ["nix-command" "flakes"];
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
+    };
+  };
 
   imports = [
     ./hardware-configuration.nix
