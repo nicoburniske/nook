@@ -4,6 +4,11 @@ inherits = "ashen"
 "comment.block.documentation" = { fg = "g_5" }
 "comment.line.documentation" = { fg = "g_5" }
 
+"type" = "g_3"
+"type.builtin" = "orange_glow"
+"constant.builtin" = "orange_blaze"
+"variable.builtin" = "g_2"
+
 "variable.parameter" = { fg = "g_2" }
 "keyword.directive" = { fg = "red_ember" }
 "keyword.storage.modifier" = { fg = "red_ember" }
