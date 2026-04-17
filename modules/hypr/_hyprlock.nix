@@ -4,6 +4,7 @@
     value = ctx: let
       theme = ctx.values.theme;
       rgb = hex: "rgb(${hex})";
+      rgba = hex: alpha: "rgba(${hex}${alpha})";
       imagePath = toString theme.image;
       fontFamily = theme.fonts.serif.name;
     in
@@ -40,6 +41,21 @@
           immediate_render=true
         }
 
+        shape {
+          monitor=
+          size=640, 360
+          color=${rgba base00 "99"}
+          rounding=40
+          position=0, 80
+          halign=center
+          valign=center
+          zindex=0
+          shadow_size=10
+          shadow_passes=2
+          shadow_color=${rgba base00 "59"}
+          shadow_boost=1.05
+        }
+
         input-field {
           monitor=
           size=400, 70
@@ -57,6 +73,8 @@
           outer_color=${rgb base03}
           outline_thickness=6
           placeholder_text=
+          position=0, -20
+          rounding=30
           valign=center
         }
 
@@ -66,10 +84,11 @@
           font_family=${fontFamily}
           font_size=48
           halign=center
-          position=0, 150
+          position=0, 155
           text=cmd[update:1000] echo "$(date +%H:%M | tr '[:upper:]' '[:lower:]')<br/><span font_size='small'>$(date '+%a %b %d' | tr '[:upper:]' '[:lower:]')</span>"
           text_align=center
           valign=center
+          zindex=1
         }
       '';
   };
