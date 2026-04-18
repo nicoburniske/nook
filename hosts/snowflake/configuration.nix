@@ -34,6 +34,15 @@ in {
   nixpkgs.overlays = [
     (final: prev: {
       ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
+      codex = prev.codex.overrideAttrs (old: {
+        auditable = false;
+        postPatch =
+          (old.postPatch or "")
+          + ''
+            substituteInPlace Cargo.toml \
+              --replace-fail 'lto = "fat"' 'lto = "thin"'
+          '';
+      });
     })
   ];
 
