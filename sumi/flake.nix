@@ -75,6 +75,9 @@
         manifest-shape = pkgs.callPackage ./tests/manifest-shape.nix {
           lib = pkgs.lib;
         };
+        path-materialization = pkgs.callPackage ./tests/path-materialization.nix {
+          lib = pkgs.lib;
+        };
       };
 
       devShells = {

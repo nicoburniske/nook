@@ -77,6 +77,27 @@
     ]
     path;
 
+  freezePathLiteral = path: let
+    pathStr = toString path;
+    frozenName = lib.strings.sanitizeDerivationName "sumi-frozen-${baseNameOf pathStr}";
+  in
+    builtins.path {
+      name = frozenName;
+      inherit path;
+    };
+
+  # walk nested facet payloads and freeze only path leaves before manifest serialization
+  materializeManifestValue = value:
+    if lib.isDerivation value
+    then value
+    else if builtins.isPath value
+    then freezePathLiteral value
+    else if builtins.isList value
+    then map materializeManifestValue value
+    else if builtins.isAttrs value
+    then lib.mapAttrs (_: nested: materializeManifestValue nested) value
+    else value;
+
   stripLeadingDotSlash = path:
     if lib.hasPrefix "./" path
     then
@@ -426,6 +447,7 @@ in {
       facetVariantNames = lib.mapAttrs (_: facet: builtins.attrNames facet.variants) cfg.facets;
       inferredDefaultSelection = lib.mapAttrs (_: facet: facet.default) cfg.facets;
       resolvedDefaultSelection = inferredDefaultSelection // cfg.defaultSelection;
+      resolvedFacets = materializeManifestValue cfg.facets;
 
       defaultSelectionUnknownFacets =
         lib.filter (facet: !(builtins.elem facet facetNames)) (builtins.attrNames cfg.defaultSelection);
@@ -605,7 +627,7 @@ in {
         normalizedFiles);
 
       mkFacetValues = selection:
-        lib.mapAttrs (facet: variant: cfg.facets.${facet}.variants.${variant}) selection;
+        lib.mapAttrs (facet: variant: resolvedFacets.${facet}.variants.${variant}) selection;
 
       mkSelectionSubset = watch: selection:
         builtins.listToAttrs
@@ -619,18 +641,20 @@ in {
         watchedSelection = mkSelectionSubset watch selection;
       in {
         selection = watchedSelection;
-        facets = cfg.facets;
+        facets = resolvedFacets;
         values = mkFacetValues watchedSelection;
       };
 
-      materializeFileValue = file: ruleHash: rawValue:
+      materializeFileValue = file: ruleHash: rawValue: let
+        normalizedValue = materializeManifestValue rawValue;
+      in
         if builtins.isString rawValue
         then
           pkgs.writeTextFile {
             name = "sumi-${sanitizePath file.path}-${ruleHash}";
-            text = rawValue;
+            text = toString normalizedValue;
           }
-        else rawValue;
+        else normalizedValue;
 
       mkStaticFileDispatch = file: {
         kind = "static";
@@ -702,7 +726,7 @@ in {
       manifest = {
         version = 2;
         home = resolvedHomeDirectory;
-        facets = cfg.facets;
+        facets = resolvedFacets;
         defaultSelection = resolvedDefaultSelection;
         files = compiledFiles;
         hooks = compiledHooks;
