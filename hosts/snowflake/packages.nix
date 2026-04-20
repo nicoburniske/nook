@@ -31,6 +31,7 @@
     unzip
     unrar
     sparrow
+    snapshot
     readest
     pavucontrol
     asahi-bless
