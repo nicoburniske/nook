@@ -1,0 +1,459 @@
+diff --git a/src/config/ConfigManager.cpp b/src/config/ConfigManager.cpp
+index aed5b2b4b9b..37b0d8a21aa 100644
+--- a/src/config/ConfigManager.cpp
++++ b/src/config/ConfigManager.cpp
+@@ -39,6 +39,7 @@
+ #include "../managers/input/trackpad/gestures/FloatGesture.hpp"
+ #include "../managers/input/trackpad/gestures/FullscreenGesture.hpp"
+ #include "../managers/input/trackpad/gestures/CursorZoomGesture.hpp"
++#include "../managers/input/trackpad/gestures/ScrollingSwipeGesture.hpp"
+ 
+ #include "../event/EventBus.hpp"
+ 
+@@ -744,6 +745,7 @@ CConfigManager::CConfigManager() {
+     registerConfigVar("gestures:workspace_swipe_touch", Hyprlang::INT{0});
+     registerConfigVar("gestures:workspace_swipe_touch_invert", Hyprlang::INT{0});
+     registerConfigVar("gestures:close_max_timeout", Hyprlang::INT{1000});
++    registerConfigVar("gestures:scrolling_swipe_invert", Hyprlang::INT{0});
+ 
+     registerConfigVar("xwayland:enabled", Hyprlang::INT{1});
+     registerConfigVar("xwayland:use_nearest_neighbor", Hyprlang::INT{1});
+@@ -2970,6 +2972,8 @@ std::optional<std::string> CConfigManager::handleGesture(const std::string& comm
+     else if (data[startDataIdx] == "cursorZoom") {
+         result = g_pTrackpadGestures->addGesture(makeUnique<CCursorZoomTrackpadGesture>(std::string{data[startDataIdx + 1]}, std::string{data[startDataIdx + 2]}), fingerCount,
+                                                  direction, modMask, deltaScale, disableInhibit);
+-    } else if (data[startDataIdx] == "unset")
++    } else if (data[startDataIdx] == "scrolling")
++        result = g_pTrackpadGestures->addGesture(makeUnique<CScrollingSwipeGesture>(), fingerCount, direction, modMask, deltaScale, disableInhibit);
++    else if (data[startDataIdx] == "unset")
+         result = g_pTrackpadGestures->removeGesture(fingerCount, direction, modMask, deltaScale, disableInhibit);
+     else
+         return std::format("Invalid gesture: {}", data[startDataIdx]);
+diff --git a/src/layout/algorithm/tiled/scrolling/ScrollTapeController.cpp b/src/layout/algorithm/tiled/scrolling/ScrollTapeController.cpp
+index 657b6542cef..e2231b450f8 100644
+--- a/src/layout/algorithm/tiled/scrolling/ScrollTapeController.cpp
++++ b/src/layout/algorithm/tiled/scrolling/ScrollTapeController.cpp
+@@ -1,5 +1,6 @@
+ #include "ScrollTapeController.hpp"
+ #include "ScrollingAlgorithm.hpp"
++#include "../../../../managers/input/UnifiedScrollingSwipeGesture.hpp"
+ #include <algorithm>
+ #include <cmath>
+ 
+@@ -198,8 +199,8 @@ double CScrollTapeController::calculateCameraOffset(const CBox& usableArea, bool
+     const double maxExtent     = calculateMaxExtent(usableArea, fullscreenOnOne);
+     const double usablePrimary = getPrimary(usableArea.size());
+ 
+-    // don't adjust the offset if we are dragging
+-    if (isBeingDragged())
++    // don't adjust the offset if we are dragging or swiping
++    if (isBeingDragged() || g_pUnifiedScrollingSwipe->isGestureInProgress())
+         return m_offset;
+ 
+     // if the content fits in viewport, center it
+diff --git a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp
+index 5685d650672..64802ad1933 100644
+--- a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp
++++ b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp
+@@ -8,7 +8,8 @@
+ #include "../../../../Compositor.hpp"
+ #include "../../../../desktop/state/FocusState.hpp"
+ #include "../../../../config/ConfigValue.hpp"
+ #include "../../../../config/ConfigManager.hpp"
++#include "../../../../managers/input/UnifiedScrollingSwipeGesture.hpp"
+ #include "../../../../render/Renderer.hpp"
+ #include "../../../../managers/input/InputManager.hpp"
+ #include "../../../../event/EventBus.hpp"
+@@ -549,6 +550,9 @@ CScrollingAlgorithm::~CScrollingAlgorithm() {
+ }
+ 
+ void CScrollingAlgorithm::focusOnInput(SP<ITarget> target, eInputMode input) {
++    if (g_pUnifiedScrollingSwipe->isGestureInProgress())
++        return;
++
+     static const auto PFOLLOW_FOCUS_MIN_PERC = CConfigValue<Hyprlang::FLOAT>("scrolling:follow_min_visible");
+ 
+     if (!target || target->space() != m_parent->space())
+diff --git a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp
+index 1b2b1d1eaa9..3f9cbd39ae1 100644
+--- a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp
++++ b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp
+@@ -7,6 +7,8 @@
+ 
+ #include <vector>
+ 
++class CUnifiedScrollingSwipeGesture;
++
+ namespace Layout::Tiled {
+     class CScrollingAlgorithm;
+     struct SColumnData;
+@@ -110,6 +112,7 @@ namespace Layout::Tiled {
+         virtual void                             moveTargetInDirection(SP<ITarget> t, Math::eDirection dir, bool silent);
+ 
+         CBox                                     usableArea();
++        SP<SScrollingData>                       scrollingData() const { return m_scrollingData; }
+ 
+         enum eInputMode : uint8_t {
+             INPUT_MODE_SOFT = 0,
+@@ -141,5 +144,6 @@ namespace Layout::Tiled {
+         float                    defaultColumnWidth();
+ 
+         friend struct SScrollingData;
++        friend class ::CUnifiedScrollingSwipeGesture;
+     };
+ };
+diff --git a/src/managers/input/UnifiedScrollingSwipeGesture.cpp b/src/managers/input/UnifiedScrollingSwipeGesture.cpp
+new file mode 100644
+index 00000000000..876dfe2f603
+--- /dev/null
++++ b/src/managers/input/UnifiedScrollingSwipeGesture.cpp
+@@ -0,0 +1,235 @@
++#include "UnifiedScrollingSwipeGesture.hpp"
++
++#include "../../Compositor.hpp"
++#include "../../desktop/state/FocusState.hpp"
++#include "../../render/Renderer.hpp"
++#include "../../layout/algorithm/Algorithm.hpp"
++#include "../../layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp"
++#include "../../layout/space/Space.hpp"
++#include "InputManager.hpp"
++
++using namespace Layout::Tiled;
++
++static constexpr uint32_t TRACKER_HISTORY_MS     = 150;
++static constexpr double   DECELERATION_TOUCHPAD  = 0.997;
++static constexpr double   WORKING_AREA_MOVEMENT  = 1200.0;
++
++void CUnifiedScrollingSwipeGesture::trackerReset() {
++    m_history.clear();
++    m_trackerPos = 0;
++}
++
++void CUnifiedScrollingSwipeGesture::trackerPush(double delta, uint32_t timeMs) {
++    if (!m_history.empty() && timeMs < m_history.back().timestamp)
++        return;
++
++    m_history.push_back({delta, timeMs});
++    m_trackerPos += delta;
++    trackerTrimHistory();
++}
++
++double CUnifiedScrollingSwipeGesture::trackerVelocity() {
++    if (m_history.size() < 2)
++        return 0.0;
++
++    const double totalTime = (m_history.back().timestamp - m_history.front().timestamp) / 1000.0;
++    if (totalTime == 0.0)
++        return 0.0;
++
++    double totalDelta = 0.0;
++    for (const auto& e : m_history)
++        totalDelta += e.delta;
++
++    return totalDelta / totalTime;
++}
++
++double CUnifiedScrollingSwipeGesture::trackerProjectedEndPos() {
++    return m_trackerPos - trackerVelocity() / (1000.0 * std::log(DECELERATION_TOUCHPAD));
++}
++
++void CUnifiedScrollingSwipeGesture::trackerTrimHistory() {
++    if (m_history.empty())
++        return;
++
++    const uint32_t latest = m_history.back().timestamp;
++    while (!m_history.empty() && latest > m_history.front().timestamp + TRACKER_HISTORY_MS)
++        m_history.pop_front();
++}
++
++bool CUnifiedScrollingSwipeGesture::isGestureInProgress() {
++    return m_active;
++}
++
++void CUnifiedScrollingSwipeGesture::begin() {
++    if (m_active)
++        return;
++
++    const auto PMONITOR   = Desktop::focusState()->monitor();
++    const auto PWORKSPACE = PMONITOR->m_activeWorkspace;
++
++    if (!PWORKSPACE || !PWORKSPACE->m_space || !PWORKSPACE->m_space->algorithm())
++        return;
++
++    const auto& TILED_ALGO = PWORKSPACE->m_space->algorithm()->tiledAlgo();
++    auto*       SCROLLING  = dynamic_cast<CScrollingAlgorithm*>(TILED_ALGO.get());
++
++    if (!SCROLLING)
++        return;
++
++    const auto SDATA = SCROLLING->scrollingData();
++    if (!SDATA || SDATA->columns.empty())
++        return;
++
++    m_monitor    = PMONITOR;
++    m_baseOffset = SDATA->controller->getOffset();
++    m_active     = true;
++
++    trackerReset();
++}
++
++void CUnifiedScrollingSwipeGesture::update(double delta, uint32_t timeMs) {
++    if (!m_active)
++        return;
++
++    const auto PMONITOR = m_monitor.lock();
++    if (!PMONITOR)
++        return;
++
++    const auto PWORKSPACE = PMONITOR->m_activeWorkspace;
++    if (!PWORKSPACE || !PWORKSPACE->m_space || !PWORKSPACE->m_space->algorithm())
++        return;
++
++    const auto& TILED_ALGO = PWORKSPACE->m_space->algorithm()->tiledAlgo();
++    auto*       SCROLLING  = dynamic_cast<CScrollingAlgorithm*>(TILED_ALGO.get());
++    if (!SCROLLING)
++        return;
++
++    const auto SDATA = SCROLLING->scrollingData();
++    if (!SDATA || SDATA->columns.empty())
++        return;
++
++    trackerPush(delta, timeMs);
++
++    const CBox   USABLE        = SCROLLING->usableArea();
++    const double usablePrimary = SDATA->controller->isPrimaryHorizontal() ? USABLE.w : USABLE.h;
++    const double normFactor    = usablePrimary / WORKING_AREA_MOVEMENT;
++
++    double newOffset = m_baseOffset - m_trackerPos * normFactor;
++
++    SDATA->controller->setOffset(newOffset);
++    SDATA->recalculate(true);
++
++    g_pHyprRenderer->damageMonitor(PMONITOR);
++}
++
++void CUnifiedScrollingSwipeGesture::end() {
++    if (!m_active)
++        return;
++
++    const auto PMONITOR = m_monitor.lock();
++    if (!PMONITOR) {
++        m_active = false;
++        return;
++    }
++
++    const auto PWORKSPACE = PMONITOR->m_activeWorkspace;
++    if (!PWORKSPACE || !PWORKSPACE->m_space || !PWORKSPACE->m_space->algorithm()) {
++        m_active = false;
++        return;
++    }
++
++    const auto& TILED_ALGO = PWORKSPACE->m_space->algorithm()->tiledAlgo();
++    auto*       SCROLLING  = dynamic_cast<CScrollingAlgorithm*>(TILED_ALGO.get());
++    if (!SCROLLING) {
++        m_active = false;
++        return;
++    }
++
++    const auto SDATA = SCROLLING->scrollingData();
++    if (!SDATA || SDATA->columns.empty()) {
++        m_active = false;
++        return;
++    }
++
++    static const auto PFSONONE      = CConfigValue<Hyprlang::INT>("scrolling:fullscreen_on_one_column");
++    static const auto PFITMETHOD    = CConfigValue<Hyprlang::INT>("scrolling:focus_fit_method");
++    const CBox        USABLE        = SCROLLING->usableArea();
++    const double      usablePrimary = SDATA->controller->isPrimaryHorizontal() ? USABLE.w : USABLE.h;
++    const double      normFactor    = usablePrimary / WORKING_AREA_MOVEMENT;
++
++    const double projectedEnd    = trackerProjectedEndPos() * normFactor;
++    const double maxExtent       = SDATA->controller->calculateMaxExtent(USABLE, *PFSONONE);
++    const double minOffset       = 0.0;
++    const double maxOffset       = std::max(0.0, maxExtent - usablePrimary);
++    const double unclampedTarget = m_baseOffset - projectedEnd;
++
++    struct SSnap {
++        double offset;
++        size_t colIdx;
++    };
++
++    std::vector<SSnap> snaps;
++
++    for (size_t i = 0; i < SDATA->columns.size(); ++i) {
++        const double stripStart = SDATA->controller->calculateStripStart(i, USABLE, *PFSONONE);
++        const double stripSize  = SDATA->controller->calculateStripSize(i, USABLE, *PFSONONE);
++
++        if (*PFITMETHOD == 1) {
++            snaps.push_back({stripStart - usablePrimary + stripSize, i});
++            snaps.push_back({stripStart, i});
++        } else {
++            snaps.push_back({stripStart - (usablePrimary - stripSize) / 2.0, i});
++        }
++    }
++
++    if (snaps.empty()) {
++        m_active = false;
++        return;
++    }
++
++    size_t bestIdx  = 0;
++    double bestDist = std::numeric_limits<double>::max();
++    for (size_t i = 0; i < snaps.size(); ++i) {
++        const double dist = std::abs(snaps[i].offset - unclampedTarget);
++        if (dist < bestDist) {
++            bestDist = dist;
++            bestIdx  = i;
++        }
++    }
++
++    size_t       targetColIdx  = snaps[bestIdx].colIdx;
++    const double targetSnapOff = std::clamp(snaps[bestIdx].offset, minOffset, maxOffset);
++
++    const double currentOffset = SDATA->controller->getOffset();
++
++    if (*PFITMETHOD == 1) {
++        if (unclampedTarget >= currentOffset) {
++            for (size_t i = targetColIdx + 1; i < SDATA->columns.size(); ++i) {
++                const double colStart = SDATA->controller->calculateStripStart(i, USABLE, *PFSONONE);
++                const double colEnd   = colStart + SDATA->controller->calculateStripSize(i, USABLE, *PFSONONE);
++                if (colEnd > targetSnapOff + usablePrimary)
++                    break;
++                targetColIdx = i;
++            }
++        } else {
++            for (size_t i = targetColIdx; i > 0; --i) {
++                const double colStart = SDATA->controller->calculateStripStart(i - 1, USABLE, *PFSONONE);
++                if (colStart < targetSnapOff)
++                    break;
++                targetColIdx = i - 1;
++            }
++        }
++    }
++
++    SDATA->controller->setOffset(targetSnapOff);
++    SDATA->recalculate(false);
++
++    if (!SDATA->columns[targetColIdx]->targetDatas.empty()) {
++        const auto TARGET = SDATA->columns[targetColIdx]->targetDatas.front()->target.lock();
++        if (TARGET)
++            SCROLLING->focusTargetUpdate(TARGET);
++    }
++
++    m_active = false;
++    g_pHyprRenderer->damageMonitor(PMONITOR);
++}
+diff --git a/src/managers/input/UnifiedScrollingSwipeGesture.hpp b/src/managers/input/UnifiedScrollingSwipeGesture.hpp
+new file mode 100644
+index 00000000000..cd427f5f1bb
+--- /dev/null
++++ b/src/managers/input/UnifiedScrollingSwipeGesture.hpp
+@@ -0,0 +1,38 @@
++#pragma once
++
++#include "../../helpers/memory/Memory.hpp"
++#include "../../desktop/DesktopTypes.hpp"
++
++#include <deque>
++
++class CUnifiedScrollingSwipeGesture {
++  public:
++    void begin();
++    void update(double delta, uint32_t timeMs);
++    void end();
++
++    bool isGestureInProgress();
++
++  private:
++    struct STrackerEvent {
++        double   delta     = 0;
++        uint32_t timestamp = 0;
++    };
++
++    std::deque<STrackerEvent> m_history;
++    double                    m_trackerPos = 0;
++
++    void                      trackerReset();
++    void                      trackerPush(double delta, uint32_t timeMs);
++    double                    trackerVelocity();
++    double                    trackerProjectedEndPos();
++    void                      trackerTrimHistory();
++
++    PHLMONITORREF m_monitor;
++    double        m_baseOffset = 0;
++    bool          m_active     = false;
++
++    friend class CScrollingSwipeGesture;
++};
++
++inline UP<CUnifiedScrollingSwipeGesture> g_pUnifiedScrollingSwipe = makeUnique<CUnifiedScrollingSwipeGesture>();
+diff --git a/src/managers/input/trackpad/gestures/ScrollingSwipeGesture.cpp b/src/managers/input/trackpad/gestures/ScrollingSwipeGesture.cpp
+new file mode 100644
+index 00000000000..ffd35b4cdb8
+--- /dev/null
++++ b/src/managers/input/trackpad/gestures/ScrollingSwipeGesture.cpp
+@@ -0,0 +1,43 @@
++#include "ScrollingSwipeGesture.hpp"
++
++#include "../../../../Compositor.hpp"
++#include "../../../../desktop/state/FocusState.hpp"
++#include "../../../../render/Renderer.hpp"
++
++#include "../../UnifiedScrollingSwipeGesture.hpp"
++
++void CScrollingSwipeGesture::begin(const ITrackpadGesture::STrackpadGestureBegin& e) {
++    ITrackpadGesture::begin(e);
++
++    if (g_pSessionLockManager->isSessionLocked() || g_pUnifiedScrollingSwipe->isGestureInProgress())
++        return;
++
++    g_pUnifiedScrollingSwipe->begin();
++}
++
++void CScrollingSwipeGesture::update(const ITrackpadGesture::STrackpadGestureUpdate& e) {
++    if (!g_pUnifiedScrollingSwipe->isGestureInProgress())
++        return;
++
++    if (!e.swipe)
++        return;
++
++    static auto PSWIPEINVR = CConfigValue<Hyprlang::INT>("gestures:scrolling_swipe_invert");
++
++    const double rawDelta = e.direction == TRACKPAD_GESTURE_DIR_LEFT || e.direction == TRACKPAD_GESTURE_DIR_RIGHT || e.direction == TRACKPAD_GESTURE_DIR_HORIZONTAL
++        ? e.swipe->delta.x
++        : e.swipe->delta.y;
++
++    g_pUnifiedScrollingSwipe->update(*PSWIPEINVR ? -rawDelta : rawDelta, e.swipe->timeMs);
++}
++
++void CScrollingSwipeGesture::end(const ITrackpadGesture::STrackpadGestureEnd& e) {
++    if (!g_pUnifiedScrollingSwipe->isGestureInProgress())
++        return;
++
++    g_pUnifiedScrollingSwipe->end();
++}
++
++bool CScrollingSwipeGesture::isDirectionSensitive() {
++    return true;
++}
+diff --git a/src/managers/input/trackpad/gestures/ScrollingSwipeGesture.hpp b/src/managers/input/trackpad/gestures/ScrollingSwipeGesture.hpp
+new file mode 100644
+index 00000000000..1f460df317c
+--- /dev/null
++++ b/src/managers/input/trackpad/gestures/ScrollingSwipeGesture.hpp
+@@ -0,0 +1,15 @@
++#pragma once
++
++#include "ITrackpadGesture.hpp"
++
++class CScrollingSwipeGesture : public ITrackpadGesture {
++  public:
++    CScrollingSwipeGesture()          = default;
++    virtual ~CScrollingSwipeGesture() = default;
++
++    virtual void begin(const ITrackpadGesture::STrackpadGestureBegin& e);
++    virtual void update(const ITrackpadGesture::STrackpadGestureUpdate& e);
++    virtual void end(const ITrackpadGesture::STrackpadGestureEnd& e);
++
++    virtual bool isDirectionSensitive();
++};

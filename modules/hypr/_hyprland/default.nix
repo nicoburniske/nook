@@ -37,7 +37,12 @@ in {
       hyprland =
         (prev.hyprland).overrideAttrs
         (old: {
-          patches = (old.patches or []) ++ [./patches/force-vertical-workspace-swipe.patch];
+          patches =
+            (old.patches or [])
+            ++ [
+              ./patches/force-vertical-workspace-swipe.patch
+              ./patches/scrolling-swipe-gesture.patch
+            ];
         });
     })
   ];
@@ -167,8 +172,7 @@ in {
         env=XCURSOR_SIZE,24
 
         exec=hyprctl setcursor ${cursorTheme} 24
-        gesture=3, left, dispatcher, layoutmsg, move +col
-        gesture=3, right, dispatcher, layoutmsg, move -col
+        gesture=3, horizontal, scrolling
         gesture=3, vertical, workspace
         layerrule=no_anim on, match:namespace fuzzel
 
