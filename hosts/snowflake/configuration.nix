@@ -31,8 +31,16 @@ in {
 
   nixpkgs.config.allowUnfree = true;
 
-  nixpkgs.overlays = [
+  nixpkgs.overlays = let
+    mesaPkgs = import inputs.nixpkgs-mesa {
+      system = pkgs.stdenv.hostPlatform.system;
+      config.allowUnfree = true;
+    };
+  in [
     (final: prev: {
+      mesa = mesaPkgs.mesa;
+      libgbm = mesaPkgs.libgbm;
+      libdrm = mesaPkgs.libdrm;
       ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
     })
   ];
