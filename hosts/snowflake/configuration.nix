@@ -39,8 +39,6 @@ in {
   in [
     (final: prev: {
       mesa = mesaPkgs.mesa;
-      libgbm = mesaPkgs.libgbm;
-      libdrm = mesaPkgs.libdrm;
       ungoogled-chromium = prev.ungoogled-chromium.override {enableWideVine = true;};
     })
   ];
