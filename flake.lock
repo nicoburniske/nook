@@ -260,17 +260,17 @@
     },
     "nixpkgs-mesa": {
       "locked": {
-        "lastModified": 1776325989,
-        "narHash": "sha256-i/iII61tqN80b00gnQg4b9X6tiSxSfDq/vYB2Nv44nE=",
+        "lastModified": 1775072317,
+        "narHash": "sha256-Tmp0nu2JTMHHOuV20ElkPduB0IuZaG3pBjrYPDx79u8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b71c3965ae02e6788567965c91976020509a0710",
+        "rev": "df26bc59d3c7cd52e4005dfe9843b1e7b0554de1",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b71c3965ae02e6788567965c91976020509a0710",
+        "rev": "df26bc59d3c7cd52e4005dfe9843b1e7b0554de1",
         "type": "github"
       }
     },
