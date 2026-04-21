@@ -2,7 +2,7 @@
   description = "Sumi: facet-based runtime config switching for NixOS and nix-darwin";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
   outputs = {nixpkgs, ...}: let
