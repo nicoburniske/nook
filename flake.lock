@@ -242,22 +242,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-mesa": {
-      "locked": {
-        "lastModified": 1775888245,
-        "narHash": "sha256-nwASzrRDD1JBEu/o8ekKYEXm/oJW6EMCzCRdrwcLe90=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "13043924aaa7375ce482ebe2494338e058282925",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "13043924aaa7375ce482ebe2494338e058282925",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1776548001,
@@ -271,6 +255,22 @@
         "owner": "NixOS",
         "ref": "nixos-unstable",
         "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-mesa": {
+      "locked": {
+        "lastModified": 1776325989,
+        "narHash": "sha256-i/iII61tqN80b00gnQg4b9X6tiSxSfDq/vYB2Nv44nE=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b71c3965ae02e6788567965c91976020509a0710",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b71c3965ae02e6788567965c91976020509a0710",
         "type": "github"
       }
     },
@@ -307,8 +307,8 @@
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nix-ld": "nix-ld",
-        "nixpkgs-mesa": "nixpkgs-mesa",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-mesa": "nixpkgs-mesa",
         "opencode": "opencode",
         "sumi": "sumi"
       }
