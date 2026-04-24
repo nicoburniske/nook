@@ -56,6 +56,12 @@
         selection-match=${c.base0A}ff
         counter=${c.base06}ff
         border=${c.base0D}ff
+
+        [key-bindings]
+        prev=none
+        prev-with-wrap=Up Control+p
+        next=none
+        next-with-wrap=Down Control+n
       '';
     };
   };
