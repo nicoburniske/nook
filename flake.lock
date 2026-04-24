@@ -258,6 +258,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-codex": {
+      "locked": {
+        "lastModified": 1777041866,
+        "narHash": "sha256-3XXH4RHnFwLUkzuJs6W4AU0xhKMUEyEQCeMGVDUbBb4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "62b0aa543133a625545871c3975fdf32352f8e6a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "master",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-mesa": {
       "locked": {
         "lastModified": 1775072317,
@@ -308,6 +324,7 @@
         "nix-homebrew": "nix-homebrew",
         "nix-ld": "nix-ld",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-codex": "nixpkgs-codex",
         "nixpkgs-mesa": "nixpkgs-mesa",
         "opencode": "opencode",
         "sumi": "sumi"

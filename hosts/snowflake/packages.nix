@@ -35,6 +35,5 @@
     readest
     pavucontrol
     asahi-bless
-    codex
   ];
 }

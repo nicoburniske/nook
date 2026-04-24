@@ -39,6 +39,7 @@
       fzf
       ohMyPosh
       lazygit
+      codex
       opencode
       television
       zsh
