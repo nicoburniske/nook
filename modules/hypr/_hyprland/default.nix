@@ -1,9 +1,11 @@
 {
+  config,
   inputs,
   pkgs,
   ...
 }: let
   keybinds = import ./_keybinds.nix;
+  shellCommand = config.compositor.shell.command;
 
   systemdVariables = [
     "DISPLAY"
@@ -67,6 +69,7 @@ in {
           else "phinger-cursors-light";
       in ''
         exec-once = ${systemdActivation}
+        exec-once = ${shellCommand}
         $mod=SUPER
 
         animations {

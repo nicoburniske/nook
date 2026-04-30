@@ -25,16 +25,3 @@ nixos-check:
 
 update:
     nix flake update
-
-quickshell-dev:
-    systemctl --user stop quickshell.service || true
-    qs -p "$HOME/.config/quickshell/shell.qml" -n -d -v
-
-quickshell-service:
-    systemctl --user restart quickshell.service
-
-quickshell-prod:
-    pkill -f '/bin/qs( |$)' || true
-    systemctl --user reset-failed quickshell.service || true
-    systemctl --user restart quickshell.service
-    systemctl --user status quickshell.service --no-pager -l

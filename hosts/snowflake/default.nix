@@ -29,8 +29,7 @@
       kitty
       yazi
       fuzzel
-      swaync
-      quickshell
+      noctalia
       vlc
       thunar
       gtk
@@ -53,6 +52,7 @@
     _module.args.host = host;
 
     programs.nix-ld.dev.enable = true;
+    programs.noctalia-shell.enable = true;
 
     sumi = {
       enable = true;

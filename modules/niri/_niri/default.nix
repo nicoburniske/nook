@@ -1,9 +1,11 @@
 {
+  config,
   inputs,
   pkgs,
   ...
 }: let
   keybinds = import ./_keybinds.nix;
+  shellCommand = config.compositor.shell.command;
 
   systemdVariables = [
     "DISPLAY"
@@ -45,6 +47,7 @@ in {
           else "phinger-cursors-light";
       in ''
                 spawn-at-startup "sh" "-c" "${systemdActivation}"
+                spawn-at-startup "${shellCommand}"
 
                 input {
                     mod-key "Super"
