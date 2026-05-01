@@ -34,6 +34,7 @@
       noctalia
       vlc
       dolphin
+      kde
       qt
       gtk
       helix
