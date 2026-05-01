@@ -30,6 +30,7 @@
         font=${theme.fonts.sansSerif.name}:size=${toString theme.fonts.sizes.popups}
         terminal=${pkgs.kitty}/bin/kitty
         layer=overlay
+        keyboard-focus=on-demand
         width=40
         lines=20
         filter-desktop=yes
