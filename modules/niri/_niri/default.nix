@@ -12,6 +12,8 @@
   systemdVariables = [
     "DISPLAY"
     "NIRI_SOCKET"
+    "QT_QPA_PLATFORMTHEME"
+    "QT_STYLE_OVERRIDE"
     "WAYLAND_DISPLAY"
     "XDG_CURRENT_DESKTOP"
     "XDG_SESSION_TYPE"
@@ -42,6 +44,11 @@ in {
       in ''
                 spawn-at-startup "sh" "-c" "${systemdActivation}"
                 spawn-at-startup "${shellCommand}"
+
+                environment {
+                    QT_QPA_PLATFORMTHEME "qt5ct"
+                    QT_STYLE_OVERRIDE "kvantum"
+                }
 
                 input {
                     mod-key "Super"

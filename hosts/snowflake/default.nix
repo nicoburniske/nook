@@ -34,6 +34,7 @@
       noctalia
       vlc
       thunar
+      qt
       gtk
       helix
       helium
