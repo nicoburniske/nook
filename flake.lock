@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776370524,
-        "narHash": "sha256-0Gt5qnjNkIZJdOBfu2u47zgyhYL3WmgUrguUhGSxUdk=",
+        "lastModified": 1777553167,
+        "narHash": "sha256-wyGbwRrLlcwAwMcXX6QAd7yzF8wEjFhULYUO4Ajz7W4=",
         "owner": "nix-community",
         "repo": "nixos-apple-silicon",
-        "rev": "f9f0650b45e31b3f6c3e2a0405fa198a286e2741",
+        "rev": "61259a00667ee19410810b992bee615b00587aca",
         "type": "github"
       },
       "original": {
@@ -274,22 +274,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-mesa": {
-      "locked": {
-        "lastModified": 1775072317,
-        "narHash": "sha256-Tmp0nu2JTMHHOuV20ElkPduB0IuZaG3pBjrYPDx79u8=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "df26bc59d3c7cd52e4005dfe9843b1e7b0554de1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "df26bc59d3c7cd52e4005dfe9843b1e7b0554de1",
-        "type": "github"
-      }
-    },
     "noctalia": {
       "inputs": {
         "nixpkgs": [
@@ -348,7 +332,6 @@
         "nix-ld": "nix-ld",
         "nixpkgs": "nixpkgs",
         "nixpkgs-codex": "nixpkgs-codex",
-        "nixpkgs-mesa": "nixpkgs-mesa",
         "noctalia": "noctalia",
         "sumi": "sumi"
       }

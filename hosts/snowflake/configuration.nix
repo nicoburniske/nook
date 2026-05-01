@@ -31,17 +31,6 @@ in {
 
   nixpkgs.config.allowUnfree = true;
 
-  nixpkgs.overlays = let
-    mesaPkgs = import inputs.nixpkgs-mesa {
-      system = pkgs.stdenv.hostPlatform.system;
-      config.allowUnfree = true;
-    };
-  in [
-    (final: prev: {
-      mesa = mesaPkgs.mesa;
-    })
-  ];
-
   boot = {
     consoleLogLevel = 0;
     loader.systemd-boot.enable = true;
