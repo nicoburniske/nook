@@ -33,6 +33,7 @@
       fuzzel
       noctalia
       vlc
+      dolphin
       qt
       gtk
       helix
