@@ -36,6 +36,9 @@ in {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = false;
     kernelParams = ["appledrm.show_notch=1"];
+    # apple silicon uses 16K pages, so we are forcing it
+    # nixpkgs currently falls back to the 4K-page max
+    kernel.sysctl."vm.mmap_rnd_bits" = 31;
     binfmt.emulatedSystems = ["x86_64-linux"];
   };
 
