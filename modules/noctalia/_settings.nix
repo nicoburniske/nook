@@ -66,7 +66,11 @@ in {
   };
 
   wallpaper = {
-    enabled = false;
+    enabled = true;
+    fillMode = "crop";
+    useSolidColor = false;
+    automationEnabled = false;
+    useOriginalImages = true;
   };
 
   idle = {

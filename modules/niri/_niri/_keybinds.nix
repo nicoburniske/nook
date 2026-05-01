@@ -1,8 +1,71 @@
-[
+{
+  inputs,
+  pkgs,
+}: let
+  themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
+  heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit pkgs;};
+  windowSwitch = pkgs.writeNuScriptBin "niri-window-switch" ''
+    let windows = (
+      niri msg --json windows
+      | from json
+      | each {|window|
+          let title = (
+            if (($window.title? | default "") == "") { "(untitled)" } else { $window.title }
+            | str replace --all "\t" " "
+            | str replace --all "\n" " "
+          )
+          let app_id = (
+            if (($window.app_id? | default "") == "") { "unknown" } else { $window.app_id }
+            | str replace --all "\t" " "
+            | str replace --all "\n" " "
+          )
+          let app = (
+            if ($title | str ends-with " - YouTube - Helium") { "youtube" }
+            else if ($app_id | str starts-with "chrome-open.spotify.com") { "spotify" }
+            else { $app_id }
+          )
+          let detail = (
+            if ($title | str ends-with " - YouTube - Helium") { $title | str replace --regex " - YouTube - Helium$" "" }
+            else if ($title | str ends-with " - Helium") { $title | str replace --regex " - Helium$" "" }
+            else { $title }
+          )
+          let workspace = ($window.workspace_id? | default "?")
+          {
+            id: $window.id,
+            row: ([$window.id $"($workspace) - ($app) - ($detail)"] | str join "\t"),
+            sort_key: $"($workspace)-($app)-($detail)",
+          }
+        }
+      | sort-by sort_key
+    )
+
+    if (($windows | length) == 0) {
+      exit 0
+    }
+
+    let menu = ($windows | get row | str join "\n")
+    let result = (
+      do {
+        $menu | fuzzel --dmenu --prompt "window> " --match-mode exact --with-nth 2 --accept-nth 1 --match-nth 2 --only-match
+      } | complete
+    )
+
+    if $result.exit_code != 0 {
+      exit 0
+    }
+
+    let id = ($result.stdout | str trim)
+    if $id == "" {
+      exit 0
+    }
+
+    niri msg action focus-window --id $id | ignore
+  '';
+in [
   ''Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "kitty"; }''
   ''Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "fuzzel"; }''
-  ''Mod+B repeat=false hotkey-overlay-title="Browser" { spawn "helium-profile"; }''
-  ''Ctrl+Mod+Space repeat=false hotkey-overlay-title="Switch theme" { spawn "theme-switch"; }''
+  ''Mod+B repeat=false hotkey-overlay-title="Browser" { spawn "${heliumProfile}/bin/helium-profile"; }''
+  ''Ctrl+Mod+Space repeat=false hotkey-overlay-title="Switch theme" { spawn "${themeSwitch}/bin/theme-switch"; }''
 
   ''Ctrl+Alt+Super+L allow-inhibiting=false hotkey-overlay-title="Lock screen" { spawn "hyprlock"; }''
   ''Ctrl+Alt+Super+Q hotkey-overlay-title="Exit niri" { quit skip-confirmation=true; }''
@@ -46,17 +109,14 @@
   ''Mod+Comma { consume-window-into-column; }''
   ''Mod+Period { expel-window-from-column; }''
 
-  ''Mod+Equal { set-column-width "+5%"; }''
-  ''Mod+Minus { set-column-width "-5%"; }''
-  ''Mod+Shift+Equal { set-window-height "+5%"; }''
-  ''Mod+Shift+Minus { set-window-height "-5%"; }''
+  ''Mod+Equal { switch-preset-column-width; }''
+  ''Mod+Minus { switch-preset-column-width-back; }''
   ''Mod+R { switch-preset-column-width; }''
-  ''Mod+Shift+R { switch-preset-window-height; }''
-  ''Mod+Ctrl+R { reset-window-height; }''
   ''Mod+C { center-column; }''
   ''Mod+Ctrl+C { center-visible-columns; }''
 
-  ''Mod+O repeat=false { toggle-overview; }''
+  ''Mod+O repeat=false hotkey-overlay-title="Overview" { toggle-overview; }''
+  ''Mod+I repeat=false hotkey-overlay-title="Window switcher" { spawn "${windowSwitch}/bin/niri-window-switch"; }''
   ''Mod+U { focus-workspace-up; }''
   ''Mod+D { focus-workspace-down; }''
   ''Mod+Ctrl+U { move-column-to-workspace-up; }''

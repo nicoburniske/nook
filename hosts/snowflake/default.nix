@@ -24,8 +24,9 @@
       fonts
       writeNuScriptBin
       compositor
-      hypr
       niri
+      lock
+      greet
       kitty
       yazi
       fuzzel

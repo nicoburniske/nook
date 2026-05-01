@@ -19,7 +19,7 @@ in {
     shadow = withAlpha colors.base00 "70";
     shadowInactive = withAlpha colors.base00 "4d";
 
-    background = colors.base00;
+    background = "transparent";
     backdrop = colors.base01;
   };
 }

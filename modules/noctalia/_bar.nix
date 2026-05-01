@@ -24,7 +24,7 @@
         labelMode = "index";
         showApplications = false;
         showApplicationsHover = false;
-        hideUnoccupied = false;
+        hideUnoccupied = true;
         enableScrollWheel = true;
         focusedColor = "primary";
         occupiedColor = "secondary";

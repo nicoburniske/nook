@@ -30,6 +30,9 @@
       gtk-font-name=${fontName} ${fontSize}
       gtk-theme-name=${gtkThemeName}
       gtk-application-prefer-dark-theme=${preferDark}
+      gtk-error-bell=0
+      gtk-enable-event-sounds=0
+      gtk-enable-input-feedback-sounds=0
       ${lib.optionalString (gtkVersion == 4) "gtk-interface-color-scheme=${gtk4ColorScheme}"}
     '';
 
@@ -39,6 +42,9 @@
     in ''
       gtk-font-name = "${fontName} ${fontSize}"
       gtk-theme-name = "${gtkThemeName}"
+      gtk-error-bell = 0
+      gtk-enable-event-sounds = 0
+      gtk-enable-input-feedback-sounds = 0
     '';
 
     mkFlattenedGtkTheme = theme: let
