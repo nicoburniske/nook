@@ -1,7 +1,7 @@
 [
   ''Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "kitty"; }''
   ''Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "fuzzel"; }''
-  ''Mod+B repeat=false hotkey-overlay-title="Browser" { spawn "chromium-profile"; }''
+  ''Mod+B repeat=false hotkey-overlay-title="Browser" { spawn "helium-profile"; }''
   ''Ctrl+Mod+Space repeat=false hotkey-overlay-title="Switch theme" { spawn "theme-switch"; }''
 
   ''Ctrl+Alt+Super+L allow-inhibiting=false hotkey-overlay-title="Lock screen" { spawn "hyprlock"; }''

@@ -16,7 +16,6 @@
     taplo
     fd
     presenterm
-    ungoogled-chromium
     wl-clipboard
     brightnessctl
     wiremix

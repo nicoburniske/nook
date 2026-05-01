@@ -26,11 +26,12 @@
     builtins.concatStringsSep "\n" (map (entry: "    ${entry}") entries);
 
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
-  chromiumProfile = import (inputs.self + "/common/chromium-profile.nix") {inherit pkgs;};
+  heliumPackage = pkgs.helium;
+  heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit heliumPackage pkgs;};
 in {
   environment.systemPackages = [
     themeSwitch
-    chromiumProfile
+    heliumProfile
   ];
 
   sumi.configFile = {

@@ -35,6 +35,7 @@
       gtk
       helix
       helium
+      spotifyWeb
       fzf
       ohMyPosh
       lazygit

@@ -25,7 +25,8 @@
     builtins.concatStringsSep "\n" (map (entry: "${prefix}=${entry}") entries);
 
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
-  chromiumProfile = import (inputs.self + "/common/chromium-profile.nix") {inherit pkgs;};
+  heliumPackage = pkgs.helium;
+  heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit heliumPackage pkgs;};
   workspaceLayoutToggle = pkgs.writeNuScriptBin "hypr-workspace-layout-toggle" ''
     let active = (hyprctl activeworkspace -j | from json)
     let workspace = $active.id
@@ -53,7 +54,7 @@ in {
 
   environment.systemPackages = [
     themeSwitch
-    chromiumProfile
+    heliumProfile
     workspaceLayoutToggle
   ];
 

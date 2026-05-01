@@ -1,12 +1,15 @@
-{pkgs}:
-pkgs.writeNuScriptBin "chromium-profile" ''
-  let chromium = "${pkgs.ungoogled-chromium}/bin/chromium"
+{
+  heliumPackage,
+  pkgs,
+}:
+pkgs.writeNuScriptBin "helium-profile" ''
+  let helium = "${heliumPackage}/bin/helium"
   let fuzzel = "${pkgs.fuzzel}/bin/fuzzel"
-  let data_dir = ([$env.HOME ".config" "chromium"] | path join)
+  let data_dir = ([$env.HOME ".config" "net.imput.helium"] | path join)
   let local_state = ([$data_dir "Local State"] | path join)
 
   if not ($local_state | path exists) {
-    print --stderr "Chromium profile data not found."
+    print --stderr "Helium profile data not found."
     exit 1
   }
 
@@ -24,18 +27,18 @@ pkgs.writeNuScriptBin "chromium-profile" ''
           sort_key: ($name | str downcase),
         }
       }
-    | where {|row| $row.directory != "System Profile" and $row.name != "Your Chromium" }
+    | where {|row| $row.directory != "System Profile" and $row.name != "Your Helium" }
     | sort-by sort_key
     | each {|row| {name: $row.name, directory: $row.directory} }
   )
 
   if (($profiles | length) == 0) {
-    print --stderr "No Chromium profiles found."
+    print --stderr "No Helium profiles found."
     exit 1
   }
 
   let menu = ($profiles | get name | str join "\n")
-  let fuzzel_result = (do { $menu | ^$fuzzel --dmenu --prompt "chrome> " } | complete)
+  let fuzzel_result = (do { $menu | ^$fuzzel --dmenu --prompt "helium> " } | complete)
 
   if $fuzzel_result.exit_code != 0 {
     exit 0
@@ -51,5 +54,5 @@ pkgs.writeNuScriptBin "chromium-profile" ''
     exit 0
   }
 
-  ^$chromium $"--user-data-dir=($data_dir)" $"--profile-directory=($directory)"
+  ^$helium $"--user-data-dir=($data_dir)" $"--profile-directory=($directory)"
 ''

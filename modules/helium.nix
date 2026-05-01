@@ -1,7 +1,13 @@
 {inputs, ...}: {
   flake.modules.nixos.helium = {pkgs, ...}: {
+    nixpkgs.overlays = [
+      (final: prev: {
+        helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;
+      })
+    ];
+
     environment.systemPackages = [
-      inputs.helium-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+      pkgs.helium
     ];
   };
 }
