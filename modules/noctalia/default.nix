@@ -72,18 +72,6 @@
           value = ctx: "${builtins.toJSON (colors ctx.values.theme)}\n";
         };
       };
-
-      sumi.cacheFile."noctalia/wallpapers.json" = {
-        watch = ["theme"];
-        value = ctx: let
-          wallpaperPath = toString ctx.values.theme.image;
-        in
-          builtins.toJSON {
-            defaultWallpaper = wallpaperPath;
-            wallpapers = {};
-          }
-          + "\n";
-      };
     };
   };
 }

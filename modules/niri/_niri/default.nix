@@ -250,6 +250,12 @@ in {
                 }
 
                 layer-rule {
+                    match namespace="^awww-daemon$"
+
+                    place-within-backdrop true
+                }
+
+                layer-rule {
                     match namespace="^launcher$"
 
                     opacity ${toString (theme.opacity.popups or theme.opacity.terminal or 1.0)}

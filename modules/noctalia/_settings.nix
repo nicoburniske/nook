@@ -66,7 +66,7 @@ in {
   };
 
   wallpaper = {
-    enabled = true;
+    enabled = false;
     fillMode = "crop";
     useSolidColor = false;
     automationEnabled = false;
