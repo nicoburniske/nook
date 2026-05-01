@@ -8,6 +8,7 @@
     "CTRL $mod, L, exec, hyprlock"
     "$mod, Space, exec, fuzzel"
     "$mod, B, exec, helium-profile"
+    "$mod, O, exec, hypr-window-switch"
     "$mod, T, exec, hypr-workspace-layout-toggle"
     "CTRL $mod, Space, exec, theme-switch"
     "$mod, P, exec, hyprshot -m output -o ~/screenshots"

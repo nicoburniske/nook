@@ -27,6 +27,49 @@
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
   heliumPackage = pkgs.helium;
   heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit heliumPackage pkgs;};
+  windowSwitch = pkgs.writeNuScriptBin "hypr-window-switch" ''
+    let clients = (
+      hyprctl clients -j
+      | from json
+      | where mapped == true
+      | where hidden == false
+      | each {|client|
+          let title = (
+            if $client.title == "" { "(untitled)" } else { $client.title }
+            | str replace --all "\t" " "
+            | str replace --all "\n" " "
+          )
+          {
+            address: $client.address,
+            row: ([$client.address $"($client.workspace.name) ($title)"] | str join "\t"),
+            sort_key: $"($client.workspace.id)-($title)",
+          }
+        }
+      | sort-by sort_key
+    )
+
+    if (($clients | length) == 0) {
+      exit 0
+    }
+
+    let menu = ($clients | get row | str join "\n")
+    let result = (
+      do {
+        $menu | fuzzel --dmenu --prompt "window> " --with-nth 2 --accept-nth 1 --match-nth 2 --only-match
+      } | complete
+    )
+
+    if $result.exit_code != 0 {
+      exit 0
+    }
+
+    let address = ($result.stdout | str trim)
+    if $address == "" {
+      exit 0
+    }
+
+    hyprctl dispatch focuswindow $"address:($address)" | ignore
+  '';
   workspaceLayoutToggle = pkgs.writeNuScriptBin "hypr-workspace-layout-toggle" ''
     let active = (hyprctl activeworkspace -j | from json)
     let workspace = $active.id
@@ -55,6 +98,7 @@ in {
   environment.systemPackages = [
     themeSwitch
     heliumProfile
+    windowSwitch
     workspaceLayoutToggle
   ];
 
