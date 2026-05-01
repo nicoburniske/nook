@@ -1,9 +1,6 @@
-{
-  heliumPackage,
-  pkgs,
-}:
+{pkgs}:
 pkgs.writeNuScriptBin "helium-profile" ''
-  let helium = "${heliumPackage}/bin/helium"
+  let helium = "${pkgs.helium}/bin/helium"
   let fuzzel = "${pkgs.fuzzel}/bin/fuzzel"
   let data_dir = ([$env.HOME ".config" "net.imput.helium"] | path join)
   let local_state = ([$data_dir "Local State"] | path join)

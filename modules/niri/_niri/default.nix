@@ -26,8 +26,7 @@
     builtins.concatStringsSep "\n" (map (entry: "    ${entry}") entries);
 
   themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
-  heliumPackage = pkgs.helium;
-  heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit heliumPackage pkgs;};
+  heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit pkgs;};
 in {
   environment.systemPackages = [
     themeSwitch

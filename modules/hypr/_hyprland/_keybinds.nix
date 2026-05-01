@@ -1,4 +1,78 @@
 {
+  inputs,
+  pkgs,
+}: let
+  themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
+
+  heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit pkgs;};
+
+  windowSwitch = pkgs.writeNuScriptBin "hypr-window-switch" ''
+    let clients = (
+      hyprctl clients -j
+      | from json
+      | where mapped == true
+      | where hidden == false
+      | each {|client|
+          let title = (
+            if $client.title == "" { "(untitled)" } else { $client.title }
+            | str replace --all "\t" " "
+            | str replace --all "\n" " "
+          )
+          let class = (
+            if $client.class == "" { "unknown" } else { $client.class }
+            | str replace --all "\t" " "
+            | str replace --all "\n" " "
+          )
+          let app = (
+            if ($title | str ends-with " - YouTube - Helium") { "youtube" }
+            else if ($class | str starts-with "chrome-open.spotify.com") { "spotify" }
+            else { $class }
+          )
+          let detail = (
+            if ($title | str ends-with " - YouTube - Helium") { $title | str replace --regex " - YouTube - Helium$" "" }
+            else if ($title | str ends-with " - Helium") { $title | str replace --regex " - Helium$" "" }
+            else { $title }
+          )
+          {
+            address: $client.address,
+            row: ([$client.address $"($client.workspace.name) - ($app) - ($detail)"] | str join "\t"),
+            sort_key: $"($client.workspace.id)-($app)-($detail)",
+          }
+        }
+      | sort-by sort_key
+    )
+
+    if (($clients | length) == 0) {
+      exit 0
+    }
+
+    let menu = ($clients | get row | str join "\n")
+    let result = (
+      do {
+        $menu | fuzzel --dmenu --prompt "window> " --match-mode exact --with-nth 2 --accept-nth 1 --match-nth 2 --only-match
+      } | complete
+    )
+
+    if $result.exit_code != 0 {
+      exit 0
+    }
+
+    let address = ($result.stdout | str trim)
+    if $address == "" {
+      exit 0
+    }
+
+    hyprctl dispatch focuswindow $"address:($address)" | ignore
+  '';
+
+  workspaceLayoutToggle = pkgs.writeNuScriptBin "hypr-workspace-layout-toggle" ''
+    let active = (hyprctl activeworkspace -j | from json)
+    let workspace = $active.id
+    let currentLayout = (($active.tiledLayout? | default "") | str downcase)
+    let nextLayout = if $currentLayout == "dwindle" { "scrolling" } else { "dwindle" }
+    hyprctl keyword workspace $"($workspace),layout:($nextLayout)" | ignore
+  '';
+in {
   bind = [
     "$mod, Return, exec, kitty"
     "$mod, Q, killactive"
@@ -7,10 +81,10 @@
     "CTRL ALT super, Q, exit"
     "CTRL $mod, L, exec, hyprlock"
     "$mod, Space, exec, fuzzel"
-    "$mod, B, exec, helium-profile"
-    "$mod, O, exec, hypr-window-switch"
-    "$mod, T, exec, hypr-workspace-layout-toggle"
-    "CTRL $mod, Space, exec, theme-switch"
+    "$mod, B, exec, ${heliumProfile}/bin/helium-profile"
+    "$mod, O, exec, ${windowSwitch}/bin/hypr-window-switch"
+    "$mod, T, exec, ${workspaceLayoutToggle}/bin/hypr-workspace-layout-toggle"
+    "CTRL $mod, Space, exec, ${themeSwitch}/bin/theme-switch"
     "$mod, P, exec, hyprshot -m output -o ~/screenshots"
     "$mod SHIFT, P, exec, hyprshot -m region -o ~/screenshots"
     ",xf86monbrightnessup, exec, brightnessctl set 5%+"

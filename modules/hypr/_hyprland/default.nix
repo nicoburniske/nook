@@ -4,7 +4,6 @@
   pkgs,
   ...
 }: let
-  keybinds = import ./_keybinds.nix;
   shellCommand = config.compositor.shell.command;
 
   systemdVariables = [
@@ -24,59 +23,9 @@
   mkBindLines = prefix: entries:
     builtins.concatStringsSep "\n" (map (entry: "${prefix}=${entry}") entries);
 
-  themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
-  heliumPackage = pkgs.helium;
-  heliumProfile = import (inputs.self + "/common/helium-profile.nix") {inherit heliumPackage pkgs;};
-  windowSwitch = pkgs.writeNuScriptBin "hypr-window-switch" ''
-    let clients = (
-      hyprctl clients -j
-      | from json
-      | where mapped == true
-      | where hidden == false
-      | each {|client|
-          let title = (
-            if $client.title == "" { "(untitled)" } else { $client.title }
-            | str replace --all "\t" " "
-            | str replace --all "\n" " "
-          )
-          {
-            address: $client.address,
-            row: ([$client.address $"($client.workspace.name) ($title)"] | str join "\t"),
-            sort_key: $"($client.workspace.id)-($title)",
-          }
-        }
-      | sort-by sort_key
-    )
-
-    if (($clients | length) == 0) {
-      exit 0
-    }
-
-    let menu = ($clients | get row | str join "\n")
-    let result = (
-      do {
-        $menu | fuzzel --dmenu --prompt "window> " --with-nth 2 --accept-nth 1 --match-nth 2 --only-match
-      } | complete
-    )
-
-    if $result.exit_code != 0 {
-      exit 0
-    }
-
-    let address = ($result.stdout | str trim)
-    if $address == "" {
-      exit 0
-    }
-
-    hyprctl dispatch focuswindow $"address:($address)" | ignore
-  '';
-  workspaceLayoutToggle = pkgs.writeNuScriptBin "hypr-workspace-layout-toggle" ''
-    let active = (hyprctl activeworkspace -j | from json)
-    let workspace = $active.id
-    let currentLayout = (($active.tiledLayout? | default "") | str downcase)
-    let nextLayout = if $currentLayout == "dwindle" { "scrolling" } else { "dwindle" }
-    hyprctl keyword workspace $"($workspace),layout:($nextLayout)" | ignore
-  '';
+  keybinds = import ./_keybinds.nix {
+    inherit inputs pkgs;
+  };
 in {
   nixpkgs.overlays = [
     (final: prev: {
@@ -94,13 +43,6 @@ in {
   ];
 
   programs.hyprland.package = pkgs.hyprland;
-
-  environment.systemPackages = [
-    themeSwitch
-    heliumProfile
-    windowSwitch
-    workspaceLayoutToggle
-  ];
 
   sumi.configFile = {
     "hypr/hyprland.conf" = {
