@@ -64,12 +64,12 @@
       sumi.configFile = {
         "noctalia/settings.json" = {
           watch = ["theme"];
-          value = ctx: "${builtins.toJSON (settings ctx.values.theme)}\n";
+          value = ctx: builtins.toJSON (settings ctx.values.theme);
         };
 
         "noctalia/colors.json" = {
           watch = ["theme"];
-          value = ctx: "${builtins.toJSON (colors ctx.values.theme)}\n";
+          value = ctx: builtins.toJSON (colors ctx.values.theme);
         };
       };
     };
