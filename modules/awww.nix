@@ -14,18 +14,10 @@
       package
     ];
 
-    systemd.user.services.awww = {
-      description = "awww wallpaper daemon";
-      bindsTo = ["compositor-session.target"];
-      after = ["compositor-session.target"];
-      wantedBy = ["compositor-session.target"];
-
-      serviceConfig = {
-        ExecStart = awwwDaemon;
-        ExecStartPost = "${pkgs.bash}/bin/bash ${setWallpaper}";
-        Restart = "on-failure";
-      };
-    };
+    compositor.startupCommands = [
+      awwwDaemon
+      "${pkgs.bash}/bin/bash ${setWallpaper}"
+    ];
 
     sumi.configFile."awww/set-wallpaper" = {
       watch = ["theme"];

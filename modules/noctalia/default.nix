@@ -55,7 +55,9 @@
     };
 
     config = lib.mkIf cfg.enable {
-      compositor.shell.command = lib.mkDefault (lib.getExe package);
+      compositor.startupCommands = [
+        (lib.getExe package)
+      ];
 
       environment.systemPackages = [
         package
