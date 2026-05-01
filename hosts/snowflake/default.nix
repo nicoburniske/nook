@@ -33,7 +33,6 @@
       fuzzel
       noctalia
       vlc
-      thunar
       qt
       gtk
       helix
