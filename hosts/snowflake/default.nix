@@ -40,7 +40,6 @@
       ohMyPosh
       lazygit
       codex
-      opencode
       television
       zsh
       bat

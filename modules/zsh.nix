@@ -95,7 +95,6 @@ in {
 
         shellAliases = {
           lg = "lazygit";
-          oc = "opencode";
         };
 
         autosuggestions = {
@@ -142,7 +141,6 @@ in {
           + ''
             eval "$(${pkgs.zoxide}/bin/zoxide init zsh)"
             alias lg='lazygit'
-            alias oc='opencode'
           '';
       };
   };

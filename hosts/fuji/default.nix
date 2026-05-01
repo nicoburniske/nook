@@ -29,7 +29,6 @@
       fzf
       ohMyPosh
       lazygit
-      opencode
       television
       zsh
       bat

@@ -11,11 +11,6 @@
     };
     import-tree.url = "github:vic/import-tree";
 
-    opencode = {
-      url = "github:anomalyco/opencode/dev";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     helix-steel = {
       url = "github:mattwparas/helix/steel-event-system";
       inputs.nixpkgs.follows = "nixpkgs";

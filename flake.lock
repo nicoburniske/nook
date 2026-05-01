@@ -334,27 +334,6 @@
         "type": "github"
       }
     },
-    "opencode": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1775188426,
-        "narHash": "sha256-rUjSoTPuCF2v6Tia7pu4l+t8+ayz4077Jcxt6vxqJmo=",
-        "owner": "anomalyco",
-        "repo": "opencode",
-        "rev": "500dcfc586e3787a329b51a74fec6d776d9165c1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "anomalyco",
-        "ref": "dev",
-        "repo": "opencode",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "apple-silicon": "apple-silicon",
@@ -371,7 +350,6 @@
         "nixpkgs-codex": "nixpkgs-codex",
         "nixpkgs-mesa": "nixpkgs-mesa",
         "noctalia": "noctalia",
-        "opencode": "opencode",
         "sumi": "sumi"
       }
     },
