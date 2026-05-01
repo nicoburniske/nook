@@ -1,21 +1,20 @@
 theme: let
-  c = theme.colors;
-  mkColor = value: "#${value}";
+  c = theme.colors.withHashtag;
 in {
-  mError = mkColor c.base08;
-  mOnError = mkColor c.base00;
-  mOnPrimary = mkColor c.base00;
-  mOnSecondary = mkColor c.base05;
-  mOnSurface = mkColor c.base05;
-  mOnSurfaceVariant = mkColor c.base04;
-  mOnTertiary = mkColor c.base05;
-  mOnHover = mkColor c.base05;
-  mOutline = mkColor c.base03;
-  mPrimary = mkColor c.base0C;
-  mSecondary = mkColor c.base01;
-  mShadow = mkColor c.base00;
-  mSurface = mkColor c.base00;
-  mHover = mkColor c.base01;
-  mSurfaceVariant = mkColor c.base01;
-  mTertiary = mkColor c.base03;
+  mError = c.base08;
+  mOnError = c.base00;
+  mOnPrimary = c.base00;
+  mOnSecondary = c.base05;
+  mOnSurface = c.base05;
+  mOnSurfaceVariant = c.base04;
+  mOnTertiary = c.base05;
+  mOnHover = c.base05;
+  mOutline = c.base03;
+  mPrimary = c.base0C;
+  mSecondary = c.base01;
+  mShadow = c.base00;
+  mSurface = c.base00;
+  mHover = c.base01;
+  mSurfaceVariant = c.base01;
+  mTertiary = c.base03;
 }

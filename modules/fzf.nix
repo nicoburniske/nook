@@ -11,11 +11,27 @@
       watch = ["theme"];
       value = ctx: let
         theme = ctx.values.theme;
-      in
-        with theme.colors.withHashtag; ''
-          --style=full
-          --color=bg:${base00},bg+:${base01},fg:${base04},fg+:${base06},header:${base0D},hl:${base0D},hl+:${base0D},info:${base0A},marker:${base0C},pointer:${base0C},prompt:${base0A},spinner:${base0C}
-        '';
+        colors = with theme.colors.withHashtag; {
+          bg = base00;
+          "bg+" = base01;
+          fg = base04;
+          "fg+" = base06;
+          header = base0D;
+          hl = base0D;
+          "hl+" = base0D;
+          info = base0A;
+          marker = base0C;
+          pointer = base0C;
+          prompt = base0A;
+          spinner = base0C;
+        };
+        colorOption = builtins.concatStringsSep "," (
+          pkgs.lib.mapAttrsToList (name: value: "${name}:${value}") colors
+        );
+      in ''
+        --style=full
+        --color=${colorOption}
+      '';
     };
   };
 in {
