@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  keybinds = import ./_keybinds.nix {
+  keybinds = import ./keybinds.nix {
     inherit inputs pkgs;
   };
   shellCommand = config.compositor.shell.command;
@@ -36,7 +36,7 @@ in {
       watch = ["theme"];
       value = ctx: let
         theme = ctx.values.theme;
-        t = import ./_theme.nix theme;
+        t = import ./theme.nix theme;
         cursorTheme =
           if theme.polarity == "light"
           then "phinger-cursors-dark"
