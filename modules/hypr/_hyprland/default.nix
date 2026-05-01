@@ -22,6 +22,22 @@
 
   mkBindLines = prefix: entries:
     builtins.concatStringsSep "\n" (map (entry: "${prefix}=${entry}") entries);
+  floatingWindowRules =
+    builtins.concatMap (
+      matcher:
+        map (action: "${action}, ${matcher}") [
+          "float on"
+          "center on"
+        ]
+    )
+    [
+      "match:class ^(xdg-desktop-portal-gtk)$, match:title ^(Open File|Save File|Save As).*$"
+      "match:class ^$, match:title ^(Select what to share)$"
+      "match:class ^(org\\.qbittorrent\\.qBittorrent)$, match:title ^\\[.*"
+    ]
+    ++ [
+      "size 70% 70%, match:class ^(org\\.qbittorrent\\.qBittorrent)$, match:title ^\\[.*"
+    ];
 
   keybinds = import ./_keybinds.nix {
     inherit inputs pkgs;
@@ -171,6 +187,7 @@ in {
         monitor=, preferred, auto, 1
 
         windowrule=scroll_touchpad 1.5, match:class kitty
+        ${builtins.concatStringsSep "\n" (map (rule: "windowrule=${rule}") floatingWindowRules)}
       '';
     };
   };
