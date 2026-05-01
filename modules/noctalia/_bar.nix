@@ -41,7 +41,10 @@
     right = [
       {id = "Tray";}
       {id = "NotificationHistory";}
-      {id = "Battery";}
+      {
+        id = "Battery";
+        showPowerProfiles = true;
+      }
       {
         id = "Volume";
         displayMode = "alwaysHide";

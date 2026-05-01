@@ -6,7 +6,10 @@
     ...
   }: let
     cfg = config.programs.noctalia-shell;
-    patches = [
+    sourcePatches = [
+      ./patches/power-profiles-without-performance.patch
+    ];
+    substitutions = [
       {
         file = "Commons/Style.qml";
         before = ''readonly property color capsuleBorderColor: Settings.data.bar.showOutline ? Color.mPrimary : "transparent"'';
@@ -33,15 +36,16 @@
         after = "";
       }
     ];
-    mkPatch = patch: ''
-      substituteInPlace ${lib.escapeShellArg patch.file} \
-        --replace-fail ${lib.escapeShellArg patch.before} \
-                       ${lib.escapeShellArg patch.after}
+    mkSubstitution = substitution: ''
+      substituteInPlace ${lib.escapeShellArg substitution.file} \
+        --replace-fail ${lib.escapeShellArg substitution.before} \
+                       ${lib.escapeShellArg substitution.after}
     '';
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+      patches = (old.patches or []) ++ sourcePatches;
       postPatch =
         (old.postPatch or "")
-        + lib.concatMapStrings mkPatch patches;
+        + lib.concatMapStrings mkSubstitution substitutions;
     });
     settings = import ./_settings.nix;
     colors = import ./_colors.nix;
