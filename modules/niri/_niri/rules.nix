@@ -23,6 +23,7 @@
       match app-id=r#"^pavucontrol$"#
       match app-id=r#"^nm-connection-editor$"#
       match app-id=r#"^blueman-manager$"#
+      match app-id=r#"^org\.gnome\.FileRoller$"#
       open-floating true
   }
 
