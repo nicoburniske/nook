@@ -15,6 +15,15 @@
   }
 
   window-rule {
+      match app-id=r#"^chrome-open\.spotify\.com__-Default$"#
+      opacity 0.9
+
+      background-effect {
+          blur true
+      }
+  }
+
+  window-rule {
       match app-id=r#"^org\.keepassxc\.KeePassXC$"#
       block-out-from "screencast"
   }
