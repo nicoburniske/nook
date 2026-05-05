@@ -34,7 +34,7 @@
       settings = {
         GTK.application_prefer_dark_theme = theme.polarity == "dark";
         background = {
-          path = toString theme.image;
+          path = "${theme.image}";
           fit = "Cover";
         };
         default_session = {
