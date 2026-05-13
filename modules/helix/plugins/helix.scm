@@ -8,6 +8,7 @@
 (provide shell
          git-add
          copy-location
+         copy-absolute-location
          copy-location-snippet
          copy-location-url
          toast-success

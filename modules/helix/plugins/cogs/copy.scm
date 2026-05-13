@@ -4,6 +4,7 @@
 (require-builtin helix/core/text as text.)
 
 (provide copy-location
+         copy-absolute-location
          copy-location-snippet
          copy-location-url)
 
@@ -210,6 +211,16 @@
         (copy-to-clipboard (string-append path ":" line-spec))
         (set-status! "Copied location"))
       (set-status! "copy-location requires a file-backed buffer")))
+
+;;@doc
+;; Copy absolute `path:line` reference for current cursor line or selection.
+(define (copy-absolute-location)
+  (define path (current-path))
+  (if (string? path)
+      (let ([line-spec (line-range-ref)])
+        (copy-to-clipboard (string-append path ":" line-spec))
+        (set-status! "Copied absolute location"))
+      (set-status! "copy-absolute-location requires a file-backed buffer")))
 
 ;;@doc
 ;; Copy `path:line` reference plus selected code.

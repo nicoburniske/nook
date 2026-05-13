@@ -7,12 +7,14 @@
                 (C-g ":sh kitty @ launch --copy-env --type=overlay --cwd=current --window-title=current lazygit >/dev/null")
                 (space
                   (l
+                    (a ":copy-absolute-location")
                     (r ":copy-location")
                     (s ":copy-location-snippet")
                     (u ":copy-location-url"))))
         (select
           (space
             (l
+              (a ":copy-absolute-location")
               (r ":copy-location")
               (s ":copy-location-snippet")
               (u ":copy-location-url")))))
