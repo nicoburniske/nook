@@ -34,5 +34,6 @@
     readest
     pavucontrol
     asahi-bless
+    opencode
   ];
 }
