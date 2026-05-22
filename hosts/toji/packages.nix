@@ -11,6 +11,7 @@
     marksman
     nil
     nixd
+    pulseaudio
     pavucontrol
     ripgrep
     taplo
