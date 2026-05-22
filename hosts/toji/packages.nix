@@ -20,5 +20,6 @@
     wl-clipboard
     zip
     nautilus
+    bluetui
   ];
 }
