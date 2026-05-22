@@ -1,0 +1,272 @@
+# Port of Oasis.nvim Canyon dark.
+
+# Syntax
+"attribute" = "statement"
+"type" = "type"
+"type.builtin" = "typedef"
+"type.parameter" = "parameter"
+"type.enum" = "type"
+"type.enum.variant" = "constant"
+
+"constructor" = "type"
+
+"constant" = "constant"
+"constant.builtin" = "builtin-const"
+"constant.builtin.boolean" = "constant"
+"constant.character" = "string"
+"constant.character.escape" = "special"
+"constant.numeric" = "constant"
+"constant.numeric.integer" = "constant"
+"constant.numeric.float" = "constant"
+
+"string" = "string"
+"string.regexp" = "regex"
+"string.regexp.special" = "special"
+"string.special" = "string"
+"string.special.path" = "directory"
+"string.special.symbol" = "special"
+"string.special.url" = { fg = "sky", modifiers = ["underlined"] }
+
+"comment" = { fg = "comment" }
+"comment.block.documentation" = { fg = "comment" }
+"comment.line.documentation" = { fg = "comment" }
+
+"variable" = "foreground"
+"variable.builtin" = "builtin-var"
+"variable.parameter" = "parameter"
+"variable.other.member" = "identifier"
+
+"label" = "accent"
+
+"punctuation" = "punctuation"
+"punctuation.bracket" = "bracket"
+"punctuation.delimiter" = "delimiter"
+"punctuation.special" = "delimiter"
+
+"keyword" = { fg = "statement", modifiers = ["bold"] }
+"keyword.control" = "conditional"
+"keyword.control.conditional" = "conditional"
+"keyword.control.repeat" = "conditional"
+"keyword.control.import" = "preproc"
+"keyword.control.return" = "exception"
+"keyword.control.exception" = "exception"
+"keyword.operator" = "operator"
+"keyword.directive" = "macro"
+"keyword.function" = "statement"
+"keyword.storage" = "statement"
+"keyword.storage.type" = "type"
+"keyword.storage.modifier" = "statement"
+
+"operator" = "operator"
+
+"function" = "function"
+"function.builtin" = "builtin-function"
+"function.method" = "function"
+"function.macro" = "macro"
+"function.special" = "special"
+
+"tag" = "conditional"
+"tag.builtin" = "type"
+
+"namespace" = "identifier"
+"module" = "identifier"
+"special" = "special"
+
+# Markup
+"markup.heading" = { fg = "title", modifiers = ["bold"] }
+"markup.heading.marker" = "comment"
+"markup.heading.1" = { fg = "terminal-red", modifiers = ["bold"] }
+"markup.heading.2" = { fg = "terminal-bright-yellow", modifiers = ["bold"] }
+"markup.heading.3" = { fg = "terminal-yellow", modifiers = ["bold"] }
+"markup.heading.4" = { fg = "terminal-green", modifiers = ["bold"] }
+"markup.heading.5" = { fg = "terminal-blue", modifiers = ["bold"] }
+"markup.heading.6" = { fg = "terminal-bright-cyan", modifiers = ["bold"] }
+"markup.list" = "exception"
+"markup.list.checked" = "terminal-green"
+"markup.list.unchecked" = "comment"
+"markup.bold" = { modifiers = ["bold"] }
+"markup.italic" = { modifiers = ["italic"] }
+"markup.strikethrough" = { modifiers = ["crossed_out"] }
+"markup.link.url" = { fg = "sky", modifiers = ["underlined"] }
+"markup.link.text" = "type"
+"markup.link.label" = "accent"
+"markup.quote" = { fg = "comment" }
+"markup.raw" = "string"
+"markup.raw.inline" = "string"
+"markup.raw.block" = { fg = "string", bg = "crust" }
+
+# Diff
+"diff.plus" = "diff-add"
+"diff.plus.gutter" = "git-add"
+"diff.minus" = "diff-delete"
+"diff.minus.gutter" = "git-delete"
+"diff.delta" = "git-change"
+"diff.delta.gutter" = "git-change"
+
+# UI
+"ui.background" = { fg = "foreground", bg = "background" }
+"ui.text" = "foreground"
+"ui.text.focus" = { fg = "foreground", bg = "surface", modifiers = ["bold"] }
+"ui.text.inactive" = "muted"
+"ui.text.info" = "terminal-blue"
+"ui.text.directory" = "directory"
+
+"ui.cursor" = { fg = "background", bg = "cursor" }
+"ui.cursor.normal" = { fg = "background", bg = "statement" }
+"ui.cursor.primary.normal" = { fg = "background", bg = "strong-primary", modifiers = [
+  "bold",
+] }
+"ui.cursor.insert" = { fg = "background", bg = "string" }
+"ui.cursor.primary.insert" = { fg = "background", bg = "function", modifiers = [
+  "bold",
+] }
+"ui.cursor.select" = { fg = "background", bg = "secondary" }
+"ui.cursor.primary.select" = { fg = "background", bg = "secondary", modifiers = [
+  "bold",
+] }
+"ui.cursor.match" = { fg = "match-fg", bg = "match-bg" }
+
+"ui.selection" = { bg = "surface" }
+"ui.selection.primary" = { bg = "surface" }
+"ui.cursorline" = { bg = "mantle" }
+"ui.cursorline.primary" = { bg = "mantle" }
+"ui.cursorline.secondary" = { bg = "mantle" }
+"ui.cursorcolumn.primary" = { bg = "mantle" }
+"ui.cursorcolumn.secondary" = { bg = "mantle" }
+
+"ui.gutter" = { bg = "background" }
+"ui.gutter.selected" = { bg = "mantle" }
+"ui.linenr" = { fg = "muted" }
+"ui.linenr.selected" = { fg = "line-number", modifiers = ["bold"] }
+
+"ui.statusline" = { fg = "light-primary", bg = "mantle" }
+"ui.statusline.inactive" = { fg = "muted", bg = "mantle" }
+"ui.statusline.normal" = { fg = "background", bg = "statement", modifiers = [
+  "bold",
+] }
+"ui.statusline.insert" = { fg = "background", bg = "string", modifiers = [
+  "bold",
+] }
+"ui.statusline.select" = { fg = "background", bg = "secondary", modifiers = [
+  "bold",
+] }
+"ui.statusline.separator" = { fg = "muted", bg = "mantle" }
+
+"ui.popup" = { fg = "float-fg", bg = "crust" }
+"ui.popup.info" = { fg = "float-fg", bg = "crust" }
+"ui.window" = { fg = "border" }
+"ui.background.separator" = { bg = "mantle" }
+"ui.help" = { fg = "float-fg", bg = "crust" }
+
+"ui.menu" = { fg = "float-fg", bg = "crust" }
+"ui.menu.selected" = { bg = "surface", modifiers = ["bold"] }
+"ui.menu.scroll" = { fg = "muted", bg = "crust" }
+
+"ui.bufferline" = { fg = "muted", bg = "surface" }
+"ui.bufferline.active" = { fg = "secondary", bg = "surface", modifiers = [
+  "bold",
+] }
+"ui.bufferline.background" = { bg = "surface" }
+
+"ui.virtual" = "dim"
+"ui.virtual.ruler" = { bg = "mantle" }
+"ui.virtual.whitespace" = "dim"
+"ui.virtual.indent-guide" = "dim"
+"ui.virtual.inlay-hint" = { fg = "dim" }
+"ui.virtual.inlay-hint.parameter" = { fg = "dim" }
+"ui.virtual.inlay-hint.type" = { fg = "dim" }
+"ui.virtual.wrap" = "dim"
+"ui.virtual.jump-label" = { fg = "background", bg = "strong-primary", modifiers = [
+  "bold",
+] }
+
+"ui.highlight" = { fg = "match-fg", bg = "match-bg" }
+"ui.highlight.frameline" = { bg = "surface" }
+
+# Diagnostics
+"error" = { fg = "diag-error-fg", bg = "diag-error-bg" }
+"warning" = { fg = "diag-warn-fg", bg = "diag-warn-bg" }
+"info" = { fg = "diag-info-fg", bg = "diag-info-bg" }
+"hint" = { fg = "diag-hint-fg", bg = "diag-hint-bg" }
+
+"diagnostic.error" = { underline = { color = "diag-error-fg", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "diag-warn-fg", style = "curl" } }
+"diagnostic.info" = { underline = { color = "diag-info-fg", style = "dotted" } }
+"diagnostic.hint" = { underline = { color = "diag-hint-fg", style = "dotted" } }
+"diagnostic.unnecessary" = { modifiers = ["dim"] }
+"diagnostic.deprecated" = { modifiers = ["crossed_out"] }
+
+[palette]
+background = "#261612"
+shadow = "#1C100D"
+crust = "#1F120E"
+mantle = "#35231D"
+surface = "#483228"
+
+foreground = "#F8E7D3"
+strong-foreground = "#FFD8BC"
+dim = "#857164"
+muted = "#9A6549"
+comment = "#B67E61"
+
+strong-primary = "#FFA34D"
+primary = "#FFBA75"
+light-primary = "#F9C97B"
+secondary = "#94D0FE"
+accent = "#FF9090"
+cursor = "#F0E68C"
+
+parameter = "#7FCF78"
+identifier = "#87CEEB"
+sky = "#87CEEB"
+delimiter = "#FFA34D"
+type = "#79C7BE"
+typedef = "#68C0B6"
+string = "#FFA0A0"
+regex = "#DF93B1"
+builtin-var = "#CB9EFF"
+builtin-const = "#9797E9"
+constant = "#FFA34D"
+function = "#F0E68C"
+builtin-function = "#F3EA9F"
+statement = "#F9C084"
+exception = "#FF7979"
+conditional = "#F8B471"
+special = "#D6CE7C"
+operator = "#F9C084"
+punctuation = "#F8B471"
+bracket = "#A3ABB8"
+preproc = "#FFD05C"
+macro = "#FFC43D"
+
+line-number = "#FFC43D"
+directory = "#92D3ED"
+title = "#FFBA75"
+border = "#FFA34D"
+float-fg = "#FFD8BC"
+match-bg = "#5A3824"
+match-fg = "#FFD8BC"
+search-bg = "#666666"
+
+diag-error-fg = "#FFA0A0"
+diag-error-bg = "#532E2E"
+diag-warn-fg = "#F0E68C"
+diag-warn-bg = "#4D4528"
+diag-info-fg = "#81C0FF"
+diag-info-bg = "#335668"
+diag-hint-fg = "#8FD1C7"
+diag-hint-bg = "#2B4A46"
+
+diff-add = "#1F3A2D"
+diff-change = "#483228"
+diff-delete = "#532E2E"
+git-add = "#A3E39A"
+git-change = "#F0E68C"
+git-delete = "#FFA0A0"
+
+terminal-red = "#FF7979"
+terminal-green = "#7FCF78"
+terminal-yellow = "#F0E68C"
+terminal-blue = "#81C0FF"
+terminal-bright-yellow = "#F8B471"
+terminal-bright-cyan = "#8FD1C7"

@@ -34,10 +34,10 @@
 
     sumi.configFile =
       {
-      "helix/config.toml" = {
-        watch = ["theme"];
-        value = ctx: let
-          theme = ctx.values.theme;
+        "helix/config.toml" = {
+          watch = ["theme"];
+          value = ctx: let
+            theme = ctx.values.theme;
           in
             tomlFormat.generate "sumi-helix-config-${ctx.selection.theme}.toml" {
               theme = theme.meta.helix or ctx.selection.theme;
@@ -152,8 +152,8 @@
           };
         };
 
-      "helix/plugins".value = config.lib.sumi.mkOutOfStoreSymlink "${helixRoot}/plugins";
-    }
+        "helix/plugins".value = config.lib.sumi.mkOutOfStoreSymlink "${helixRoot}/plugins";
+      }
       // builtins.listToAttrs
       (map (name: {
           name = "helix/themes/${name}.toml";
@@ -164,6 +164,7 @@
           "space-age"
           "gruvbox"
           "ashen"
+          "cano"
         ]);
 
     sumi.hook.helix = {

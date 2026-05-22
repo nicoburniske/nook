@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  # TODO: helix themes - voxed, seoul256-dark-hard, iroaseta, ashokai_brahn, autumn
+  # TODO: helix themes - voxed, seoul256-dark-hard, iroaseta, autumn, varua
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
   mkOpacity = opacity:
@@ -113,7 +113,7 @@ in {
     sharedTheme
     // {
       polarity = "light";
-      image = ../assets/wallpapers/light-painting.jpeg;
+      image = ../assets/wallpapers/hardest-road.jpg;
       meta = {
         helix = "modus";
       };
@@ -199,31 +199,31 @@ in {
     }
   );
 
-  akari = mkTheme (
+  cano = mkTheme (
     sharedTheme
     // {
       polarity = "dark";
-      image = ../assets/wallpapers/japvalley.jpg;
+      image = ../assets/wallpapers/volcano-lake.jpg;
       meta = {
-        helix = "akari-night";
+        helix = "cano";
       };
       colors = {
-        base00 = "25231f";
-        base01 = "2d2e2e";
-        base02 = "412e23";
-        base03 = "716a5f";
-        base04 = "7e93a6";
-        base05 = "e6ded3";
-        base06 = "efeae3";
-        base07 = "efeae3";
-        base08 = "d25046";
-        base09 = "e26a3b";
-        base0A = "d4a05a";
-        base0B = "7faf6a";
-        base0C = "6f8f8a";
-        base0D = "8195a8";
-        base0E = "8e7ba0";
-        base0F = "d65a3a";
+        base00 = "261612";
+        base01 = "35231d";
+        base02 = "483228";
+        base03 = "857164";
+        base04 = "b67e61";
+        base05 = "f8e7d3";
+        base06 = "ffd8bc";
+        base07 = "fff7d7";
+        base08 = "ff7979";
+        base09 = "ffa34d";
+        base0A = "f0e68c";
+        base0B = "7fcf78";
+        base0C = "68c0b6";
+        base0D = "87ceeb";
+        base0E = "ff9090";
+        base0F = "9a6549";
       };
     }
   );
