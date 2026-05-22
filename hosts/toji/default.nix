@@ -26,6 +26,7 @@
       compositor
       niri
       awww
+      lock
       greet
       kitty
       fuzzel
