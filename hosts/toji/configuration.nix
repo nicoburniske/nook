@@ -37,6 +37,14 @@ in {
 
   hardware = {
     enableRedistributableFirmware = true;
+    bluetooth.enable = true;
+    bluetooth.powerOnBoot = true;
+    bluetooth.settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+        Experimental = true;
+      };
+    };
     graphics = {
       enable = true;
       enable32Bit = true;
