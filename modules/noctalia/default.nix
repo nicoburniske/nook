@@ -8,6 +8,8 @@
     cfg = config.programs.noctalia-shell;
     sourcePatches = [
       ./patches/power-profiles-without-performance.patch
+      ./patches/asdbctl-brightness-output.patch
+      ./patches/apple-studio-xdr-model.patch
     ];
     substitutions = [
       {

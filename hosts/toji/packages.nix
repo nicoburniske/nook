@@ -1,7 +1,6 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     alejandra
-    asdbctl
     brightnessctl
     fd
     ffmpeg

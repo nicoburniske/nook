@@ -75,11 +75,6 @@ in {
   services.gvfs.enable = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
-  services.udev.extraRules = ''
-    SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="05ac", ATTRS{idProduct}=="1114", MODE="0660", TAG+="uaccess"
-    SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="05ac", ATTRS{idProduct}=="1116", MODE="0660", TAG+="uaccess"
-    SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="05ac", ATTRS{idProduct}=="1118", MODE="0660", TAG+="uaccess"
-  '';
 
   xdg.portal = {
     enable = true;
