@@ -37,7 +37,6 @@ in {
 
   hardware = {
     enableRedistributableFirmware = true;
-    i2c.enable = true;
     graphics = {
       enable = true;
       enable32Bit = true;
@@ -100,7 +99,6 @@ in {
       "video"
       "render"
       "input"
-      "i2c"
       "networkmanager"
       "users"
     ];

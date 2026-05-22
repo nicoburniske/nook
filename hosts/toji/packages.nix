@@ -3,7 +3,6 @@
     alejandra
     asdbctl
     brightnessctl
-    ddcutil
     fd
     ffmpeg
     gh
