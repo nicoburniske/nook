@@ -44,6 +44,10 @@ in ''
       focus-at-startup
   }
 
+  output "Apple Computer Inc Studio XDR 0xAB040A5A" {
+      variable-refresh-rate
+  }
+
   layout {
       gaps 5
       center-focused-column "on-overflow"
