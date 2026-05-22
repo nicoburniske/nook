@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  # TODO: helix themes - voxed, seoul256-dark-hard, iroasetau
+  # TODO: helix themes - voxed, seoul256-dark-hard, iroaseta, ashokai_brahn, autumn
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
   mkOpacity = opacity:
@@ -195,6 +195,35 @@ in {
         base0D = "4a8b8b";
         base0E = "b14242";
         base0F = "89492a";
+      };
+    }
+  );
+
+  akari = mkTheme (
+    sharedTheme
+    // {
+      polarity = "dark";
+      image = ../assets/wallpapers/japvalley.jpg;
+      meta = {
+        helix = "akari-night";
+      };
+      colors = {
+        base00 = "25231f";
+        base01 = "2d2e2e";
+        base02 = "412e23";
+        base03 = "716a5f";
+        base04 = "7e93a6";
+        base05 = "e6ded3";
+        base06 = "efeae3";
+        base07 = "efeae3";
+        base08 = "d25046";
+        base09 = "e26a3b";
+        base0A = "d4a05a";
+        base0B = "7faf6a";
+        base0C = "6f8f8a";
+        base0D = "8195a8";
+        base0E = "8e7ba0";
+        base0F = "d65a3a";
       };
     }
   );
