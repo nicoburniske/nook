@@ -2,6 +2,7 @@
   environment.systemPackages = with pkgs; [
     alejandra
     brightnessctl
+    ddcutil
     fd
     ffmpeg
     gh
