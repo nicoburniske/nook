@@ -66,9 +66,11 @@
         (inputs.import-tree ./modules)
         ./hosts/snowflake
         ./hosts/fuji
+        ./hosts/toji
       ];
 
       systems = [
+        "x86_64-linux"
         "aarch64-linux"
         "aarch64-darwin"
       ];
