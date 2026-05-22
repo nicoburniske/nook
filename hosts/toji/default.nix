@@ -3,18 +3,13 @@
   inputs,
   ...
 }: {
-  configurations.nixos.toji.module = {
-    pkgs,
-    lib,
-    ...
-  }: let
+  configurations.nixos.toji.module = {...}: let
     host = {
       name = "toji";
       user = "nico";
       homeDirectory = "/home/nico";
       flakeRoot = "/home/nico/nook";
     };
-    themes = import (inputs.self + "/common/themes.nix") {inherit pkgs lib;};
     modules = config.flake.modules.nixos;
   in {
     imports = with modules; [
@@ -50,16 +45,12 @@
 
     _module.args.host = host;
 
-    programs.noctalia-shell.enable = true;
-
-    sumi = {
-      enable = true;
-      homeDirectory = host.homeDirectory;
-      flakeRoot = host.flakeRoot;
-      facets.theme = {
-        default = "gruvbox";
-        variants = themes;
-      };
+    nook.sumi.theme.transparency = {
+      light = 1.0;
+      dark = 1.0;
+      darkOnLight = 1.0;
     };
+
+    programs.noctalia-shell.enable = true;
   };
 }

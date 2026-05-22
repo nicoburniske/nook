@@ -3,18 +3,13 @@
   inputs,
   ...
 }: {
-  configurations.nixos.snowflake.module = {
-    pkgs,
-    lib,
-    ...
-  }: let
+  configurations.nixos.snowflake.module = {...}: let
     host = {
       name = "snowflake";
       user = "nico";
       homeDirectory = "/home/nico";
       flakeRoot = "/home/nico/nook";
     };
-    themes = import (inputs.self + "/common/themes.nix") {inherit pkgs lib;};
     modules = config.flake.modules.nixos;
   in {
     imports = with modules; [
@@ -57,15 +52,5 @@
 
     programs.nix-ld.dev.enable = true;
     programs.noctalia-shell.enable = true;
-
-    sumi = {
-      enable = true;
-      homeDirectory = host.homeDirectory;
-      flakeRoot = host.flakeRoot;
-      facets.theme = {
-        default = "gruvbox";
-        variants = themes;
-      };
-    };
   };
 }

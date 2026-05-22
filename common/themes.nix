@@ -1,15 +1,15 @@
 {
   lib,
   pkgs,
+  transparency ? {
+    light = 0.90;
+    dark = 0.90;
+    darkOnLight = 0.93;
+  },
   ...
 }: let
   # TODO: helix themes - voxed, seoul256-dark-hard, iroaseta, autumn, varua
   berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
-
-  mkOpacity = opacity:
-    if pkgs.stdenv.isLinux
-    then opacity
-    else 1.0;
 
   mkTheme = base: let
     withHashtag = lib.mapAttrs (_: value: "#${value}") base.colors;
@@ -21,7 +21,7 @@
 
   sharedTheme = {
     opacity = {
-      terminal = mkOpacity 0.90;
+      terminal = transparency.dark;
     };
 
     fonts = {
@@ -117,6 +117,9 @@ in {
       meta = {
         helix = "modus";
       };
+      opacity = {
+        terminal = transparency.light;
+      };
       colors = {
         base00 = "fbf7f0";
         base01 = "f1d5d0";
@@ -145,6 +148,9 @@ in {
       image = ../assets/wallpapers/church-gentleman.jpg;
       meta = {
         helix = "melissa-light";
+      };
+      opacity = {
+        terminal = transparency.light;
       };
       colors = {
         base00 = "fff6d8";
@@ -176,7 +182,7 @@ in {
         helix = "ashen";
       };
       opacity = {
-        terminal = mkOpacity 0.93;
+        terminal = transparency.darkOnLight;
       };
       colors = {
         base00 = "121212";

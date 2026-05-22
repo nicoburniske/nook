@@ -3,18 +3,13 @@
   inputs,
   ...
 }: {
-  configurations.darwin.fuji.module = {
-    pkgs,
-    lib,
-    ...
-  }: let
+  configurations.darwin.fuji.module = {...}: let
     host = {
       name = "fuji";
       user = "nicoburniske";
       homeDirectory = "/Users/nicoburniske";
       flakeRoot = "/Users/nicoburniske/nook";
     };
-    themes = import (inputs.self + "/common/themes.nix") {inherit pkgs lib;};
     modules = config.flake.modules.darwin;
   in {
     imports = with modules; [
@@ -54,14 +49,10 @@
 
     _module.args.host = host;
 
-    sumi = {
-      enable = true;
-      homeDirectory = host.homeDirectory;
-      flakeRoot = host.flakeRoot;
-      facets.theme = {
-        default = "gruvbox";
-        variants = themes;
-      };
+    nook.sumi.theme.transparency = {
+      light = 1.0;
+      dark = 1.0;
+      darkOnLight = 1.0;
     };
   };
 }
