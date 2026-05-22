@@ -7,8 +7,10 @@
     fd
     ffmpeg
     gh
+    goverlay
     just
     lua-language-server
+    mangohud
     marksman
     nil
     nixd
