@@ -14,6 +14,8 @@
     nixd
     pulseaudio
     pavucontrol
+    phoronix-test-suite
+    vkmark
     ripgrep
     taplo
     unzip
