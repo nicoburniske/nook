@@ -49,6 +49,7 @@ in {
       enable = true;
       enable32Bit = true;
     };
+    amdgpu.overdrive.enable = true;
   };
 
   services.xserver.videoDrivers = ["amdgpu"];
@@ -75,6 +76,7 @@ in {
   services.gvfs.enable = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
+  services.lact.enable = true;
 
   xdg.portal = {
     enable = true;
