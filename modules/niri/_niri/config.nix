@@ -45,6 +45,8 @@ in ''
   }
 
   output "Apple Computer Inc Studio XDR 0xAB040A5A" {
+      mode "5120x2880@120.042"
+      scale 2
       variable-refresh-rate
   }
 
