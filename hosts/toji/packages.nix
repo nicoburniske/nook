@@ -23,5 +23,6 @@
     zip
     nautilus
     bluetui
+    qbittorrent
   ];
 }
