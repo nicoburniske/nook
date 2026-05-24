@@ -61,6 +61,7 @@ in ''
 
   Mod+O repeat=false hotkey-overlay-title="Overview" { toggle-overview; }
   Mod+I repeat=false hotkey-overlay-title="Window switcher" { spawn "${scripts.windowSwitch}/bin/niri-window-switch"; }
+  Mod+M repeat=false hotkey-overlay-title="Monitor options" { spawn "${scripts.monitorOptions}/bin/niri-monitor-options"; }
   Mod+U { focus-workspace-up; }
   Mod+D { focus-workspace-down; }
   Mod+Ctrl+U { move-column-to-workspace-up; }
