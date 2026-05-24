@@ -24,5 +24,6 @@
     nautilus
     bluetui
     qbittorrent
+    vlc
   ];
 }
