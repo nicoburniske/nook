@@ -17,6 +17,7 @@ in ''
 
   Mod+F { maximize-column; }
   Mod+G { fullscreen-window; }
+  Mod+Shift+G { toggle-windowed-fullscreen; }
   Mod+V { toggle-window-floating; }
   Mod+Shift+V { switch-focus-between-floating-and-tiling; }
   Mod+S { toggle-column-tabbed-display; }
