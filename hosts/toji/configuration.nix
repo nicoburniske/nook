@@ -62,21 +62,23 @@ in {
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    wireplumber.enable = true;
-  };
   security.rtkit.enable = true;
 
-  services.printing.enable = true;
-  services.udisks2.enable = true;
-  services.gvfs.enable = true;
-  services.upower.enable = true;
-  services.power-profiles-daemon.enable = true;
-  services.lact.enable = true;
+  services = {
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      wireplumber.enable = true;
+    };
+    printing.enable = true;
+    udisks2.enable = true;
+    gvfs.enable = true;
+    upower.enable = true;
+    power-profiles-daemon.enable = true;
+    lact.enable = true;
+  };
 
   xdg.portal = {
     enable = true;
