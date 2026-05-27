@@ -15,6 +15,7 @@
     imports = with modules; [
       ./configuration.nix
       inputs.nix-ld.nixosModules.nix-ld
+      plugdev
       sumi
       fonts
       writeNuScriptBin

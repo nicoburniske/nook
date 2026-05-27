@@ -15,6 +15,7 @@
     imports = with modules; [
       ./configuration.nix
       asdbctl
+      plugdev
       sumi
       fonts
       writeNuScriptBin

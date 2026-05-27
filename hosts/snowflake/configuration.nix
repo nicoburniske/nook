@@ -89,15 +89,6 @@ in {
     '';
   };
 
-  services.udev = {
-    enable = true;
-    extraRules = ''
-      SUBSYSTEMS=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", GROUP="plugdev", MODE="0666"
-      SUBSYSTEMS=="usb", ATTRS{idVendor}=="1307", ATTRS{idProduct}=="0165", GROUP="plugdev", MODE="0666"
-      SUBSYSTEMS=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="6124", GROUP="plugdev", MODE="0666"
-    '';
-  };
-
   services.udisks2.enable = true;
   services.gvfs.enable = true;
   services.upower.enable = true;
@@ -110,10 +101,6 @@ in {
 
   virtualisation.libvirtd.enable = true;
 
-  users.extraGroups = {
-    plugdev = {};
-  };
-
   users.users.${host.user} = {
     isNormalUser = true;
     home = host.homeDirectory;
@@ -125,7 +112,6 @@ in {
       "input"
       "networkmanager"
       "users"
-      "plugdev"
       "kvm"
       "adbusers"
     ];
