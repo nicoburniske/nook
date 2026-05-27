@@ -25,5 +25,6 @@
     bluetui
     qbittorrent
     vlc
+    yazi
   ];
 }
