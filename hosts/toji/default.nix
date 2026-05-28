@@ -42,6 +42,7 @@
       git
       cargo
       spotifyWeb
+      steam
     ];
 
     _module.args.host = host;

@@ -90,11 +90,6 @@ in {
 
   programs = {
     zsh.enable = true;
-    steam = {
-      enable = true;
-      remotePlay.openFirewall = true;
-      dedicatedServer.openFirewall = true;
-    };
   };
 
   users.users.${host.user} = {
