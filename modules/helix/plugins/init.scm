@@ -4,8 +4,12 @@
 
 (keymap (global)
         (normal (C-f ":create-file-tree")
-                (C-g ":sh kitty @ launch --copy-env --type=overlay --cwd=current --window-title=current lazygit >/dev/null")
+                (C-g lazygit)
                 (space
+                  (g
+                    (g lazygit)
+                    (s lazygit-stash)
+                    (b lazygit-blame-current-file))
                   (l
                     (a ":copy-absolute-location")
                     (r ":copy-location")

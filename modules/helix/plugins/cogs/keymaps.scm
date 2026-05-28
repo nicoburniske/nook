@@ -78,35 +78,26 @@
 
 (define-syntax #%keybindings
   (syntax-rules ()
-    [(_ conf (key (value ...) rest ...))
-     (hash-insert conf
-                  (if (string? (quote key)) (quote key) (symbol->string (quote key)))
-                  (#%keybindings (hash) (value ...) rest ...))]
+    [(_ conf) conf]
 
-    [(_ conf (key (value ...)))
-     (hash (dbg! (if (string? (quote key) (symbol->string (quote key)))))
-           (#%keybindings (hash) (value ...)))]
-
-    [(_ conf (key value))
-
-     (hash-insert conf
-                  (if (string? (quote key)) (quote key) (symbol->string (quote key)))
-                  (if (string? value) value (~>> (quote value) symbol->string (string-append ":"))))]
-
-    [(_ conf (key (value ...)) rest ...)
-
-     (#%keybindings (hash-insert conf
-                                 (if (string? (quote key)) (quote key) (symbol->string (quote key)))
-                                 (#%keybindings (hash) (value ...)))
-                    rest ...)]
+    [(_ conf (key (child ...) children ...) rest ...)
+     (#%keybindings
+      (hash-insert conf
+                   (if (string? (quote key)) (quote key) (symbol->string (quote key)))
+                   (#%keybindings (hash) (child ...) children ...))
+      rest ...)]
 
     [(_ conf (key value) rest ...)
-
      (#%keybindings
       (hash-insert conf
                    (if (string? (quote key)) (quote key) (symbol->string (quote key)))
                    (if (string? value) value (~>> (quote value) symbol->string (string-append ":"))))
-      rest ...)]))
+      rest ...)]
+
+    [(_ conf (key value))
+     (hash-insert conf
+                  (if (string? (quote key)) (quote key) (symbol->string (quote key)))
+                  (if (string? value) value (~>> (quote value) symbol->string (string-append ":"))))]))
 
 (define-syntax keymap
   (syntax-rules (global insert normal select)

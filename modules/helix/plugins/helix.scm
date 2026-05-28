@@ -3,10 +3,14 @@
 (require (prefix-in helix.static. "helix/static.scm"))
 (require "cogs/file-tree/init.scm")
 (require "cogs/copy.scm")
+(require "cogs/lazygit.scm")
 (require "cogs/toast.scm")
 
 (provide shell
          git-add
+         lazygit
+         lazygit-stash
+         lazygit-blame-current-file
          copy-location
          copy-absolute-location
          copy-location-snippet
@@ -26,9 +30,9 @@
 ;; Specialized shell implementation, where % is a wildcard for the current file.
 (define (shell . args)
   (helix.run-shell-command
-    (string-join
-      (map (lambda (x) (if (equal? x "%") (current-path) x)) args)
-      " ")))
+   (string-join
+    (map (lambda (x) (if (equal? x "%") (current-path) x)) args)
+    " ")))
 
 ;;@doc
 ;; Adds the current file to git.
