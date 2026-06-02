@@ -33,7 +33,10 @@ in {
 
   boot = {
     consoleLogLevel = 0;
-    loader.systemd-boot.enable = true;
+    loader.systemd-boot = {
+      enable = true;
+      configurationLimit = 5;
+    };
     loader.efi.canTouchEfiVariables = false;
     kernelParams = ["appledrm.show_notch=1"];
     # apple silicon uses 16K pages, so we are forcing it
