@@ -43,6 +43,7 @@
       cargo
       spotifyWeb
       steam
+      bitdo-controller
     ];
 
     _module.args.host = host;
