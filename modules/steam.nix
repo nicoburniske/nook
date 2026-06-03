@@ -1,21 +1,12 @@
 {...}: {
   flake.modules.nixos.steam = {pkgs, ...}: let
-    # Retry after restarting PipeWire if Steam exits non-zero on startup:
+    # hack for startup crash
     # https://github.com/NixOS/nixpkgs/issues/324875#issuecomment-2308355036
     steam = pkgs.steam.override (prev: {
-      extraProfile =
-        (prev.extraProfile or "")
+      extraPreBwrapCmds =
+        (prev.extraPreBwrapCmds or "")
         + ''
-          steam() {
-            if command steam "$@"; then
-              return 0
-            fi
-
-            ${pkgs.systemd}/bin/systemctl --user restart pipewire || true
-            exec steam "$@"
-          }
-
-          export -f steam
+          ${pkgs.systemd}/bin/systemctl --user restart pipewire || true
         '';
     });
   in {
