@@ -80,7 +80,7 @@ in ''
 
   animations {
       workspace-switch {
-          off
+          spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
       }
 
       horizontal-view-movement {

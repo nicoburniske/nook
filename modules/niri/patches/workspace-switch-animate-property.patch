@@ -1,0 +1,105 @@
+diff --git a/src/input/mod.rs b/src/input/mod.rs
+--- a/src/input/mod.rs
++++ b/src/input/mod.rs
+@@ -1468,16 +1468,18 @@
+ 
+                     if let Some(output) = output {
+                         self.niri.layout.focus_output(&output);
+-                        self.niri.layout.switch_workspace(index);
++                        self.niri.layout.switch_workspace_instant(index);
+                         if !self.maybe_warp_cursor_to_focus_centered() {
+                             self.move_cursor_to_output(&output);
+                         }
+                     } else {
+                         let config = &self.niri.config;
+                         if config.borrow().input.workspace_auto_back_and_forth {
+-                            self.niri.layout.switch_workspace_auto_back_and_forth(index);
++                            self.niri
++                                .layout
++                                .switch_workspace_auto_back_and_forth_instant(index);
+                         } else {
+-                            self.niri.layout.switch_workspace(index);
++                            self.niri.layout.switch_workspace_instant(index);
+                         }
+                         self.maybe_warp_cursor_to_focus();
+                     }
+diff --git a/src/layout/mod.rs b/src/layout/mod.rs
+--- a/src/layout/mod.rs
++++ b/src/layout/mod.rs
+@@ -2190,6 +2190,13 @@
+         monitor.switch_workspace(idx);
+     }
+ 
++    pub fn switch_workspace_instant(&mut self, idx: usize) {
++        let Some(monitor) = self.active_monitor() else {
++            return;
++        };
++        monitor.switch_workspace_instant(idx);
++    }
++
+     pub fn switch_workspace_auto_back_and_forth(&mut self, idx: usize) {
+         let Some(monitor) = self.active_monitor() else {
+             return;
+@@ -2197,6 +2204,13 @@
+         monitor.switch_workspace_auto_back_and_forth(idx);
+     }
+ 
++    pub fn switch_workspace_auto_back_and_forth_instant(&mut self, idx: usize) {
++        let Some(monitor) = self.active_monitor() else {
++            return;
++        };
++        monitor.switch_workspace_auto_back_and_forth_instant(idx);
++    }
++
+     pub fn switch_workspace_previous(&mut self) {
+         let Some(monitor) = self.active_monitor() else {
+             return;
+diff --git a/src/layout/monitor.rs b/src/layout/monitor.rs
+--- a/src/layout/monitor.rs
++++ b/src/layout/monitor.rs
+@@ -434,6 +434,12 @@
+         self.activate_workspace_with_anim_config(idx, None);
+     }
+ 
++    fn instant_workspace_switch_config(&self) -> niri_config::Animation {
++        let mut config = self.options.animations.workspace_switch.0;
++        config.off = true;
++        config
++    }
++
+     pub fn activate_workspace_with_anim_config(
+         &mut self,
+         idx: usize,
+@@ -1012,6 +1018,13 @@
+         self.activate_workspace(min(idx, self.workspaces.len() - 1));
+     }
+ 
++    pub fn switch_workspace_instant(&mut self, idx: usize) {
++        self.activate_workspace_with_anim_config(
++            min(idx, self.workspaces.len() - 1),
++            Some(self.instant_workspace_switch_config()),
++        );
++    }
++
+     pub fn switch_workspace_auto_back_and_forth(&mut self, idx: usize) {
+         let idx = min(idx, self.workspaces.len() - 1);
+ 
+@@ -1024,6 +1037,18 @@
+         }
+     }
+ 
++    pub fn switch_workspace_auto_back_and_forth_instant(&mut self, idx: usize) {
++        let idx = min(idx, self.workspaces.len() - 1);
++
++        if idx == self.active_workspace_idx {
++            if let Some(prev_idx) = self.previous_workspace_idx() {
++                self.switch_workspace_instant(prev_idx);
++            }
++        } else {
++            self.switch_workspace_instant(idx);
++        }
++    }
++
+     pub fn switch_workspace_previous(&mut self) {
+         if let Some(idx) = self.previous_workspace_idx() {
+             self.switch_workspace(idx);

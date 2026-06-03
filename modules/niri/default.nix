@@ -4,7 +4,14 @@
       ./_niri
     ];
 
-    programs.niri.enable = true;
+    programs.niri = {
+      enable = true;
+      package = pkgs.niri.overrideAttrs (old: {
+        patches = (old.patches or []) ++ [
+          ./patches/workspace-switch-animate-property.patch
+        ];
+      });
+    };
 
     environment.systemPackages = with pkgs; [
       phinger-cursors
