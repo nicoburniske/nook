@@ -44,6 +44,7 @@
       spotifyWeb
       steam
       bitdo-controller
+      coolercontrol
     ];
 
     _module.args.host = host;

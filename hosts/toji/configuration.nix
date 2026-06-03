@@ -89,7 +89,6 @@ in {
   };
 
   programs = {
-    coolercontrol.enable = true;
     zsh.enable = true;
   };
 
