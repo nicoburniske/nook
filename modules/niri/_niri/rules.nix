@@ -6,6 +6,12 @@
   }
 
   window-rule {
+      match app-id=r#"^steam$"#
+      match app-id=r#"^steam_app_[0-9]+$"#
+      open-on-workspace "5"
+  }
+
+  window-rule {
       match app-id=r#"^kitty$"#
       scroll-factor 1.5
 

@@ -5,6 +5,12 @@
 in ''
   ${startup}
 
+  workspace "1"
+  workspace "2"
+  workspace "3"
+  workspace "4"
+  workspace "5"
+
   environment {
       QT_QPA_PLATFORMTHEME "qt5ct"
       QT_STYLE_OVERRIDE "kvantum"
