@@ -7,14 +7,12 @@
     gh
     goverlay
     just
-    lua-language-server
     mangohud
     marksman
     nil
     nixd
     pulseaudio
     pavucontrol
-    phoronix-test-suite
     vkmark
     ripgrep
     taplo

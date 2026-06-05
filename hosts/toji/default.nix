@@ -42,6 +42,7 @@
       git
       cargo
       spotifyWeb
+      shadps4
       steam
       bitdo-controller
       coolercontrol
