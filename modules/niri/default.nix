@@ -7,9 +7,11 @@
     programs.niri = {
       enable = true;
       package = pkgs.niri.overrideAttrs (old: {
-        patches = (old.patches or []) ++ [
-          ./patches/workspace-switch-animate-property.patch
-        ];
+        patches =
+          (old.patches or [])
+          ++ [
+            ./patches/workspace-switch-animate-property.patch
+          ];
       });
     };
 
