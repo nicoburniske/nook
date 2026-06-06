@@ -1,6 +1,11 @@
 {...}: let
   writeNuScriptBinOverlay = final: prev: {
-    writeNuScriptBin = name: text:
+    writeNuScriptBin = name: source: let
+      text =
+        if builtins.typeOf source == "path"
+        then builtins.readFile source
+        else source;
+    in
       prev.writeTextFile {
         inherit name;
         executable = true;
