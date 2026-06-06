@@ -37,6 +37,7 @@ in {
 
   hardware = {
     enableRedistributableFirmware = true;
+    i2c.enable = true;
     bluetooth.enable = true;
     bluetooth.powerOnBoot = true;
     bluetooth.settings = {

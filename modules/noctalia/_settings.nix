@@ -132,6 +132,13 @@ in {
     criticalUrgencyDuration = 3;
   };
 
+  brightness = {
+    enableDdcSupport = true;
+    brightnessStep = 5;
+    enforceMinimum = true;
+    backlightDeviceMappings = [];
+  };
+
   controlCenter = {
     cards = [
       {
