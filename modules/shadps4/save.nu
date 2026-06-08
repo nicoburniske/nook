@@ -2,166 +2,15 @@ const title_id = "CUSA00900"
 const save_slot = "SPRJ0005"
 const checkpoint_prefix = "bloodborne-SPRJ0005"
 
-def active-save [] {
-  $env.HOME | path join ".local/share/shadPS4/savedata/1" $title_id $save_slot
+# show help
+export def main [] {
+  help main
 }
 
-def checkpoints-root [] {
-  $env.HOME | path join ".local/share/shadPS4/checkpoints"
-}
-
-def now-stamp [] {
-  date now | format date "%Y%m%d-%H%M%S"
-}
-
-def safe-label [label: string] {
-  $label
-    | str downcase
-    | str replace --all --regex '[^a-z0-9._-]+' '-'
-    | str trim --char '-'
-}
-
-def save-actions [] {
-  [
-    {value: "save", description: "copy the current live save with a required label"}
-    {value: "delete", description: "delete a save by numeric index"}
-    {value: "list", description: "show saves newest to oldest"}
-    {value: "restore", description: "restore a save by numeric index"}
-    {value: "paths", description: "print live save and save storage paths"}
-  ]
-}
-
-def checkpoint-records [] {
-  let root = checkpoints-root
-
-  if not ($root | path exists) {
-    return []
-  }
-
-  ls $root
-    | where type == dir
-    | where {|entry| ($entry.name | path basename) | str starts-with $"($checkpoint_prefix)-" }
-    | sort-by modified --reverse
-    | enumerate
-    | each {|row|
-        {
-          index: $row.index
-          name: ($row.item.name | path basename)
-          path: $row.item.name
-          modified: $row.item.modified
-        }
-      }
-}
-
-def save-indexes [] {
-  checkpoint-records
-    | each {|checkpoint|
-        {
-          value: ($checkpoint.index | into string)
-          description: $checkpoint.name
-        }
-      }
-}
-
-def checkpoint-time [name: string] {
-  let raw = (
-    $name
-      | str replace $"($checkpoint_prefix)-" ""
-      | str substring 0..14
-  )
-
-  try {
-    $raw
-      | into datetime --format "%Y%m%d-%H%M%S"
-      | format date "%Y-%m-%d %H:%M:%S"
-  } catch {
-    ""
-  }
-}
-
-def save-label [name: string] {
-  $name | str replace --regex '^bloodborne-SPRJ0005-[0-9]{8}-[0-9]{6}-?' ''
-}
-
-def warn-if-shadps4-running [] {
-  let emulator_names = [
-    "shadps4"
-    "shadps4-qt"
-    "shadps4-qtlauncher"
-  ]
-
-  let matches = (
-    ps
-      | where {|process|
-          let name = ($process.name | str downcase)
-          $name in $emulator_names
-        }
-  )
-
-  if ($matches | length) > 0 {
-    print "warning: shadPS4 appears to be running; save files may be changing"
-  }
-}
-
-def ensure-live-save [] {
-  let save = active-save
-
-  if not ($save | path exists) {
-    error make {
-      msg: $"active save does not exist: ($save)"
-    }
-  }
-}
-
-def resolve-index [target] {
-  if ($target | is-empty) {
-    error make {
-      msg: "target must be a numeric index from `bbsave list`"
-    }
-  }
-
-  if not ($target =~ '^[0-9]+$') {
-    error make {
-      msg: $"target must be a numeric index from `bbsave list`: ($target)"
-    }
-  }
-
-  let checkpoints = checkpoint-records
-  let index = ($target | into int)
-  let selected = ($checkpoints | where index == $index)
-
-  if ($selected | is-empty) {
-    error make {
-      msg: $"save index not found: ($target)"
-    }
-  }
-
-  $selected | first
-}
-
-def print-paths [] {
-  {
-    active_save: (active-save)
-    checkpoints: (checkpoints-root)
-  }
-}
-
-def list-checkpoints [] {
-  let checkpoints = checkpoint-records
-
-  if ($checkpoints | is-empty) {
-    print $"no saves found in (checkpoints-root)"
-    return
-  }
-
-  $checkpoints
-    | insert timestamp {|checkpoint| $"(checkpoint-time $checkpoint.name) ($checkpoint.modified)" }
-    | insert label {|checkpoint| save-label $checkpoint.name }
-    | select index timestamp label name path
-}
-
-def create-checkpoint [label] {
-  warn-if-shadps4-running
+# copy the current live save with a label
+export def "main save" [
+  label: string
+] {
   ensure-live-save
 
   let root = checkpoints-root
@@ -186,6 +35,165 @@ def create-checkpoint [label] {
   print $"save created: ($destination)"
 }
 
+# show saves newest to oldest
+export def "main list" [] {
+  let checkpoints = checkpoint-records
+
+  if ($checkpoints | is-empty) {
+    print $"no saves found in (checkpoints-root)"
+    return
+  }
+
+  $checkpoints
+    | insert timestamp {|checkpoint| $"(checkpoint-time $checkpoint.name) ($checkpoint.modified)" }
+    | insert label {|checkpoint| save-label $checkpoint.name }
+    | select index timestamp label name path
+}
+
+# restore a save by index from `bbsave list`
+export def "main restore" [
+  index: int
+] {
+  ensure-live-save
+
+  let checkpoint = resolve-index $index
+
+  rm --recursive (active-save)
+  cp --recursive $checkpoint.path (active-save)
+
+  print $"restored save ($checkpoint.index): ($checkpoint.name)"
+}
+
+# delete saves by index or inclusive ranges like `2..5`
+export def "main delete" [
+  ...targets: string
+] {
+  let checkpoints = resolve-indices $targets
+
+  if not (confirm-delete $checkpoints) {
+    print "delete cancelled"
+    return
+  }
+
+  for checkpoint in $checkpoints {
+    rm --recursive $checkpoint.path
+    print $"deleted save ($checkpoint.index): ($checkpoint.name)"
+  }
+}
+
+# print live save and checkpoint storage paths
+export def "main paths" [] {
+  {
+    active_save: (active-save)
+    checkpoints: (checkpoints-root)
+  }
+}
+
+
+def active-save [] {
+  $env.HOME | path join ".local/share/shadPS4/savedata/1" $title_id $save_slot
+}
+
+def checkpoints-root [] {
+  $env.HOME | path join ".local/share/shadPS4/checkpoints"
+}
+
+def now-stamp [] {
+  date now | format date "%Y%m%d-%H%M%S"
+}
+
+def safe-label [label: string] {
+  $label
+    | str downcase
+    | str replace --all --regex '[^a-z0-9._-]+' '-'
+    | str trim --char '-'
+}
+
+def checkpoint-records [] {
+  let root = checkpoints-root
+
+  if not ($root | path exists) {
+    return []
+  }
+
+  ls $root
+    | where type == dir
+    | where {|entry| ($entry.name | path basename) | str starts-with $"($checkpoint_prefix)-" }
+    | sort-by modified --reverse
+    | enumerate
+    | each {|row|
+        {
+          index: $row.index
+          name: ($row.item.name | path basename)
+          path: $row.item.name
+          modified: $row.item.modified
+        }
+      }
+}
+
+def checkpoint-time [name: string] {
+  let raw = (
+    $name
+      | str replace $"($checkpoint_prefix)-" ""
+      | str substring 0..14
+  )
+
+  try {
+    $raw
+      | into datetime --format "%Y%m%d-%H%M%S"
+      | format date "%Y-%m-%d %H:%M:%S"
+  } catch {
+    ""
+  }
+}
+
+def save-label [name: string] {
+  $name | str replace --regex '^bloodborne-SPRJ0005-[0-9]{8}-[0-9]{6}-?' ''
+}
+
+def ensure-live-save [] {
+  let save = active-save
+
+  if not ($save | path exists) {
+    error make {
+      msg: $"active save does not exist: ($save)"
+    }
+  }
+}
+
+def resolve-index [index: int] {
+  let checkpoints = checkpoint-records
+  let selected = ($checkpoints | where index == $index)
+
+  if ($selected | is-empty) {
+    error make {
+      msg: $"save index not found: ($index)"
+    }
+  }
+
+  $selected | first
+}
+
+def expand-index-target [target] {
+  let parts = $target | split row ".."
+
+  if (($parts | length) == 1) {
+    return [($parts | first | into int)]
+  }
+
+  let start = $parts | get 0 | into int
+  let end = $parts | get 1 | into int
+  $start..$end | each {|index| $index }
+}
+
+def resolve-indices [targets: list<string>] {
+  $targets
+    | each {|target| expand-index-target $target }
+    | flatten
+    | uniq
+    | each {|index| resolve-index $index }
+}
+
 def confirm [] {
   let answer = (
     try {
@@ -199,64 +207,18 @@ def confirm [] {
   $answer in ["y", "yes"]
 }
 
-def confirm-restore [checkpoint: record] {
-  print $"restore save ($checkpoint.index): ($checkpoint.name)"
-  print $"from: ($checkpoint.path)"
-  print $"to:   (active-save)"
+def confirm-delete [checkpoints: list<record>] {
+  if (($checkpoints | length) == 1) {
+    let checkpoint = $checkpoints | first
+    print $"delete save ($checkpoint.index): ($checkpoint.name)"
+    print $"path: ($checkpoint.path)"
+  } else {
+    print $"delete ($checkpoints | length) saves:"
 
-  confirm
-}
-
-def confirm-delete [checkpoint: record] {
-  print $"delete save ($checkpoint.index): ($checkpoint.name)"
-  print $"path: ($checkpoint.path)"
-
-  confirm
-}
-
-def restore-checkpoint [target] {
-  warn-if-shadps4-running
-  ensure-live-save
-
-  let checkpoint = resolve-index $target
-
-  if not (confirm-restore $checkpoint) {
-    print "restore cancelled"
-    return
-  }
-
-  rm --recursive (active-save)
-  cp --recursive $checkpoint.path (active-save)
-
-  print $"restored save ($checkpoint.index): ($checkpoint.name)"
-}
-
-def delete-checkpoint [target] {
-  let checkpoint = resolve-index $target
-
-  if not (confirm-delete $checkpoint) {
-    print "delete cancelled"
-    return
-  }
-
-  rm --recursive $checkpoint.path
-  print $"deleted save ($checkpoint.index): ($checkpoint.name)"
-}
-
-export def main [
-  action: string@save-actions
-  target?: string@save-indexes
-] {
-  match $action {
-    "save" => { create-checkpoint $target }
-    "delete" => { delete-checkpoint $target }
-    "list" => { list-checkpoints }
-    "paths" => { print-paths }
-    "restore" => { restore-checkpoint $target }
-    _ => {
-      error make {
-        msg: $"unknown action: ($action)"
-      }
+    for checkpoint in $checkpoints {
+      print $"  ($checkpoint.index): ($checkpoint.name)"
     }
   }
+
+  confirm
 }
