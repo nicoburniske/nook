@@ -6,6 +6,7 @@
 
     sumi.configFile = {
       "kitty/kitty.conf".value = ''
+        auto_reload_config -1
         shell_integration no-rc no-title
 
         active_tab_title_template ${tabTitle}
