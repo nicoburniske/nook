@@ -52,6 +52,7 @@
     promptInit = ''
       bindkey '^I' complete-word
       bindkey '^[[Z' autosuggest-accept
+      source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
       eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${configHome}/ohmyposh/config.json")"
     '';
   };
