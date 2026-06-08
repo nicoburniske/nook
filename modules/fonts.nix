@@ -13,14 +13,20 @@
         lib.filter (name: name != null) (map (theme: theme.fonts.${role}.name or null) themeValues)
       );
 
+    cjkFont = {
+      package = pkgs.noto-fonts-cjk-sans;
+      name = "Noto Sans CJK JP";
+    };
+
     allPackages = lib.unique (
       (rolePackages "serif")
       ++ (rolePackages "sansSerif")
       ++ (rolePackages "monospace")
       ++ (rolePackages "emoji")
+      ++ [cjkFont.package]
     );
   in {
-    inherit allPackages roleNames;
+    inherit allPackages roleNames cjkFont;
   };
 in {
   flake.modules.nixos.fonts = {
@@ -28,18 +34,18 @@ in {
     lib,
     ...
   }: let
-    fontData = mkFontData pkgs lib;
+    f = mkFontData pkgs lib;
   in {
     fonts = {
-      packages = fontData.allPackages;
+      packages = f.allPackages;
 
       fontconfig = {
         enable = true;
         defaultFonts = {
-          serif = fontData.roleNames "serif";
-          sansSerif = fontData.roleNames "sansSerif";
-          monospace = fontData.roleNames "monospace";
-          emoji = fontData.roleNames "emoji";
+          serif = (f.roleNames "serif") ++ [f.cjkFont.name];
+          sansSerif = (f.roleNames "sansSerif") ++ [f.cjkFont.name];
+          monospace = (f.roleNames "monospace") ++ [f.cjkFont.name];
+          emoji = f.roleNames "emoji";
         };
       };
     };
@@ -50,8 +56,8 @@ in {
     lib,
     ...
   }: let
-    fontData = mkFontData pkgs lib;
+    f = mkFontData pkgs lib;
   in {
-    fonts.packages = fontData.allPackages;
+    fonts.packages = f.allPackages;
   };
 }
