@@ -15,6 +15,7 @@
     imports = with modules; [
       ./configuration.nix
       asdbctl
+      docker
       plugdev
       sumi
       fonts
