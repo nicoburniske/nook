@@ -55,6 +55,13 @@ in {
 
   services.xserver.videoDrivers = ["amdgpu"];
 
+  swapDevices = [
+    {
+      device = "/var/lib/swapfile";
+      size = 32768;
+    }
+  ];
+
   networking = {
     hostName = host.name;
     networkmanager.enable = true;
