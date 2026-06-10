@@ -17,9 +17,7 @@ in ''
 
   Mod+F { maximize-column; }
   Mod+G { fullscreen-window; }
-  Mod+Shift+G { toggle-windowed-fullscreen; }
   Mod+V { toggle-window-floating; }
-  Mod+Shift+V { switch-focus-between-floating-and-tiling; }
   Mod+S { toggle-column-tabbed-display; }
 
   Mod+H { focus-column-left; }
@@ -31,34 +29,23 @@ in ''
   Mod+Up { focus-window-up; }
   Mod+Right { focus-column-right; }
 
-  Mod+Shift+H { move-column-left; }
-  Mod+Shift+J { move-window-down; }
-  Mod+Shift+K { move-window-up; }
-  Mod+Shift+L { move-column-right; }
-  Mod+Ctrl+H { move-column-left; }
-  Mod+Ctrl+J { move-window-down; }
-  Mod+Ctrl+K { move-window-up; }
-  Mod+Ctrl+L { move-column-right; }
+  Mod+Alt+H { move-column-left; }
+  Mod+Alt+J { move-window-down; }
+  Mod+Alt+K { move-window-up; }
+  Mod+Alt+L { move-column-right; }
 
   Mod+Shift+Left { focus-monitor-left; }
   Mod+Shift+Down { focus-monitor-down; }
   Mod+Shift+Up { focus-monitor-up; }
   Mod+Shift+Right { focus-monitor-right; }
-  Mod+Ctrl+Shift+Left { move-column-to-monitor-left; }
-  Mod+Ctrl+Shift+Down { move-column-to-monitor-down; }
-  Mod+Ctrl+Shift+Up { move-column-to-monitor-up; }
-  Mod+Ctrl+Shift+Right { move-column-to-monitor-right; }
 
   Mod+BracketLeft { consume-or-expel-window-left; }
   Mod+BracketRight { consume-or-expel-window-right; }
-  Mod+Comma { consume-window-into-column; }
-  Mod+Period { expel-window-from-column; }
 
   Mod+Equal { switch-preset-column-width; }
   Mod+Minus { switch-preset-column-width-back; }
-  Mod+R { switch-preset-column-width; }
+  Mod+T { switch-preset-column-width; }
   Mod+C { center-column; }
-  Mod+Ctrl+C { center-visible-columns; }
 
   Mod+O repeat=false hotkey-overlay-title="Overview" { toggle-overview; }
   Mod+I repeat=false hotkey-overlay-title="Window switcher" { spawn "${scripts.windowSwitch}/bin/window-switch"; }
@@ -81,16 +68,16 @@ in ''
   Mod+9 repeat=false { focus-workspace 9; }
   Mod+0 repeat=false { focus-workspace 10; }
 
-  Mod+Shift+1 repeat=false { move-window-to-workspace 1; }
-  Mod+Shift+2 repeat=false { move-window-to-workspace 2; }
-  Mod+Shift+3 repeat=false { move-window-to-workspace 3; }
-  Mod+Shift+4 repeat=false { move-window-to-workspace 4; }
-  Mod+Shift+5 repeat=false { move-window-to-workspace 5; }
-  Mod+Shift+6 repeat=false { move-window-to-workspace 6; }
-  Mod+Shift+7 repeat=false { move-window-to-workspace 7; }
-  Mod+Shift+8 repeat=false { move-window-to-workspace 8; }
-  Mod+Shift+9 repeat=false { move-window-to-workspace 9; }
-  Mod+Shift+0 repeat=false { move-window-to-workspace 10; }
+  Mod+Alt+1 repeat=false { move-window-to-workspace 1; }
+  Mod+Alt+2 repeat=false { move-window-to-workspace 2; }
+  Mod+Alt+3 repeat=false { move-window-to-workspace 3; }
+  Mod+Alt+4 repeat=false { move-window-to-workspace 4; }
+  Mod+Alt+5 repeat=false { move-window-to-workspace 5; }
+  Mod+Alt+6 repeat=false { move-window-to-workspace 6; }
+  Mod+Alt+7 repeat=false { move-window-to-workspace 7; }
+  Mod+Alt+8 repeat=false { move-window-to-workspace 8; }
+  Mod+Alt+9 repeat=false { move-window-to-workspace 9; }
+  Mod+Alt+0 repeat=false { move-window-to-workspace 10; }
 
   Mod+Ctrl+1 { move-column-to-workspace 1; }
   Mod+Ctrl+2 { move-column-to-workspace 2; }
@@ -103,12 +90,8 @@ in ''
   Mod+Ctrl+9 { move-column-to-workspace 9; }
   Mod+Ctrl+0 { move-column-to-workspace 10; }
 
-  Mod+WheelScrollDown cooldown-ms=140 { focus-column-right; }
-  Mod+WheelScrollUp cooldown-ms=140 { focus-column-left; }
-  Mod+Shift+WheelScrollDown cooldown-ms=140 { focus-workspace-down; }
-  Mod+Shift+WheelScrollUp cooldown-ms=140 { focus-workspace-up; }
-  Mod+Ctrl+Shift+WheelScrollDown cooldown-ms=140 { move-column-to-workspace-down; }
-  Mod+Ctrl+Shift+WheelScrollUp cooldown-ms=140 { move-column-to-workspace-up; }
+  Mod+WheelScrollDown cooldown-ms=140 { focus-workspace-down; }
+  Mod+WheelScrollUp cooldown-ms=140 { focus-workspace-up; }
 
   Mod+P { screenshot-screen; }
   Mod+Shift+P { screenshot; }
