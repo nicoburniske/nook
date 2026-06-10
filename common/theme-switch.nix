@@ -32,29 +32,30 @@
 in
   if pkgs.stdenv.isDarwin
   then
-    pkgs.writeNuScriptBin "theme-switch" ''
-      let kitten = "${pkgs.kitty}/bin/kitten"
-      let nu_bin = "${pkgs.nushell}/bin/nu"
+    pkgs.writeNuScriptBin "theme-switch" {
+      runtimeInputs = [pkgs.kitty pkgs.fzf pkgs.nushell];
+      source = ''
+        kitten quick-access-terminal --instance-group theme-selector nu -c '
+          ${loadThemes}
 
-      ^$kitten quick-access-terminal --instance-group theme-selector $nu_bin -c '
-        let fzf = "${pkgs.fzf}/bin/fzf"
+          let pick = (do {
+            $themes | fzf --prompt "Select theme: " --layout reverse --border rounded --color dark
+          } | complete)
+
+          ${applySelection}
+        '
+      '';
+    }
+  else
+    pkgs.writeNuScriptBin "theme-switch" {
+      runtimeInputs = [pkgs.fuzzel];
+      source = ''
         ${loadThemes}
 
         let pick = (do {
-          $themes | ^$fzf --prompt "Select theme: " --layout reverse --border rounded --color dark
+          $themes | fuzzel --dmenu --prompt "theme> " $"--select=($current_theme)"
         } | complete)
 
         ${applySelection}
-      '
-    ''
-  else
-    pkgs.writeNuScriptBin "theme-switch" ''
-      let fuzzel = "${pkgs.fuzzel}/bin/fuzzel"
-      ${loadThemes}
-
-      let pick = (do {
-        $themes | ^$fuzzel --dmenu --prompt "theme> " $"--select=($current_theme)"
-      } | complete)
-
-      ${applySelection}
-    ''
+      '';
+    }

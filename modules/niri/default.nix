@@ -5,16 +5,19 @@
       ./_niri/libinput-gestures.nix
     ];
 
-    programs.niri = {
-      enable = true;
-      package = pkgs.niri.overrideAttrs (old: {
-        patches =
-          (old.patches or [])
-          ++ [
-            ./patches/workspace-switch-animate-property.patch
-          ];
-      });
-    };
+    nixpkgs.overlays = [
+      (final: prev: {
+        niri = prev.niri.overrideAttrs (old: {
+          patches =
+            (old.patches or [])
+            ++ [
+              ./patches/workspace-switch-animate-property.patch
+            ];
+        });
+      })
+    ];
+
+    programs.niri.enable = true;
 
     environment.systemPackages = with pkgs; [
       phinger-cursors
