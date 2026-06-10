@@ -2,6 +2,7 @@
   flake.modules.nixos.niri = {pkgs, ...}: {
     imports = [
       ./_niri
+      ./_niri/libinput-gestures.nix
     ];
 
     programs.niri = {

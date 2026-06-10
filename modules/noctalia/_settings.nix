@@ -63,6 +63,11 @@ in {
     enableSettingsSearch = false;
     enableWindowsSearch = false;
     enableSessionSearch = false;
+    viewMode = "grid";
+    density = "comfortable";
+    iconMode = "native";
+    showCategories = true;
+    position = "center";
   };
 
   wallpaper = {
