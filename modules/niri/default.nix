@@ -21,6 +21,7 @@
 
     environment.systemPackages = with pkgs; [
       phinger-cursors
+      playerctl
       xwayland-satellite
     ];
   };

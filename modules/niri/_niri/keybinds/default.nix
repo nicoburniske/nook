@@ -125,6 +125,9 @@ in ''
   XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1.0" "@DEFAULT_SINK@" "5%-"; }
   XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_SINK@" "toggle"; }
   XF86AudioMicMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+  XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+  XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
+  XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
 
   Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 ''
