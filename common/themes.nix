@@ -84,7 +84,7 @@ in {
     sharedTheme
     // {
       polarity = "dark";
-      image = ../assets/wallpapers/space.jpg;
+      image = ../assets/wallpapers/red-dot-space.jpg;
       meta = {
         helix = "space-age";
       };
