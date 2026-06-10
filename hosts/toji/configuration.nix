@@ -51,6 +51,7 @@ in {
       enable32Bit = true;
     };
     amdgpu.overdrive.enable = true;
+    keyboard.zsa.enable = true;
   };
 
   services.xserver.videoDrivers = ["amdgpu"];
