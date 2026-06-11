@@ -16,6 +16,7 @@
       ./configuration.nix
       ./packages.nix
       sumi
+      nushell
       fonts
       writeNuScriptBin
       kitty

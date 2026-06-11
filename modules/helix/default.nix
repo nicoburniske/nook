@@ -127,6 +127,14 @@
               };
               auto-format = true;
             }
+            {
+              name = "nu";
+              formatter = {
+                command = "nufmt";
+                args = ["--stdin"];
+              };
+              auto-format = true;
+            }
           ];
 
           language-server = {

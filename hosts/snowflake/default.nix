@@ -17,6 +17,7 @@
       inputs.nix-ld.nixosModules.nix-ld
       plugdev
       sumi
+      nushell
       fonts
       writeNuScriptBin
       compositor

@@ -18,6 +18,7 @@
       docker
       plugdev
       sumi
+      nushell
       fonts
       writeNuScriptBin
       compositor
