@@ -8,9 +8,7 @@ export def main [] {
 }
 
 # copy the current live save with a label
-export def "main save" [
-  label: string
-] {
+export def "main save" [label: string] {
   ensure-live-save
 
   let root = checkpoints-root
@@ -23,9 +21,7 @@ export def "main save" [
   let normalized = (safe-label $label)
 
   if ($normalized | is-empty) {
-    error make {
-      msg: $"save label must include at least one letter or number: ($label)"
-    }
+    error make {msg: $"save label must include at least one letter or number: ($label)"}
   }
 
   let suffix = $"-($normalized)"
@@ -45,15 +41,13 @@ export def "main list" [] {
   }
 
   $checkpoints
-    | insert timestamp {|checkpoint| $"(checkpoint-time $checkpoint.name) ($checkpoint.modified)" }
-    | insert label {|checkpoint| save-label $checkpoint.name }
-    | select index timestamp label name path
+  | insert timestamp {|checkpoint| $"(checkpoint-time $checkpoint.name) ($checkpoint.modified)" }
+  | insert label {|checkpoint| save-label $checkpoint.name }
+  | select index timestamp label name path
 }
 
 # restore a save by index from `bbsave list`
-export def "main restore" [
-  index: int
-] {
+export def "main restore" [index: int] {
   ensure-live-save
 
   let checkpoint = resolve-index $index
@@ -65,9 +59,7 @@ export def "main restore" [
 }
 
 # delete saves by index or inclusive ranges like `2..5`
-export def "main delete" [
-  ...targets: string
-] {
+export def "main delete" [...targets: string] {
   let checkpoints = resolve-indices $targets
 
   if not (confirm-delete $checkpoints) {
@@ -89,7 +81,6 @@ export def "main paths" [] {
   }
 }
 
-
 def active-save [] {
   $env.HOME | path join ".local/share/shadPS4/savedata/1" $title_id $save_slot
 }
@@ -104,9 +95,9 @@ def now-stamp [] {
 
 def safe-label [label: string] {
   $label
-    | str downcase
-    | str replace --all --regex '[^a-z0-9._-]+' '-'
-    | str trim --char '-'
+  | str downcase
+  | str replace --all --regex '[^a-z0-9._-]+' '-'
+  | str trim --char '-'
 }
 
 def checkpoint-records [] {
@@ -117,11 +108,11 @@ def checkpoint-records [] {
   }
 
   ls $root
-    | where type == dir
-    | where {|entry| ($entry.name | path basename) | str starts-with $"($checkpoint_prefix)-" }
-    | sort-by modified --reverse
-    | enumerate
-    | each {|row|
+  | where type == dir
+  | where {|entry| ($entry.name | path basename) | str starts-with $"($checkpoint_prefix)-" }
+  | sort-by modified --reverse
+  | enumerate
+  | each {|row|
         {
           index: $row.index
           name: ($row.item.name | path basename)
@@ -140,8 +131,8 @@ def checkpoint-time [name: string] {
 
   try {
     $raw
-      | into datetime --format "%Y%m%d-%H%M%S"
-      | format date "%Y-%m-%d %H:%M:%S"
+    | into datetime --format "%Y%m%d-%H%M%S"
+    | format date "%Y-%m-%d %H:%M:%S"
   } catch {
     ""
   }
@@ -155,20 +146,16 @@ def ensure-live-save [] {
   let save = active-save
 
   if not ($save | path exists) {
-    error make {
-      msg: $"active save does not exist: ($save)"
-    }
+    error make {msg: $"active save does not exist: ($save)"}
   }
 }
 
 def resolve-index [index: int] {
   let checkpoints = checkpoint-records
-  let selected = ($checkpoints | where index == $index)
+  let selected = $checkpoints | where index == $index
 
   if ($selected | is-empty) {
-    error make {
-      msg: $"save index not found: ($index)"
-    }
+    error make {msg: $"save index not found: ($index)"}
   }
 
   $selected | first
@@ -177,8 +164,10 @@ def resolve-index [index: int] {
 def expand-index-target [target] {
   let parts = $target | split row ".."
 
-  if (($parts | length) == 1) {
-    return [($parts | first | into int)]
+  if ($parts | length) == 1 {
+    return [
+      ($parts | first | into int)
+    ]
   }
 
   let start = $parts | get 0 | into int
@@ -188,10 +177,10 @@ def expand-index-target [target] {
 
 def resolve-indices [targets: list<string>] {
   $targets
-    | each {|target| expand-index-target $target }
-    | flatten
-    | uniq
-    | each {|index| resolve-index $index }
+  | each {|target| expand-index-target $target }
+  | flatten
+  | uniq
+  | each {|index| resolve-index $index }
 }
 
 def confirm [] {
@@ -208,7 +197,7 @@ def confirm [] {
 }
 
 def confirm-delete [checkpoints: list<record>] {
-  if (($checkpoints | length) == 1) {
+  if ($checkpoints | length) == 1 {
     let checkpoint = $checkpoints | first
     print $"delete save ($checkpoint.index): ($checkpoint.name)"
     print $"path: ($checkpoint.path)"
