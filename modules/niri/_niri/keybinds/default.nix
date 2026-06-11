@@ -8,8 +8,7 @@
 in ''
   Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "kitty"; }
   Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "fuzzel"; }
-  Mod+B repeat=false hotkey-overlay-title="Browser" { spawn "${scripts.heliumProfile}/bin/helium-profile"; }
-  Ctrl+Mod+Space repeat=false hotkey-overlay-title="Switch theme" { spawn "${scripts.themeSwitch}/bin/theme-switch"; }
+  Mod+Ctrl+Space repeat=false hotkey-overlay-title="Scripts" { spawn "${scripts.cmd}/bin/niri-cmd"; }
 
   Ctrl+Alt+Super+L allow-inhibiting=false hotkey-overlay-title="Lock screen" { spawn "hyprlock"; }
   Ctrl+Alt+Super+Q hotkey-overlay-title="Exit niri" { quit skip-confirmation=true; }
@@ -48,8 +47,6 @@ in ''
   Mod+C { center-column; }
 
   Mod+O repeat=false hotkey-overlay-title="Overview" { toggle-overview; }
-  Mod+I repeat=false hotkey-overlay-title="Window switcher" { spawn "${scripts.windowSwitch}/bin/window-switch"; }
-  Mod+M repeat=false hotkey-overlay-title="Monitor options" { spawn "${scripts.monitorOptions}/bin/monitor-options"; }
   Mod+U { focus-workspace-up; }
   Mod+D { focus-workspace-down; }
   Mod+Ctrl+U { move-column-to-workspace-up; }

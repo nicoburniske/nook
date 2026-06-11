@@ -3,6 +3,7 @@
     imports = [
       ./_niri
       ./_niri/libinput-gestures.nix
+      ./_niri/rofi.nix
     ];
 
     nixpkgs.overlays = [
