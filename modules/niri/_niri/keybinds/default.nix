@@ -2,13 +2,13 @@
   inputs,
   pkgs,
 }: let
-  scripts = import ./scripts.nix {
+  cmd = import ./cmd.nix {
     inherit inputs pkgs;
   };
 in ''
   Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "kitty"; }
   Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "fuzzel"; }
-  Mod+Ctrl+Space repeat=false hotkey-overlay-title="Scripts" { spawn "${scripts.cmd}/bin/niri-cmd"; }
+  Mod+Ctrl+Space repeat=false hotkey-overlay-title="Scripts" { spawn "${cmd}/bin/niri-cmd"; }
 
   Ctrl+Alt+Super+L allow-inhibiting=false hotkey-overlay-title="Lock screen" { spawn "hyprlock"; }
   Ctrl+Alt+Super+Q hotkey-overlay-title="Exit niri" { quit skip-confirmation=true; }
