@@ -64,6 +64,7 @@ def list-categories [output_name: string] {
   let output = output-by-name $output_name
 
   [
+    {id: "brightness", label: "Brightness"}
     {id: "mode", label: "Mode"}
     {id: "scale", label: "Scale"}
   ]
@@ -111,6 +112,21 @@ def list-values [output_name: string, category: string] {
             value: $vrr.value
           }
         }
+  } else if $category == "brightness" {
+    [
+      "20"
+      "40"
+      "60"
+      "80"
+      "100"
+    ]
+    | each {|value|
+        action-row $"($value)%" $actions.apply {
+          output: $output_name
+          category: "brightness", 
+          value: $value
+        }
+      }
   } else {
     []
   }
@@ -127,6 +143,10 @@ def apply [output_name: string, category: string, value: string] {
     } else {
       niri msg output $output_name vrr $value | ignore
     }
+  } else if $category == "brightness" {
+    ^sh -c '
+      ddcutil setvcp 10 "$1" >/dev/null 2>&1 &
+    ' sh $value | ignore
   }
 }
 

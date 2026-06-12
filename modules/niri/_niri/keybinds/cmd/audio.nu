@@ -32,7 +32,20 @@ def handle [action: record] {
     )
     let sinks = (
       try {
-        pactl-json sinks
+        ^pw-dump
+        | from json
+        | where type == "PipeWire:Interface:Node"
+        | each {|node|
+            let props = $node.info.props
+
+            if (($props | get -o "media.class" | default "") == "Audio/Sink") {
+              {
+                name: ($props | get "node.name")
+                description: ($props | get -o "node.description" | default "")
+              }
+            }
+          }
+        | compact
       } catch { [] }
     )
 
@@ -43,11 +56,7 @@ def handle [action: record] {
         $sinks
         | sort-by description name
         | each {|sink|
-            let label = (
-              $sink.description?
-              | default ($sink.properties | get -o "device.description")
-              | clean-field $sink.name
-            )
+            let label = $sink.description | clean-field $sink.name
 
             action-row (active-label $label ($sink.name == $active)) $actions.output {sink: $sink.name}
           }

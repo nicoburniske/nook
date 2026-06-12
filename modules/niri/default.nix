@@ -18,6 +18,8 @@
       })
     ];
 
+    hardware.i2c.enable = true;
+
     programs.niri.enable = true;
 
     environment.systemPackages = with pkgs; [
