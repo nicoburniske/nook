@@ -97,11 +97,6 @@ in {
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
 
-  services.mullvad-vpn = {
-    enable = true;
-    package = pkgs.mullvad-vpn;
-  };
-
   virtualisation.libvirtd.enable = true;
 
   users.users.${host.user} = {

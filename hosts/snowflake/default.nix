@@ -48,6 +48,7 @@
       comically
       git
       cargo
+      mullvad
     ];
 
     _module.args.host = host;

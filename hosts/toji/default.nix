@@ -48,6 +48,7 @@
       steam
       bitdo-controller
       coolercontrol
+      mullvad
     ];
 
     _module.args.host = host;
