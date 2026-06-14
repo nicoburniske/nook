@@ -5,8 +5,10 @@ const prefix = "audio"
 const actions = {
   profiles: $"($prefix):profiles"
   outputs: $"($prefix):outputs"
+  volumes: $"($prefix):volumes"
   profile: $"($prefix):profile"
   output: $"($prefix):output"
+  volume: $"($prefix):volume"
 }
 
 export def entry [] {
@@ -16,6 +18,7 @@ export def entry [] {
     render: {|| render-menu "cmd > audio" [
       (action-row "profile" $actions.profiles)
       (action-row "output" $actions.outputs)
+      (action-row "volume" $actions.volumes)
     ] }
     handle: {|action| handle $action }
   }
@@ -23,7 +26,11 @@ export def entry [] {
 
 def handle [action: record] {
   if $action.kind == $actions.profiles {
-    render-menu "cmd > audio > profile" (list-profiles) {kind: "module", module: $prefix}
+    (render-menu
+      "cmd > audio > profile"
+      (list-profiles)
+      {kind: "module", module: $prefix}
+    )
   } else if $action.kind == $actions.outputs {
     let active = (
       try {
@@ -62,6 +69,15 @@ def handle [action: record] {
           }
       }
     ) {kind: "module", module: $prefix}
+  } else if $action.kind == $actions.volumes {
+    let active = current-volume
+    let prompt = if ($active | is-empty) { "cmd > audio > volume" } else { $"cmd > audio > volume (($active)%)" }
+
+    render-menu $prompt (
+      [ "0" "25" "50" "75" "100" ] | each {|volume|
+          action-row $"($volume)%" $actions.volume {volume: $volume}
+        }
+    ) {kind: "module", module: $prefix}
   } else if $action.kind == $actions.profile {
     apply-profile $action.card $action.profile
     handle {kind: $actions.profiles}
@@ -73,7 +89,19 @@ def handle [action: record] {
       | ignore
     } catch { }
     handle {kind: $actions.outputs}
+  } else if $action.kind == $actions.volume {
+    ^pactl set-sink-volume @DEFAULT_SINK@ $"($action.volume)%"
+    handle {kind: $actions.volumes}
   }
+}
+
+def current-volume [] {
+  try {
+    ^pactl get-sink-volume @DEFAULT_SINK@ err> /dev/null
+    | parse --regex '\s(?P<volume>\d+)%'
+    | get -o volume.0
+    | default ""
+  } catch { "" }
 }
 
 def list-profiles [] {

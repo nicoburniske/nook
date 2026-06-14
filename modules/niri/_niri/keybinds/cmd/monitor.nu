@@ -52,8 +52,11 @@ def handle [action: record] {
     )
   } else if $action.kind == $actions.apply {
     apply $action.output $action.category $action.value
+    let base_prompt = $"cmd > monitor > ($action.output) > ($action.category)"
+    let prompt = if $action.category == "brightness" { $"($base_prompt) (($action.value)%)" } else { $base_prompt }
+
     (render-menu
-      $"cmd > monitor > ($action.output) > ($action.category)"
+      $prompt
       (list-values $action.output $action.category)
       {kind: $actions.categories, output: $action.output}
     )
