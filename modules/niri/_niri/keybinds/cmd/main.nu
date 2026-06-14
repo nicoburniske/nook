@@ -49,6 +49,10 @@ def handle-action [action: record] {
     return
   }
 
+  if $kind == "exit" {
+    return
+  }
+
   if $kind == "module" {
     let module = modules | where prefix == $action.module | get 0
     do $module.render
@@ -76,7 +80,7 @@ def handle-action [action: record] {
 }
 
 def render-root [] {
-  rofi-header "cmd"
+  rofi-header "cmd" {back: {kind: "exit"}}
   modules | each { rofi-row $in.root-row.text $in.root-row.action } | ignore
 }
 
