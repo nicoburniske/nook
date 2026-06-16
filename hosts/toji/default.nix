@@ -46,6 +46,7 @@
       spotifyWeb
       shadps4
       steam
+      eden
       bitdo-controller
       coolercontrol
       mullvad

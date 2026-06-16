@@ -24,6 +24,5 @@
     qbittorrent
     vlc
     yazi
-    eden
   ];
 }
