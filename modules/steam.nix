@@ -1,5 +1,9 @@
 {...}: {
-  flake.modules.nixos.steam = {pkgs, ...}: let
+  flake.modules.nixos.steam = {
+    host,
+    pkgs,
+    ...
+  }: let
     # hack for startup crash
     # https://github.com/NixOS/nixpkgs/issues/324875#issuecomment-2308355036
     steam = pkgs.steam.override (prev: {
@@ -12,6 +16,7 @@
   in {
     programs.steam = {
       enable = true;
+      extest.enable = true;
       package = steam;
       remotePlay.openFirewall = true;
       dedicatedServer.openFirewall = true;
@@ -24,6 +29,9 @@
     environment.systemPackages = [
       pkgs.hidapi
     ];
+
+    hardware.uinput.enable = true;
+    users.users.${host.user}.extraGroups = ["uinput"];
 
     services.udev.extraRules = ''
       # Steam Controller / Triton firmware updater bootloader access.
