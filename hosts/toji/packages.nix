@@ -24,5 +24,6 @@
     qbittorrent
     vlc
     yazi
+    ncdu
   ];
 }
