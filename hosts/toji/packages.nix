@@ -25,5 +25,6 @@
     vlc
     yazi
     ncdu
+    opencode
   ];
 }
