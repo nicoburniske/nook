@@ -2,6 +2,8 @@
   description = "multi host nix config";
 
   inputs = {
+    self.lfs = true;
+
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
