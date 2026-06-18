@@ -9,11 +9,6 @@
 (provide file-tree-event-handler
          file-tree-render)
 
-(define (starts-with? value prefix)
-  (if (< (string-length value) (string-length prefix))
-      #f
-      (equal? (substring value 0 (string-length prefix)) prefix)))
-
 (define (tree-for-each-index func lst index)
   (if (null? lst)
       void
@@ -127,14 +122,6 @@
   (set-box! show-hidden-box (not (unbox show-hidden-box)))
   (tree-refresh! state focus-path)
   event-result/consume)
-
-(define (path-descendant-or-same? maybe-child maybe-parent)
-  (if (and (string? maybe-child) (string? maybe-parent))
-      (let ([child (path-clean maybe-child)]
-            [parent (path-clean maybe-parent)])
-        (or (path=? child parent)
-            (starts-with? child (string-append parent "/"))))
-      #f))
 
 (define (tree-clear-transfer! state)
   (set-box! (FileTreeState-transfer-path state) #f)

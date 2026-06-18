@@ -14,19 +14,6 @@
 (define (current-doc-path)
   (path-clean (editor-document->path (current-doc-id))))
 
-(define (starts-with? value prefix)
-  (if (< (string-length value) (string-length prefix))
-      #f
-      (equal? (substring value 0 (string-length prefix)) prefix)))
-
-(define (path-descendant-or-same? maybe-child maybe-parent)
-  (if (and (string? maybe-child) (string? maybe-parent))
-      (let ([child (path-clean maybe-child)]
-            [parent (path-clean maybe-parent)])
-        (or (path=? child parent)
-            (starts-with? child (string-append parent "/"))))
-      #f))
-
 (define (resolve-workspace-root)
   (define workspace (helix-find-workspace))
   (if (and (string? workspace) (not (equal? workspace "")))

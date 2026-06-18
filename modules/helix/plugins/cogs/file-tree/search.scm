@@ -28,23 +28,6 @@
                #t
                (loop (+ index 1)))))]))
 
-(define (tree-search-cursor-clamped state)
-  (tree-clamp (unbox (FileTreeState-search-cursor state))
-              0
-              (string-length (unbox (FileTreeState-search-query state)))))
-
-(define (tree-string-insert-at value index fragment)
-  (define clamped-index (tree-clamp index 0 (string-length value)))
-  (string-append (substring value 0 clamped-index)
-                 fragment
-                 (substring value clamped-index (string-length value))))
-
-(define (tree-string-remove-at value index)
-  (if (or (< index 0) (>= index (string-length value)))
-      value
-      (string-append (substring value 0 index)
-                     (substring value (+ index 1) (string-length value)))))
-
 (define (tree-search-entry-matches? entry query-lower)
   (if (= (string-length query-lower) 0)
       #f
@@ -113,24 +96,6 @@
         0))
   (string-append "[" (number->string active) "/" (number->string count) "]"))
 
-(define (tree-search-visible-state state max-width)
-  (if (<= max-width 0)
-      (list "" 0)
-      (let* ([query (unbox (FileTreeState-search-query state))]
-             [cursor (tree-search-cursor-clamped state)]
-             [text-room (max 0 (- max-width 1))]
-             [max-start (max 0 (- (string-length query) text-room))]
-             [window-start (if (< cursor text-room)
-                               0
-                               (- cursor (- text-room 1)))]
-             [window-start (tree-clamp window-start 0 max-start)]
-             [window-end (min (string-length query) (+ window-start text-room))]
-             [visible-text (substring query window-start window-end)]
-             [cursor-col (tree-clamp (- cursor window-start)
-                                     0
-                                     (max 0 (- max-width 1)))])
-        (list visible-text cursor-col))))
-
 (define (tree-search-input-visible? state)
   (unbox (FileTreeState-search-visible state)))
 
@@ -138,12 +103,11 @@
   (unbox (FileTreeState-search-focused state)))
 
 (define (tree-search-open! state)
+  (define query-box (FileTreeState-search-query state))
+  (define cursor-box (FileTreeState-search-cursor state))
   (set-box! (FileTreeState-search-visible state) #t)
   (set-box! (FileTreeState-search-focused state) #t)
-  (set-box! (FileTreeState-search-cursor state)
-            (tree-clamp (unbox (FileTreeState-search-cursor state))
-                        0
-                        (string-length (unbox (FileTreeState-search-query state))))))
+  (set-box! cursor-box (tree-text-cursor-clamped query-box cursor-box)))
 
 (define (tree-search-clear! state)
   (set-box! (FileTreeState-search-visible state) #f)
@@ -159,76 +123,41 @@
 (define (tree-search-jump-prev! state)
   (tree-search-jump! state -1))
 
-(define (tree-search-input-backspace! state)
-  (define query-box (FileTreeState-search-query state))
-  (define cursor-box (FileTreeState-search-cursor state))
-  (define query (unbox query-box))
-  (define cursor (tree-search-cursor-clamped state))
-  (set-box! cursor-box cursor)
-  (when (> cursor 0)
-    (set-box! query-box (tree-string-remove-at query (- cursor 1)))
-    (set-box! cursor-box (- cursor 1))))
-
-(define (tree-search-input-delete-forward! state)
-  (define query-box (FileTreeState-search-query state))
-  (define cursor-box (FileTreeState-search-cursor state))
-  (define query (unbox query-box))
-  (define cursor (tree-search-cursor-clamped state))
-  (set-box! cursor-box cursor)
-  (when (< cursor (string-length query))
-    (set-box! query-box (tree-string-remove-at query cursor))))
-
-(define (tree-search-input-append-char! state ch)
-  (define query-box (FileTreeState-search-query state))
-  (define cursor-box (FileTreeState-search-cursor state))
-  (define query (unbox query-box))
-  (define cursor (tree-search-cursor-clamped state))
-  (set-box! query-box (tree-string-insert-at query cursor (string ch)))
-  (set-box! cursor-box (+ cursor 1)))
-
-(define (tree-search-input-move-cursor! state delta)
-  (define max-cursor (string-length (unbox (FileTreeState-search-query state))))
-  (set-box! (FileTreeState-search-cursor state)
-            (tree-clamp (+ (tree-search-cursor-clamped state) delta) 0 max-cursor)))
-
 (define (tree-search-input-event-handler state event)
   (define char (key-event-char event))
-  (define modifier (key-event-modifier event))
+  (define query-box (FileTreeState-search-query state))
+  (define cursor-box (FileTreeState-search-cursor state))
   (cond
     [(key-event-enter? event)
      (tree-search-commit! state)
      event-result/consume]
 
     [(key-event-backspace? event)
-     (tree-search-input-backspace! state)
+     (tree-text-backspace! query-box cursor-box)
      event-result/consume]
 
     [(key-event-delete? event)
-     (tree-search-input-delete-forward! state)
+     (tree-text-delete-forward! query-box cursor-box)
      event-result/consume]
 
     [(key-event-left? event)
-     (tree-search-input-move-cursor! state -1)
+     (tree-text-move-cursor! query-box cursor-box -1)
      event-result/consume]
 
     [(key-event-right? event)
-     (tree-search-input-move-cursor! state 1)
+     (tree-text-move-cursor! query-box cursor-box 1)
      event-result/consume]
 
     [(key-event-home? event)
-     (set-box! (FileTreeState-search-cursor state) 0)
+     (set-box! cursor-box 0)
      event-result/consume]
 
     [(key-event-end? event)
-     (set-box! (FileTreeState-search-cursor state)
-               (string-length (unbox (FileTreeState-search-query state))))
+     (set-box! cursor-box (string-length (unbox query-box)))
      event-result/consume]
 
-    [(and (char? char)
-          (not (equal? modifier key-modifier-ctrl))
-          (not (equal? modifier key-modifier-alt))
-          (not (equal? modifier key-modifier-super)))
-     (tree-search-input-append-char! state char)
+    [(tree-event-plain-char? event)
+     (tree-text-append-char! query-box cursor-box char)
      event-result/consume]
 
     [else event-result/consume-without-rerender]))
@@ -258,7 +187,9 @@
     (define inner-width (max 1 (- overlay-width 2)))
     (define search-status search-ratio)
     (define query-width (max 1 (- inner-width (string-length search-prefix) (string-length search-status) 1)))
-    (define query-state (tree-search-visible-state state query-width))
+    (define query-box (FileTreeState-search-query state))
+    (define cursor-box (FileTreeState-search-cursor state))
+    (define query-state (tree-text-visible-state query-box cursor-box query-width))
     (define query-visible (list-ref query-state 0))
     (define query-cursor-col (list-ref query-state 1))
     (define line-y (+ overlay-y 1))

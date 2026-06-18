@@ -87,18 +87,6 @@
                                  rename-cursor))
       event-result/consume))
 
-(define (string-insert-at value index fragment)
-  (define clamped-index (tree-clamp index 0 (string-length value)))
-  (string-append (substring value 0 clamped-index)
-                 fragment
-                 (substring value clamped-index (string-length value))))
-
-(define (string-remove-at value index)
-  (if (or (< index 0) (>= index (string-length value)))
-      value
-      (string-append (substring value 0 index)
-                     (substring value (+ index 1) (string-length value)))))
-
 (define (tree-submit-create-input! state modal)
   (define result (unbox (FileTreeInputModalState-input modal)))
   (define prefix (FileTreeInputModalState-prefix modal))
@@ -162,73 +150,10 @@
       (tree-submit-rename-input! state modal)
       (tree-submit-create-input! state modal)))
 
-(define (tree-input-modal-cursor-clamped modal)
-  (tree-clamp (unbox (FileTreeInputModalState-cursor modal))
-               0
-               (string-length (unbox (FileTreeInputModalState-input modal)))))
-
-(define (tree-input-modal-backspace! modal)
-  (define cursor-box (FileTreeInputModalState-cursor modal))
-  (define input-box (FileTreeInputModalState-input modal))
-  (define input (unbox input-box))
-  (define cursor (tree-input-modal-cursor-clamped modal))
-  (set-box! cursor-box cursor)
-  (when (> cursor 0)
-    (set-box! input-box (string-remove-at input (- cursor 1)))
-    (set-box! cursor-box (- cursor 1))))
-
-(define (tree-input-modal-delete-forward! modal)
-  (define cursor-box (FileTreeInputModalState-cursor modal))
-  (define input-box (FileTreeInputModalState-input modal))
-  (define input (unbox input-box))
-  (define cursor (tree-input-modal-cursor-clamped modal))
-  (set-box! cursor-box cursor)
-  (when (< cursor (string-length input))
-    (set-box! input-box (string-remove-at input cursor))))
-
-(define (tree-input-modal-append-char! modal ch)
-  (define cursor-box (FileTreeInputModalState-cursor modal))
-  (define input-box (FileTreeInputModalState-input modal))
-  (define input (unbox input-box))
-  (define cursor (tree-input-modal-cursor-clamped modal))
-  (set-box! cursor-box cursor)
-  (set-box! input-box (string-insert-at input cursor (string ch)))
-  (set-box! cursor-box (+ cursor 1)))
-
-(define (tree-input-modal-move-cursor! modal delta)
-  (define cursor-box (FileTreeInputModalState-cursor modal))
-  (define cursor (tree-input-modal-cursor-clamped modal))
-  (define max-cursor (string-length (unbox (FileTreeInputModalState-input modal))))
-  (set-box! cursor-box (tree-clamp (+ cursor delta) 0 max-cursor)))
-
-(define (tree-input-modal-move-home! modal)
-  (set-box! (FileTreeInputModalState-cursor modal) 0))
-
-(define (tree-input-modal-move-end! modal)
-  (set-box! (FileTreeInputModalState-cursor modal)
-            (string-length (unbox (FileTreeInputModalState-input modal)))))
-
-(define (tree-input-modal-visible-state modal max-width)
-  (if (<= max-width 0)
-      (list "" 0)
-      (let* ([input (unbox (FileTreeInputModalState-input modal))]
-             [cursor (tree-input-modal-cursor-clamped modal)]
-             [text-room (max 0 (- max-width 1))]
-             [max-start (max 0 (- (string-length input) text-room))]
-             [window-start (if (< cursor text-room)
-                               0
-                               (- cursor (- text-room 1)))]
-             [window-start (tree-clamp window-start 0 max-start)]
-             [window-end (min (string-length input) (+ window-start text-room))]
-             [visible-text (substring input window-start window-end)]
-             [cursor-col (tree-clamp (- cursor window-start)
-                                      0
-                                      (max 0 (- max-width 1)))])
-        (list visible-text cursor-col))))
-
 (define (file-tree-input-modal-event-handler modal event)
   (define char (key-event-char event))
-  (define modifier (key-event-modifier event))
+  (define input-box (FileTreeInputModalState-input modal))
+  (define cursor-box (FileTreeInputModalState-cursor modal))
   (cond
     [(key-event-escape? event)
      event-result/close]
@@ -238,34 +163,31 @@
      event-result/close]
 
     [(key-event-backspace? event)
-     (tree-input-modal-backspace! modal)
+     (tree-text-backspace! input-box cursor-box)
      event-result/consume]
 
     [(key-event-delete? event)
-     (tree-input-modal-delete-forward! modal)
+     (tree-text-delete-forward! input-box cursor-box)
      event-result/consume]
 
     [(key-event-left? event)
-     (tree-input-modal-move-cursor! modal -1)
+     (tree-text-move-cursor! input-box cursor-box -1)
      event-result/consume]
 
     [(key-event-right? event)
-     (tree-input-modal-move-cursor! modal 1)
+     (tree-text-move-cursor! input-box cursor-box 1)
      event-result/consume]
 
     [(key-event-home? event)
-     (tree-input-modal-move-home! modal)
+     (set-box! cursor-box 0)
      event-result/consume]
 
     [(key-event-end? event)
-     (tree-input-modal-move-end! modal)
+     (set-box! cursor-box (string-length (unbox input-box)))
      event-result/consume]
 
-    [(and (char? char)
-          (not (equal? modifier key-modifier-ctrl))
-          (not (equal? modifier key-modifier-alt))
-          (not (equal? modifier key-modifier-super)))
-     (tree-input-modal-append-char! modal char)
+    [(tree-event-plain-char? event)
+     (tree-text-append-char! input-box cursor-box char)
      event-result/consume]
 
     [else event-result/consume-without-rerender]))
@@ -296,7 +218,9 @@
   (define input-box-height 3)
   (define input-box-area (area input-box-x input-box-y input-box-width input-box-height))
   (define input-width (max 1 (- input-box-width 2)))
-  (define input-state (tree-input-modal-visible-state modal input-width))
+  (define modal-input-box (FileTreeInputModalState-input modal))
+  (define modal-cursor-box (FileTreeInputModalState-cursor modal))
+  (define input-state (tree-text-visible-state modal-input-box modal-cursor-box input-width))
   (define input-content (list-ref input-state 0))
   (define cursor-col (list-ref input-state 1))
   (define input-x (+ input-box-x 1))

@@ -37,12 +37,21 @@
          tree-ensure-window!
          tree-current-entry
          tree-selected-base-path
-         tree-refresh-when
-         shell-escape
-         path-parent
-         file-directory
-         path-clean
-         path=?)
+          tree-refresh-when
+          path-descendant-or-same?
+          tree-event-plain-char?
+          tree-text-cursor-clamped
+          tree-text-remove-at
+          tree-text-backspace!
+          tree-text-delete-forward!
+          tree-text-append-char!
+          tree-text-move-cursor!
+          tree-text-visible-state
+          shell-escape
+          path-parent
+          file-directory
+          path-clean
+          path=?)
 
 ;;; -----------------------------------------------------------------
 ;;; Merge two lists of numbers which are already in increasing order
@@ -184,6 +193,83 @@
 
 (define (tree-clamp value lower upper)
   (max lower (min upper value)))
+
+(define (path-descendant-or-same? maybe-child maybe-parent)
+  (if (and (string? maybe-child) (string? maybe-parent))
+      (let ([child (path-clean maybe-child)]
+            [parent (path-clean maybe-parent)])
+        (define child-prefix (string-append parent "/"))
+        (or (path=? child parent)
+            (and (>= (string-length child) (string-length child-prefix))
+                 (equal? (substring child 0 (string-length child-prefix)) child-prefix))))
+      #f))
+
+(define (tree-event-plain-char? event)
+  (define char (key-event-char event))
+  (define modifier (key-event-modifier event))
+  (and (char? char)
+       (not (equal? modifier key-modifier-ctrl))
+       (not (equal? modifier key-modifier-alt))
+       (not (equal? modifier key-modifier-super))))
+
+(define (tree-text-cursor-clamped input-box cursor-box)
+  (tree-clamp (unbox cursor-box) 0 (string-length (unbox input-box))))
+
+(define (tree-text-remove-at value index)
+  (if (or (< index 0) (>= index (string-length value)))
+      value
+      (string-append (substring value 0 index)
+                     (substring value (+ index 1) (string-length value)))))
+
+(define (tree-text-backspace! input-box cursor-box)
+  (define input (unbox input-box))
+  (define cursor (tree-text-cursor-clamped input-box cursor-box))
+  (set-box! cursor-box cursor)
+  (when (> cursor 0)
+    (set-box! input-box (tree-text-remove-at input (- cursor 1)))
+    (set-box! cursor-box (- cursor 1))))
+
+(define (tree-text-delete-forward! input-box cursor-box)
+  (define input (unbox input-box))
+  (define cursor (tree-text-cursor-clamped input-box cursor-box))
+  (set-box! cursor-box cursor)
+  (when (< cursor (string-length input))
+    (set-box! input-box (tree-text-remove-at input cursor))))
+
+(define (tree-text-append-char! input-box cursor-box ch)
+  (define input (unbox input-box))
+  (define cursor (tree-text-cursor-clamped input-box cursor-box))
+  (set-box! cursor-box cursor)
+  (set-box! input-box
+            (string-append (substring input 0 cursor)
+                           (string ch)
+                           (substring input cursor (string-length input))))
+  (set-box! cursor-box (+ cursor 1)))
+
+(define (tree-text-move-cursor! input-box cursor-box delta)
+  (define max-cursor (string-length (unbox input-box)))
+  (set-box! cursor-box
+            (tree-clamp (+ (tree-text-cursor-clamped input-box cursor-box) delta)
+                        0
+                        max-cursor)))
+
+(define (tree-text-visible-state input-box cursor-box max-width)
+  (if (<= max-width 0)
+      (list "" 0)
+      (let* ([input (unbox input-box)]
+             [cursor (tree-text-cursor-clamped input-box cursor-box)]
+             [text-room (max 0 (- max-width 1))]
+             [max-start (max 0 (- (string-length input) text-room))]
+             [window-start (if (< cursor text-room)
+                               0
+                               (- cursor (- text-room 1)))]
+             [window-start (tree-clamp window-start 0 max-start)]
+             [window-end (min (string-length input) (+ window-start text-room))]
+             [visible-text (substring input window-start window-end)]
+             [cursor-col (tree-clamp (- cursor window-start)
+                                     0
+                                     (max 0 (- max-width 1)))])
+        (list visible-text cursor-col))))
 
 (define (tree-center-offset outer-size inner-size)
   (max 0 (exact (round (/ (- outer-size inner-size) 2)))))
