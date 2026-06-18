@@ -37,6 +37,7 @@
       helix
       helium
       spotifyWeb
+      roamWeb
       fzf
       ohMyPosh
       lazygit

@@ -1,13 +1,18 @@
 {...}: {
-  flake.modules.nixos.spotifyWeb = {pkgs, ...}: let
+  flake.modules.nixos.spotifyWeb = {
+    host,
+    pkgs,
+    ...
+  }: let
     chromium = pkgs.chromium.override {
       enableWideVine = true;
     };
 
-    spotifyWeb = pkgs.writeShellScriptBin "spotify-web" ''
-      exec ${chromium}/bin/chromium \
-        --user-data-dir="$HOME/.config/spotify-web" \
-        --app="https://open.spotify.com"
+    spotifyWeb = pkgs.runCommand "spotify-web" {nativeBuildInputs = [pkgs.makeBinaryWrapper];} ''
+      mkdir -p $out/bin
+      makeBinaryWrapper ${chromium}/bin/chromium $out/bin/spotify-web \
+        --add-flags "--user-data-dir=${host.homeDirectory}/.config/spotify-web" \
+        --add-flags "--app=https://open.spotify.com"
     '';
 
     spotifyDesktop = pkgs.makeDesktopItem {

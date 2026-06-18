@@ -44,6 +44,7 @@
       git
       cargo
       spotifyWeb
+      roamWeb
       shadps4
       steam
       eden
