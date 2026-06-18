@@ -79,12 +79,12 @@
                   last-dot-index
                   name-length)])
         (tree-open-input-modal! state
-                                 'rename
-                                 "rename"
-                                 prefix
-                                 source-name
-                                 source
-                                 rename-cursor))
+                                'rename
+                                "rename"
+                                prefix
+                                source-name
+                                source
+                                rename-cursor))
       event-result/consume))
 
 (define (tree-submit-create-input! state modal)
@@ -138,11 +138,11 @@
                  (unbox (FileTreeState-root state))
                  destination))
       (tree-refresh-when state
-                           destination
-                           (lambda (path)
-                            (and (path-exists? path)
-                                 (not (path-exists? source))))
-                          destination))))
+                         destination
+                         (lambda (path)
+                           (and (path-exists? path)
+                                (not (path-exists? source))))
+                         destination))))
 
 (define (tree-submit-input-modal! modal)
   (define state (FileTreeInputModalState-tree-state modal))
@@ -155,42 +155,42 @@
   (define input-box (FileTreeInputModalState-input modal))
   (define cursor-box (FileTreeInputModalState-cursor modal))
   (cond
-    [(key-event-escape? event)
-     event-result/close]
+   [(key-event-escape? event)
+    event-result/close]
 
-    [(key-event-enter? event)
-     (tree-submit-input-modal! modal)
-     event-result/close]
+   [(key-event-enter? event)
+    (tree-submit-input-modal! modal)
+    event-result/close]
 
-    [(key-event-backspace? event)
-     (tree-text-backspace! input-box cursor-box)
-     event-result/consume]
+   [(key-event-backspace? event)
+    (tree-text-backspace! input-box cursor-box)
+    event-result/consume]
 
-    [(key-event-delete? event)
-     (tree-text-delete-forward! input-box cursor-box)
-     event-result/consume]
+   [(key-event-delete? event)
+    (tree-text-delete-forward! input-box cursor-box)
+    event-result/consume]
 
-    [(key-event-left? event)
-     (tree-text-move-cursor! input-box cursor-box -1)
-     event-result/consume]
+   [(key-event-left? event)
+    (tree-text-move-cursor! input-box cursor-box -1)
+    event-result/consume]
 
-    [(key-event-right? event)
-     (tree-text-move-cursor! input-box cursor-box 1)
-     event-result/consume]
+   [(key-event-right? event)
+    (tree-text-move-cursor! input-box cursor-box 1)
+    event-result/consume]
 
-    [(key-event-home? event)
-     (set-box! cursor-box 0)
-     event-result/consume]
+   [(key-event-home? event)
+    (set-box! cursor-box 0)
+    event-result/consume]
 
-    [(key-event-end? event)
-     (set-box! cursor-box (string-length (unbox input-box)))
-     event-result/consume]
+   [(key-event-end? event)
+    (set-box! cursor-box (string-length (unbox input-box)))
+    event-result/consume]
 
-    [(tree-event-plain-char? event)
-     (tree-text-append-char! input-box cursor-box char)
-     event-result/consume]
+   [(tree-event-plain-char? event)
+    (tree-text-append-char! input-box cursor-box char)
+    event-result/consume]
 
-    [else event-result/consume-without-rerender]))
+   [else event-result/consume-without-rerender]))
 
 (define (file-tree-input-modal-render modal rect frame)
   (define tree-area (tree-popup-area rect))
@@ -209,7 +209,7 @@
   (define input-cursor-style (style-with-reversed row-style))
   (define input-title
     (tree-truncate (FileTreeInputModalState-title modal)
-                    (max 1 (- inner-width 8))))
+                   (max 1 (- inner-width 8))))
   (define action (tree-input-modal-action-label modal))
   (define footer-text (tree-truncate (string-append "[Enter] " action " [Esc] cancel") inner-width))
   (define input-box-x (+ modal-x 2))
@@ -231,7 +231,7 @@
         (substring input-content cursor-col (+ cursor-col 1))
         " "))
   (define titled-border (tree-truncate (string-append " " input-title " ")
-                                        (max 1 (- input-box-width 4))))
+                                       (max 1 (- input-box-width 4))))
   (define border-title-x (+ input-box-x 2))
   (define (centered-col text)
     (tree-center-x (+ modal-x 1) inner-width (string-length text)))

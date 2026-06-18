@@ -152,10 +152,10 @@
 (define (resolve-git-dir workspace)
   (define dotgit (string-append workspace "/.git"))
   (cond
-    [(is-dir? dotgit) dotgit]
-    [(path-exists? dotgit)
-     (extract-gitdir-from-dotgit workspace)]
-    [else #f]))
+   [(is-dir? dotgit) dotgit]
+   [(path-exists? dotgit)
+    (extract-gitdir-from-dotgit workspace)]
+   [else #f]))
 
 (define (strip-git-suffix url)
   (trim-end-matches url ".git"))
@@ -179,17 +179,17 @@
         (let* ([line (car rest)]
                [trimmed (trim-left-whitespace line)])
           (cond
-            [(starts-with? trimmed "[")
-             (loop (cdr rest) (equal? trimmed "[remote \"origin\"]"))]
-            [in-origin
-             (if (starts-with? trimmed "url")
-                 (let* ([after-key (trim-left-whitespace (trim-start-matches trimmed "url"))]
-                        [after-equals (trim-left-whitespace (trim-start-matches after-key "="))])
-                   (if (equal? after-equals after-key)
-                       (loop (cdr rest) in-origin)
-                       (trim-whitespace after-equals)))
-                 (loop (cdr rest) in-origin))]
-            [else (loop (cdr rest) in-origin)]))))
+           [(starts-with? trimmed "[")
+            (loop (cdr rest) (equal? trimmed "[remote \"origin\"]"))]
+           [in-origin
+            (if (starts-with? trimmed "url")
+                (let* ([after-key (trim-left-whitespace (trim-start-matches trimmed "url"))]
+                       [after-equals (trim-left-whitespace (trim-start-matches after-key "="))])
+                  (if (equal? after-equals after-key)
+                      (loop (cdr rest) in-origin)
+                      (trim-whitespace after-equals)))
+                (loop (cdr rest) in-origin))]
+           [else (loop (cdr rest) in-origin)]))))
   (loop lines #f))
 
 (define (extract-branch-name head-content)

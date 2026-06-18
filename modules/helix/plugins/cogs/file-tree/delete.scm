@@ -27,27 +27,27 @@
 (define (tree-delete-confirm-event-handler state event)
   (define char (key-event-char event))
   (cond
-    [(key-event-escape? event)
-     (tree-close-delete-confirm! state)
-     event-result/close]
+   [(key-event-escape? event)
+    (tree-close-delete-confirm! state)
+    event-result/close]
 
-    [(and (char? char)
-          (or (equal? char #\n)
-              (equal? char #\N)))
-     (tree-close-delete-confirm! state)
-     event-result/close]
+   [(and (char? char)
+         (or (equal? char #\n)
+             (equal? char #\N)))
+    (tree-close-delete-confirm! state)
+    event-result/close]
 
-    [(key-event-enter? event)
-     (tree-confirm-delete! state)
-     event-result/close]
+   [(key-event-enter? event)
+    (tree-confirm-delete! state)
+    event-result/close]
 
-    [(and (char? char)
-          (or (equal? char #\y)
-              (equal? char #\Y)))
-     (tree-confirm-delete! state)
-     event-result/close]
+   [(and (char? char)
+         (or (equal? char #\y)
+             (equal? char #\Y)))
+    (tree-confirm-delete! state)
+    event-result/close]
 
-    [else event-result/consume-without-rerender]))
+   [else event-result/consume-without-rerender]))
 
 (define (tree-delete-confirm-render state rect frame)
   (define target (unbox (FileTreeState-delete-confirm-path state)))

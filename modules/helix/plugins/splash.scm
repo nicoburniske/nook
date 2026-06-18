@@ -14,7 +14,7 @@
         (splash-for-each-index func (cdr lst) (+ index 1)))))
 
 
-                                        
+
 (define splash-logo
   "
  .

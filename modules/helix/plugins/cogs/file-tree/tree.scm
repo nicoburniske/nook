@@ -100,12 +100,12 @@
             (let* ([parent (if directory? (path-parent target) (file-directory target))]
                    [root (unbox (FileTreeState-root state))])
               (cond
-                [(or (not (string? parent)) (path=? parent target)) event-result/consume]
-                [(path=? parent root)
-                 (tree-reroot-to-parent! state target)]
-                [else
-                 (tree-refresh! state parent)
-                 event-result/consume]))))))
+               [(or (not (string? parent)) (path=? parent target)) event-result/consume]
+               [(path=? parent root)
+                (tree-reroot-to-parent! state target)]
+               [else
+                (tree-refresh! state parent)
+                event-result/consume]))))))
 
 (define (tree-search-selected-directory! state)
   (define entry (tree-current-entry state))
@@ -155,19 +155,19 @@
 
 (define (tree-transfer-style-kind transfer-kind)
   (cond
-    [(equal? transfer-kind 'move) 'move]
-    [(equal? transfer-kind 'copy) 'copy]
-    [else #f]))
+   [(equal? transfer-kind 'move) 'move]
+   [(equal? transfer-kind 'copy) 'copy]
+   [else #f]))
 
 (define (tree-transfer-styles row-style selected-style transfer-kind)
   (cond
-    [(equal? transfer-kind 'move)
-     (list (style-with-bold (style-fg row-style Color/LightCyan))
-           (style-with-bold (style-fg selected-style Color/LightCyan)))]
-    [(equal? transfer-kind 'copy)
-     (list (style-with-bold (style-fg row-style Color/LightYellow))
-           (style-with-bold (style-fg selected-style Color/LightYellow)))]
-    [else (list row-style selected-style)]))
+   [(equal? transfer-kind 'move)
+    (list (style-with-bold (style-fg row-style Color/LightCyan))
+          (style-with-bold (style-fg selected-style Color/LightCyan)))]
+   [(equal? transfer-kind 'copy)
+    (list (style-with-bold (style-fg row-style Color/LightYellow))
+          (style-with-bold (style-fg selected-style Color/LightYellow)))]
+   [else (list row-style selected-style)]))
 
 (define (tree-row-style row-style selected-style transfer-kind selected?)
   (define styles (tree-transfer-styles row-style selected-style (tree-transfer-style-kind transfer-kind)))
@@ -192,9 +192,9 @@
 (define (tree-paste-destination-directory state)
   (define destination-base (tree-selected-base-path state))
   (cond
-    [(and (string? destination-base) (is-dir? destination-base)) destination-base]
-    [(string? destination-base) (file-directory destination-base)]
-    [else (unbox (FileTreeState-root state))]))
+   [(and (string? destination-base) (is-dir? destination-base)) destination-base]
+   [(string? destination-base) (file-directory destination-base)]
+   [else (unbox (FileTreeState-root state))]))
 
 (define (tree-run-transfer! transfer-kind source destination)
   (define quoted-source (string-append "\"" (shell-escape source) "\""))
@@ -237,26 +237,26 @@
              [target-path (path-clean (string-append destination "/" (file-name source-clean)))])
 
         (cond
-          [(not (and (string? destination) (is-dir? destination)))
-           (toast-error "Invalid paste destination")
-           event-result/consume]
+         [(not (and (string? destination) (is-dir? destination)))
+          (toast-error "Invalid paste destination")
+          event-result/consume]
 
-          [(and (is-dir? source-clean)
-                (path-descendant-or-same? destination source-clean))
-           (toast-error "Cannot paste a directory into itself")
-           event-result/consume]
+         [(and (is-dir? source-clean)
+               (path-descendant-or-same? destination source-clean))
+          (toast-error "Cannot paste a directory into itself")
+          event-result/consume]
 
-          [(path-exists? target-path)
-           (toast-error "Paste target already exists")
-           event-result/consume]
+         [(path-exists? target-path)
+          (toast-error "Paste target already exists")
+          event-result/consume]
 
-          [(path=? target-path source-clean)
-           event-result/consume]
+         [(path=? target-path source-clean)
+          event-result/consume]
 
-          [else
-           (tree-run-transfer! transfer-kind source-clean destination)
-           (tree-post-transfer-refresh! state transfer-kind source-clean target-path)
-           event-result/consume]))))
+         [else
+          (tree-run-transfer! transfer-kind source-clean destination)
+          (tree-post-transfer-refresh! state transfer-kind source-clean target-path)
+          event-result/consume]))))
 
 (define (tree-fold-all! state)
   (set-box! (FileTreeState-directories state)
@@ -279,129 +279,129 @@
   (define modifier (key-event-modifier event))
 
   (cond
-    [(key-event-escape? event)
-     (if (tree-search-input-visible? state)
-         (begin
-           (tree-search-clear! state)
-           (tree-clear-transfer! state)
-           event-result/consume)
-         (if (tree-transfer-active? state)
-             (begin
-               (tree-clear-transfer! state)
-               event-result/consume)
-             event-result/close))]
+   [(key-event-escape? event)
+    (if (tree-search-input-visible? state)
+        (begin
+          (tree-search-clear! state)
+          (tree-clear-transfer! state)
+          event-result/consume)
+        (if (tree-transfer-active? state)
+            (begin
+              (tree-clear-transfer! state)
+              event-result/consume)
+            event-result/close))]
 
-    [(and (char? char) (equal? char #\/))
-     (tree-search-open! state)
-     event-result/consume]
+   [(and (char? char) (equal? char #\/))
+    (tree-search-open! state)
+    event-result/consume]
 
-    [(tree-search-input-focused? state)
-     (tree-search-input-event-handler state event)]
+   [(tree-search-input-focused? state)
+    (tree-search-input-event-handler state event)]
 
-    [(and (char? char)
-          (equal? char #\n)
-          (tree-search-input-visible? state)
-          (not (null? (unbox (FileTreeState-search-matches state)))) )
-     (tree-search-jump-next! state)
-     event-result/consume]
+   [(and (char? char)
+         (equal? char #\n)
+         (tree-search-input-visible? state)
+         (not (null? (unbox (FileTreeState-search-matches state)))) )
+    (tree-search-jump-next! state)
+    event-result/consume]
 
-    [(and (char? char)
-          (equal? char #\N)
-          (tree-search-input-visible? state)
-          (not (null? (unbox (FileTreeState-search-matches state)))) )
-     (tree-search-jump-prev! state)
-     event-result/consume]
+   [(and (char? char)
+         (equal? char #\N)
+         (tree-search-input-visible? state)
+         (not (null? (unbox (FileTreeState-search-matches state)))) )
+    (tree-search-jump-prev! state)
+    event-result/consume]
 
-    [(and (char? char) (equal? char #\q)) event-result/close]
+   [(and (char? char) (equal? char #\q)) event-result/close]
 
-    [(key-event-down? event)
-     (tree-move-cursor-clamped! state 1)
-     event-result/consume]
+   [(key-event-down? event)
+    (tree-move-cursor-clamped! state 1)
+    event-result/consume]
 
-    [(key-event-up? event)
-     (tree-move-cursor-clamped! state -1)
-     event-result/consume]
+   [(key-event-up? event)
+    (tree-move-cursor-clamped! state -1)
+    event-result/consume]
 
-    [(and (char? char) (equal? char #\j))
-     (tree-move-cursor-wrap! state 1)
-     event-result/consume]
+   [(and (char? char) (equal? char #\j))
+    (tree-move-cursor-wrap! state 1)
+    event-result/consume]
 
-    [(and (char? char) (equal? char #\k))
-     (tree-move-cursor-wrap! state -1)
-     event-result/consume]
+   [(and (char? char) (equal? char #\k))
+    (tree-move-cursor-wrap! state -1)
+    event-result/consume]
 
-    [(key-event-page-down? event)
-     (tree-move-cursor-clamped! state (tree-quarter-page-size state))
-     event-result/consume]
+   [(key-event-page-down? event)
+    (tree-move-cursor-clamped! state (tree-quarter-page-size state))
+    event-result/consume]
 
-    [(key-event-page-up? event)
-     (tree-move-cursor-clamped! state (- (tree-quarter-page-size state)))
-     event-result/consume]
+   [(key-event-page-up? event)
+    (tree-move-cursor-clamped! state (- (tree-quarter-page-size state)))
+    event-result/consume]
 
-    [(and (char? char)
-          (equal? modifier key-modifier-ctrl)
-          (equal? char #\d))
-     (tree-move-cursor-clamped! state (tree-quarter-page-size state))
-     event-result/consume]
+   [(and (char? char)
+         (equal? modifier key-modifier-ctrl)
+         (equal? char #\d))
+    (tree-move-cursor-clamped! state (tree-quarter-page-size state))
+    event-result/consume]
 
-    [(and (char? char)
-          (equal? modifier key-modifier-ctrl)
-          (equal? char #\u))
-     (tree-move-cursor-clamped! state (- (tree-quarter-page-size state)))
-     event-result/consume]
+   [(and (char? char)
+         (equal? modifier key-modifier-ctrl)
+         (equal? char #\u))
+    (tree-move-cursor-clamped! state (- (tree-quarter-page-size state)))
+    event-result/consume]
 
-    [(and (char? char) (equal? char #\h))
-     (tree-go-parent! state)]
+   [(and (char? char) (equal? char #\h))
+    (tree-go-parent! state)]
 
-    [(and (char? char) (equal? char #\l))
-     (tree-enter-directory! state)]
+   [(and (char? char) (equal? char #\l))
+    (tree-enter-directory! state)]
 
-    [(key-event-left? event)
-     (tree-go-parent! state)]
+   [(key-event-left? event)
+    (tree-go-parent! state)]
 
-    [(key-event-right? event)
-     (tree-enter-directory! state)]
+   [(key-event-right? event)
+    (tree-enter-directory! state)]
 
-    [(key-event-tab? event)
-     (if (equal? (key-event-modifier event) key-modifier-shift)
-         (tree-move-cursor-clamped! state -1)
-         (tree-move-cursor-clamped! state 1))
-     event-result/consume]
+   [(key-event-tab? event)
+    (if (equal? (key-event-modifier event) key-modifier-shift)
+        (tree-move-cursor-clamped! state -1)
+        (tree-move-cursor-clamped! state 1))
+    event-result/consume]
 
-    [(key-event-enter? event)
-     (tree-open-selection! state)]
+   [(key-event-enter? event)
+    (tree-open-selection! state)]
 
-    [(and (char? char) (equal? char #\a))
-     (tree-open-create-input! state)]
+   [(and (char? char) (equal? char #\a))
+    (tree-open-create-input! state)]
 
-    [(and (char? char) (equal? char #\r))
-     (tree-open-rename-input! state)]
+   [(and (char? char) (equal? char #\r))
+    (tree-open-rename-input! state)]
 
-    [(and (char? char) (equal? char #\y))
-     (tree-select-copy! state)]
+   [(and (char? char) (equal? char #\y))
+    (tree-select-copy! state)]
 
-    [(and (char? char) (equal? char #\x))
-     (tree-select-move! state)]
+   [(and (char? char) (equal? char #\x))
+    (tree-select-move! state)]
 
-    [(and (char? char) (equal? char #\p))
-     (tree-paste-transfer! state)]
+   [(and (char? char) (equal? char #\p))
+    (tree-paste-transfer! state)]
 
-    [(and (char? char) (equal? char #\d))
-     (tree-open-delete-confirm! state)]
+   [(and (char? char) (equal? char #\d))
+    (tree-open-delete-confirm! state)]
 
-    [(and (char? char) (equal? char #\s))
-     (tree-search-selected-directory! state)]
+   [(and (char? char) (equal? char #\s))
+    (tree-search-selected-directory! state)]
 
-    [(and (char? char) (equal? char #\.))
-     (tree-toggle-hidden-directories! state)]
+   [(and (char? char) (equal? char #\.))
+    (tree-toggle-hidden-directories! state)]
 
-    [(and (char? char) (equal? char #\F))
-     (tree-fold-all! state)]
+   [(and (char? char) (equal? char #\F))
+    (tree-fold-all! state)]
 
-    [(and (char? char) (equal? char #\E))
-     (tree-unfold-all-one-level! state)]
+   [(and (char? char) (equal? char #\E))
+    (tree-unfold-all-one-level! state)]
 
-    [else event-result/consume-without-rerender]))
+   [else event-result/consume-without-rerender]))
 
 (define (file-tree-render state rect frame)
   (define width (area-width rect))
@@ -466,7 +466,7 @@
                row-style-base))
          (define text (tree-truncate (TreeEntry-display entry) content-width))
          (when (or selected? match?)
-            (frame-set-string! frame content-x row blank-line row-style*))
+           (frame-set-string! frame content-x row blank-line row-style*))
          (frame-set-string! frame content-x row text row-style*))
        visible-entries
        0))
@@ -479,14 +479,14 @@
         #f))
   (define ribbon-text
     (cond
-      [(equal? transfer-kind 'copy) " COPY "]
-      [(equal? transfer-kind 'move) " MOVE "]
-      [else #f]))
+     [(equal? transfer-kind 'copy) " COPY "]
+     [(equal? transfer-kind 'move) " MOVE "]
+     [else #f]))
   (define ribbon-style
     (cond
-      [(equal? transfer-kind 'copy) copy-ribbon-style]
-      [(equal? transfer-kind 'move) move-ribbon-style]
-      [else tree-style]))
+     [(equal? transfer-kind 'copy) copy-ribbon-style]
+     [(equal? transfer-kind 'move) move-ribbon-style]
+     [else tree-style]))
 
   (frame-set-string! frame content-x ribbon-y blank-line tree-style)
   (when ribbon-text

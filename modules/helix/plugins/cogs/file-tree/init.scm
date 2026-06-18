@@ -48,11 +48,11 @@
   (define workspace-root (resolve-workspace-root))
   (define target-directory (file-directory target-path))
   (cond
-    [(path-descendant-or-same? target-path workspace-root) workspace-root]
-    [(string? target-directory)
-     (or (find-project-root-upward target-directory)
-         target-directory)]
-    [else workspace-root]))
+   [(path-descendant-or-same? target-path workspace-root) workspace-root]
+   [(string? target-directory)
+    (or (find-project-root-upward target-directory)
+        target-directory)]
+   [else workspace-root]))
 
 (define (create-file-tree)
   (define target-path (current-doc-path))

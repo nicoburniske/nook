@@ -37,21 +37,21 @@
          tree-ensure-window!
          tree-current-entry
          tree-selected-base-path
-          tree-refresh-when
-          path-descendant-or-same?
-          tree-event-plain-char?
-          tree-text-cursor-clamped
-          tree-text-remove-at
-          tree-text-backspace!
-          tree-text-delete-forward!
-          tree-text-append-char!
-          tree-text-move-cursor!
-          tree-text-visible-state
-          shell-escape
-          path-parent
-          file-directory
-          path-clean
-          path=?)
+         tree-refresh-when
+         path-descendant-or-same?
+         tree-event-plain-char?
+         tree-text-cursor-clamped
+         tree-text-remove-at
+         tree-text-backspace!
+         tree-text-delete-forward!
+         tree-text-append-char!
+         tree-text-move-cursor!
+         tree-text-visible-state
+         shell-escape
+         path-parent
+         file-directory
+         path-clean
+         path=?)
 
 ;;; -----------------------------------------------------------------
 ;;; Merge two lists of numbers which are already in increasing order
@@ -133,9 +133,9 @@
   (define left-dir? (is-dir? left))
   (define right-dir? (is-dir? right))
   (cond
-    [(and left-dir? (not right-dir?)) #t]
-    [(and (not left-dir?) right-dir?) #f]
-    [else (string<? (entry-name left) (entry-name right))]))
+   [(and left-dir? (not right-dir?)) #t]
+   [(and (not left-dir?) right-dir?) #f]
+   [else (string<? (entry-name left) (entry-name right))]))
 
 (define (path->symbol path)
   (let ([extension (path->extension path)])
@@ -147,31 +147,31 @@
 (define (shell-escape path)
   (define (escape-char ch)
     (cond
-      [(char=? ch #\\) "\\\\"]
-      [(char=? ch #\") "\\\""]
-      [(char=? ch #\$) "\\$"]
-      [(char=? ch #\`) "\\`"]
-      [else (string ch)]))
+     [(char=? ch #\\) "\\\\"]
+     [(char=? ch #\") "\\\""]
+     [(char=? ch #\$) "\\$"]
+     [(char=? ch #\`) "\\`"]
+     [else (string ch)]))
   (apply string-append (map escape-char (string->list path))))
 
 (struct FileTreeState
         (root
-         entries
-         directories
-         cursor
-         window-start
-         max-length
-         center-next-render
-         show-hidden-directories
-         delete-confirm-path
-         transfer-path
-         transfer-kind
-         search-visible
-         search-focused
-         search-query
-         search-cursor
-         search-matches
-         search-active-index))
+            entries
+          directories
+          cursor
+          window-start
+          max-length
+          center-next-render
+          show-hidden-directories
+          delete-confirm-path
+          transfer-path
+          transfer-kind
+          search-visible
+          search-focused
+          search-query
+          search-cursor
+          search-matches
+          search-active-index))
 
 (struct TreeEntry
         (path
@@ -324,18 +324,18 @@
                  (hidden-directory-name? name)))
         '()
         (cond
-          [(is-file? path)
-           (list (TreeEntry path #f (string-append padding (path->symbol path) name)))]
-          [(is-dir? path)
-           (define folded? (tree-directory-folded? state path))
-           (define entry (TreeEntry path #t (string-append padding (tree-format-dir state path) name)))
-           (if folded?
-               (list entry)
-               (cons entry
-                     (tree-concat-map
-                      (fn (x) (tree-rec x (string-append padding "    ")))
-                      (merge-sort (read-dir path) #:comparator path-sort<?))))]
-          [else '()])))
+         [(is-file? path)
+          (list (TreeEntry path #f (string-append padding (path->symbol path) name)))]
+         [(is-dir? path)
+          (define folded? (tree-directory-folded? state path))
+          (define entry (TreeEntry path #t (string-append padding (tree-format-dir state path) name)))
+          (if folded?
+              (list entry)
+              (cons entry
+                    (tree-concat-map
+                     (fn (x) (tree-rec x (string-append padding "    ")))
+                     (merge-sort (read-dir path) #:comparator path-sort<?))))]
+         [else '()])))
 
   (if (is-dir? root)
       (tree-concat-map
@@ -349,9 +349,9 @@
       (let ([target (path-clean path)])
         (define (loop idx rest)
           (cond
-            [(null? rest) #f]
-            [(path=? (TreeEntry-path (car rest)) target) idx]
-            [else (loop (+ idx 1) (cdr rest))]))
+           [(null? rest) #f]
+           [(path=? (TreeEntry-path (car rest)) target) idx]
+           [else (loop (+ idx 1) (cdr rest))]))
         (loop 0 entries))))
 
 (define (tree-ensure-window! state)
@@ -377,8 +377,8 @@
         (when (> (unbox cursor-box) (+ (unbox window-start-box) (- visible 1)))
           (set-box! window-start-box
                     (tree-clamp (- (unbox cursor-box) (- visible 1))
-                                 0
-                                 max-window-start))))))
+                                0
+                                max-window-start))))))
 
 (define (tree-refresh! state focus-path)
   (define root (unbox (FileTreeState-root state)))
@@ -441,6 +441,6 @@
   (define entry (tree-current-entry state))
   (define root (unbox (FileTreeState-root state)))
   (cond
-    [(and entry (TreeEntry-directory entry)) (TreeEntry-path entry)]
-    [(and entry (string? (TreeEntry-path entry))) (file-directory (TreeEntry-path entry))]
-    [else root]))
+   [(and entry (TreeEntry-directory entry)) (TreeEntry-path entry)]
+   [(and entry (string? (TreeEntry-path entry))) (file-directory (TreeEntry-path entry))]
+   [else root]))

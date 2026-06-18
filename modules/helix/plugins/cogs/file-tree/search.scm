@@ -18,15 +18,15 @@
   (define haystack-length (string-length haystack))
   (define needle-length (string-length needle))
   (cond
-    [(= needle-length 0) #t]
-    [(< haystack-length needle-length) #f]
-    [else
-     (let loop ([index 0])
-       (if (> (+ index needle-length) haystack-length)
-           #f
-           (if (equal? (substring haystack index (+ index needle-length)) needle)
-               #t
-               (loop (+ index 1)))))]))
+   [(= needle-length 0) #t]
+   [(< haystack-length needle-length) #f]
+   [else
+    (let loop ([index 0])
+      (if (> (+ index needle-length) haystack-length)
+          #f
+          (if (equal? (substring haystack index (+ index needle-length)) needle)
+              #t
+              (loop (+ index 1)))))]))
 
 (define (tree-search-entry-matches? entry query-lower)
   (if (= (string-length query-lower) 0)
@@ -38,9 +38,9 @@
 (define (tree-search-list-index-of-path paths target-path)
   (define (loop index rest)
     (cond
-      [(null? rest) #f]
-      [(path=? (car rest) target-path) index]
-      [else (loop (+ index 1) (cdr rest))]))
+     [(null? rest) #f]
+     [(path=? (car rest) target-path) index]
+     [else (loop (+ index 1) (cdr rest))]))
   (if (string? target-path)
       (loop 0 paths)
       #f))
@@ -128,47 +128,47 @@
   (define query-box (FileTreeState-search-query state))
   (define cursor-box (FileTreeState-search-cursor state))
   (cond
-    [(key-event-enter? event)
-     (tree-search-commit! state)
-     event-result/consume]
+   [(key-event-enter? event)
+    (tree-search-commit! state)
+    event-result/consume]
 
-    [(key-event-backspace? event)
-     (tree-text-backspace! query-box cursor-box)
-     event-result/consume]
+   [(key-event-backspace? event)
+    (tree-text-backspace! query-box cursor-box)
+    event-result/consume]
 
-    [(key-event-delete? event)
-     (tree-text-delete-forward! query-box cursor-box)
-     event-result/consume]
+   [(key-event-delete? event)
+    (tree-text-delete-forward! query-box cursor-box)
+    event-result/consume]
 
-    [(key-event-left? event)
-     (tree-text-move-cursor! query-box cursor-box -1)
-     event-result/consume]
+   [(key-event-left? event)
+    (tree-text-move-cursor! query-box cursor-box -1)
+    event-result/consume]
 
-    [(key-event-right? event)
-     (tree-text-move-cursor! query-box cursor-box 1)
-     event-result/consume]
+   [(key-event-right? event)
+    (tree-text-move-cursor! query-box cursor-box 1)
+    event-result/consume]
 
-    [(key-event-home? event)
-     (set-box! cursor-box 0)
-     event-result/consume]
+   [(key-event-home? event)
+    (set-box! cursor-box 0)
+    event-result/consume]
 
-    [(key-event-end? event)
-     (set-box! cursor-box (string-length (unbox query-box)))
-     event-result/consume]
+   [(key-event-end? event)
+    (set-box! cursor-box (string-length (unbox query-box)))
+    event-result/consume]
 
-    [(tree-event-plain-char? event)
-     (tree-text-append-char! query-box cursor-box char)
-     event-result/consume]
+   [(tree-event-plain-char? event)
+    (tree-text-append-char! query-box cursor-box char)
+    event-result/consume]
 
-    [else event-result/consume-without-rerender]))
+   [else event-result/consume-without-rerender]))
 
 (define (tree-search-match-path? state path)
   (define matches (unbox (FileTreeState-search-matches state)))
   (define (loop rest)
     (cond
-      [(null? rest) #f]
-      [(path=? (car rest) path) #t]
-      [else (loop (cdr rest))]))
+     [(null? rest) #f]
+     [(path=? (car rest) path) #t]
+     [else (loop (cdr rest))]))
   (loop matches))
 
 (define (tree-search-render-overlay! state frame content-x content-y content-width row-style tree-style)

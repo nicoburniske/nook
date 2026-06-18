@@ -1,8 +1,5 @@
 {...}: {
-  flake.modules.nixos.eden = {
-    pkgs,
-    ...
-  }: let
+  flake.modules.nixos.eden = {pkgs, ...}: let
     nx-optimizer-src = pkgs.fetchurl {
       url = "https://github.com/MaxLastBreath/nx-optimizer/releases/download/manager-3.2.0/NX.Optimizer.3.2.0.AppImage";
       hash = "sha256-a29nCz9KbGFd2vhrMMMUUycKrWqIPCBEO7tFoyaxdNg=";
