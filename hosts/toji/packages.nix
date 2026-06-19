@@ -25,5 +25,6 @@
     yazi
     ncdu
     opencode
+    tokei
   ];
 }
