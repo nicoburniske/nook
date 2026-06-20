@@ -49,6 +49,7 @@
       steam
       eden
       bitdo-controller
+      kantoOra
       coolercontrol
       mullvad
       qbittorrent
