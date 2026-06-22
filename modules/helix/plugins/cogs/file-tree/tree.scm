@@ -58,15 +58,19 @@
         (helix.open target)
         event-result/close)))
 
-(define (tree-enter-directory! state)
+(define (tree-open-or-enter-selection! state)
   (define entry (tree-current-entry state))
-  (if (and entry (TreeEntry-directory entry))
-      (let ([target (TreeEntry-path entry)])
-        (when (tree-directory-folded? state target)
-          (tree-set-directory-folded! state target #f))
-        (tree-refresh! state target)
-        event-result/consume)
-      event-result/consume))
+  (cond
+   [(not entry) event-result/consume]
+   [(TreeEntry-directory entry)
+    (let ([target (TreeEntry-path entry)])
+      (when (tree-directory-folded? state target)
+        (tree-set-directory-folded! state target #f))
+      (tree-refresh! state target)
+      event-result/consume)]
+   [else
+    (helix.open (TreeEntry-path entry))
+    event-result/close]))
 
 (define (tree-reroot-to-parent! state focus-path)
   (define root-box (FileTreeState-root state))
@@ -354,13 +358,13 @@
     (tree-go-parent! state)]
 
    [(and (char? char) (equal? char #\l))
-    (tree-enter-directory! state)]
+    (tree-open-or-enter-selection! state)]
 
    [(key-event-left? event)
     (tree-go-parent! state)]
 
    [(key-event-right? event)
-    (tree-enter-directory! state)]
+    (tree-open-or-enter-selection! state)]
 
    [(key-event-tab? event)
     (if (equal? (key-event-modifier event) key-modifier-shift)
