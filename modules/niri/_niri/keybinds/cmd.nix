@@ -9,6 +9,8 @@ pkgs.writeNuScriptBin "niri-cmd" {
     niri
     pipewire
     pulseaudio
+    procps
     rofi
+    wlsunset
   ];
 }

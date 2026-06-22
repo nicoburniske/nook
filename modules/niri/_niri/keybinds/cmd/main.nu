@@ -2,6 +2,7 @@ use ./audio.nu
 use ./helium.nu
 use ./lib.nu [rofi-header rofi-row]
 use ./monitor.nu
+use ./sunset.nu
 use ./theme.nu
 use ./window.nu
 
@@ -100,6 +101,7 @@ def modules [] {
     (helium entry)
     (monitor entry)
     (audio entry)
+    (sunset entry)
   ]
 }
 
