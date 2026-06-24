@@ -21,7 +21,6 @@
     zip
     nautilus
     bluetui
-    qbittorrent
     vlc
     yazi
     ncdu

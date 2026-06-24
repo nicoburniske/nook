@@ -50,6 +50,7 @@
       bitdo-controller
       coolercontrol
       mullvad
+      qbittorrent
     ];
 
     _module.args.host = host;
