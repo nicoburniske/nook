@@ -26,6 +26,11 @@
       exec "${helixSteelPackage}/bin/hx" "$@"
     '';
   in {
+    environment.variables = {
+      EDITOR = "hx";
+      VISUAL = "hx";
+    };
+
     environment.systemPackages = [
       hx
       pkgs.nil
