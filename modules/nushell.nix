@@ -24,6 +24,17 @@
         indent: 2
       }
     '';
+
+    helix.languages = [
+      {
+        name = "nu";
+        formatter = {
+          command = "nufmt";
+          args = ["--stdin"];
+        };
+        auto-format = true;
+      }
+    ];
   };
 in {
   flake.modules.nixos.nushell = nushellModule;
