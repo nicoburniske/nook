@@ -54,9 +54,12 @@
       coolercontrol
       mullvad
       qbittorrent
+      jai
     ];
 
     _module.args.host = host;
+
+    programs.nix-ld.enable = true;
 
     nook.sumi.theme.transparency = {
       light = 1.0;

@@ -293,6 +293,14 @@ in {
           ln -s ${lib.escapeShellArg pathStr} "$out"
         '';
 
+      lib.sumi.flakePath = path: let
+        pathStr = stripLeadingDotSlash path;
+        errors = validateRelativePathKey pathStr;
+      in
+        if errors != []
+        then throw "sumi flake path errors: ${lib.concatStringsSep "; " errors}"
+        else "${config.lib.sumi.paths.flakeRootOrErr}/${pathStr}";
+
       lib.sumi.renderBase16Mustache = {
         theme,
         template,
