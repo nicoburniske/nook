@@ -17,6 +17,7 @@
       asdbctl
       docker
       plugdev
+      secrets
       sumi
       nushell
       fonts

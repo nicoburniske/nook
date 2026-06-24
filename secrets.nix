@@ -1,0 +1,29 @@
+let
+  keys = {
+    main = "age1pq1y0jjns222fscvet6ugu0avz9v6y5tn9jzgufwqd35xmjz3rgjg5qdg228t8fr35f997jdfrrmuwfvhypgg2dxca7np5gt7aghhvgaypj8mk0rypung2p6ffd8xquzy7ve6xcwyw35uzmwfn6xauef34z0k4u4xmhr2dad4qsc0v9rn32twnrjx9xguhfgeqyz2725xe2yaqtt8gr6ynr8d53cjy8mafkd6jt2gh6lg5hpqnl59qnjlnu2x8lv3s0ajjkqw6g6rtsjxy492kd586f3ry4jezjg2sndnp8yuecvaphcctj0wxq3qvy0aw2k7m0rnde7x9kpy6nv95eat6mfx2m09u4zryqqqphlkkv80u63wzzv5c7vlrfn3s0n6uezd6cq4rk5kux5fqejamptmdktqy5e2zxnv40aj8488znsq28n0ztksqu92es9xx56uuqccdkle3vcz74ps7pyk6csc3r6953ewzjn6cqc2lwmstjhd5zczetmrv9hxcrv03mxlzx4u6ez0nuss9ugxeedp57x2ns5us08cnyxsyg8pzvyv4dj3480zue9rvfykjqp2cljkg4zrqqlq5tedrs9tk9qre2kw6hkz3xenyzzqdj396fvazcv4s6x0qlhpzawqxgunt9e4fc9pwycvlpgsvnm5kfwy4hkqllvxvkr3jhy45zqkkrm82ez5j8dxgf2k2pvx9nhljgphp9d06xxukaj2n4s2pdwag9xflxk3h5tr7n29h0ccrteqmrlyhnfxgfcfzez5lf6xjj8ttjgympydrjf3te0gzm9sjla4xt987c2t32yqlymjala4kga2zn83lp4u040nxs29c0t3ff48vn0k7ueyhsgsvu2xvmpwtpqj4npr7k06n73y3wcfphw0xxmsnm42mgel00cypkjvn7u67xprkrfpxz83cjjt9x8x2px9a8mjrsvx5282apw60nt9vea5wf85kttgcjhw4v0xaxx2gktnq7ek3rzhpmcy5z0ghe8jnxee5acvefkkqy87vl52jxzd2y3c622euhlrchdsss4jq65afk3wjwfr34fgm4j2ndvf0qqnx4s2dr96vkmtqnnv0msam75ydyducp95r3vszm3ga6dszxg7thrpndy3kx36359nm842clcy2mu26mwgypgplsy0rc4watkszhjdkwjx3uy4svpn8nzkcz3syhep37yyejpjfgsujlyqznndrl8tqaqtuq8wh2h8jv0zkddvaq64rymf9y5slmp8r3ws4p6k25mevy22rcjj65rj6pgwqtwvdel7ev4kdefezsch7afrs976r3ffuk8jack049w93l2p2py908a4t820uh9pacw5q7jcrl75c0y3n7696k9ynndn63wp6pmwzfunz0fqy856nk5cxqc32u5azc3vd0h46fkdhq0dxeeturxkt35l9afheyctlhsu96vn3w50ppdv639tfpjutps69kewcc8qgqp3pqzmfxj4qv8qxstf55m2yelzdhzqs28wuhq95sv274ey4apkgd5wuk62dsy04m5lcasvjpp4nu0e3x9q76rv0rd0apz7z5c6yjr5nff95qjj3j24mq5p58jqcqlx3zz9wk2qumf9tjqsfflxtsz6zkf0pz2lqggc23vq9spwj63gv6jsjqsdsf5dj3uvsh4jamltn52f8ceh6jhncnsd7fpv5x8a59haut3tzus870dyqvpym3ddejzz8zk4f5gkggf8puswnucky6g8njky8wtxnwux04aucajtyrlq0mpw79089mfgym87s0xv9n5sjvqpn30nqtgqfqyt89355rsw4w8aemjgkaz54cqxg9dduwaduslln3jmr29wap03qpy006fq85qttsdvflfeu3g6zqqvcwe92mq9fjf033k2za45fqtc7yl3xj";
+  };
+
+  listFilesRecursive = base: dir: let
+    entries = builtins.readDir dir;
+    names = builtins.attrNames entries;
+  in
+    builtins.concatLists (map (name: let
+      relative = "${base}/${name}";
+      path = dir + "/${name}";
+      kind = entries.${name};
+    in
+      if kind == "directory"
+      then listFilesRecursive relative path
+      else if kind == "regular"
+      then [relative]
+      else [])
+    names);
+
+  isAge = path: builtins.match ".*\\.age$" path != null;
+  ageFiles = builtins.filter isAge (listFilesRecursive "modules" ./modules);
+in
+  builtins.listToAttrs (map (path: {
+      name = path;
+      value.publicKeys = [keys.main];
+    })
+    ageFiles)
