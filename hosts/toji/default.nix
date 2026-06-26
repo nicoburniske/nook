@@ -14,7 +14,6 @@
   in {
     imports = with modules; [
       ./configuration.nix
-      asdbctl
       docker
       plugdev
       secrets
