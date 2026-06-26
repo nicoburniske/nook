@@ -36,15 +36,17 @@ in {
         case-sensitive: false;
         click-to-exit: true;
         steal-focus: false;
-        kb-row-up: "Up";
-        kb-row-down: "Down";
-        kb-accept-entry: "Return,Right";
+        kb-row-up: "Up,Control+k";
+        kb-row-down: "Down,Control+j";
+        kb-accept-entry: "Return,Right,Control+l";
         kb-cancel: "Escape";
+        kb-mode-complete: "";
         kb-move-char-back: "";
         kb-move-char-forward: "";
         kb-remove-char-back: "BackSpace";
         kb-remove-to-eol: "";
-        kb-custom-1: "Left";
+        kb-remove-to-sol: "";
+        kb-custom-1: "Left,Control+h";
       }
 
       * {
