@@ -5,75 +5,47 @@
     pkgs,
     ...
   }: let
-    cfg = config.programs.noctalia-shell;
-    sourcePatches = [
-      ./patches/power-profiles-without-performance.patch
-      ./patches/apple-studio-xdr-model.patch
-    ];
-    substitutions = [
-      {
-        file = "Commons/Style.qml";
-        before = ''readonly property color capsuleBorderColor: Settings.data.bar.showOutline ? Color.mPrimary : "transparent"'';
-        after = ''readonly property color capsuleBorderColor: Settings.data.bar.showOutline ? Color.mOutline : "transparent"'';
-      }
-      {
-        file = "Modules/Bar/Widgets/Volume.qml";
-        before = ''forceClose: displayMode === "alwaysHide"'';
-        after = "forceClose: true";
-      }
-      {
-        file = "Modules/Bar/Widgets/Brightness.qml";
-        before = ''forceClose: displayMode === "alwaysHide"'';
-        after = "forceClose: true";
-      }
-      {
-        file = "Modules/MainScreen/Backgrounds/PanelBackground.qml";
-        before = "strokeWidth: -1 // No stroke, fill only";
-        after = "strokeWidth: effectiveBackgroundColor.a > 0 ? Style.borderM : -1\n  strokeColor: Color.mOutline";
-      }
-      {
-        file = "Services/Theming/ColorSchemeService.qml";
-        before = ''ToastService.showNotice(label, description, "dark-mode");'';
-        after = "";
-      }
-    ];
-    mkSubstitution = substitution: ''
-      substituteInPlace ${lib.escapeShellArg substitution.file} \
-        --replace-fail ${lib.escapeShellArg substitution.before} \
-                       ${lib.escapeShellArg substitution.after}
-    '';
-    package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
-      patches = (old.patches or []) ++ sourcePatches;
-      postPatch =
-        (old.postPatch or "")
-        + lib.concatMapStrings mkSubstitution substitutions;
-    });
+    cfg = config.programs.noctalia;
+    package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    toml = pkgs.formats.toml {};
     settings = import ./_settings.nix;
     colors = import ./_colors.nix;
   in {
-    options.programs.noctalia-shell = {
+    options.programs.noctalia = {
       enable = lib.mkEnableOption "Noctalia shell";
     };
 
     config = lib.mkIf cfg.enable {
       compositor.startupCommands = [
-        (lib.getExe package)
+        "${lib.getExe package} --daemon"
       ];
 
       environment.systemPackages = [
+        pkgs.ddcutil
         package
       ];
 
       sumi.configFile = {
-        "noctalia/settings.json" = {
+        "noctalia/config.toml" = {
           watch = ["theme"];
-          value = ctx: builtins.toJSON (settings ctx.values.theme);
+          value = ctx: toml.generate "noctalia-config.toml" (settings ctx.values.theme);
         };
 
-        "noctalia/colors.json" = {
+        "noctalia/palettes/Nook.json" = {
           watch = ["theme"];
-          value = ctx: builtins.toJSON (colors ctx.values.theme);
+          value = ctx: let
+            palette = colors ctx.values.theme;
+          in
+            builtins.toJSON {
+              dark = palette;
+              light = palette;
+            };
         };
+      };
+
+      sumi.hook.noctalia = {
+        watch = ["theme"];
+        command = "${lib.getExe package} msg config-reload";
       };
     };
   };

@@ -7,8 +7,7 @@
     name = "libinput-gestures.conf";
     path = "${config.lib.sumi.paths.config}/${conf.name}";
     value = ''
-      gesture pinch in 4 /run/current-system/sw/bin/noctalia-shell ipc call launcher toggle
-      gesture hold on+1.0 4 ${pkgs.niri}/bin/niri msg action close-window
+      gesture pinch in 4 /run/current-system/sw/bin/noctalia msg panel-toggle launcher
     '';
   };
 in {

@@ -55,6 +55,6 @@
     _module.args.host = host;
 
     programs.nix-ld.dev.enable = true;
-    programs.noctalia-shell.enable = true;
+    programs.noctalia.enable = true;
   };
 }

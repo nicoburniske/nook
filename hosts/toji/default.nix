@@ -66,6 +66,6 @@
       darkOnLight = 1.0;
     };
 
-    programs.noctalia-shell.enable = true;
+    programs.noctalia.enable = true;
   };
 }
