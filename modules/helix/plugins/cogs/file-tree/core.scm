@@ -97,10 +97,30 @@
 (define *ignore-set* (hashset "target"))
 
 (define *extension-map*
-  (hash "rs" " "
-        "scm" "󰘧 "
+  (hash "bash" " "
+        "c" " "
+        "css" " "
+        "go" " "
+        "html" " "
+        "js" " "
+        "json" " "
+        "lock" " "
+        "lua" " "
+        "md" " "
         "nix" " "
-        "md" " "))
+        "nu" " "
+        "nuon" " "
+        "py" " "
+        "rs" " "
+        "scm" "󰘧 "
+        "sh" " "
+        "svg" "󰜡 "
+        "toml" " "
+        "ts" " "
+        "txt" "󰈙 "
+        "yaml" " "
+        "yml" " "
+        "zsh" " "))
 
 (define (path-clean path)
   (if (and (string? path)
