@@ -235,6 +235,8 @@ def scale-options [output: record] {
     "1.5"
     "1.6"
     "2"
+    "3"
+    "4"
   ]
   | each {|scale| {value: $scale, label: $scale, active: ($scale == $current)} }
 }
