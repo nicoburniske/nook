@@ -33,9 +33,13 @@ in ''
   Mod+Right { focus-column-right; }
 
   Mod+Alt+H { move-column-left; }
+  Mod+Alt+Left { move-column-left; }
   Mod+Alt+J { move-window-down; }
+  Mod+Alt+Down { move-window-down; }
   Mod+Alt+K { move-window-up; }
+  Mod+Alt+Up { move-window-down; }
   Mod+Alt+L { move-column-right; }
+  Mod+Alt+Right { move-window-down; }
 
   Mod+Shift+Left { focus-monitor-left; }
   Mod+Shift+Down { focus-monitor-down; }
