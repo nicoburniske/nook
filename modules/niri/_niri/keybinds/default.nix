@@ -5,6 +5,10 @@
   cmd = import ./cmd.nix {
     inherit inputs pkgs;
   };
+  focusVertical = pkgs.writeNuScriptBin "focus-vertical" {
+    runtimeInputs = [pkgs.niri];
+    source = ./focus-vertical.nu;
+  };
 in ''
   Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "kitty"; }
   Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "fuzzel"; }
@@ -20,12 +24,12 @@ in ''
   Mod+S { toggle-column-tabbed-display; }
 
   Mod+H { focus-column-left; }
-  Mod+J { focus-window-down; }
-  Mod+K { focus-window-up; }
+  Mod+J { spawn "${focusVertical}/bin/focus-vertical" "down"; }
+  Mod+K { spawn "${focusVertical}/bin/focus-vertical" "up"; }
   Mod+L { focus-column-right; }
   Mod+Left { focus-column-left; }
-  Mod+Down { focus-window-down; }
-  Mod+Up { focus-window-up; }
+  Mod+Down { spawn "${focusVertical}/bin/focus-vertical" "down"; }
+  Mod+Up { spawn "${focusVertical}/bin/focus-vertical" "up"; }
   Mod+Right { focus-column-right; }
 
   Mod+Alt+H { move-column-left; }
