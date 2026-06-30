@@ -7,8 +7,13 @@
 
   window-rule {
       match app-id=r#"^steam$"#
+      open-on-workspace "5"
+  }
+
+  window-rule {
       match app-id=r#"^steam_app_[0-9]+$"#
       open-on-workspace "5"
+      open-fullscreen true
   }
 
   window-rule {
