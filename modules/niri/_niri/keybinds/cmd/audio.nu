@@ -90,6 +90,7 @@ def handle [action: record] {
     } catch { }
     handle {kind: $actions.outputs}
   } else if $action.kind == $actions.volume {
+    ^pactl set-sink-mute @DEFAULT_SINK@ 0
     ^pactl set-sink-volume @DEFAULT_SINK@ $"($action.volume)%"
     handle {kind: $actions.volumes}
   }
