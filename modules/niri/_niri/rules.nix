@@ -17,6 +17,13 @@
   }
 
   window-rule {
+      match app-id=r#"^gamescope$"#
+      match app-id=r#"^$"# title=r#"^Gamescope$"#
+      open-on-workspace "5"
+      open-fullscreen true
+  }
+
+  window-rule {
       match app-id=r#"^kitty$"#
       scroll-factor 1.5
 
