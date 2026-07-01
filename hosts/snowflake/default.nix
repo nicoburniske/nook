@@ -3,6 +3,18 @@
   inputs,
   ...
 }: {
+  flake-file.inputs = {
+    apple-silicon = {
+      url = "github:nix-community/nixos-apple-silicon";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-ld = {
+      url = "github:Mic92/nix-ld";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
   configurations.nixos.snowflake.module = {...}: let
     host = {
       name = "snowflake";

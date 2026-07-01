@@ -34,10 +34,7 @@
         _: host:
           inputs.nixpkgs.lib.nixosSystem {
             modules = [host.module];
-            specialArgs = {
-              inherit inputs;
-              apple-silicon = inputs.apple-silicon;
-            };
+            specialArgs = {inherit inputs;};
           }
       )
       config.configurations.nixos;

@@ -6,6 +6,9 @@ system := `uname -s`
 # pass ssh agent through sudo for git lfs
 nixos_rebuild := 'sudo env SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-}" nixos-rebuild'
 
+gen:
+    nix run .#write-flake
+
 fmt: fmt-nix fmt-scm
 
 fmt-nix:

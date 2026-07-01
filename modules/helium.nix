@@ -1,4 +1,9 @@
 {inputs, ...}: {
+  flake-file.inputs.helium-nix = {
+    url = "github:schembriaiden/helium-browser-nix-flake";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   flake.modules.nixos.helium = {pkgs, ...}: {
     nixpkgs.overlays = [
       (final: prev: {

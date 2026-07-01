@@ -3,6 +3,11 @@
   inputs,
   ...
 }: {
+  flake-file.inputs.nix-ld = {
+    url = "github:Mic92/nix-ld";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   configurations.nixos.toji.module = {...}: let
     host = {
       name = "toji";

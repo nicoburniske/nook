@@ -218,6 +218,11 @@
     };
   };
 in {
+  flake-file.inputs.helix-steel = {
+    url = "github:mattwparas/helix/steel-event-system";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   flake.modules.nixos.helix = mkHelixModule;
   flake.modules.darwin.helix = mkHelixModule;
 }

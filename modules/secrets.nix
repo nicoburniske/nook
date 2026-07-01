@@ -1,4 +1,15 @@
 {inputs, ...}: {
+  flake-file.inputs.agenix = {
+    url = "github:ryantm/agenix";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.home-manager.follows = "";
+    inputs.darwin.follows = "";
+  };
+
+  perSystem = {system, ...}: {
+    packages.agenix = inputs.agenix.packages.${system}.default;
+  };
+
   flake.modules.nixos.secrets = {
     lib,
     pkgs,

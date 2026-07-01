@@ -72,6 +72,11 @@
     };
   };
 in {
+  flake-file.inputs.sumi = {
+    url = "path:./sumi";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   flake.modules.nixos.sumi = mkSumiModule inputs.sumi.nixosModules.default;
   flake.modules.darwin.sumi = mkSumiModule inputs.sumi.darwinModules.default;
 }

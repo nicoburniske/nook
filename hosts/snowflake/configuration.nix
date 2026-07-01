@@ -4,7 +4,6 @@
   inputs,
   lib,
   pkgs,
-  apple-silicon,
   ...
 }: let
   self = inputs.self;
@@ -26,7 +25,7 @@ in {
   imports = [
     ./hardware-configuration.nix
     ./packages.nix
-    apple-silicon.nixosModules.apple-silicon-support
+    inputs.apple-silicon.nixosModules.apple-silicon-support
   ];
 
   nixpkgs.config.allowUnfree = true;
