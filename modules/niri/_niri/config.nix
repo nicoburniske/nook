@@ -56,6 +56,13 @@ in ''
       variable-refresh-rate
   }
 
+  output "DP-3" {
+      mode "5120x2880@165.058"
+      scale 2
+      variable-refresh-rate
+      hdr
+  }
+
   layout {
       gaps 5
       center-focused-column "on-overflow"

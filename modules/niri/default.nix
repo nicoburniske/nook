@@ -1,4 +1,9 @@
-{...}: {
+{inputs, ...}: {
+  flake-file.inputs.niri = {
+    url = "github:niri-wm/niri";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   flake.modules.nixos.niri = {pkgs, ...}: {
     imports = [
       ./_niri
@@ -7,10 +12,11 @@
 
     nixpkgs.overlays = [
       (final: prev: {
-        niri = prev.niri.overrideAttrs (old: {
+        niri = inputs.niri.packages.${final.stdenv.hostPlatform.system}.niri.overrideAttrs (old: {
           patches =
             (old.patches or [])
             ++ [
+              ./patches/hdr.patch
               ./patches/workspace-switch-animate-property.patch
             ];
         });
