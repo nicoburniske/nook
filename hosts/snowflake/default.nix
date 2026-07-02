@@ -36,6 +36,7 @@
       lock
       greet
       kitty
+      keepassxc
       yazi
       fuzzel
       noctalia

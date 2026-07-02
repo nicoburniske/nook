@@ -9,13 +9,6 @@
 
   {
     window-rule = [
-      {match."app-id" = "^org\\.keepassxc\\.KeePassXC$";}
-      {block-out-from = "screencast";}
-    ];
-  }
-
-  {
-    window-rule = [
       {match."app-id" = "^pavucontrol$";}
       {match."app-id" = "^nm-connection-editor$";}
       {match."app-id" = "^blueman-manager$";}

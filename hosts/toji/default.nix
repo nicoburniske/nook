@@ -26,6 +26,7 @@
       lock
       greet
       kitty
+      keepassxc
       fuzzel
       noctalia
       qt
