@@ -113,7 +113,7 @@ in {
     sharedTheme
     // {
       polarity = "light";
-      image = ../../assets/wallpapers/hardest-road.jpg;
+      image = ../../assets/wallpapers/oakylake.jpg;
       meta = {
         helix = "modus";
       };
