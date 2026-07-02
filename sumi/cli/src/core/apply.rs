@@ -25,13 +25,13 @@ pub struct ApplySummary {
 }
 
 pub async fn apply(
-    manifest: CompiledManifest,
+    manifest: &CompiledManifest,
     home_dir: &Path,
     state_dir: &Path,
     set_overrides: &Selection,
     conflict_policy: ConflictPolicy,
 ) -> Result<ApplySummary, AppError> {
-    let selection = resolve_selection(&manifest, set_overrides)?;
+    let selection = resolve_selection(manifest, set_overrides)?;
     let desired = collect_desired_map(&manifest.files, &selection, home_dir)?;
 
     let missing_sources = collect_missing_sources(&desired).await;
@@ -254,13 +254,6 @@ async fn ensure_link(
     source: &Path,
     expected_old_source: Option<&Path>,
 ) -> Result<bool, std::io::Error> {
-    if smol::fs::metadata(source).await.is_err() {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            format!("source does not exist: {}", source.display()),
-        ));
-    }
-
     if path_points_to(target, source).await.unwrap_or(false) {
         return Ok(false);
     }

@@ -60,7 +60,7 @@ async fn run_switch(
 
     let _lock = core::acquire_switch_lock(&ctx.state_dir).await?;
     let summary = apply(
-        ctx.manifest.clone(),
+        &ctx.manifest,
         &ctx.home_dir,
         &ctx.state_dir,
         &selection,

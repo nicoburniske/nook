@@ -33,7 +33,7 @@ fn first_apply_creates_links_and_snapshot() {
 
         let manifest = load_manifest(&manifest_path).await.expect("load manifest");
         let summary = apply(
-            manifest,
+            &manifest,
             &home,
             &state,
             &BTreeMap::new(),
@@ -82,8 +82,9 @@ fn switch_with_set_changes_selected_rules() {
             &[("gruvbox", &src_gruv), ("modus", &src_modus)],
         );
 
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
         apply(
-            load_manifest(&manifest_path).await.expect("load manifest"),
+            &manifest,
             &home,
             &state,
             &BTreeMap::new(),
@@ -95,10 +96,11 @@ fn switch_with_set_changes_selected_rules() {
 
         let mut set = BTreeMap::new();
         set.insert("theme".to_string(), "modus".to_string());
+        let manifest = load_manifest(&manifest_path)
+            .await
+            .expect("reload manifest");
         let summary = apply(
-            load_manifest(&manifest_path)
-                .await
-                .expect("reload manifest"),
+            &manifest,
             &home,
             &state,
             &set,
@@ -127,8 +129,9 @@ fn missing_source_is_hard_error() {
         let manifest_path = td.path().join("manifest.json");
         write_manifest(&manifest_path, &home, &[(".config/app/a.conf", &missing)]);
 
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
         let err = apply(
-            load_manifest(&manifest_path).await.expect("load manifest"),
+            &manifest,
             &home,
             &state,
             &BTreeMap::new(),
@@ -155,8 +158,9 @@ fn unknown_facet_set_fails() {
 
         let mut set = BTreeMap::new();
         set.insert("density".to_string(), "compact".to_string());
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
         let err = apply(
-            load_manifest(&manifest_path).await.expect("load manifest"),
+            &manifest,
             &home,
             &td.path().join("state"),
             &set,
@@ -379,8 +383,9 @@ fn replace_policy_replaces_conflicting_directory() {
         let manifest_path = td.path().join("manifest.json");
         write_manifest(&manifest_path, &home, &[(".config/app/dir", &src)]);
 
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
         let summary = apply(
-            load_manifest(&manifest_path).await.expect("load manifest"),
+            &manifest,
             &home,
             &state,
             &BTreeMap::new(),
@@ -435,8 +440,9 @@ fn update_replaces_wrong_old_symlink_when_policy_replace() {
         let manifest_path = td.path().join("manifest.json");
         write_manifest(&manifest_path, &home, &[(".config/app/a.conf", &src_new)]);
 
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
         let summary = apply(
-            load_manifest(&manifest_path).await.expect("load manifest"),
+            &manifest,
             &home,
             &state,
             &BTreeMap::new(),
@@ -488,8 +494,9 @@ fn update_of_managed_symlink_does_not_backup_in_backup_policy() {
         let manifest_path = td.path().join("manifest.json");
         write_manifest(&manifest_path, &home, &[(".config/app/a.conf", &src_new)]);
 
+        let manifest = load_manifest(&manifest_path).await.expect("load manifest");
         let summary = apply(
-            load_manifest(&manifest_path).await.expect("load manifest"),
+            &manifest,
             &home,
             &state,
             &BTreeMap::new(),
