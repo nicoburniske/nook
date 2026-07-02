@@ -12,12 +12,7 @@ in {
   system.primaryUser = host.user;
   nixpkgs.hostPlatform = "aarch64-darwin";
 
-  nix = {
-    enable = false;
-    settings = {
-      experimental-features = "nix-command flakes";
-    };
-  };
+  nix.enable = false;
 
   nixpkgs.config.allowUnfree = true;
 

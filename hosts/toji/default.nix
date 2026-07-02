@@ -15,6 +15,7 @@
   in {
     imports = with modules; [
       ./configuration.nix
+      nix
       docker
       plugdev
       secrets

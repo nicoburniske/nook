@@ -30,20 +30,22 @@
     lib.optionalString (type != null) "(${type})" + rendered;
 
   indent = text:
-    lib.pipe text [
-      (lib.splitString "\n")
-      (map (line: "    " + line))
-      (lib.concatStringsSep "\n")
-    ];
+    text
+    |> lib.splitString "\n"
+    |> map (line: "    " + line)
+    |> lib.concatStringsSep "\n";
 
   isValue = value:
     isString value || isBool value || isInt value || isFloat value || isNull value || isPath value;
 
   isScalarAttrs = attrs:
-    lib.all isValue (attrValues attrs);
+    attrs
+    |> attrValues
+    |> lib.all isValue;
 
   attrsToChildren = attrs:
-    lib.mapAttrsToList (name: value: normalize {${name} = value;}) attrs;
+    attrs
+    |> lib.mapAttrsToList (name: value: normalize {${name} = value;});
 
   normalize = node:
     if node ? name
@@ -107,14 +109,16 @@
 
   renderNode = rawNode: let
     node = normalize rawNode;
-    renderedChildren = lib.concatMapStringsSep "\n" renderNode node.children;
+    renderedChildren =
+      node.children
+      |> lib.concatMapStringsSep "\n" renderNode;
     body = lib.optionalString (node.children != []) " {\n${indent renderedChildren}\n}";
-  in
-    lib.concatStringsSep " " (
+    parts =
       ["${lib.optionalString (node.type != null) "(${node.type})"}${node.name}"]
       ++ map renderValue node.arguments
-      ++ lib.mapAttrsToList (name: value: "${name}=${renderValue value}") node.properties
-    )
+      ++ (node.properties |> lib.mapAttrsToList (name: value: "${name}=${renderValue value}"));
+  in
+    (parts |> lib.concatStringsSep " ")
     + body;
 
   mergeUniq = mergeOne:
@@ -232,9 +236,9 @@
     merge = mergeUniq (
       file: let
         mergeDocument = loc: toplevel:
-          builtins.concatLists (
-            lib.imap1 (i: mergeDocumentEntry (loc ++ ["[entry ${toString i}]"])) toplevel
-          );
+          toplevel
+          |> lib.imap1 (i: mergeDocumentEntry (loc ++ ["[entry ${toString i}]"]))
+          |> builtins.concatLists;
 
         mergeDocumentEntry = loc: value: let
           inherit (lib.options) showDefs;
@@ -275,11 +279,12 @@
     };
     typed = type: value: {inherit type value;};
     toKDL = nodes:
-      lib.concatMapStringsSep "\n" renderNode (
+      (
         if isList nodes
         then nodes
         else [nodes]
-      );
+      )
+      |> lib.concatMapStringsSep "\n" renderNode;
   };
 in {
   flake.lib.kdl = kdl;

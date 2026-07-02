@@ -27,6 +27,7 @@
     imports = with modules; [
       ./configuration.nix
       inputs.nix-ld.nixosModules.nix-ld
+      nix
       plugdev
       sumi
       nushell

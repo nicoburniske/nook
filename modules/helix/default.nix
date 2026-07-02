@@ -195,18 +195,19 @@
           "helix/plugins".value = mkOutOfStoreSymlink "${config.helix.root}/plugins";
         }
         // config.helix.runtimeFiles
-        // builtins.listToAttrs
-        (map (name: {
-            name = "helix/themes/${name}.toml";
-            value.value = mkOutOfStoreSymlink "${config.helix.root}/themes/${name}.toml";
-          }) [
+        // ([
             "modus"
             "melissa-light"
             "space-age"
             "gruvbox"
             "ashen"
             "cano"
-          ]);
+          ]
+          |> map (name: {
+            name = "helix/themes/${name}.toml";
+            value.value = mkOutOfStoreSymlink "${config.helix.root}/themes/${name}.toml";
+          })
+          |> builtins.listToAttrs);
 
       sumi.hook.helix = {
         watch = ["theme"];

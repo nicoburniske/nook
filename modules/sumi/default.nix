@@ -55,7 +55,9 @@
     config = lib.mkIf cfg.enable {
       assertions = [
         {
-          assertion = lib.all (value: value >= 0.0 && value <= 1.0) (builtins.attrValues cfg.theme.transparency);
+          assertion =
+            builtins.attrValues cfg.theme.transparency
+            |> lib.all (value: value >= 0.0 && value <= 1.0);
           message = "nook.sumi.theme.transparency values must be between 0.0 and 1.0.";
         }
       ];

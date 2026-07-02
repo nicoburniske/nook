@@ -1,13 +1,13 @@
 {config}: let
   startup =
-    map (command: {
+    config.compositor.startupCommands
+    |> map (command: {
       spawn-at-startup.args = [
         "sh"
         "-c"
         command
       ];
-    })
-    config.compositor.startupCommands;
+    });
 
   workspace = name: {workspace = name;};
 

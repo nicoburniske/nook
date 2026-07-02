@@ -32,35 +32,31 @@ in {
 
   config.flake = {
     nixosConfigurations =
-      lib.mapAttrs (
-        _: host:
-          inputs.nixpkgs.lib.nixosSystem {
-            modules = [
-              config.flake.modules.nixos.lib
-              host.module
-            ];
-            specialArgs = {
-              inherit inputs;
-              lib = hostLib;
-            };
-          }
-      )
-      config.configurations.nixos;
+      config.configurations.nixos
+      |> lib.mapAttrs (_: host:
+        inputs.nixpkgs.lib.nixosSystem {
+          modules = [
+            config.flake.modules.nixos.lib
+            host.module
+          ];
+          specialArgs = {
+            inherit inputs;
+            lib = hostLib;
+          };
+        });
 
     darwinConfigurations =
-      lib.mapAttrs (
-        _: host:
-          inputs.nix-darwin.lib.darwinSystem {
-            modules = [
-              config.flake.modules.darwin.lib
-              host.module
-            ];
-            specialArgs = {
-              inherit inputs;
-              lib = hostLib;
-            };
-          }
-      )
-      config.configurations.darwin;
+      config.configurations.darwin
+      |> lib.mapAttrs (_: host:
+        inputs.nix-darwin.lib.darwinSystem {
+          modules = [
+            config.flake.modules.darwin.lib
+            host.module
+          ];
+          specialArgs = {
+            inherit inputs;
+            lib = hostLib;
+          };
+        });
   };
 }

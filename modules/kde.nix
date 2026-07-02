@@ -11,32 +11,41 @@
       else toString value;
 
     formatSection = path: data: let
-      header = lib.concatStrings (map (part: "[${part}]") path);
-      children = lib.mapAttrsToList (name: formatLines (path ++ [name])) data;
+      header =
+        path
+        |> map (part: "[${part}]")
+        |> lib.concatStrings;
+      children =
+        data
+        |> lib.mapAttrsToList (name: formatLines (path ++ [name]));
       partitioned = lib.partition lib.isString children;
       directChildren = partitioned.right;
       indirectChildren = partitioned.wrong;
     in
       lib.optional (directChildren != []) header
       ++ directChildren
-      ++ lib.flatten indirectChildren;
+      ++ (indirectChildren |> lib.flatten);
 
     formatLines = path: data:
       if lib.isAttrs data
       then formatSection path data
       else "${lib.last path}=${formatValue data}";
 
-    formatConfig = data: lib.concatStringsSep "\n" (formatLines [] data);
+    formatConfig = data:
+      formatLines [] data
+      |> lib.concatStringsSep "\n";
 
     rgb = hex:
-      lib.concatStringsSep "," [
+      [
         (toString (lib.fromHexString (builtins.substring 0 2 hex)))
         (toString (lib.fromHexString (builtins.substring 2 2 hex)))
         (toString (lib.fromHexString (builtins.substring 4 2 hex)))
-      ];
+      ]
+      |> lib.concatStringsSep ",";
 
     mkColors = theme:
-      lib.mapAttrs (_: rgb) (removeAttrs theme.colors ["withHashtag"]);
+      removeAttrs theme.colors ["withHashtag"]
+      |> lib.mapAttrs (_: rgb);
 
     colorEffect = {
       ColorEffect = 0;

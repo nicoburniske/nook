@@ -2,8 +2,9 @@
 {
   description = "multi host nix config";
 
-  outputs = inputs:
-    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+  outputs =
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.flake-parts.flakeModules.modules
         inputs.flake-file.flakeModules.default
@@ -14,6 +15,14 @@
         ((inputs.import-tree.filter (inputs.nixpkgs.lib.hasSuffix "/default.nix")) ./hosts)
       ];
     };
+
+  nixConfig = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+      "pipe-operators"
+    ];
+  };
 
   inputs = {
     agenix = {

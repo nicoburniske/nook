@@ -23,19 +23,20 @@
       else if builtins.isInt value || builtins.isFloat value
       then toString value
       else if builtins.isList value
-      then "[${lib.concatMapStringsSep ", " tomlValue value}]"
+      then "[${value |> lib.concatMapStringsSep ", " tomlValue}]"
       else if builtins.isAttrs value
       then inlineTable value
       else throw "Unsupported CoolerControl TOML value: ${builtins.typeOf value}";
 
     inlineTable = attrs: let
       renderPair = key: "${key} = ${tomlValue attrs.${key}}";
-    in "{ ${lib.concatMapStringsSep ", " renderPair (builtins.attrNames attrs)} }";
+    in "{ ${builtins.attrNames attrs |> lib.concatMapStringsSep ", " renderPair} }";
 
     renderAttrs = attrs: let
       renderPair = key: "${key} = ${tomlValue attrs.${key}}";
     in
-      lib.concatMapStringsSep "\n" renderPair (builtins.attrNames attrs);
+      builtins.attrNames attrs
+      |> lib.concatMapStringsSep "\n" renderPair;
 
     renderTable = name: attrs: ''
       [${name}]
@@ -179,7 +180,7 @@
 
     configFile =
       pkgs.writeText "coolercontrol-config.toml"
-      (lib.concatStringsSep "\n" configSections);
+      (configSections |> lib.concatStringsSep "\n");
   in {
     boot.kernelModules = ["nct6775"];
 

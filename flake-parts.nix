@@ -5,6 +5,12 @@
       # DO-NOT-EDIT: file was auto-generated using 'just gen'
     '';
 
+    nixConfig.experimental-features = [
+      "nix-command"
+      "flakes"
+      "pipe-operators"
+    ];
+
     inputs = {
       self.lfs = true;
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

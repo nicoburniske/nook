@@ -25,9 +25,10 @@
           prompt = base0A;
           spinner = base0C;
         };
-        colorOption = builtins.concatStringsSep "," (
-          pkgs.lib.mapAttrsToList (name: value: "${name}:${value}") colors
-        );
+        colorOption =
+          colors
+          |> pkgs.lib.mapAttrsToList (name: value: "${name}:${value}")
+          |> builtins.concatStringsSep ",";
       in ''
         --style=full
         --color=${colorOption}

@@ -13,7 +13,11 @@
         text = ''
           #!${final.nushell}/bin/nu
           ${final.lib.optionalString ((spec.runtimeInputs or []) != []) ''
-            $env.PATH = (${builtins.toJSON (map (package: "${package}/bin") spec.runtimeInputs)} | append ($env.PATH? | default []))
+            $env.PATH = (${
+              spec.runtimeInputs
+              |> map (package: "${package}/bin")
+              |> builtins.toJSON
+            } | append ($env.PATH? | default []))
           ''}
           ${text}
         '';

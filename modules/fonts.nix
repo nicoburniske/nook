@@ -3,27 +3,29 @@
     themeValues = builtins.attrValues config.sumi.facets.theme.variants;
 
     rolePackages = role:
-      lib.unique (
-        lib.filter (p: p != null) (map (theme: theme.fonts.${role}.package or null) themeValues)
-      );
+      themeValues
+      |> map (theme: theme.fonts.${role}.package or null)
+      |> lib.filter (p: p != null)
+      |> lib.unique;
 
     roleNames = role:
-      lib.unique (
-        lib.filter (name: name != null) (map (theme: theme.fonts.${role}.name or null) themeValues)
-      );
+      themeValues
+      |> map (theme: theme.fonts.${role}.name or null)
+      |> lib.filter (name: name != null)
+      |> lib.unique;
 
     cjkFont = {
       package = pkgs.noto-fonts-cjk-sans;
       name = "Noto Sans CJK JP";
     };
 
-    allPackages = lib.unique (
+    allPackages =
       (rolePackages "serif")
       ++ (rolePackages "sansSerif")
       ++ (rolePackages "monospace")
       ++ (rolePackages "emoji")
       ++ [cjkFont.package]
-    );
+      |> lib.unique;
   in {
     inherit allPackages roleNames cjkFont;
   };

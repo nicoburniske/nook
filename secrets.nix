@@ -7,7 +7,8 @@ let
     entries = builtins.readDir dir;
     names = builtins.attrNames entries;
   in
-    builtins.concatLists (map (name: let
+    names
+    |> map (name: let
       relative = "${base}/${name}";
       path = dir + "/${name}";
       kind = entries.${name};
@@ -17,13 +18,14 @@ let
       else if kind == "regular"
       then [relative]
       else [])
-    names);
+    |> builtins.concatLists;
 
   isAge = path: builtins.match ".*\\.age$" path != null;
-  ageFiles = builtins.filter isAge (listFilesRecursive "modules" ./modules);
 in
-  builtins.listToAttrs (map (path: {
-      name = path;
-      value.publicKeys = [keys.main];
-    })
-    ageFiles)
+  listFilesRecursive "modules" ./modules
+  |> builtins.filter isAge
+  |> map (path: {
+    name = path;
+    value.publicKeys = [keys.main];
+  })
+  |> builtins.listToAttrs

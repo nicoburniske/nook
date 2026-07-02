@@ -34,6 +34,7 @@
     imports = with modules; [
       ./configuration.nix
       ./packages.nix
+      nix
       sumi
       nushell
       fonts
