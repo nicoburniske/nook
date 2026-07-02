@@ -1,9 +1,5 @@
 {...}: {
-  flake.modules.nixos.steam = {
-    host,
-    pkgs,
-    ...
-  }: let
+  flake.modules.nixos.steam = {pkgs, ...}: let
     mkGamescopeProfile = name: args:
       pkgs.writeShellScriptBin "gs${name}" ''
         if [ "''${1:-}" = "--" ]; then
@@ -42,9 +38,6 @@
       (mkGamescopeProfile "2k" "-W 2560 -H 1440 -w 2560 -h 1440 -r 165 -f --adaptive-sync --hdr-enabled --hdr-debug-force-output")
       (mkGamescopeProfile "5k" "-W 5120 -H 2880 -w 5120 -h 2880 -r 165 -f --adaptive-sync --hdr-enabled --hdr-debug-force-output")
     ];
-
-    hardware.uinput.enable = true;
-    users.users.${host.user}.extraGroups = ["uinput"];
 
     services.udev.extraRules = ''
       # Steam Controller / Triton firmware updater bootloader access.
