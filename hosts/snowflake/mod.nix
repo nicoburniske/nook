@@ -3,7 +3,7 @@
   inputs,
   ...
 }: {
-  flake-file.inputs = {
+  inputs = {
     apple-silicon = {
       url = "github:nix-community/nixos-apple-silicon";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake-file.inputs.helium-nix = {
+  inputs.helium-nix = {
     url = "github:schembriaiden/helium-browser-nix-flake";
     inputs.nixpkgs.follows = "nixpkgs";
   };

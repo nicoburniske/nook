@@ -7,7 +7,7 @@ system := `uname -s`
 nixos_rebuild := 'sudo env SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-}" nixos-rebuild'
 
 gen:
-    nix run .#write-flake
+    nix run .#gen-flake
 
 fmt: fmt-nix fmt-scm
 

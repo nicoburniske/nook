@@ -74,7 +74,7 @@
     };
   };
 in {
-  flake-file.inputs.sumi = {
+  inputs.sumi = {
     url = "path:./sumi";
     inputs.nixpkgs.follows = "nixpkgs";
   };

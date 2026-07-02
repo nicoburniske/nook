@@ -1,5 +1,5 @@
 {config, ...}: {
-  flake-file.inputs.nix-ld = {
+  inputs.nix-ld = {
     url = "github:Mic92/nix-ld";
     inputs.nixpkgs.follows = "nixpkgs";
   };

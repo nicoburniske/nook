@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake-file.inputs.agenix = {
+  inputs.agenix = {
     url = "github:ryantm/agenix";
     inputs.nixpkgs.follows = "nixpkgs";
     inputs.home-manager.follows = "";

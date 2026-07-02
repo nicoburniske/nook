@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake-file.inputs.noctalia = {
+  inputs.noctalia = {
     url = "github:noctalia-dev/noctalia";
     inputs.nixpkgs.follows = "nixpkgs";
   };

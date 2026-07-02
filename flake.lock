@@ -76,21 +76,6 @@
         "type": "github"
       }
     },
-    "flake-file": {
-      "locked": {
-        "lastModified": 1781217157,
-        "narHash": "sha256-N3q/SP2Ropk336e9KSgLh7kpROY6P70dprYdbPIfd5c=",
-        "owner": "vic",
-        "repo": "flake-file",
-        "rev": "ce63eaf7ebfe04a176653f66385a7f0a36380cee",
-        "type": "github"
-      },
-      "original": {
-        "owner": "vic",
-        "repo": "flake-file",
-        "type": "github"
-      }
-    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -325,7 +310,6 @@
       "inputs": {
         "agenix": "agenix",
         "apple-silicon": "apple-silicon",
-        "flake-file": "flake-file",
         "flake-parts": "flake-parts",
         "helium-nix": "helium-nix",
         "helix-steel": "helix-steel",

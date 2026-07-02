@@ -1,91 +1,63 @@
 # DO-NOT-EDIT: file was auto-generated using 'just gen'
 {
-  description = "multi host nix config";
-
-  outputs =
-    inputs:
-    let
-      lib = inputs.nixpkgs.lib;
-      isModuleFile = file: lib.hasSuffix ".mod.nix" file || baseNameOf file == "mod.nix";
-      moduleRoots = [
-        ./lib
-        ./modules
-        ./hosts
-      ];
-    in
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        inputs.flake-file.flakeModules.default
-        ./flake-parts.nix
-        ./configurations.nix
-      ]
-      ++ lib.filter isModuleFile (lib.concatMap lib.filesystem.listFilesRecursive moduleRoots);
-    };
-
-  nixConfig = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-      "pipe-operators"
-    ];
-  };
-
+  description = "dendritic multi host nix config";
   inputs = {
     agenix = {
-      url = "github:ryantm/agenix";
       inputs = {
         darwin.follows = "";
         home-manager.follows = "";
         nixpkgs.follows = "nixpkgs";
       };
+      url = "github:ryantm/agenix";
     };
     apple-silicon = {
-      url = "github:nix-community/nixos-apple-silicon";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/nixos-apple-silicon";
     };
-    flake-file.url = "github:vic/flake-file";
     flake-parts = {
-      url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
+      url = "github:hercules-ci/flake-parts";
     };
     helium-nix = {
-      url = "github:schembriaiden/helium-browser-nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:schembriaiden/helium-browser-nix-flake";
     };
     helix-steel = {
-      url = "github:mattwparas/helix/steel-event-system";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:mattwparas/helix/steel-event-system";
     };
     homebrew-cask = {
-      url = "github:homebrew/homebrew-cask";
       flake = false;
+      url = "github:homebrew/homebrew-cask";
     };
     homebrew-core = {
-      url = "github:homebrew/homebrew-core";
       flake = false;
+      url = "github:homebrew/homebrew-core";
     };
     niri = {
-      url = "github:niri-wm/niri";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:niri-wm/niri";
     };
     nix-darwin = {
-      url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:LnL7/nix-darwin";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     nix-ld = {
-      url = "github:Mic92/nix-ld";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:Mic92/nix-ld";
     };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     noctalia = {
-      url = "github:noctalia-dev/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:noctalia-dev/noctalia";
     };
     self.lfs = true;
     sumi = {
-      url = "path:./sumi";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "path:./sumi";
     };
   };
+  nixConfig = {experimental-features = ["nix-command" "flakes" "pipe-operators"];};
+  outputs = inputs: import ./flake.output.nix inputs;
 }

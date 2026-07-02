@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake-file.inputs.niri = {
+  inputs.niri = {
     url = "github:niri-wm/niri";
     inputs.nixpkgs.follows = "nixpkgs";
   };
