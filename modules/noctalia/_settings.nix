@@ -39,7 +39,10 @@ in {
     custom_palette = "Nook";
   };
 
-  wallpaper.enabled = false;
+  wallpaper = {
+    enabled = true;
+    transition_duration = 500.0;
+  };
   backdrop.enabled = false;
   dock = {
     enabled = true;

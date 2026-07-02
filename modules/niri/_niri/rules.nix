@@ -70,7 +70,7 @@
   }
 
   layer-rule {
-      match namespace="^awww-daemon$"
+      match namespace="^noctalia-wallpaper$"
 
       place-within-backdrop true
   }

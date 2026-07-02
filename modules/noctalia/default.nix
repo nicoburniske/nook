@@ -12,6 +12,7 @@
   }: let
     cfg = config.programs.noctalia;
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    noctalia = lib.getExe package;
     toml = pkgs.formats.toml {};
     settings = import ./_settings.nix;
     colors = import ./_colors.nix;
@@ -22,7 +23,7 @@
 
     config = lib.mkIf cfg.enable {
       compositor.startupCommands = [
-        "${lib.getExe package} --daemon"
+        "${noctalia} --daemon"
       ];
 
       environment.systemPackages = [
@@ -50,7 +51,12 @@
 
       sumi.hook.noctalia = {
         watch = ["theme"];
-        command = "${lib.getExe package} msg config-reload";
+        command = ctx: let
+          wallpaper = lib.escapeShellArg (toString ctx.values.theme.image);
+        in ''
+          ${noctalia} msg config-reload || true
+          ${noctalia} msg wallpaper-set ${wallpaper} || true
+        '';
       };
     };
   };
