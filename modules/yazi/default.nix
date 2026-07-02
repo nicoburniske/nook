@@ -5,14 +5,6 @@
   }: let
     tomlFormat = pkgs.formats.toml {};
 
-    tvFilesPlugin = pkgs.callPackage ./_plugins/tv-files.nix {
-      mkYaziPlugin = pkgs.yaziPlugins.mkYaziPlugin;
-    };
-
-    tvTextPlugin = pkgs.callPackage ./_plugins/tv-text.nix {
-      mkYaziPlugin = pkgs.yaziPlugins.mkYaziPlugin;
-    };
-
     yaziSettings = {
       mgr = {
         show_hidden = true;
@@ -74,35 +66,16 @@
       };
     };
 
-    yaziKeymap = {
-      mgr.prepend_keymap = [
-        {
-          on = "S";
-          run = "plugin tv-text";
-          desc = "Find in files via Television";
-        }
-        {
-          on = "z";
-          run = "plugin tv-files";
-          desc = "Find files via Television";
-        }
-      ];
-    };
-
     mkTheme = import ./_theme.nix;
   in {
     environment.systemPackages = [yaziPackage];
 
     sumi.configFile = {
       "yazi/yazi.toml".value = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
-      "yazi/keymap.toml".value = tomlFormat.generate "sumi-yazi-keymap.toml" yaziKeymap;
       "yazi/theme.toml" = {
         watch = ["theme"];
         value = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.selection.theme}.toml" (mkTheme ctx.values.theme);
       };
-
-      "yazi/plugins/tv-files.yazi".value = tvFilesPlugin;
-      "yazi/plugins/tv-text.yazi".value = tvTextPlugin;
     };
   };
 in {
