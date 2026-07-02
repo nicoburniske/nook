@@ -761,15 +761,27 @@ in {
         }
         // xdgEnv;
 
-      wrapperEnvExports =
-        lib.concatMapStringsSep "\n"
-        (name: "export ${name}=${lib.escapeShellArg (toString wrapperEnv.${name})}")
-        (builtins.attrNames wrapperEnv);
+      wrapperArgs =
+        (lib.concatMap
+          (name: [
+            "--set"
+            name
+            (toString wrapperEnv.${name})
+          ])
+          (builtins.attrNames wrapperEnv))
+        ++ [
+          "--run"
+          ''export PATH="${pkgs.bash}/bin:$PATH"''
+        ];
 
-      wrappedCli = pkgs.writeShellScriptBin "sumi" ''
-        ${wrapperEnvExports}
-        exec ${baseCli}/bin/sumi "$@"
-      '';
+      wrappedCli = pkgs.symlinkJoin {
+        name = "sumi";
+        paths = [baseCli];
+        nativeBuildInputs = [pkgs.makeWrapper];
+        postBuild = ''
+          wrapProgram "$out/bin/sumi" ${lib.escapeShellArgs wrapperArgs}
+        '';
+      };
     in {
       assertions = [
         {

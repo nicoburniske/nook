@@ -1,6 +1,7 @@
 {...}: let
   batModule = {
     config,
+    lib,
     pkgs,
     ...
   }: {
@@ -23,7 +24,7 @@
 
     sumi.hook.bat = {
       watch = ["theme"];
-      command = "bat cache --build";
+      command = "${lib.getExe pkgs.bat} cache --build";
     };
   };
 in {
