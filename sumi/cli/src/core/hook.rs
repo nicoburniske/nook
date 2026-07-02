@@ -14,12 +14,12 @@ pub struct HookResult {
 pub async fn run_reload_hooks(
     manifest: &CompiledManifest,
     selection: &Selection,
-    changed_facets: &BTreeSet<String>,
+    facets: &BTreeSet<String>,
 ) -> Vec<HookResult> {
     let matching: Vec<(String, String)> = manifest
         .hooks
         .iter()
-        .filter_map(|hook| resolve_hook(hook, selection, changed_facets))
+        .filter_map(|hook| resolve_hook(hook, selection, facets))
         .collect();
 
     let mut tasks = Vec::new();
@@ -38,12 +38,12 @@ pub async fn run_reload_hooks(
 fn resolve_hook(
     hook: &CompiledHook,
     selection: &Selection,
-    changed_facets: &BTreeSet<String>,
+    facets: &BTreeSet<String>,
 ) -> Option<(String, String)> {
     if !hook
         .watch
         .iter()
-        .any(|facet| changed_facets.contains(facet))
+        .any(|facet| facets.contains(facet))
     {
         return None;
     }

@@ -8,7 +8,7 @@ use crate::error::AppError;
 use crate::manifest::Selection;
 use crate::state::{CurrentSelection, Snapshot};
 use serde::Serialize;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::io::ErrorKind;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -175,14 +175,6 @@ pub async fn write_selection(state_dir: &Path, selection: &Selection) -> Result<
     };
 
     write_json_atomic(&current, &state_dir.join("current.json")).await
-}
-
-pub(crate) fn changed_facets(previous: &Selection, next: &Selection) -> BTreeSet<String> {
-    let keys: BTreeSet<String> = previous.keys().chain(next.keys()).cloned().collect();
-
-    keys.into_iter()
-        .filter(|facet| previous.get(facet) != next.get(facet))
-        .collect()
 }
 
 pub(crate) fn unix_seconds_string() -> String {

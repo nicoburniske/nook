@@ -1,8 +1,8 @@
 use crate::cli::{Cli, Command, FacetsArgs, SelectionArgs, SwitchArgs};
 use crate::compile::CompiledManifest;
 use crate::core::{
-    self, apply, changed_facets, doctor, get_selection, parse_selection_overrides,
-    run_reload_hooks, validate_selection_overrides, write_selection, ConflictPolicy,
+    self, apply, doctor, get_selection, parse_selection_overrides, run_reload_hooks,
+    validate_selection_overrides, write_selection, ConflictPolicy,
 };
 use crate::error::AppError;
 use crate::manifest::{FacetDef, Selection};
@@ -74,8 +74,8 @@ async fn run_switch(
         return Ok(ExitCode::from(2));
     }
 
-    let changed = changed_facets(&current, &selection);
-    let hook_results = run_reload_hooks(&ctx.manifest, &selection, &changed).await;
+    let hook_facets = ctx.manifest.facets.keys().cloned().collect();
+    let hook_results = run_reload_hooks(&ctx.manifest, &selection, &hook_facets).await;
 
     for result in &hook_results {
         if result.ok {
