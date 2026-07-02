@@ -9,7 +9,7 @@
   ...
 }: let
   # TODO: helix themes - voxed, seoul256-dark-hard, iroaseta, autumn, varua
-  berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
+  berkeleyMono = import ./_berkeley-mono.nix {inherit pkgs;};
 
   mkTheme = base: let
     withHashtag = lib.mapAttrs (_: value: "#${value}") base.colors;
@@ -58,7 +58,7 @@ in {
     sharedTheme
     // {
       polarity = "dark";
-      image = ../assets/wallpapers/the-backwater.jpg;
+      image = ../../assets/wallpapers/the-backwater.jpg;
       colors = {
         base00 = "1d2021";
         base01 = "3c3836";
@@ -84,7 +84,7 @@ in {
     sharedTheme
     // {
       polarity = "dark";
-      image = ../assets/wallpapers/red-dot-space.jpg;
+      image = ../../assets/wallpapers/red-dot-space.jpg;
       meta = {
         helix = "space-age";
       };
@@ -113,7 +113,7 @@ in {
     sharedTheme
     // {
       polarity = "light";
-      image = ../assets/wallpapers/hardest-road.jpg;
+      image = ../../assets/wallpapers/hardest-road.jpg;
       meta = {
         helix = "modus";
       };
@@ -145,7 +145,7 @@ in {
     sharedTheme
     // {
       polarity = "light";
-      image = ../assets/wallpapers/church-gentleman.jpg;
+      image = ../../assets/wallpapers/church-gentleman.jpg;
       meta = {
         helix = "melissa-light";
       };
@@ -177,7 +177,7 @@ in {
     sharedTheme
     // {
       polarity = "dark";
-      image = ../assets/wallpapers/ashen.png;
+      image = ../../assets/wallpapers/ashen.png;
       meta = {
         helix = "ashen";
       };
@@ -209,7 +209,7 @@ in {
     sharedTheme
     // {
       polarity = "dark";
-      image = ../assets/wallpapers/volcano-lake.jpg;
+      image = ../../assets/wallpapers/volcano-lake.jpg;
       meta = {
         helix = "cano";
       };

@@ -1,11 +1,9 @@
 {...}: {
   flake.modules.darwin.hammerspoon = {
     config,
-    inputs,
     pkgs,
     ...
   }: let
-    themeSwitch = import (inputs.self + "/common/theme-switch.nix") {inherit pkgs;};
     hammerspoonConfigDir = "${config.lib.sumi.paths.config}/hammerspoon";
     hammerspoonLauncher = pkgs.writeShellScriptBin "sumi-hammerspoon-launch" ''
       set -eu
@@ -14,7 +12,6 @@
     '';
   in {
     environment.systemPackages = [
-      themeSwitch
       hammerspoonLauncher
     ];
 

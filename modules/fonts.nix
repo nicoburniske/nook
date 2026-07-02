@@ -1,7 +1,6 @@
-{inputs, ...}: let
-  mkFontData = pkgs: lib: let
-    themes = import (inputs.self + "/common/themes.nix") {inherit pkgs lib;};
-    themeValues = builtins.attrValues themes;
+{...}: let
+  mkFontData = config: pkgs: lib: let
+    themeValues = builtins.attrValues config.sumi.facets.theme.variants;
 
     rolePackages = role:
       lib.unique (
@@ -30,11 +29,12 @@
   };
 in {
   flake.modules.nixos.fonts = {
+    config,
     pkgs,
     lib,
     ...
   }: let
-    f = mkFontData pkgs lib;
+    f = mkFontData config pkgs lib;
   in {
     fonts = {
       packages = f.allPackages;
@@ -52,11 +52,12 @@ in {
   };
 
   flake.modules.darwin.fonts = {
+    config,
     pkgs,
     lib,
     ...
   }: let
-    f = mkFontData pkgs lib;
+    f = mkFontData config pkgs lib;
   in {
     fonts.packages = f.allPackages;
   };
