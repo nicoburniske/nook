@@ -19,7 +19,6 @@
     unzip
     wl-clipboard
     zip
-    nautilus
     bluetui
     vlc
     yazi

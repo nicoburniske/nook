@@ -12,7 +12,6 @@
       {match."app-id" = "^pavucontrol$";}
       {match."app-id" = "^nm-connection-editor$";}
       {match."app-id" = "^blueman-manager$";}
-      {match."app-id" = "^org\\.gnome\\.FileRoller$";}
       {open-floating = true;}
     ];
   }

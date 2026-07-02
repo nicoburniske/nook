@@ -27,6 +27,7 @@
       greet
       kitty
       keepassxc
+      nautilus
       fuzzel
       noctalia
       qt

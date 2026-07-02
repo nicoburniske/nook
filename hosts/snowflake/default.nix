@@ -42,6 +42,7 @@
       noctalia
       vlc
       dolphin
+      nautilus
       kde
       qt
       gtk

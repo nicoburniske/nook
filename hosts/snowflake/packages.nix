@@ -24,8 +24,6 @@
     cutecom
     bluetui
     obs-studio
-    nautilus
-    file-roller
     zip
     unzip
     unrar

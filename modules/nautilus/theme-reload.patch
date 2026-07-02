@@ -1,0 +1,101 @@
+diff --git a/src/nautilus-application.c b/src/nautilus-application.c
+index e604e5036..bd4c4d20d 100644
+--- a/src/nautilus-application.c
++++ b/src/nautilus-application.c
+@@ -94,6 +94,9 @@ struct _NautilusApplication
+ 
+     NautilusDBusLauncher *dbus_launcher;
+ 
++    GtkCssProvider *user_css_provider;
++    GFileMonitor *user_css_monitor;
++
+     guint dbus_location_update_timeout_id;
+ };
+ 
+@@ -392,6 +395,9 @@ nautilus_application_finalize (GObject *object)
+ {
+     NautilusApplication *self = NAUTILUS_APPLICATION (object);
+ 
++    g_clear_object (&self->user_css_monitor);
++    g_clear_object (&self->user_css_provider);
++
+     g_clear_object (&self->progress_handler);
+     g_clear_object (&self->bookmark_list);
+ 
+@@ -416,6 +422,68 @@ nautilus_application_finalize (GObject *object)
+     G_OBJECT_CLASS (nautilus_application_parent_class)->finalize (object);
+ }
+ 
++static char *
++get_user_css_path (void)
++{
++    return g_build_filename (g_get_user_config_dir (), "gtk-4.0", "gtk.css", NULL);
++}
++
++static void
++reload_user_css (NautilusApplication *self)
++{
++    g_autofree char *path = get_user_css_path ();
++
++    if (g_file_test (path, G_FILE_TEST_IS_REGULAR))
++    {
++        gtk_css_provider_load_from_path (self->user_css_provider, path);
++    }
++    else
++    {
++        gtk_css_provider_load_from_string (self->user_css_provider, "");
++    }
++}
++
++static void
++user_css_monitor_changed (GFileMonitor      *monitor,
++                          GFile             *file,
++                          GFile             *other_file,
++                          GFileMonitorEvent  event_type,
++                          gpointer           user_data)
++{
++    NautilusApplication *self = NAUTILUS_APPLICATION (user_data);
++    g_autofree char *basename = g_file_get_basename (file);
++
++    if (g_strcmp0 (basename, "gtk.css") == 0)
++    {
++        reload_user_css (self);
++    }
++}
++
++static void
++setup_user_css_reload (NautilusApplication *self)
++{
++    GdkDisplay *display = gdk_display_get_default ();
++    g_autofree char *path = get_user_css_path ();
++    g_autofree char *directory_path = g_path_get_dirname (path);
++    g_autoptr (GFile) directory = g_file_new_for_path (directory_path);
++
++    self->user_css_provider = gtk_css_provider_new ();
++    gtk_style_context_add_provider_for_display (display,
++                                                GTK_STYLE_PROVIDER (self->user_css_provider),
++                                                GTK_STYLE_PROVIDER_PRIORITY_USER);
++    reload_user_css (self);
++
++    self->user_css_monitor = g_file_monitor_directory (directory, G_FILE_MONITOR_NONE, NULL, NULL);
++    if (self->user_css_monitor != NULL)
++    {
++        g_file_monitor_set_rate_limit (self->user_css_monitor, 100);
++        g_signal_connect (self->user_css_monitor,
++                          "changed",
++                          G_CALLBACK (user_css_monitor_changed),
++                          self);
++    }
++}
++
+ static gboolean
+ do_cmdline_sanity_checks (GVariantDict *options)
+ {
+@@ -985,6 +1053,7 @@ nautilus_application_startup (GApplication *app)
+     g_assert (display == NULL || gdk_display_get_default () == display);
+ 
+     gtk_window_set_default_icon_name (APPLICATION_ID);
++    setup_user_css_reload (self);
+ 
+     /* initialize preferences and create the global GSettings objects */
+     nautilus_global_preferences_init ();
