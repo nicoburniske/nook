@@ -4,16 +4,22 @@
 
   outputs =
     inputs:
+    let
+      lib = inputs.nixpkgs.lib;
+      isModuleFile = file: lib.hasSuffix ".mod.nix" file || baseNameOf file == "mod.nix";
+      moduleRoots = [
+        ./lib
+        ./modules
+        ./hosts
+      ];
+    in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        inputs.flake-parts.flakeModules.modules
         inputs.flake-file.flakeModules.default
         ./flake-parts.nix
         ./configurations.nix
-        (inputs.import-tree ./lib)
-        (inputs.import-tree ./modules)
-        ((inputs.import-tree.filter (inputs.nixpkgs.lib.hasSuffix "/default.nix")) ./hosts)
-      ];
+      ]
+      ++ lib.filter isModuleFile (lib.concatMap lib.filesystem.listFilesRecursive moduleRoots);
     };
 
   nixConfig = {
@@ -58,7 +64,6 @@
       url = "github:homebrew/homebrew-core";
       flake = false;
     };
-    import-tree.url = "github:vic/import-tree";
     niri = {
       url = "github:niri-wm/niri";
       inputs.nixpkgs.follows = "nixpkgs";

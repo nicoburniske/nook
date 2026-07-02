@@ -19,22 +19,29 @@
         inputs.nixpkgs-lib.follows = "nixpkgs";
       };
       flake-file.url = "github:vic/flake-file";
-      import-tree.url = "github:vic/import-tree";
     };
 
     outputs = ''
       inputs:
-        inputs.flake-parts.lib.mkFlake {inherit inputs;} {
-          imports = [
-            inputs.flake-parts.flakeModules.modules
-            inputs.flake-file.flakeModules.default
-            ./flake-parts.nix
-            ./configurations.nix
-            (inputs.import-tree ./lib)
-            (inputs.import-tree ./modules)
-            ((inputs.import-tree.filter (inputs.nixpkgs.lib.hasSuffix "/default.nix")) ./hosts)
+        let
+          lib = inputs.nixpkgs.lib;
+          isModuleFile = file:
+            lib.hasSuffix ".mod.nix" file || baseNameOf file == "mod.nix";
+          moduleRoots = [
+            ./lib
+            ./modules
+            ./hosts
           ];
-        }
+        in
+          inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+            imports =
+              [
+                inputs.flake-file.flakeModules.default
+                ./flake-parts.nix
+                ./configurations.nix
+              ]
+              ++ lib.filter isModuleFile (lib.concatMap lib.filesystem.listFilesRecursive moduleRoots);
+          }
     '';
   };
 
