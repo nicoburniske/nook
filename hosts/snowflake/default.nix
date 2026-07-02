@@ -31,7 +31,6 @@
       sumi
       nushell
       fonts
-      writeNuScriptBin
       compositor
       niri
       lock
@@ -64,6 +63,19 @@
     ];
 
     _module.args.host = host;
+
+    compositor.niri.config = [
+      {
+        output = {
+          args = ["eDP-1"];
+          children = [
+            {mode = "3456x2234";}
+            {scale = 1.6;}
+            {focus-at-startup = {};}
+          ];
+        };
+      }
+    ];
 
     programs.nix-ld.dev.enable = true;
     programs.noctalia.enable = true;

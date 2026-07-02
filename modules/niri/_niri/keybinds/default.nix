@@ -1,7 +1,10 @@
 {
   inputs,
+  lib,
   pkgs,
 }: let
+  inherit (lib.kdl) node;
+
   cmd = import ./cmd.nix {
     inherit inputs pkgs;
   };
@@ -9,113 +12,256 @@
     runtimeInputs = [pkgs.niri];
     source = ./focus-vertical.nu;
   };
-in ''
-  Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "kitty"; }
-  Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "fuzzel"; }
-  Mod+Ctrl+Space repeat=false hotkey-overlay-title="Scripts" { spawn "${cmd}/bin/niri-cmd"; }
 
-  Ctrl+Alt+Super+L allow-inhibiting=false hotkey-overlay-title="Lock screen" { spawn "hyprlock"; }
-  Ctrl+Alt+Super+Q hotkey-overlay-title="Exit niri" { quit skip-confirmation=true; }
-  Mod+Q repeat=false { close-window; }
+  action = name: args: node name null args {} [];
+  spawn = args: action "spawn" args;
+  bind = {
+    key,
+    props ? {},
+    action ? null,
+    actions ? [action],
+  }:
+    node key null [] props actions;
+  simple = key: command:
+    bind {
+      inherit key;
+      action = action command [];
+    };
+  focusWorkspace = key: workspace:
+    bind {
+      inherit key;
+      props.repeat = false;
+      action = action "focus-workspace" [workspace];
+    };
+  moveWindowToWorkspace = key: workspace:
+    bind {
+      inherit key;
+      props.repeat = false;
+      action = action "move-window-to-workspace" [workspace];
+    };
+  moveColumnToWorkspace = key: workspace:
+    bind {
+      inherit key;
+      action = action "move-column-to-workspace" [workspace];
+    };
+in [
+  (bind {
+    key = "Mod+Return";
+    props = {
+      repeat = false;
+      hotkey-overlay-title = "Terminal";
+    };
+    action = spawn ["kitty"];
+  })
+  (bind {
+    key = "Mod+Space";
+    props = {
+      repeat = false;
+      hotkey-overlay-title = "Launcher";
+    };
+    action = spawn ["fuzzel"];
+  })
+  (bind {
+    key = "Mod+Ctrl+Space";
+    props = {
+      repeat = false;
+      hotkey-overlay-title = "Scripts";
+    };
+    action = spawn ["${cmd}/bin/niri-cmd"];
+  })
 
-  Mod+F { maximize-column; }
-  Mod+G { fullscreen-window; }
-  Mod+V { toggle-window-floating; }
-  Mod+S { toggle-column-tabbed-display; }
+  (bind {
+    key = "Ctrl+Alt+Super+L";
+    props = {
+      allow-inhibiting = false;
+      hotkey-overlay-title = "Lock screen";
+    };
+    action = spawn ["hyprlock"];
+  })
+  (bind {
+    key = "Ctrl+Alt+Super+Q";
+    props.hotkey-overlay-title = "Exit niri";
+    action = node "quit" null [] {skip-confirmation = true;} [];
+  })
+  (bind {
+    key = "Mod+Q";
+    props.repeat = false;
+    action = action "close-window" [];
+  })
 
-  Mod+H { focus-column-left; }
-  Mod+J { spawn "${focusVertical}/bin/focus-vertical" "down"; }
-  Mod+K { spawn "${focusVertical}/bin/focus-vertical" "up"; }
-  Mod+L { focus-column-right; }
-  Mod+Left { focus-column-left; }
-  Mod+Down { spawn "${focusVertical}/bin/focus-vertical" "down"; }
-  Mod+Up { spawn "${focusVertical}/bin/focus-vertical" "up"; }
-  Mod+Right { focus-column-right; }
+  (simple "Mod+F" "maximize-column")
+  (simple "Mod+G" "fullscreen-window")
+  (simple "Mod+V" "toggle-window-floating")
+  (simple "Mod+S" "toggle-column-tabbed-display")
 
-  Mod+Alt+H { move-column-left; }
-  Mod+Alt+Left { move-column-left; }
-  Mod+Alt+J { move-window-down; }
-  Mod+Alt+Down { move-window-down; }
-  Mod+Alt+K { move-window-up; }
-  Mod+Alt+Up { move-window-down; }
-  Mod+Alt+L { move-column-right; }
-  Mod+Alt+Right { move-window-down; }
+  (simple "Mod+H" "focus-column-left")
+  (bind {
+    key = "Mod+J";
+    action = spawn ["${focusVertical}/bin/focus-vertical" "down"];
+  })
+  (bind {
+    key = "Mod+K";
+    action = spawn ["${focusVertical}/bin/focus-vertical" "up"];
+  })
+  (simple "Mod+L" "focus-column-right")
+  (simple "Mod+Left" "focus-column-left")
+  (bind {
+    key = "Mod+Down";
+    action = spawn ["${focusVertical}/bin/focus-vertical" "down"];
+  })
+  (bind {
+    key = "Mod+Up";
+    action = spawn ["${focusVertical}/bin/focus-vertical" "up"];
+  })
+  (simple "Mod+Right" "focus-column-right")
 
-  Mod+Shift+Left { focus-monitor-left; }
-  Mod+Shift+Down { focus-monitor-down; }
-  Mod+Shift+Up { focus-monitor-up; }
-  Mod+Shift+Right { focus-monitor-right; }
+  (simple "Mod+Alt+H" "move-column-left")
+  (simple "Mod+Alt+Left" "move-column-left")
+  (simple "Mod+Alt+J" "move-window-down")
+  (simple "Mod+Alt+Down" "move-window-down")
+  (simple "Mod+Alt+K" "move-window-up")
+  (simple "Mod+Alt+Up" "move-window-down")
+  (simple "Mod+Alt+L" "move-column-right")
+  (simple "Mod+Alt+Right" "move-window-down")
 
-  Mod+BracketLeft { consume-or-expel-window-left; }
-  Mod+BracketRight { consume-or-expel-window-right; }
+  (simple "Mod+Shift+Left" "focus-monitor-left")
+  (simple "Mod+Shift+Down" "focus-monitor-down")
+  (simple "Mod+Shift+Up" "focus-monitor-up")
+  (simple "Mod+Shift+Right" "focus-monitor-right")
 
-  Mod+Equal { switch-preset-column-width; }
-  Mod+Minus { switch-preset-column-width-back; }
-  Mod+T { switch-preset-column-width; }
-  Mod+C { center-column; }
+  (simple "Mod+BracketLeft" "consume-or-expel-window-left")
+  (simple "Mod+BracketRight" "consume-or-expel-window-right")
 
-  Mod+O repeat=false hotkey-overlay-title="Overview" { toggle-overview; }
-  Mod+U { focus-workspace-up; }
-  Mod+D { focus-workspace-down; }
-  Mod+Ctrl+U { move-column-to-workspace-up; }
-  Mod+Ctrl+D { move-column-to-workspace-down; }
-  Mod+Shift+U { move-workspace-up; }
-  Mod+Shift+D { move-workspace-down; }
+  (simple "Mod+Equal" "switch-preset-column-width")
+  (simple "Mod+Minus" "switch-preset-column-width-back")
+  (simple "Mod+T" "switch-preset-column-width")
+  (simple "Mod+C" "center-column")
 
-  Mod+1 repeat=false { focus-workspace 1; }
-  Mod+2 repeat=false { focus-workspace 2; }
-  Mod+3 repeat=false { focus-workspace 3; }
-  Mod+4 repeat=false { focus-workspace 4; }
-  Mod+5 repeat=false { focus-workspace 5; }
-  Mod+6 repeat=false { focus-workspace 6; }
-  Mod+7 repeat=false { focus-workspace 7; }
-  Mod+8 repeat=false { focus-workspace 8; }
-  Mod+9 repeat=false { focus-workspace 9; }
-  Mod+0 repeat=false { focus-workspace 10; }
+  (bind {
+    key = "Mod+O";
+    props = {
+      repeat = false;
+      hotkey-overlay-title = "Overview";
+    };
+    action = action "toggle-overview" [];
+  })
+  (simple "Mod+U" "focus-workspace-up")
+  (simple "Mod+D" "focus-workspace-down")
+  (simple "Mod+Ctrl+U" "move-column-to-workspace-up")
+  (simple "Mod+Ctrl+D" "move-column-to-workspace-down")
+  (simple "Mod+Shift+U" "move-workspace-up")
+  (simple "Mod+Shift+D" "move-workspace-down")
 
-  Mod+Alt+1 repeat=false { move-window-to-workspace 1; }
-  Mod+Alt+2 repeat=false { move-window-to-workspace 2; }
-  Mod+Alt+3 repeat=false { move-window-to-workspace 3; }
-  Mod+Alt+4 repeat=false { move-window-to-workspace 4; }
-  Mod+Alt+5 repeat=false { move-window-to-workspace 5; }
-  Mod+Alt+6 repeat=false { move-window-to-workspace 6; }
-  Mod+Alt+7 repeat=false { move-window-to-workspace 7; }
-  Mod+Alt+8 repeat=false { move-window-to-workspace 8; }
-  Mod+Alt+9 repeat=false { move-window-to-workspace 9; }
-  Mod+Alt+0 repeat=false { move-window-to-workspace 10; }
+  (focusWorkspace "Mod+1" 1)
+  (focusWorkspace "Mod+2" 2)
+  (focusWorkspace "Mod+3" 3)
+  (focusWorkspace "Mod+4" 4)
+  (focusWorkspace "Mod+5" 5)
+  (focusWorkspace "Mod+6" 6)
+  (focusWorkspace "Mod+7" 7)
+  (focusWorkspace "Mod+8" 8)
+  (focusWorkspace "Mod+9" 9)
+  (focusWorkspace "Mod+0" 10)
 
-  Mod+Ctrl+1 { move-column-to-workspace 1; }
-  Mod+Ctrl+2 { move-column-to-workspace 2; }
-  Mod+Ctrl+3 { move-column-to-workspace 3; }
-  Mod+Ctrl+4 { move-column-to-workspace 4; }
-  Mod+Ctrl+5 { move-column-to-workspace 5; }
-  Mod+Ctrl+6 { move-column-to-workspace 6; }
-  Mod+Ctrl+7 { move-column-to-workspace 7; }
-  Mod+Ctrl+8 { move-column-to-workspace 8; }
-  Mod+Ctrl+9 { move-column-to-workspace 9; }
-  Mod+Ctrl+0 { move-column-to-workspace 10; }
+  (moveWindowToWorkspace "Mod+Alt+1" 1)
+  (moveWindowToWorkspace "Mod+Alt+2" 2)
+  (moveWindowToWorkspace "Mod+Alt+3" 3)
+  (moveWindowToWorkspace "Mod+Alt+4" 4)
+  (moveWindowToWorkspace "Mod+Alt+5" 5)
+  (moveWindowToWorkspace "Mod+Alt+6" 6)
+  (moveWindowToWorkspace "Mod+Alt+7" 7)
+  (moveWindowToWorkspace "Mod+Alt+8" 8)
+  (moveWindowToWorkspace "Mod+Alt+9" 9)
+  (moveWindowToWorkspace "Mod+Alt+0" 10)
 
-  Mod+WheelScrollDown cooldown-ms=140 { focus-workspace-down; }
-  Mod+WheelScrollUp cooldown-ms=140 { focus-workspace-up; }
+  (moveColumnToWorkspace "Mod+Ctrl+1" 1)
+  (moveColumnToWorkspace "Mod+Ctrl+2" 2)
+  (moveColumnToWorkspace "Mod+Ctrl+3" 3)
+  (moveColumnToWorkspace "Mod+Ctrl+4" 4)
+  (moveColumnToWorkspace "Mod+Ctrl+5" 5)
+  (moveColumnToWorkspace "Mod+Ctrl+6" 6)
+  (moveColumnToWorkspace "Mod+Ctrl+7" 7)
+  (moveColumnToWorkspace "Mod+Ctrl+8" 8)
+  (moveColumnToWorkspace "Mod+Ctrl+9" 9)
+  (moveColumnToWorkspace "Mod+Ctrl+0" 10)
 
-  Mod+P { screenshot-screen; }
-  Mod+Shift+P { screenshot; }
-  Print { screenshot; }
-  Alt+Print { screenshot-window; }
-  Ctrl+Print { screenshot-screen; }
+  (bind {
+    key = "Mod+WheelScrollDown";
+    props.cooldown-ms = 140;
+    action = action "focus-workspace-down" [];
+  })
+  (bind {
+    key = "Mod+WheelScrollUp";
+    props.cooldown-ms = 140;
+    action = action "focus-workspace-up" [];
+  })
 
-  XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "set" "5%+"; }
-  XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
-  Shift+XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--device=kbd_backlight" "set" "5%+"; }
-  Shift+XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--device=kbd_backlight" "set" "5%-"; }
+  (simple "Mod+P" "screenshot-screen")
+  (simple "Mod+Shift+P" "screenshot")
+  (simple "Print" "screenshot")
+  (simple "Alt+Print" "screenshot-window")
+  (simple "Ctrl+Print" "screenshot-screen")
 
-  XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1.0" "@DEFAULT_SINK@" "5%+"; }
-  XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1.0" "@DEFAULT_SINK@" "5%-"; }
-  XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_SINK@" "toggle"; }
-  XF86AudioMicMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-  XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
-  XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
-  XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+  (bind {
+    key = "XF86MonBrightnessUp";
+    props.allow-when-locked = true;
+    action = spawn ["brightnessctl" "set" "5%+"];
+  })
+  (bind {
+    key = "XF86MonBrightnessDown";
+    props.allow-when-locked = true;
+    action = spawn ["brightnessctl" "set" "5%-"];
+  })
+  (bind {
+    key = "Shift+XF86MonBrightnessUp";
+    props.allow-when-locked = true;
+    action = spawn ["brightnessctl" "--device=kbd_backlight" "set" "5%+"];
+  })
+  (bind {
+    key = "Shift+XF86MonBrightnessDown";
+    props.allow-when-locked = true;
+    action = spawn ["brightnessctl" "--device=kbd_backlight" "set" "5%-"];
+  })
 
-  Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-''
+  (bind {
+    key = "XF86AudioRaiseVolume";
+    props.allow-when-locked = true;
+    action = spawn ["wpctl" "set-volume" "-l" "1.0" "@DEFAULT_SINK@" "5%+"];
+  })
+  (bind {
+    key = "XF86AudioLowerVolume";
+    props.allow-when-locked = true;
+    action = spawn ["wpctl" "set-volume" "-l" "1.0" "@DEFAULT_SINK@" "5%-"];
+  })
+  (bind {
+    key = "XF86AudioMute";
+    props.allow-when-locked = true;
+    action = spawn ["wpctl" "set-mute" "@DEFAULT_SINK@" "toggle"];
+  })
+  (bind {
+    key = "XF86AudioMicMute";
+    props.allow-when-locked = true;
+    action = spawn ["wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"];
+  })
+  (bind {
+    key = "XF86AudioPlay";
+    props.allow-when-locked = true;
+    action = spawn ["playerctl" "play-pause"];
+  })
+  (bind {
+    key = "XF86AudioPrev";
+    props.allow-when-locked = true;
+    action = spawn ["playerctl" "previous"];
+  })
+  (bind {
+    key = "XF86AudioNext";
+    props.allow-when-locked = true;
+    action = spawn ["playerctl" "next"];
+  })
+
+  (bind {
+    key = "Mod+Escape";
+    props.allow-inhibiting = false;
+    action = action "toggle-keyboard-shortcuts-inhibit" [];
+  })
+]

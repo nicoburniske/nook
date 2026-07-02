@@ -1,5 +1,5 @@
 {...}: let
-  writeNuScriptBinOverlay = final: prev: {
+  overlay = final: prev: {
     writeNuScriptBin = name: spec: let
       text =
         if builtins.typeOf spec.source == "path"
@@ -20,10 +20,11 @@
         meta.mainProgram = name;
       };
   };
+
   module = {
-    nixpkgs.overlays = [writeNuScriptBinOverlay];
+    nixpkgs.overlays = [overlay];
   };
 in {
-  flake.modules.nixos.writeNuScriptBin = module;
-  flake.modules.darwin.writeNuScriptBin = module;
+  flake.modules.nixos.lib = module;
+  flake.modules.darwin.lib = module;
 }

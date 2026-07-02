@@ -7,6 +7,20 @@
   in {
     environment.systemPackages = [pkgs.qbittorrent];
 
+    compositor.niri.rules = [
+      {
+        window-rule = {
+          match = {
+            app-id = "^org\\.qbittorrent\\.qBittorrent$";
+            title = "^\\[.*";
+          };
+          open-floating = true;
+          default-column-width = [{proportion = 0.7;}];
+          default-window-height = [{proportion = 0.7;}];
+        };
+      }
+    ];
+
     sumi.dataFile = {
       "qBittorrent/nova3/engines/nyaasi.py".value = nyaasi;
     };

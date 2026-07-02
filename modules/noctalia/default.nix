@@ -26,6 +26,22 @@
         "${noctalia} --daemon"
       ];
 
+      compositor.niri.rules = [
+        {
+          layer-rule = {
+            match.namespace = "^noctalia-wallpaper$";
+            place-within-backdrop = true;
+          };
+        }
+
+        {
+          layer-rule = {
+            match.namespace = "^noctalia-bar-";
+            background-effect = [{blur = false;}];
+          };
+        }
+      ];
+
       environment.systemPackages = [
         pkgs.ddcutil
         package

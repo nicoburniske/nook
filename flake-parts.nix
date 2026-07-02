@@ -24,6 +24,7 @@
             inputs.flake-file.flakeModules.default
             ./flake-parts.nix
             ./configurations.nix
+            (inputs.import-tree ./lib)
             (inputs.import-tree ./modules)
             ((inputs.import-tree.filter (inputs.nixpkgs.lib.hasSuffix "/default.nix")) ./hosts)
           ];

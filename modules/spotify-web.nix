@@ -28,5 +28,15 @@
       spotifyWeb
       spotifyDesktop
     ];
+
+    compositor.niri.rules = [
+      {
+        window-rule = {
+          match."app-id" = "^chrome-open\\.spotify\\.com__-Default$";
+          opacity = 0.9;
+          background-effect = [{blur = true;}];
+        };
+      }
+    ];
   };
 }

@@ -110,6 +110,18 @@
     };
   };
 in {
-  flake.modules.nixos.kitty = mkKittyModule;
+  flake.modules.nixos.kitty = {pkgs, ...}:
+    (mkKittyModule {inherit pkgs;})
+    // {
+      compositor.niri.rules = [
+        {
+          window-rule = {
+            match."app-id" = "^kitty$";
+            scroll-factor = 1.5;
+            background-effect = [{blur = true;}];
+          };
+        }
+      ];
+    };
   flake.modules.darwin.kitty = mkKittyModule;
 }

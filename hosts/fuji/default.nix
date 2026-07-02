@@ -37,7 +37,6 @@
       sumi
       nushell
       fonts
-      writeNuScriptBin
       kitty
       yazi
       helix

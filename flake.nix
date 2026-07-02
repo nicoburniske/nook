@@ -2,14 +2,14 @@
 {
   description = "multi host nix config";
 
-  outputs =
-    inputs:
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.flake-parts.flakeModules.modules
         inputs.flake-file.flakeModules.default
         ./flake-parts.nix
         ./configurations.nix
+        (inputs.import-tree ./lib)
         (inputs.import-tree ./modules)
         ((inputs.import-tree.filter (inputs.nixpkgs.lib.hasSuffix "/default.nix")) ./hosts)
       ];

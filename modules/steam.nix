@@ -42,6 +42,35 @@
       gamescopeWrapper
     ];
 
+    compositor.niri.rules = [
+      {
+        window-rule = {
+          match."app-id" = "^steam$";
+          open-on-workspace = "5";
+        };
+      }
+      {
+        window-rule = {
+          match."app-id" = "^steam_app_[0-9]+$";
+          open-on-workspace = "5";
+          open-fullscreen = true;
+        };
+      }
+      {
+        window-rule = [
+          {match."app-id" = "^gamescope$";}
+          {
+            match = {
+              app-id = "^$";
+              title = "^Gamescope$";
+            };
+          }
+          {open-on-workspace = "5";}
+          {open-fullscreen = true;}
+        ];
+      }
+    ];
+
     services.udev.extraRules = ''
       # Steam Controller / Triton firmware updater bootloader access.
       SUBSYSTEMS=="usb", ATTRS{idVendor}=="28de", MODE="0666", TAG+="uaccess"

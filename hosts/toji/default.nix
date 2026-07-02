@@ -1,8 +1,4 @@
-{
-  config,
-  inputs,
-  ...
-}: {
+{config, ...}: {
   flake-file.inputs.nix-ld = {
     url = "github:Mic92/nix-ld";
     inputs.nixpkgs.follows = "nixpkgs";
@@ -25,7 +21,6 @@
       sumi
       nushell
       fonts
-      writeNuScriptBin
       compositor
       niri
       lock
@@ -69,6 +64,20 @@
       dark = 1.0;
       darkOnLight = 1.0;
     };
+
+    compositor.niri.config = [
+      {
+        output = {
+          args = ["DP-3"];
+          children = [
+            {mode = "5120x2880@165.058";}
+            {scale = 2;}
+            {variable-refresh-rate = {};}
+            {hdr = {};}
+          ];
+        };
+      }
+    ];
 
     programs.noctalia.enable = true;
   };
