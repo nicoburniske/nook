@@ -55,32 +55,30 @@
    [else workspace-root]))
 
 (define (create-file-tree)
-  (define target-path (current-doc-path))
-  (define root (resolve-tree-root target-path))
-  (define directories (tree-unfold-path-to-target (hash) root target-path))
-  (define state
-    (FileTreeState (box root)
-                   (box '())
-                   (box directories)
-                   (box 0)
-                   (box 0)
-                   (box 1)
-                   (box #t)
-                   (box #f)
-                   (box #f)
-                   (box #f)
-                   (box #f)
-                   (box #f)
-                   (box #f)
-                   (box "")
-                   (box 0)
-                   (box '())
-                   (box -1)))
+  (let* ([target-path (current-doc-path)]
+         [root (resolve-tree-root target-path)]
+         [directories (tree-unfold-path-to-target (hash) root target-path)]
+         [state (FileTreeState (box root)
+                               (box '())
+                               (box directories)
+                               (box 0)
+                               (box 0)
+                               (box 1)
+                               (box #t)
+                               (box #f)
+                               (box #f)
+                               (box #f)
+                               (box #f)
+                               (box #f)
+                               (box #f)
+                               (box "")
+                               (box 0)
+                               (box '())
+                               (box -1))])
+    (tree-refresh! state target-path)
 
-  (tree-refresh! state target-path)
-
-  (push-component!
-   (new-component! "file-tree"
-                   state
-                   file-tree-render
-                   (hash "handle_event" file-tree-event-handler))))
+    (push-component!
+     (new-component! "file-tree"
+                     state
+                     file-tree-render
+                     (hash "handle_event" file-tree-event-handler)))))
