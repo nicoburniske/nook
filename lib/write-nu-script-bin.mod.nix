@@ -5,6 +5,10 @@
         if builtins.typeOf spec.source == "path"
         then builtins.readFile spec.source
         else spec.source;
+      path =
+        (spec.runtimeInputs or [])
+        |> map (package: "${final.lib.getBin package}/bin")
+        |> builtins.toJSON;
     in
       prev.writeTextFile {
         inherit name;
@@ -12,13 +16,7 @@
         destination = "/bin/${name}";
         text = ''
           #!${final.nushell}/bin/nu
-          ${final.lib.optionalString ((spec.runtimeInputs or []) != []) ''
-            $env.PATH = (${
-              spec.runtimeInputs
-              |> map (package: "${package}/bin")
-              |> builtins.toJSON
-            } | append ($env.PATH? | default []))
-          ''}
+          $env.PATH = ${path} ++ $env.PATH
           ${text}
         '';
         meta.mainProgram = name;
