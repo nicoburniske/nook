@@ -20,4 +20,9 @@ in {
       options = "--delete-older-than +5";
     };
   };
+
+  mod.nixos.nuke-default-packages = {
+    environment.defaultPackages = [];
+    environment.stub-ld.enable = false;
+  };
 }

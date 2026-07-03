@@ -26,6 +26,7 @@
         cargo
         yazi
         tools
+        nuke-default-packages
         user
         docker
         plugdev
