@@ -8,11 +8,6 @@
       url = "github:nix-community/nixos-apple-silicon";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    nix-ld = {
-      url = "github:Mic92/nix-ld";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   configurations.nixos.snowflake.module = {...}: let
@@ -28,7 +23,6 @@
     imports =
       [
         ./configuration.nix
-        inputs.nix-ld.nixosModules.nix-ld
       ]
       ++ (with common; [
         nix
@@ -89,7 +83,5 @@
         };
       }
     ];
-
-    programs.nix-ld.dev.enable = true;
   };
 }
