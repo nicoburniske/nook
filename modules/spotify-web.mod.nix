@@ -1,39 +1,19 @@
-{
+{config, ...}: {
   mod.nixos.spotify-web = {
     host,
     pkgs,
     ...
-  }: let
-    chromium = pkgs.chromium.override {
-      enableWideVine = true;
-    };
+  }: {
+    imports = [config.flake.nixosModules.chromium];
 
-    spotify-web = pkgs.runCommand "spotify-web" {nativeBuildInputs = [pkgs.makeBinaryWrapper];} ''
-      mkdir -p $out/bin
-      makeBinaryWrapper ${chromium}/bin/chromium $out/bin/spotify-web \
-        --add-flags "--user-data-dir=${host.homeDirectory}/.config/spotify-web" \
-        --add-flags "--app=https://open.spotify.com"
-    '';
-
-    spotifyDesktop = pkgs.makeDesktopItem {
+    environment.systemPackages = pkgs.writeChromiumApp {
       name = "spotify-web";
+      url = "https://open.spotify.com";
       desktopName = "Spotify";
-      genericName = "Music Player";
-      exec = "${spotify-web}/bin/spotify-web";
       icon = "spotify";
       categories = ["Audio" "Music" "Player"];
+      userDataDir = "${host.homeDirectory}/.config/spotify-web";
     };
-  in {
-    nixpkgs.allowedUnfreePackages = [
-      chromium
-      chromium.browser
-      pkgs.widevine-cdm
-    ];
-
-    environment.systemPackages = [
-      spotify-web
-      spotifyDesktop
-    ];
 
     compositor.niri.config = [
       {

@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   mod.nixos.roam-web = {
     host,
     pkgs,
@@ -8,26 +8,16 @@
       url = "https://roamstatic.com/website/roam-logo-symbol-white-HS4V332B.svg";
       hash = "sha256-OKuc2QgcgG7grvI4xsVrKW6+t4NG5ma1kXTAIQtdR9Q=";
     };
+  in {
+    imports = [config.flake.nixosModules.chromium];
 
-    roam-web = pkgs.runCommand "roam-web" {nativeBuildInputs = [pkgs.makeBinaryWrapper];} ''
-      mkdir -p $out/bin
-      makeBinaryWrapper ${pkgs.chromium}/bin/chromium $out/bin/roam-web \
-        --add-flags "--user-data-dir=${host.homeDirectory}/.config/roam-web" \
-        --add-flags "--app=https://ro.am/r/#"
-    '';
-
-    roamDesktop = pkgs.makeDesktopItem {
+    environment.systemPackages = pkgs.writeChromiumApp {
       name = "roam-web";
+      url = "https://ro.am/r/#";
       desktopName = "Roam";
-      genericName = "Virtual Office";
-      exec = "${roam-web}/bin/roam-web";
       icon = "${roamIcon}";
       categories = ["Office"];
+      userDataDir = "${host.homeDirectory}/.config/roam-web";
     };
-  in {
-    environment.systemPackages = [
-      roam-web
-      roamDesktop
-    ];
   };
 }
