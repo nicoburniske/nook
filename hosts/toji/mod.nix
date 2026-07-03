@@ -33,6 +33,7 @@
         cargo
       ])
       ++ (with modules; [
+        nix
         docker
         plugdev
         secrets

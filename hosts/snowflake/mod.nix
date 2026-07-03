@@ -47,6 +47,7 @@
         yazi
       ])
       ++ (with modules; [
+        nix
         plugdev
         sumi
         fonts

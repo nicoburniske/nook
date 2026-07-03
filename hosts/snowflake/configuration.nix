@@ -1,26 +1,9 @@
 {
-  config,
   host,
   inputs,
-  lib,
   pkgs,
   ...
-}: let
-  self = inputs.self;
-  shortRev = self.shortRev or self.dirtyShortRev or "unknown";
-  rev = "${shortRev}-${self.lastModifiedDate}";
-in {
-  system.configurationRevision = shortRev;
-  system.nixos.label = rev;
-
-  nix = {
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 7d";
-    };
-  };
-
+}: {
   imports = [
     ./hardware-configuration.nix
     ./packages.nix
