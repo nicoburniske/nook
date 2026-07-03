@@ -12,7 +12,8 @@ gen:
 fmt: fmt-nix fmt-scm
 
 fmt-nix:
-    nix run nixpkgs#alejandra -- .
+    nix run .#nix-tidy -- .
+    nix run nixpkgs#alejandra -- -q .
 
 fmt-scm:
     nix shell nixpkgs#emacs-nox nixpkgs#fd -c \

@@ -43,6 +43,10 @@
       url = "github:LnL7/nix-darwin";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    nix-tidy = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "path:./tidy";
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     noctalia = {
       inputs.nixpkgs.follows = "nixpkgs";

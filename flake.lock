@@ -250,6 +250,22 @@
         "type": "github"
       }
     },
+    "nix-tidy": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./tidy",
+        "type": "path"
+      },
+      "original": {
+        "path": "./tidy",
+        "type": "path"
+      },
+      "parent": []
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1782467914,
@@ -298,6 +314,7 @@
         "niri": "niri",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
+        "nix-tidy": "nix-tidy",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
         "sumi": "sumi"

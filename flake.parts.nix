@@ -1,32 +1,16 @@
 {
   config,
+  inputs,
   lib,
   ...
 }: let
-  concat = lib.concatStringsSep;
   toNix = lib.generators.toPretty {multiline = false;};
-  toNixAttrs = let
-    render = path: value:
-      if !builtins.isAttrs value
-      then "${concat "." path} = ${toNix value};"
-      else let
-        names = builtins.attrNames value;
-      in
-        if builtins.length names == 1
-        then render (path ++ names) (builtins.getAttr (builtins.head names) value)
-        else "${concat "." path} = { ${attrsToString value} };";
-    attrsToString = attrs:
-      attrs
-      |> lib.mapAttrsToList (name: render [name])
-      |> concat " ";
-  in
-    attrs: "{ ${attrsToString attrs} }";
   flakeText = ''
     # DO-NOT-EDIT: file was auto-generated using 'just gen'
     {
       description = ${toNix config.description};
-      inputs = ${toNixAttrs config.inputs};
-      nixConfig = ${toNixAttrs config.nixConfig};
+      inputs = ${toNix config.inputs};
+      nixConfig = ${toNix config.nixConfig};
       outputs = inputs: import ./flake.output.nix inputs;
     }
   '';
@@ -57,6 +41,10 @@ in {
     inputs = {
       self.lfs = true;
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+      nix-tidy = {
+        url = "path:./tidy";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
       flake-parts = {
         url = "github:hercules-ci/flake-parts";
         inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -69,13 +57,22 @@ in {
       "aarch64-darwin"
     ];
 
-    perSystem = {pkgs, ...}: {
+    perSystem = {
+      pkgs,
+      system,
+      ...
+    }: let
+      nixTidy = inputs.nix-tidy.packages.${system}.default;
+    in {
       formatter = pkgs.alejandra;
+
+      packages.nix-tidy = nixTidy;
 
       packages.gen-flake = pkgs.writeShellApplication {
         name = "gen-flake";
         text = ''
           install -m 0644 ${pkgs.writeText "flake.nix" flakeText} flake.nix
+          ${nixTidy}/bin/nix-tidy flake.nix
           ${pkgs.alejandra}/bin/alejandra flake.nix >/dev/null 2>&1
         '';
       };
