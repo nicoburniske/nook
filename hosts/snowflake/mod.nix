@@ -45,6 +45,7 @@
         git
         cargo
         yazi
+        tools
       ])
       ++ (with modules; [
         nix
@@ -71,6 +72,7 @@
         spotifyWeb
         roamWeb
         mullvad
+        qbittorrent
       ]);
 
     _module.args.host = host;

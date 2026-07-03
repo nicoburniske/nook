@@ -26,11 +26,24 @@
         cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
       });
 
-    hx = pkgs.writeShellScriptBin "hx" ''
-      set -eu
-      export HELIX_STEEL_CONFIG="${config.lib.sumi.paths.config}/helix/plugins"
-      exec "${helixSteelPackage}/bin/hx" "$@"
-    '';
+    hx = pkgs.symlinkJoin {
+      name = "hx";
+      paths = [helixSteelPackage];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram $out/bin/hx \
+          --set HELIX_STEEL_CONFIG "${config.lib.sumi.paths.config}/helix/plugins" \
+          --prefix PATH : ${
+          lib.makeBinPath (with pkgs; [
+            alejandra
+            marksman
+            nil
+            nixd
+            taplo
+          ])
+        }
+      '';
+    };
   in {
     options.helix = {
       root = lib.mkOption {
@@ -67,8 +80,6 @@
 
       environment.systemPackages = [
         hx
-        pkgs.nil
-        pkgs.nixd
       ];
 
       sumi.configFile =

@@ -37,9 +37,10 @@
       capSysNice = false;
     };
 
-    environment.systemPackages = [
-      pkgs.hidapi
+    environment.systemPackages = with pkgs; [
       gamescopeWrapper
+      hidapi
+      mangohud
     ];
 
     compositor.niri.rules = [

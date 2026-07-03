@@ -1,29 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
-    alejandra
     brightnessctl
-    fd
-    ffmpeg
-    gh
-    goverlay
-    just
-    mangohud
-    marksman
-    nil
-    nixd
-    pulseaudio
     pavucontrol
-    vkmark
-    ripgrep
-    taplo
-    unzip
-    wl-clipboard
-    zip
-    bluetui
-    vlc
-    yazi
-    ncdu
     opencode
-    tokei
   ];
 }

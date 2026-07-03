@@ -1,32 +1,8 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
-    just
-    gh
-    ripgrep
-    tokei
-    marksman
-    bun
-    ffmpeg
-    lua-language-server
-    rustup
-    cmake
-    fastfetch
-    qbittorrent
-    alejandra
-    taplo
-    fd
-    presenterm
-    wl-clipboard
     brightnessctl
-    wiremix
     jmtpfs
-    usbutils
-    cutecom
-    bluetui
     obs-studio
-    zip
-    unzip
-    unrar
     sparrow
     snapshot
     readest

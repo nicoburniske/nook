@@ -31,6 +31,8 @@
         btop
         git
         cargo
+        yazi
+        tools
       ])
       ++ (with modules; [
         nix
@@ -47,6 +49,7 @@
         kitty
         keepassxc
         nautilus
+        vlc
         fuzzel
         noctalia
         qt

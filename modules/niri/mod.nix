@@ -30,6 +30,7 @@
     environment.systemPackages = with pkgs; [
       phinger-cursors
       playerctl
+      wl-clipboard
       xwayland-satellite
     ];
   };
