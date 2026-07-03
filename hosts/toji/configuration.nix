@@ -8,8 +8,6 @@
     ./packages.nix
   ];
 
-  nixpkgs.config.allowUnfree = true;
-
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;

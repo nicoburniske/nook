@@ -14,8 +14,6 @@ in {
 
   nix.enable = false;
 
-  nixpkgs.config.allowUnfree = true;
-
   users.users.${host.user} = {
     name = host.user;
     home = host.homeDirectory;

@@ -18,6 +18,11 @@
       '';
     };
   in {
+    nixpkgs.allowedUnfreePackages = with pkgs; [
+      steam
+      steam-unwrapped
+    ];
+
     # https://github.com/NixOS/nixpkgs/issues/324875#issuecomment-2308355036
     # systemctl --user restart pipewire
     programs.steam = {

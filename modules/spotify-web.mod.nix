@@ -24,6 +24,12 @@
       categories = ["Audio" "Music" "Player"];
     };
   in {
+    nixpkgs.allowedUnfreePackages = [
+      chromium
+      chromium.browser
+      pkgs.widevine-cdm
+    ];
+
     environment.systemPackages = [
       spotify-web
       spotifyDesktop

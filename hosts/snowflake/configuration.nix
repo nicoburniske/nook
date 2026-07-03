@@ -10,8 +10,6 @@
     inputs.apple-silicon.nixosModules.apple-silicon-support
   ];
 
-  nixpkgs.config.allowUnfree = true;
-
   boot = {
     consoleLogLevel = 0;
     loader.systemd-boot = {
