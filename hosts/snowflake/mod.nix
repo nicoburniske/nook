@@ -88,6 +88,5 @@
     ];
 
     programs.nix-ld.dev.enable = true;
-    programs.noctalia.enable = true;
   };
 }

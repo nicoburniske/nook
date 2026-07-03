@@ -88,7 +88,5 @@
         };
       }
     ];
-
-    programs.noctalia.enable = true;
   };
 }
