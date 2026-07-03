@@ -1,7 +1,9 @@
 {...}: {
-  flake.mod.common.yazi = {pkgs, ...}: let
-    tomlFormat = pkgs.formats.toml {};
-
+  flake.mod.common.yazi = {
+    lib,
+    pkgs,
+    ...
+  }: let
     yaziSettings = {
       mgr = {
         show_hidden = true;
@@ -68,10 +70,10 @@
     environment.systemPackages = [pkgs.yazi];
 
     sumi.configFile = {
-      "yazi/yazi.toml".value = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
+      "yazi/yazi.toml".value = lib.toml.toTOML yaziSettings;
       "yazi/theme.toml" = {
         watch = "theme";
-        value = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.variant}.toml" (mkTheme ctx.value);
+        value = ctx: lib.toml.toTOML (mkTheme ctx.value);
       };
     };
   };

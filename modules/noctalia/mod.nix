@@ -11,7 +11,6 @@
   }: let
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
     noctalia = lib.getExe package;
-    toml = pkgs.formats.toml {};
     settings = import ./_settings.nix;
     colors = import ./_colors.nix;
   in {
@@ -43,7 +42,7 @@
     sumi.configFile = {
       "noctalia/config.toml" = {
         watch = "theme";
-        value = ctx: toml.generate "noctalia-config.toml" (settings ctx.value);
+        value = ctx: lib.toml.toTOML (settings ctx.value);
       };
 
       "noctalia/palettes/Nook.json" = {

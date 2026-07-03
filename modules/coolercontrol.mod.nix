@@ -14,39 +14,7 @@
     nct6799Uid = "00a4da18625f56275c89e2fcd25a83c08c5ad3326452fa7e252fcc8a89c92493";
     cpuUid = "9378f45b621719636560170d30c952878cd910cc15c883d07647dd9f96577a54";
     gpuUid = "97910386cac9bfce54b2c224e4aaef42cd953440cb57f1ff5ff46ac183bf338e";
-
-    tomlValue = value:
-      if builtins.isString value
-      then builtins.toJSON value
-      else if builtins.isBool value
-      then lib.boolToString value
-      else if builtins.isInt value || builtins.isFloat value
-      then toString value
-      else if builtins.isList value
-      then "[${value |> lib.concatMapStringsSep ", " tomlValue}]"
-      else if builtins.isAttrs value
-      then inlineTable value
-      else throw "Unsupported CoolerControl TOML value: ${builtins.typeOf value}";
-
-    inlineTable = attrs: let
-      renderPair = key: "${key} = ${tomlValue attrs.${key}}";
-    in "{ ${builtins.attrNames attrs |> lib.concatMapStringsSep ", " renderPair} }";
-
-    renderAttrs = attrs: let
-      renderPair = key: "${key} = ${tomlValue attrs.${key}}";
-    in
-      builtins.attrNames attrs
-      |> lib.concatMapStringsSep "\n" renderPair;
-
-    renderTable = name: attrs: ''
-      [${name}]
-      ${renderAttrs attrs}
-    '';
-
-    renderArrayTable = name: attrs: ''
-      [[${name}]]
-      ${renderAttrs attrs}
-    '';
+    inherit (lib.toml) inlineTable;
 
     quietCaseProfile = {
       uid = profile.case;
@@ -77,7 +45,7 @@
       ];
       temp_min = 0.0;
       temp_max = 100.0;
-      temp_source = {
+      temp_source = inlineTable {
         device_uid = cpuUid;
         temp_name = "temp1";
       };
@@ -99,7 +67,7 @@
       ];
       temp_min = 30.0;
       temp_max = 95.0;
-      temp_source = {
+      temp_source = inlineTable {
         device_uid = gpuUid;
         temp_name = "temp1";
       };
@@ -121,50 +89,50 @@
       ];
       temp_min = 30.0;
       temp_max = 100.0;
-      temp_source = {
+      temp_source = inlineTable {
         device_uid = cpuUid;
         temp_name = "temp1";
       };
     };
 
-    configSections = [
-      (renderTable "devices" {
+    settings = {
+      devices = {
         ${nct6799Uid} = "nct6799";
         ${cpuUid} = "AMD Ryzen 9 7900 12-Core Processor";
         ${gpuUid} = "Navi 48 [Radeon RX 9070/9070 XT/9070 GRE]";
-      })
+      };
 
-      (renderTable "legacy690" {})
+      legacy690 = {};
 
-      (renderTable "device-settings.${nct6799Uid}" {
-        fan1 = {profile_uid = profile.case;};
-        fan2 = {profile_uid = profile.cpu;};
-        fan6 = {profile_uid = profile.case;};
-      })
+      device-settings.${nct6799Uid} = {
+        fan1 = inlineTable {profile_uid = profile.case;};
+        fan2 = inlineTable {profile_uid = profile.cpu;};
+        fan6 = inlineTable {profile_uid = profile.case;};
+      };
 
-      (renderArrayTable "profiles" {
-        uid = "0";
-        name = "Unmanaged";
-        p_type = "Default";
-        function_uid = "0";
-        member_profile_uids = [];
-      })
+      profiles = [
+        {
+          uid = "0";
+          name = "Unmanaged";
+          p_type = "Default";
+          function_uid = "0";
+          member_profile_uids = [];
+        }
+        quietCaseProfile
+        quietCaseCpuProfile
+        quietCaseGpuProfile
+        quietCpuProfile
+      ];
 
-      (renderArrayTable "profiles" quietCaseProfile)
+      functions = [
+        {
+          uid = "0";
+          name = "Default Function";
+          f_type = "Identity";
+        }
+      ];
 
-      (renderArrayTable "profiles" quietCaseCpuProfile)
-
-      (renderArrayTable "profiles" quietCaseGpuProfile)
-
-      (renderArrayTable "profiles" quietCpuProfile)
-
-      (renderArrayTable "functions" {
-        uid = "0";
-        name = "Default Function";
-        f_type = "Identity";
-      })
-
-      (renderTable "settings" {
+      settings = {
         apply_on_boot = true;
         liquidctl_integration = true;
         hide_duplicate_devices = true;
@@ -175,12 +143,12 @@
         drivetemp_suspend = false;
         sensors_auto_detect = true;
         device_listener_enabled = true;
-      })
-    ];
+      };
+    };
 
     configFile =
       pkgs.writeText "coolercontrol-config.toml"
-      (configSections |> lib.concatStringsSep "\n");
+      (lib.toml.toTOML settings);
   in {
     boot.kernelModules = ["nct6775"];
 

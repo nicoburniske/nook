@@ -10,7 +10,6 @@
     pkgs,
     ...
   }: let
-    tomlFormat = pkgs.formats.toml {};
     mkOutOfStoreSymlink = config.lib.sumi.mkOutOfStoreSymlink;
 
     helixSteelPackage =
@@ -103,7 +102,7 @@
             value = ctx: let
               theme = ctx.value;
             in
-              tomlFormat.generate "sumi-helix-config-${ctx.variant}.toml" {
+              lib.toml.toTOML {
                 theme = theme.meta.helix or ctx.variant;
 
                 editor = {
@@ -153,7 +152,7 @@
               };
           };
 
-          "helix/languages.toml".value = tomlFormat.generate "sumi-helix-languages.toml" {
+          "helix/languages.toml".value = lib.toml.toTOML {
             grammar = config.helix.grammars;
 
             language =
