@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  flake.mod.nixos.helium = {pkgs, ...}: {
+  mod.nixos.helium = {pkgs, ...}: {
     nixpkgs.overlays = [
       (final: prev: {
         helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;

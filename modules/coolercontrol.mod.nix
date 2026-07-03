@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.coolercontrol = {
+{
+  mod.nixos.coolercontrol = {
     lib,
     pkgs,
     ...

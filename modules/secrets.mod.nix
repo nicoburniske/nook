@@ -10,7 +10,7 @@
     packages.agenix = inputs.agenix.packages.${system}.default;
   };
 
-  flake.mod.nixos.secrets = {
+  mod.nixos.secrets = {
     lib,
     pkgs,
     ...

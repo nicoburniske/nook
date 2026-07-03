@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.git = {
+{
+  mod.common.git = {
     lib,
     pkgs,
     ...

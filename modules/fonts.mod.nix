@@ -1,7 +1,5 @@
-{config, ...}: let
-  flakeConfig = config;
-in {
-  flake.mod.common.fonts = {
+{
+  mod.common.fonts = {
     config,
     pkgs,
     lib,
@@ -23,7 +21,7 @@ in {
       |> lib.unique;
   };
 
-  flake.mod.nixos.fonts = {
+  mod.nixos.fonts = {
     config,
     lib,
     ...
@@ -35,8 +33,6 @@ in {
       |> lib.filter (name: name != null)
       |> lib.unique;
   in {
-    imports = [flakeConfig.flake.mod.common.fonts];
-
     fonts.fontconfig = {
       enable = true;
       defaultFonts = {

@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  flake.mod.common.helix = {
+  mod.common.helix = {
     config,
     lib,
     pkgs,

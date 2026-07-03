@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.btop = {pkgs, ...}: {
+{
+  mod.common.btop = {pkgs, ...}: {
     environment.systemPackages = [pkgs.btop];
 
     sumi.configFile = {

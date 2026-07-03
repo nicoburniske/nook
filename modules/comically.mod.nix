@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.comically = {pkgs, ...}: let
+{
+  mod.common.comically = {pkgs, ...}: let
     comically = pkgs.rustPlatform.buildRustPackage {
       pname = "comically";
       version = "0.1.6";

@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.dolphin = {
+{
+  mod.nixos.dolphin = {
     lib,
     pkgs,
     ...

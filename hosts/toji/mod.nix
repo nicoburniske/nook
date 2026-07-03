@@ -6,20 +6,18 @@
       homeDirectory = "/home/nico";
       flakeRoot = "/home/nico/nook";
     };
-    common = config.flake.mod.common;
-    modules = config.flake.mod.nixos;
   in {
     imports =
       [
         ./configuration.nix
       ]
-      ++ (with common; [
+      ++ (with config.flake.nixosModules; [
         nix
         nushell
         helix
         codex
         fzf
-        ohMyPosh
+        oh-my-posh
         lazygit
         television
         bat
@@ -28,9 +26,6 @@
         cargo
         yazi
         tools
-      ])
-      ++ (with modules; [
-        nix
         user
         docker
         plugdev
@@ -51,13 +46,13 @@
         gtk
         zsh
         helium
-        spotifyWeb
-        roamWeb
+        spotify-web
+        roam-web
         shadps4
         steam
         eden
         bitdo-controller
-        kantoOra
+        kanto-ora
         coolercontrol
         mullvad
         qbittorrent

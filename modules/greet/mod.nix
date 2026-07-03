@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.greet = {
+{
+  mod.nixos.greet = {
     config,
     host,
     pkgs,

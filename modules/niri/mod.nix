@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  flake.mod.nixos.niri = {pkgs, ...}: {
+  mod.nixos.niri = {pkgs, ...}: {
     imports = [
       ./_niri
       ./_niri/rofi.nix

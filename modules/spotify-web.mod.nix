@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.spotifyWeb = {
+{
+  mod.nixos.spotify-web = {
     host,
     pkgs,
     ...
@@ -8,7 +8,7 @@
       enableWideVine = true;
     };
 
-    spotifyWeb = pkgs.runCommand "spotify-web" {nativeBuildInputs = [pkgs.makeBinaryWrapper];} ''
+    spotify-web = pkgs.runCommand "spotify-web" {nativeBuildInputs = [pkgs.makeBinaryWrapper];} ''
       mkdir -p $out/bin
       makeBinaryWrapper ${chromium}/bin/chromium $out/bin/spotify-web \
         --add-flags "--user-data-dir=${host.homeDirectory}/.config/spotify-web" \
@@ -19,13 +19,13 @@
       name = "spotify-web";
       desktopName = "Spotify";
       genericName = "Music Player";
-      exec = "${spotifyWeb}/bin/spotify-web";
+      exec = "${spotify-web}/bin/spotify-web";
       icon = "spotify";
       categories = ["Audio" "Music" "Player"];
     };
   in {
     environment.systemPackages = [
-      spotifyWeb
+      spotify-web
       spotifyDesktop
     ];
 

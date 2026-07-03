@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.roamWeb = {
+{
+  mod.nixos.roam-web = {
     host,
     pkgs,
     ...
@@ -9,7 +9,7 @@
       hash = "sha256-OKuc2QgcgG7grvI4xsVrKW6+t4NG5ma1kXTAIQtdR9Q=";
     };
 
-    roamWeb = pkgs.runCommand "roam-web" {nativeBuildInputs = [pkgs.makeBinaryWrapper];} ''
+    roam-web = pkgs.runCommand "roam-web" {nativeBuildInputs = [pkgs.makeBinaryWrapper];} ''
       mkdir -p $out/bin
       makeBinaryWrapper ${pkgs.chromium}/bin/chromium $out/bin/roam-web \
         --add-flags "--user-data-dir=${host.homeDirectory}/.config/roam-web" \
@@ -20,13 +20,13 @@
       name = "roam-web";
       desktopName = "Roam";
       genericName = "Virtual Office";
-      exec = "${roamWeb}/bin/roam-web";
+      exec = "${roam-web}/bin/roam-web";
       icon = "${roamIcon}";
       categories = ["Office"];
     };
   in {
     environment.systemPackages = [
-      roamWeb
+      roam-web
       roamDesktop
     ];
   };

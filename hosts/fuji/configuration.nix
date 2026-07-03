@@ -21,7 +21,6 @@ in {
     home = host.homeDirectory;
   };
 
-  environment.systemPackages = with pkgs; [];
   environment.variables.XDG_CONFIG_HOME = "${homeDir}/.config";
 
   homebrew = {

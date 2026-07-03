@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.compositor = {lib, ...}: {
+{
+  mod.nixos.compositor = {lib, ...}: {
     options.compositor = {
       startupCommands = lib.mkOption {
         type = lib.types.listOf lib.types.str;

@@ -1,4 +1,4 @@
-{...}: let
+let
   tabTitle = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
   renderTheme = import ./_theme.nix;
   kitty = {pkgs, ...}: {
@@ -122,11 +122,6 @@
     ];
   };
 in {
-  flake.mod.nixos.kitty = {
-    imports = [
-      kitty
-      niriRulesModule
-    ];
-  };
-  flake.mod.darwin.kitty = kitty;
+  mod.common.kitty = kitty;
+  mod.nixos.kitty = niriRulesModule;
 }

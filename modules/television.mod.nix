@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.television = {pkgs, ...}: {
+{
+  mod.common.television = {pkgs, ...}: {
     environment.systemPackages = [pkgs.television];
 
     sumi.configFile = {

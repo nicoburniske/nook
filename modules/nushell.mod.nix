@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.nushell = {
+{
+  mod.common.nushell = {
     config,
     pkgs,
     ...

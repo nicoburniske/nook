@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.tools = {pkgs, ...}: {
+{
+  mod.common.tools = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       just
       tokei

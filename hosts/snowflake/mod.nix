@@ -1,8 +1,4 @@
-{
-  config,
-  inputs,
-  ...
-}: {
+{config, ...}: {
   inputs = {
     apple-silicon = {
       url = "github:nix-community/nixos-apple-silicon";
@@ -17,19 +13,17 @@
       homeDirectory = "/home/nico";
       flakeRoot = "/home/nico/nook";
     };
-    common = config.flake.mod.common;
-    modules = config.flake.mod.nixos;
   in {
     imports =
       [
         ./configuration.nix
       ]
-      ++ (with common; [
+      ++ (with config.flake.nixosModules; [
         nix
         nushell
         helix
         fzf
-        ohMyPosh
+        oh-my-posh
         lazygit
         codex
         television
@@ -40,9 +34,6 @@
         cargo
         yazi
         tools
-      ])
-      ++ (with modules; [
-        nix
         user
         plugdev
         sumi
@@ -63,8 +54,8 @@
         gtk
         zsh
         helium
-        spotifyWeb
-        roamWeb
+        spotify-web
+        roam-web
         mullvad
         qbittorrent
       ]);

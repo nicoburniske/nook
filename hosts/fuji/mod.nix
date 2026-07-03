@@ -29,20 +29,18 @@
       homeDirectory = "/Users/nicoburniske";
       flakeRoot = "/Users/nicoburniske/nook";
     };
-    common = config.flake.mod.common;
-    modules = config.flake.mod.darwin;
   in {
     imports =
       [
         ./configuration.nix
         ./packages.nix
       ]
-      ++ (with common; [
+      ++ (with config.flake.darwinModules; [
         nix
         nushell
         helix
         fzf
-        ohMyPosh
+        oh-my-posh
         lazygit
         television
         bat
@@ -53,8 +51,6 @@
         yazi
         fonts
         qbittorrent
-      ])
-      ++ (with modules; [
         sumi
         kitty
         zsh

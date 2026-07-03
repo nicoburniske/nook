@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.kde = {lib, ...}: let
+{
+  mod.nixos.kde = {lib, ...}: let
     colorScheme = "Sumi";
 
     formatValue = value:

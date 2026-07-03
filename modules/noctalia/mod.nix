@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  flake.mod.nixos.noctalia = {
+  mod.nixos.noctalia = {
     lib,
     pkgs,
     ...

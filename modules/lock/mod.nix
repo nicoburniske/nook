@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.lock = {pkgs, ...}: {
+{
+  mod.nixos.lock = {pkgs, ...}: {
     environment.systemPackages = [
       pkgs.hyprlock
     ];

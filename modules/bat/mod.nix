@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.bat = {
+{
+  mod.common.bat = {
     config,
     lib,
     pkgs,

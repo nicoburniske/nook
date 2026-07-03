@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.kantoOra = {...}: {
+{
+  mod.nixos.kanto-ora = {
     services.pipewire.wireplumber.extraConfig."51-kanto-ora-softvol" = {
       "monitor.alsa.rules" = [
         {

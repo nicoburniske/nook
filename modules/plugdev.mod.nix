@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.plugdev = {host, ...}: {
+{
+  mod.nixos.plugdev = {host, ...}: {
     services.udev = {
       enable = true;
       extraRules = ''

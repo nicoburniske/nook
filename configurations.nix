@@ -5,6 +5,8 @@
   ...
 }: let
   hostLib = lib.extend (_: _: config.flake.lib);
+  projectModules = common: platform:
+    lib.zipAttrsWith (_: imports: {inherit imports;}) [common platform];
 in {
   options.configurations = {
     nixos = lib.mkOption {
@@ -30,7 +32,7 @@ in {
     };
   };
 
-  options.flake.mod = lib.mkOption {
+  options.mod = lib.mkOption {
     type = lib.types.submodule {
       options = {
         common = lib.mkOption {
@@ -52,13 +54,21 @@ in {
     default = {};
   };
 
+  options.flake.darwinModules = lib.mkOption {
+    type = lib.types.lazyAttrsOf lib.types.deferredModule;
+    default = {};
+  };
+
   config.flake = {
+    nixosModules = projectModules config.mod.common config.mod.nixos;
+    darwinModules = projectModules config.mod.common config.mod.darwin;
+
     nixosConfigurations =
       config.configurations.nixos
       |> lib.mapAttrs (_: host:
         inputs.nixpkgs.lib.nixosSystem {
           modules = [
-            config.flake.mod.common.lib
+            config.flake.nixosModules.lib
             host.module
           ];
           specialArgs = {
@@ -72,7 +82,7 @@ in {
       |> lib.mapAttrs (_: host:
         inputs.nix-darwin.lib.darwinSystem {
           modules = [
-            config.flake.mod.common.lib
+            config.flake.darwinModules.lib
             host.module
           ];
           specialArgs = {

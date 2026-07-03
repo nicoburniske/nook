@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.ohMyPosh = {pkgs, ...}: {
+{
+  mod.common.oh-my-posh = {pkgs, ...}: {
     environment.systemPackages = [pkgs.oh-my-posh];
 
     sumi.configFile."ohmyposh/config.json" = {

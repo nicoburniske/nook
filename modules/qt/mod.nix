@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.qt = {
+{
+  mod.nixos.qt = {
     config,
     lib,
     pkgs,

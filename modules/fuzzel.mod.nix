@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.fuzzel = {pkgs, ...}: let
+{
+  mod.nixos.fuzzel = {pkgs, ...}: let
     mkHexByte = value: let
       digits = "0123456789abcdef";
       bounded =

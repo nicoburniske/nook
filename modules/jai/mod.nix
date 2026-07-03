@@ -1,4 +1,4 @@
-{...}: let
+let
   jaiOverlay = final: _prev: let
     jai = final.buildFHSEnv {
       name = "jai";
@@ -36,7 +36,7 @@
     '';
   };
 in {
-  flake.mod.nixos.jai = {
+  mod.nixos.jai = {
     config,
     host,
     pkgs,

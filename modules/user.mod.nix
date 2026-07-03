@@ -1,5 +1,5 @@
 {
-  flake.mod.nixos.user = {
+  mod.nixos.user = {
     host,
     pkgs,
     ...

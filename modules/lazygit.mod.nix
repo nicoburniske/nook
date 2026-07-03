@@ -1,5 +1,5 @@
 {lib, ...}: {
-  flake.mod.common.lazygit = {pkgs, ...}: let
+  mod.common.lazygit = {pkgs, ...}: let
     yamlFormat = pkgs.formats.yaml {};
 
     sendToHelix = cmd:

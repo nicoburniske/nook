@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.darwin.hammerspoon = {
+{
+  mod.darwin.hammerspoon = {
     config,
     pkgs,
     ...

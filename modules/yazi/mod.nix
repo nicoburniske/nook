@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.yazi = {
+{
+  mod.common.yazi = {
     lib,
     pkgs,
     ...

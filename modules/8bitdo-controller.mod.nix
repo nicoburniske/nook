@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.bitdo-controller = {pkgs, ...}: {
+{
+  mod.nixos.bitdo-controller = {pkgs, ...}: {
     services.udev.extraRules = ''
       # Pro 3 2.4G receiver active mode. Force xpad to treat it as an XInput pad.
       ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2dc8", ATTR{idProduct}=="310b", \

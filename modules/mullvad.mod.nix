@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.mullvad = {pkgs, ...}: {
+{
+  mod.nixos.mullvad = {pkgs, ...}: {
     services.mullvad-vpn = {
       enable = true;
       package = pkgs.mullvad-vpn;

@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.nautilus = {pkgs, ...}: {
+{
+  mod.nixos.nautilus = {pkgs, ...}: {
     nixpkgs.overlays = [
       (final: prev: {
         nautilus = prev.nautilus.overrideAttrs (old: {

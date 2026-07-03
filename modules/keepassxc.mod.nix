@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.keepassxc = {pkgs, ...}: {
+{
+  mod.nixos.keepassxc = {pkgs, ...}: {
     environment.systemPackages = [pkgs.keepassxc];
 
     compositor.niri.config = [

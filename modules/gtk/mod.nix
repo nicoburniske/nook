@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.gtk = {
+{
+  mod.nixos.gtk = {
     config,
     lib,
     pkgs,

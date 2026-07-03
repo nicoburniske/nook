@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.nixos.docker = {host, ...}: {
+{
+  mod.nixos.docker = {host, ...}: {
     virtualisation.docker = {
       enable = false;
 

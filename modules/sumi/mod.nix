@@ -79,6 +79,6 @@ in {
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  flake.mod.nixos.sumi = mkSumiModule inputs.sumi.nixosModules.default;
-  flake.mod.darwin.sumi = mkSumiModule inputs.sumi.darwinModules.default;
+  mod.nixos.sumi = mkSumiModule inputs.sumi.nixosModules.default;
+  mod.darwin.sumi = mkSumiModule inputs.sumi.darwinModules.default;
 }

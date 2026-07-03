@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.fzf = {
+{
+  mod.common.fzf = {
     config,
     pkgs,
     ...

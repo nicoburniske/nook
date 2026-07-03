@@ -1,5 +1,5 @@
-{...}: {
-  flake.mod.common.cargo = {config, ...}: {
+{
+  mod.common.cargo = {config, ...}: {
     environment.variables.CARGO_HOME = "${config.lib.sumi.paths.data}/cargo";
 
     sumi.dataFile = {
