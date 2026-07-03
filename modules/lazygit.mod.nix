@@ -52,8 +52,8 @@
     environment.systemPackages = [pkgs.lazygit];
 
     sumi.configFile."lazygit/config.yml" = {
-      watch = ["theme"];
-      value = ctx: yamlFormat.generate "sumi-lazygit-${ctx.selection.theme}.yml" (mkSettings ctx.values.theme);
+      watch = "theme";
+      value = ctx: yamlFormat.generate "sumi-lazygit-${ctx.variant}.yml" (mkSettings ctx.value);
     };
   };
 }

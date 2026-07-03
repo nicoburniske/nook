@@ -42,14 +42,14 @@
 
     sumi.configFile = {
       "noctalia/config.toml" = {
-        watch = ["theme"];
-        value = ctx: toml.generate "noctalia-config.toml" (settings ctx.values.theme);
+        watch = "theme";
+        value = ctx: toml.generate "noctalia-config.toml" (settings ctx.value);
       };
 
       "noctalia/palettes/Nook.json" = {
-        watch = ["theme"];
+        watch = "theme";
         value = ctx: let
-          palette = colors ctx.values.theme;
+          palette = colors ctx.value;
         in
           builtins.toJSON {
             dark = palette;
@@ -59,9 +59,9 @@
     };
 
     sumi.hook.noctalia = {
-      watch = ["theme"];
+      watch = "theme";
       command = ctx: let
-        wallpaper = lib.escapeShellArg (toString ctx.values.theme.image);
+        wallpaper = lib.escapeShellArg (toString ctx.value.image);
       in ''
         ${noctalia} msg config-reload || true
         ${noctalia} msg wallpaper-set ${wallpaper} || true

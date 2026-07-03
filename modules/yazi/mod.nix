@@ -70,8 +70,8 @@
     sumi.configFile = {
       "yazi/yazi.toml".value = tomlFormat.generate "sumi-yazi.toml" yaziSettings;
       "yazi/theme.toml" = {
-        watch = ["theme"];
-        value = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.selection.theme}.toml" (mkTheme ctx.values.theme);
+        watch = "theme";
+        value = ctx: tomlFormat.generate "sumi-yazi-theme-${ctx.variant}.toml" (mkTheme ctx.value);
       };
     };
   };

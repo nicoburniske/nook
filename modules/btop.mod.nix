@@ -8,9 +8,9 @@
       '';
 
       "btop/themes/sumi.theme" = {
-        watch = ["theme"];
+        watch = "theme";
         value = ctx: let
-          theme = ctx.values.theme;
+          theme = ctx.value;
         in
           with theme.colors.withHashtag; ''
             theme[main_bg]="${base00}"

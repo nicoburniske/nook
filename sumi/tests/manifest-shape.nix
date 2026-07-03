@@ -51,18 +51,18 @@
             defaultSelection.theme = "light";
 
             configFile."demo/app.conf" = {
-              watch = ["theme"];
-              value = ctx: "tone=${ctx.values.theme.tone}";
+              watch = "theme";
+              value = ctx: "tone=${ctx.value.tone}";
             };
 
             hook.demo = {
-              watch = ["theme"];
+              watch = "theme";
               command = "echo reload";
             };
 
             hook."demo-generated" = {
-              watch = ["theme"];
-              command = ctx: "echo tone=${ctx.values.theme.tone}";
+              watch = "theme";
+              command = ctx: "echo tone=${ctx.value.tone}";
             };
           };
         };
@@ -72,7 +72,7 @@
 
   manifest = eval.config.sumi.generated.manifest;
   expected = builtins.toJSON {
-    version = 2;
+    version = 3;
     home = "/home/tester";
     defaultSelection = {
       theme = "light";
@@ -81,57 +81,42 @@
       theme = {
         default = "light";
         variants = {
-          dark = {
-            tone = "dark";
-          };
-          light = {
-            tone = "light";
-          };
+          dark = {};
+          light = {};
         };
+      };
+    };
+    variantRoots = {
+      theme = {
+        dark = "<store>";
+        light = "<store>";
       };
     };
     files = [
       {
         path = ".config/demo/app.conf";
-        dispatch = {
-          kind = "select";
-          facets = ["theme"];
-          cases = [
-            {
-              variants = ["dark"];
-            }
-            {
-              variants = ["light"];
-            }
-          ];
+        source = {
+          kind = "facet";
+          facet = "theme";
         };
       }
     ];
     hooks = [
       {
         name = "demo";
-        watch = ["theme"];
-        dispatch = {
+        watch = "theme";
+        command = {
           kind = "static";
           value = "echo reload";
         };
       }
       {
         name = "demo-generated";
-        watch = ["theme"];
-        dispatch = {
-          kind = "select";
-          facets = ["theme"];
-          cases = [
-            {
-              variants = ["dark"];
-              value = "echo tone=dark";
-            }
-            {
-              variants = ["light"];
-              value = "echo tone=light";
-            }
-          ];
+        watch = "theme";
+        command = {
+          kind = "facet";
+          facet = "theme";
+          variants = {};
         };
       }
     ];

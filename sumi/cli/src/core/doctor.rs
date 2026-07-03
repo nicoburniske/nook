@@ -1,6 +1,5 @@
 use crate::compile::CompiledManifest;
-use crate::dispatch::resolve_dispatch;
-use crate::manifest::Selection;
+use crate::manifest::{FileSource, Selection};
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
@@ -15,17 +14,40 @@ pub async fn doctor(
     selection: &Selection,
 ) -> DoctorReport {
     let mut failures = Vec::new();
+    let state_dir = std::env::var_os("SUMI_STATE_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| home_dir.join(".local/state/sumi"));
+
+    for (facet, variants) in &manifest.variant_roots {
+        let Some(selected) = selection.get(facet) else {
+            continue;
+        };
+        let Some(root) = variants.get(selected) else {
+            failures.push(format!("missing variant root for {facet}={selected}"));
+            continue;
+        };
+
+        if smol::fs::metadata(root).await.is_err() {
+            failures.push(format!("missing variant root: {}", root.display()));
+        }
+
+        let current = state_dir.join("current").join(facet);
+        if let Err(message) = verify_symlink_target(&current, root).await {
+            failures.push(message);
+        }
+    }
 
     for file in &manifest.files {
-        let Some(source) = resolve_dispatch(&file.dispatch, selection) else {
-            continue;
+        let source = match &file.source {
+            FileSource::Static { path } => path.clone(),
+            FileSource::Facet { facet } => state_dir.join("current").join(facet).join(&file.path),
         };
 
         if file.path.is_empty() {
             continue;
         }
 
-        if smol::fs::metadata(source).await.is_err() {
+        if smol::fs::metadata(&source).await.is_err() {
             failures.push(format!("missing source: {}", source.display()));
         }
 
@@ -34,7 +56,7 @@ pub async fn doctor(
             Ok(metadata) => {
                 if !metadata.file_type().is_symlink() {
                     failures.push(format!("non-symlink destination: {}", dest.display()));
-                } else if let Err(message) = verify_symlink_target(&dest, source).await {
+                } else if let Err(message) = verify_symlink_target(&dest, &source).await {
                     failures.push(message);
                 }
             }

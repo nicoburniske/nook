@@ -92,25 +92,31 @@ fn switch_with_set_changes_selected_rules() {
         )
         .await
         .expect("default apply");
-        assert_points_to(&home.join(".config/app/a.conf"), &src_gruv);
+        let stable_source = state.join("current/theme/.config/app/a.conf");
+        assert_points_to(&home.join(".config/app/a.conf"), &stable_source);
+        assert_points_to(&state.join("current/theme"), &sources.join("gruvbox-root"));
+        assert_eq!(
+            fs::read_to_string(&stable_source).expect("read stable source"),
+            "one"
+        );
 
         let mut set = BTreeMap::new();
         set.insert("theme".to_string(), "modus".to_string());
         let manifest = load_manifest(&manifest_path)
             .await
             .expect("reload manifest");
-        let summary = apply(
-            &manifest,
-            &home,
-            &state,
-            &set,
-            ConflictPolicy::Backup,
-        )
-        .await
-        .expect("set apply");
+        let summary = apply(&manifest, &home, &state, &set, ConflictPolicy::Backup)
+            .await
+            .expect("set apply");
 
-        assert_eq!(summary.updated, 1);
-        assert_points_to(&home.join(".config/app/a.conf"), &src_modus);
+        assert_eq!(summary.updated, 0);
+        assert_eq!(summary.unchanged, 1);
+        assert_points_to(&home.join(".config/app/a.conf"), &stable_source);
+        assert_points_to(&state.join("current/theme"), &sources.join("modus-root"));
+        assert_eq!(
+            fs::read_to_string(&stable_source).expect("read stable source"),
+            "two"
+        );
     });
 }
 
@@ -186,7 +192,7 @@ fn duplicate_paths_in_manifest_is_error() {
         let src2 = write_file(&sources.join("b"), "two");
         let manifest_path = td.path().join("manifest.json");
         let text = serde_json::to_string_pretty(&json!({
-            "version": 2,
+            "version": 3,
             "home": home.to_string_lossy(),
             "facets": {
                 "theme": {
@@ -198,16 +204,16 @@ fn duplicate_paths_in_manifest_is_error() {
             "files": [
                 {
                     "path": ".config/app/a.conf",
-                    "dispatch": {
+                    "source": {
                         "kind": "static",
-                        "value": src1.to_string_lossy()
+                        "path": src1.to_string_lossy()
                     }
                 },
                 {
                     "path": ".config/app/a.conf",
-                    "dispatch": {
+                    "source": {
                         "kind": "static",
-                        "value": src2.to_string_lossy()
+                        "path": src2.to_string_lossy()
                     }
                 }
             ],
@@ -235,7 +241,7 @@ fn hook_with_empty_watch_is_invalid() {
 
         let manifest_path = td.path().join("manifest.json");
         let text = serde_json::to_string_pretty(&json!({
-            "version": 2,
+            "version": 3,
             "home": home.to_string_lossy(),
             "facets": {
                 "theme": {
@@ -247,8 +253,8 @@ fn hook_with_empty_watch_is_invalid() {
             "files": [],
             "hooks": [{
                 "name": "kitty",
-                "watch": [],
-                "dispatch": {
+                "watch": "",
+                "command": {
                     "kind": "static",
                     "value": "pkill -USR1 kitty"
                 }
@@ -263,12 +269,12 @@ fn hook_with_empty_watch_is_invalid() {
 
         assert!(err
             .to_string()
-            .contains("hook 'kitty' must declare at least one watched facet"));
+            .contains("hook 'kitty' must declare a watched facet"));
     });
 }
 
 #[test]
-fn hook_dispatch_facets_must_match_watch() {
+fn hook_command_facet_must_match_watch() {
     smol::block_on(async {
         let td = tempdir().expect("create tempdir");
         let home = td.path().join("home");
@@ -276,7 +282,7 @@ fn hook_dispatch_facets_must_match_watch() {
 
         let manifest_path = td.path().join("manifest.json");
         let text = serde_json::to_string_pretty(&json!({
-            "version": 2,
+            "version": 3,
             "home": home.to_string_lossy(),
             "facets": {
                 "theme": {
@@ -292,14 +298,13 @@ fn hook_dispatch_facets_must_match_watch() {
             "files": [],
             "hooks": [{
                 "name": "kitty",
-                "watch": ["theme"],
-                "dispatch": {
-                    "kind": "select",
-                    "facets": ["density"],
-                    "cases": [{
-                        "variants": ["compact"],
-                        "value": "pkill -USR1 kitty"
-                    }]
+                "watch": "theme",
+                "command": {
+                    "kind": "facet",
+                    "facet": "density",
+                    "variants": {
+                        "compact": "pkill -USR1 kitty"
+                    }
                 }
             }]
         }))
@@ -312,12 +317,12 @@ fn hook_dispatch_facets_must_match_watch() {
 
         assert!(err
             .to_string()
-            .contains("hook 'kitty' dispatch facets must exactly match hook watch"));
+            .contains("hook 'kitty' command facet must match hook watch"));
     });
 }
 
 #[test]
-fn duplicate_dispatch_tuple_is_invalid() {
+fn array_watch_is_invalid() {
     smol::block_on(async {
         let td = tempdir().expect("create tempdir");
         let home = td.path().join("home");
@@ -325,7 +330,7 @@ fn duplicate_dispatch_tuple_is_invalid() {
 
         let manifest_path = td.path().join("manifest.json");
         let text = serde_json::to_string_pretty(&json!({
-            "version": 2,
+            "version": 3,
             "home": home.to_string_lossy(),
             "facets": {
                 "theme": {
@@ -334,35 +339,24 @@ fn duplicate_dispatch_tuple_is_invalid() {
                 }
             },
             "defaultSelection": { "theme": "gruvbox" },
-            "files": [{
-                "path": ".config/app/a.conf",
-                "dispatch": {
-                    "kind": "select",
-                    "facets": ["theme"],
-                    "cases": [
-                        {
-                            "variants": ["gruvbox"],
-                            "value": home.join("a").to_string_lossy()
-                        },
-                        {
-                            "variants": ["gruvbox"],
-                            "value": home.join("b").to_string_lossy()
-                        }
-                    ]
+            "files": [],
+            "hooks": [{
+                "name": "kitty",
+                "watch": ["theme"],
+                "command": {
+                    "kind": "static",
+                    "value": "pkill -USR1 kitty"
                 }
             }],
-            "hooks": []
         }))
         .expect("serialize manifest");
         fs::write(&manifest_path, text).expect("write manifest");
 
         let err = load_manifest(&manifest_path)
             .await
-            .expect_err("duplicate dispatch tuple should fail");
+            .expect_err("array watch should fail");
 
-        assert!(err
-            .to_string()
-            .contains("file dispatch contains duplicate dispatch tuple"));
+        assert!(err.to_string().contains("invalid type"));
     });
 }
 
@@ -660,16 +654,16 @@ fn write_manifest(manifest_path: &Path, home: &Path, entries: &[(&str, &Path)]) 
         .map(|(path, source)| {
             json!({
                 "path": path,
-                "dispatch": {
+                "source": {
                     "kind": "static",
-                    "value": source.to_string_lossy()
+                    "path": source.to_string_lossy()
                 }
             })
         })
         .collect::<Vec<_>>();
 
     let text = serde_json::to_string_pretty(&json!({
-        "version": 2,
+        "version": 3,
         "home": home.to_string_lossy(),
         "facets": {
             "theme": {
@@ -687,18 +681,29 @@ fn write_manifest(manifest_path: &Path, home: &Path, entries: &[(&str, &Path)]) 
 }
 
 fn write_manifest_rules(manifest_path: &Path, home: &Path, path: &str, by_theme: &[(&str, &Path)]) {
-    let cases = by_theme
+    let sources = manifest_path
+        .parent()
+        .expect("manifest parent")
+        .join("sources");
+    let roots = by_theme
         .iter()
         .map(|(theme, source)| {
-            json!({
-                "variants": [theme],
-                "value": source.to_string_lossy()
-            })
+            let root = sources.join(format!("{theme}-root"));
+            let target = root.join(path);
+            if let Some(parent) = target.parent() {
+                fs::create_dir_all(parent).expect("create root parent");
+            }
+            fs::copy(source, &target).expect("copy variant source");
+            (*theme, root)
         })
         .collect::<Vec<_>>();
+    let variant_roots = roots
+        .iter()
+        .map(|(theme, root)| (theme.to_string(), root.to_string_lossy().to_string()))
+        .collect::<BTreeMap<_, _>>();
 
     let text = serde_json::to_string_pretty(&json!({
-        "version": 2,
+        "version": 3,
         "home": home.to_string_lossy(),
         "facets": {
             "theme": {
@@ -707,12 +712,14 @@ fn write_manifest_rules(manifest_path: &Path, home: &Path, path: &str, by_theme:
             }
         },
         "defaultSelection": { "theme": "gruvbox" },
+        "variantRoots": {
+            "theme": variant_roots
+        },
         "files": [{
             "path": path,
-            "dispatch": {
-                "kind": "select",
-                "facets": ["theme"],
-                "cases": cases
+            "source": {
+                "kind": "facet",
+                "facet": "theme"
             }
         }],
         "hooks": []

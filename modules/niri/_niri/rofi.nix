@@ -19,9 +19,9 @@ in {
   ];
 
   sumi.configFile."rofi/niri-cmd.rasi" = {
-    watch = ["theme"];
+    watch = "theme";
     value = ctx: let
-      theme = ctx.values.theme;
+      theme = ctx.value;
       c = theme.colors.withHashtag;
       opacity = theme.opacity.popups or theme.opacity.terminal or 1.0;
       opacityHex = mkHexByte (builtins.ceil (opacity * 255.0));

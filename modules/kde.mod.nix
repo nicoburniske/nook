@@ -144,13 +144,13 @@
     };
   in {
     sumi.configFile."kdeglobals" = {
-      watch = ["theme"];
-      value = ctx: formatConfig (mkKdeGlobals ctx.values.theme);
+      watch = "theme";
+      value = ctx: formatConfig (mkKdeGlobals ctx.value);
     };
 
     sumi.dataFile."color-schemes/${colorScheme}.colors" = {
-      watch = ["theme"];
-      value = ctx: formatConfig (mkColorScheme ctx.values.theme);
+      watch = "theme";
+      value = ctx: formatConfig (mkColorScheme ctx.value);
     };
   };
 }

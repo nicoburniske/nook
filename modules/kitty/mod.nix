@@ -88,8 +88,8 @@
       '';
 
       "kitty/themes/sumi.conf" = {
-        watch = ["theme"];
-        value = ctx: renderTheme ctx.values.theme;
+        watch = "theme";
+        value = ctx: renderTheme ctx.value;
       };
       "kitty/tab_bar.py".value = ./tab_bar.py;
 
@@ -102,7 +102,7 @@
     };
 
     sumi.hook.kitty = {
-      watch = ["theme"];
+      watch = "theme";
       command =
         if pkgs.stdenv.isDarwin
         then "/usr/bin/pkill -USR1 .kitty-wrapped"

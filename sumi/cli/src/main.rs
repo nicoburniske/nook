@@ -1,7 +1,6 @@
 mod cli;
 mod compile;
 mod core;
-mod dispatch;
 mod error;
 mod logging;
 mod manifest;

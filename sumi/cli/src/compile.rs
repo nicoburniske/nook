@@ -1,6 +1,7 @@
-use crate::dispatch::{CompiledDispatch, Dispatch};
 use crate::error::AppError;
-use crate::manifest::{FacetDef, Manifest, ManifestFile, ManifestHook, Selection};
+use crate::manifest::{
+    FacetDef, FileSource, HookCommand, Manifest, ManifestFile, ManifestHook, Selection,
+};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
@@ -9,6 +10,7 @@ pub struct CompiledManifest {
     pub home: PathBuf,
     pub facets: BTreeMap<String, FacetDef>,
     pub default_selection: Selection,
+    pub variant_roots: BTreeMap<String, BTreeMap<String, PathBuf>>,
     pub files: Vec<CompiledFile>,
     pub hooks: Vec<CompiledHook>,
 }
@@ -16,21 +18,21 @@ pub struct CompiledManifest {
 #[derive(Debug, Clone)]
 pub struct CompiledFile {
     pub path: String,
-    pub dispatch: CompiledDispatch<PathBuf>,
+    pub source: FileSource,
 }
 
 #[derive(Debug, Clone)]
 pub struct CompiledHook {
     pub name: String,
-    pub watch: Vec<String>,
-    pub dispatch: CompiledDispatch<String>,
+    pub watch: String,
+    pub command: HookCommand,
 }
 
 pub fn compile_manifest(manifest: Manifest) -> Result<CompiledManifest, AppError> {
-    if manifest.version != 2 {
+    if manifest.version != 3 {
         return Err(AppError::InvalidManifest {
             message: format!(
-                "unsupported manifest version '{}', expected 2",
+                "unsupported manifest version '{}', expected 3",
                 manifest.version
             ),
         });
@@ -39,6 +41,7 @@ pub fn compile_manifest(manifest: Manifest) -> Result<CompiledManifest, AppError
     validate_facets(&manifest.facets)?;
     let default_selection =
         compile_default_selection(&manifest.facets, &manifest.default_selection)?;
+    validate_variant_roots(&manifest.facets, &manifest.variant_roots)?;
 
     let mut files = Vec::with_capacity(manifest.files.len());
     let mut seen_paths = BTreeSet::new();
@@ -58,6 +61,7 @@ pub fn compile_manifest(manifest: Manifest) -> Result<CompiledManifest, AppError
         home: manifest.home,
         facets: manifest.facets,
         default_selection,
+        variant_roots: manifest.variant_roots,
         files,
         hooks,
     })
@@ -116,6 +120,43 @@ fn compile_default_selection(
     Ok(selection)
 }
 
+fn validate_variant_roots(
+    facets: &BTreeMap<String, FacetDef>,
+    roots: &BTreeMap<String, BTreeMap<String, PathBuf>>,
+) -> Result<(), AppError> {
+    for (facet_name, variants) in roots {
+        let facet = facets
+            .get(facet_name)
+            .ok_or_else(|| AppError::InvalidManifest {
+                message: format!("variantRoots references unknown facet '{}'", facet_name),
+            })?;
+
+        for variant_name in variants.keys() {
+            if !facet.variants.contains_key(variant_name) {
+                return Err(AppError::InvalidManifest {
+                    message: format!(
+                        "variantRoots references invalid variant '{}' for facet '{}'",
+                        variant_name, facet_name
+                    ),
+                });
+            }
+        }
+
+        for variant_name in facet.variants.keys() {
+            if !variants.contains_key(variant_name) {
+                return Err(AppError::InvalidManifest {
+                    message: format!(
+                        "variantRoots is missing variant '{}' for facet '{}'",
+                        variant_name, facet_name
+                    ),
+                });
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn compile_file(
     file: ManifestFile,
     facets: &BTreeMap<String, FacetDef>,
@@ -126,9 +167,11 @@ fn compile_file(
         });
     }
 
+    validate_file_source(&file.source, facets)?;
+
     Ok(CompiledFile {
         path: file.path,
-        dispatch: compile_dispatch(file.dispatch, facets, "file dispatch")?,
+        source: file.source,
     })
 }
 
@@ -142,109 +185,73 @@ fn compile_hook(
         });
     }
 
-    validate_watch(&hook.watch, facets, format!("hook '{}'", hook.name))?;
+    validate_facet(&hook.watch, facets, format!("hook '{}'", hook.name))?;
 
-    if let Dispatch::Select {
-        facets: dispatch_facets,
-        ..
-    } = &hook.dispatch
-    {
-        if dispatch_facets != &hook.watch {
+    if let HookCommand::Facet { facet, variants } = &hook.command {
+        if facet != &hook.watch {
             return Err(AppError::InvalidManifest {
-                message: format!(
-                    "hook '{}' dispatch facets must exactly match hook watch",
-                    hook.name
-                ),
+                message: format!("hook '{}' command facet must match hook watch", hook.name),
             });
         }
+
+        validate_variant_map(facet, variants, facets, format!("hook '{}'", hook.name))?;
     }
 
     Ok(CompiledHook {
         name: hook.name,
         watch: hook.watch,
-        dispatch: compile_dispatch(hook.dispatch, facets, "hook dispatch")?,
+        command: hook.command,
     })
 }
 
-fn compile_dispatch<T: Clone>(
-    dispatch: Dispatch<T>,
+fn validate_file_source(
+    source: &FileSource,
     facets: &BTreeMap<String, FacetDef>,
-    context: &str,
-) -> Result<CompiledDispatch<T>, AppError> {
-    match dispatch {
-        Dispatch::Static { value } => Ok(CompiledDispatch::Static(value)),
-        Dispatch::Select {
-            facets: dispatch_facets,
-            cases,
-        } => {
-            validate_watch(&dispatch_facets, facets, context.to_string())?;
-
-            let mut by_tuple = BTreeMap::new();
-            for case in cases {
-                if case.variants.len() != dispatch_facets.len() {
-                    return Err(AppError::InvalidManifest {
-                        message: format!(
-                            "{context} has case with {} variants but {} watched facets",
-                            case.variants.len(),
-                            dispatch_facets.len(),
-                        ),
-                    });
-                }
-
-                for (facet_name, variant_name) in dispatch_facets.iter().zip(case.variants.iter()) {
-                    let facet = facets.get(facet_name).expect("facet validated above");
-                    if !facet.variants.contains_key(variant_name) {
-                        return Err(AppError::InvalidManifest {
-                            message: format!(
-                                "{context} references invalid variant '{}' for facet '{}'",
-                                variant_name, facet_name
-                            ),
-                        });
-                    }
-                }
-
-                if by_tuple.insert(case.variants.clone(), case.value).is_some() {
-                    return Err(AppError::InvalidManifest {
-                        message: format!("{context} contains duplicate dispatch tuple"),
-                    });
-                }
-            }
-
-            Ok(CompiledDispatch::Select {
-                facets: dispatch_facets,
-                by_tuple,
-            })
-        }
+) -> Result<(), AppError> {
+    match source {
+        FileSource::Static { .. } => Ok(()),
+        FileSource::Facet { facet } => validate_facet(facet, facets, "file source".to_string()),
     }
 }
 
-fn validate_watch(
-    watch: &[String],
+fn validate_variant_map(
+    facet_name: &str,
+    variants: &BTreeMap<String, String>,
     facets: &BTreeMap<String, FacetDef>,
     context: String,
 ) -> Result<(), AppError> {
-    if watch.is_empty() {
-        return Err(AppError::InvalidManifest {
-            message: format!("{context} must declare at least one watched facet"),
-        });
-    }
+    validate_facet(facet_name, facets, context.clone())?;
+    let facet = facets.get(facet_name).expect("facet validated above");
 
-    let mut seen = BTreeSet::new();
-    for facet_name in watch {
-        if !seen.insert(facet_name) {
+    for variant_name in variants.keys() {
+        if !facet.variants.contains_key(variant_name) {
             return Err(AppError::InvalidManifest {
                 message: format!(
-                    "{context} contains duplicate watched facet '{}'",
-                    facet_name
+                    "{context} references invalid variant '{}' for facet '{}'",
+                    variant_name, facet_name
                 ),
             });
         }
+    }
 
-        if !facets.contains_key(facet_name) {
-            return Err(AppError::InvalidManifest {
-                message: format!("{context} references unknown facet '{}'", facet_name),
-            });
-        }
+    Ok(())
+}
+
+fn validate_facet(
+    facet_name: &str,
+    facets: &BTreeMap<String, FacetDef>,
+    context: String,
+) -> Result<(), AppError> {
+    if facet_name.trim().is_empty() {
+        return Err(AppError::InvalidManifest {
+            message: format!("{context} must declare a watched facet"),
+        });
+    }
+
+    if !facets.contains_key(facet_name) {
+        return Err(AppError::InvalidManifest {
+            message: format!("{context} references unknown facet '{}'", facet_name),
+        });
     }
 
     Ok(())

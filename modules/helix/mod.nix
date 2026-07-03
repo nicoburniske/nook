@@ -99,12 +99,12 @@
       sumi.configFile =
         {
           "helix/config.toml" = {
-            watch = ["theme"];
+            watch = "theme";
             value = ctx: let
-              theme = ctx.values.theme;
+              theme = ctx.value;
             in
-              tomlFormat.generate "sumi-helix-config-${ctx.selection.theme}.toml" {
-                theme = theme.meta.helix or ctx.selection.theme;
+              tomlFormat.generate "sumi-helix-config-${ctx.variant}.toml" {
+                theme = theme.meta.helix or ctx.variant;
 
                 editor = {
                   bufferline = "always";
@@ -240,7 +240,7 @@
           |> builtins.listToAttrs);
 
       sumi.hook.helix = {
-        watch = ["theme"];
+        watch = "theme";
         command =
           if pkgs.stdenv.isDarwin
           then "/usr/bin/pkill -USR1 hx || true"

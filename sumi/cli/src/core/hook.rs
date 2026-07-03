@@ -1,6 +1,5 @@
 use crate::compile::{CompiledHook, CompiledManifest};
-use crate::dispatch::resolve_dispatch;
-use crate::manifest::Selection;
+use crate::manifest::{HookCommand, Selection};
 use smol::process::Command;
 use std::collections::BTreeSet;
 
@@ -40,17 +39,19 @@ fn resolve_hook(
     selection: &Selection,
     facets: &BTreeSet<String>,
 ) -> Option<(String, String)> {
-    if !hook
-        .watch
-        .iter()
-        .any(|facet| facets.contains(facet))
-    {
+    if !facets.contains(&hook.watch) {
         return None;
     }
 
-    let command = resolve_dispatch(&hook.dispatch, selection)?
-        .trim()
-        .to_string();
+    let command = match &hook.command {
+        HookCommand::Static { value } => value,
+        HookCommand::Facet { facet, variants } => {
+            let selected = selection.get(facet)?;
+            variants.get(selected)?
+        }
+    }
+    .trim()
+    .to_string();
     if command.is_empty() {
         return None;
     }

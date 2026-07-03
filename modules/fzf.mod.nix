@@ -8,9 +8,9 @@
     environment.variables.FZF_DEFAULT_OPTS_FILE = "${config.lib.sumi.paths.config}/fzf/fzfrc";
 
     sumi.configFile."fzf/fzfrc" = {
-      watch = ["theme"];
+      watch = "theme";
       value = ctx: let
-        theme = ctx.values.theme;
+        theme = ctx.value;
         colors = with theme.colors.withHashtag; {
           bg = base00;
           "bg+" = base01;

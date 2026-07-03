@@ -33,7 +33,7 @@
     };
 
     sumi.hook.hammerspoon = {
-      watch = ["theme"];
+      watch = "theme";
       command = ''
         /Applications/Hammerspoon.app/Contents/Frameworks/hs/hs -A -c "hs.reload()"
       '';

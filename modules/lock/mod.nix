@@ -5,9 +5,9 @@
     ];
 
     sumi.configFile."hypr/hyprlock.conf" = {
-      watch = ["theme"];
+      watch = "theme";
       value = ctx: let
-        theme = ctx.values.theme;
+        theme = ctx.value;
         rgb = hex: "rgb(${hex})";
         rgba = hex: alpha: "rgba(${hex}${alpha})";
         imagePath = toString theme.image;

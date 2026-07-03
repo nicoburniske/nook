@@ -33,8 +33,8 @@ in {
     '';
 
     "niri/theme.kdl" = {
-      watch = ["theme"];
-      value = ctx: lib.kdl.toKDL (mkTheme ctx.values.theme);
+      watch = "theme";
+      value = ctx: lib.kdl.toKDL (mkTheme ctx.value);
     };
   };
 }

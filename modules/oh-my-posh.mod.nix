@@ -3,9 +3,9 @@
     environment.systemPackages = [pkgs.oh-my-posh];
 
     sumi.configFile."ohmyposh/config.json" = {
-      watch = ["theme"];
+      watch = "theme";
       value = ctx: let
-        theme = ctx.values.theme;
+        theme = ctx.value;
       in
         builtins.toJSON {
           "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";

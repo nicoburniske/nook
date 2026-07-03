@@ -1,8 +1,7 @@
 use super::{read_snapshot, unix_seconds_string, write_json_atomic};
 use crate::compile::{CompiledFile, CompiledManifest};
-use crate::dispatch::resolve_dispatch;
 use crate::error::AppError;
-use crate::manifest::Selection;
+use crate::manifest::{FileSource, Selection};
 use crate::state::{ManagedFile, Snapshot};
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::ErrorKind;
@@ -32,14 +31,6 @@ pub async fn apply(
     conflict_policy: ConflictPolicy,
 ) -> Result<ApplySummary, AppError> {
     let selection = resolve_selection(manifest, set_overrides)?;
-    let desired = collect_desired_map(&manifest.files, &selection, home_dir)?;
-
-    let missing_sources = collect_missing_sources(&desired).await;
-    if !missing_sources.is_empty() {
-        return Err(AppError::MissingSources {
-            paths: missing_sources.join(", "),
-        });
-    }
 
     smol::fs::create_dir_all(state_dir)
         .await
@@ -47,6 +38,17 @@ pub async fn apply(
             path: state_dir.to_path_buf(),
             source,
         })?;
+
+    update_current_links(manifest, state_dir, &selection).await?;
+
+    let desired = collect_desired_map(&manifest.files, home_dir, state_dir)?;
+
+    let missing_sources = collect_missing_sources(&desired).await;
+    if !missing_sources.is_empty() {
+        return Err(AppError::MissingSources {
+            paths: missing_sources.join(", "),
+        });
+    }
 
     let snapshot_path = state_dir.join("snapshot.json");
     let old_snapshot = read_snapshot(&snapshot_path, selection.clone()).await?;
@@ -199,14 +201,15 @@ fn resolve_selection(
 
 fn collect_desired_map(
     files: &[CompiledFile],
-    selection: &Selection,
     home: &Path,
+    state_dir: &Path,
 ) -> Result<BTreeMap<PathBuf, PathBuf>, AppError> {
     let mut desired = BTreeMap::new();
 
     for file in files {
-        let Some(source) = resolve_dispatch(&file.dispatch, selection) else {
-            continue;
+        let source = match &file.source {
+            FileSource::Static { path } => path.clone(),
+            FileSource::Facet { facet } => state_dir.join("current").join(facet).join(&file.path),
         };
 
         let target = home.join(&file.path);
@@ -214,6 +217,48 @@ fn collect_desired_map(
     }
 
     Ok(desired)
+}
+
+async fn update_current_links(
+    manifest: &CompiledManifest,
+    state_dir: &Path,
+    selection: &Selection,
+) -> Result<(), AppError> {
+    let current_dir = state_dir.join("current");
+    smol::fs::create_dir_all(&current_dir)
+        .await
+        .map_err(|source| AppError::CreateDir {
+            path: current_dir.clone(),
+            source,
+        })?;
+
+    for (facet, variants) in &manifest.variant_roots {
+        let Some(selected) = selection.get(facet) else {
+            continue;
+        };
+        let root = variants
+            .get(selected)
+            .ok_or_else(|| AppError::InvalidManifest {
+                message: format!(
+                    "variantRoots is missing variant '{selected}' for facet '{facet}'"
+                ),
+            })?;
+
+        ensure_link(
+            ConflictPolicy::Replace,
+            &current_dir.join(facet),
+            root,
+            None,
+        )
+        .await
+        .map_err(|source| AppError::RenamePath {
+            from: root.clone(),
+            to: current_dir.join(facet),
+            source,
+        })?;
+    }
+
+    Ok(())
 }
 
 async fn collect_missing_sources(desired: &BTreeMap<PathBuf, PathBuf>) -> Vec<String> {

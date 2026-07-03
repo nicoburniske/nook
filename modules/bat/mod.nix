@@ -11,9 +11,9 @@
       "bat/config".value = "--theme=base16-sumi\n";
 
       "bat/themes/base16-sumi.tmTheme" = {
-        watch = ["theme"];
+        watch = "theme";
         value = ctx: let
-          theme = ctx.values.theme;
+          theme = ctx.value;
         in
           config.lib.sumi.renderBase16Mustache {
             inherit theme;
@@ -23,7 +23,7 @@
     };
 
     sumi.hook.bat = {
-      watch = ["theme"];
+      watch = "theme";
       command = "${lib.getExe pkgs.bat} cache --build";
     };
   };

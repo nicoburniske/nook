@@ -43,13 +43,13 @@
 
     sumi.configFile = {
       "qt5ct/qt5ct.conf" = {
-        watch = ["theme"];
-        value = ctx: mkQtctSettings ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkQtctSettings ctx.value;
       };
 
       "qt6ct/qt6ct.conf" = {
-        watch = ["theme"];
-        value = ctx: mkQtctSettings ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkQtctSettings ctx.value;
       };
 
       "Kvantum/kvantum.kvconfig".value = ''
@@ -58,13 +58,13 @@
       '';
 
       "Kvantum/Base16Kvantum/Base16Kvantum.kvconfig" = {
-        watch = ["theme"];
-        value = ctx: mkKvantumConfig ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkKvantumConfig ctx.value;
       };
 
       "Kvantum/Base16Kvantum/Base16Kvantum.svg" = {
-        watch = ["theme"];
-        value = ctx: mkKvantumSvg ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkKvantumSvg ctx.value;
       };
     };
   };

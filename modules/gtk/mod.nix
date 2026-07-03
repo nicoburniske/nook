@@ -64,31 +64,31 @@
 
     sumi.configFile = {
       "gtk-2.0/gtkrc" = {
-        watch = ["theme"];
-        value = ctx: mkGtkrc ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkGtkrc ctx.value;
       };
       "gtk-3.0/settings.ini" = {
-        watch = ["theme"];
-        value = ctx: mkGtkSettings 3 ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkGtkSettings 3 ctx.value;
       };
       "gtk-4.0/settings.ini" = {
-        watch = ["theme"];
-        value = ctx: mkGtkSettings 4 ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkGtkSettings 4 ctx.value;
       };
       "gtk-3.0/gtk.css" = {
-        watch = ["theme"];
-        value = ctx: mkGtkCss ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkGtkCss ctx.value;
       };
       "gtk-4.0/gtk.css" = {
-        watch = ["theme"];
-        value = ctx: mkGtkCss ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkGtkCss ctx.value;
       };
     };
 
     sumi.homeFile = {
       ".themes/${gtkThemeName}" = {
-        watch = ["theme"];
-        value = ctx: mkFlattenedGtkTheme ctx.values.theme;
+        watch = "theme";
+        value = ctx: mkFlattenedGtkTheme ctx.value;
       };
     };
 
@@ -103,9 +103,9 @@
     };
 
     sumi.hook.gtk = {
-      watch = ["theme"];
+      watch = "theme";
       command = ctx:
-        if ctx.values.theme.polarity == "dark"
+        if ctx.value.polarity == "dark"
         then "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true"
         else "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true";
     };

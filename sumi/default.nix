@@ -11,9 +11,9 @@
   fileOptionType = types.submodule ({...}: {
     options = {
       watch = lib.mkOption {
-        type = types.listOf types.str;
-        default = [];
-        description = "Facet keys this file reacts to. Required when value is a function.";
+        type = with types; nullOr str;
+        default = null;
+        description = "Facet key this file reacts to. Required when value is a function.";
       };
 
       value = lib.mkOption {
@@ -27,9 +27,9 @@
   hookOptionType = types.submodule ({...}: {
     options = {
       watch = lib.mkOption {
-        type = types.listOf types.str;
-        default = [];
-        description = "Facet keys this hook reacts to.";
+        type = with types; nullOr str;
+        default = null;
+        description = "Facet key this hook reacts to.";
       };
 
       command = lib.mkOption {
@@ -152,24 +152,6 @@
     if rootRelative == ""
     then key
     else "${rootRelative}/${key}";
-
-  cartesianProductOfSets = attrs: let
-    names = builtins.attrNames attrs;
-
-    go = remaining:
-      if remaining == []
-      then [{}]
-      else let
-        name = builtins.head remaining;
-        tail = builtins.tail remaining;
-        tailProduct = go tail;
-      in
-        lib.concatMap
-        (value:
-          map (partial: partial // {${name} = value;}) tailProduct)
-        attrs.${name};
-  in
-    go names;
 in {
   options.sumi = {
     enable = lib.mkEnableOption "Sumi facet-based runtime config switching";
@@ -456,6 +438,12 @@ in {
       inferredDefaultSelection = lib.mapAttrs (_: facet: facet.default) cfg.facets;
       resolvedDefaultSelection = inferredDefaultSelection // cfg.defaultSelection;
       resolvedFacets = materializeManifestValue cfg.facets;
+      manifestFacets =
+        lib.mapAttrs (_: facet: {
+          inherit (facet) default;
+          variants = lib.genAttrs (builtins.attrNames facet.variants) (_: {});
+        })
+        cfg.facets;
 
       defaultSelectionUnknownFacets =
         lib.filter (facet: !(builtins.elem facet facetNames)) (builtins.attrNames cfg.defaultSelection);
@@ -547,7 +535,7 @@ in {
       functionValueMissingWatch =
         lib.filter (v: v != null)
         (map (file:
-          if file.value != null && lib.isFunction file.value && file.watch == []
+          if file.value != null && lib.isFunction file.value && file.watch == null
           then file.path
           else null)
         normalizedFiles);
@@ -555,7 +543,7 @@ in {
       staticValueWithWatch =
         lib.filter (v: v != null)
         (map (file:
-          if file.value != null && !(lib.isFunction file.value) && file.watch != []
+          if file.value != null && !(lib.isFunction file.value) && file.watch != null
           then file.path
           else null)
         normalizedFiles);
@@ -571,7 +559,7 @@ in {
       hookMissingWatch =
         lib.filter (v: v != null)
         (map (hook:
-          if hook.watch == []
+          if hook.watch == null
           then hook.name
           else null)
         normalizedHooks);
@@ -579,51 +567,21 @@ in {
       fileWatchFacetErrors =
         lib.filter (v: v != null)
         (map (file: let
-          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) file.watch;
-          duplicateWatch = lib.filter (facet: (lib.length (lib.filter (candidate: candidate == facet) file.watch)) > 1) (lib.unique file.watch);
+          unknownWatch = file.watch != null && !(builtins.elem file.watch facetNames);
         in
-          if unknownWatch == [] && duplicateWatch == []
+          if !unknownWatch
           then null
-          else
-            "${file.path}: "
-            + lib.concatStringsSep "; "
-            (lib.filter (msg: msg != null) [
-              (
-                if unknownWatch == []
-                then null
-                else "unknown watch facets (${lib.concatStringsSep ", " unknownWatch})"
-              )
-              (
-                if duplicateWatch == []
-                then null
-                else "duplicate watch facets (${lib.concatStringsSep ", " duplicateWatch})"
-              )
-            ]))
+          else "${file.path}: unknown watched facet (${file.watch})")
         normalizedFiles);
 
       hookWatchFacetErrors =
         lib.filter (v: v != null)
         (map (hook: let
-          unknownWatch = lib.filter (facet: !(builtins.elem facet facetNames)) hook.watch;
-          duplicateWatch = lib.filter (facet: (lib.length (lib.filter (candidate: candidate == facet) hook.watch)) > 1) (lib.unique hook.watch);
+          unknownWatch = hook.watch != null && !(builtins.elem hook.watch facetNames);
         in
-          if unknownWatch == [] && duplicateWatch == []
+          if !unknownWatch
           then null
-          else
-            "${hook.name}: "
-            + lib.concatStringsSep "; "
-            (lib.filter (msg: msg != null) [
-              (
-                if unknownWatch == []
-                then null
-                else "unknown watch facets (${lib.concatStringsSep ", " unknownWatch})"
-              )
-              (
-                if duplicateWatch == []
-                then null
-                else "duplicate watch facets (${lib.concatStringsSep ", " duplicateWatch})"
-              )
-            ]))
+          else "${hook.name}: unknown watched facet (${hook.watch})")
         normalizedHooks);
 
       valueLiteralErrors =
@@ -634,23 +592,9 @@ in {
           else null)
         normalizedFiles);
 
-      mkFacetValues = selection:
-        lib.mapAttrs (facet: variant: resolvedFacets.${facet}.variants.${variant}) selection;
-
-      mkSelectionSubset = watch: selection:
-        builtins.listToAttrs
-        (map (facet: {
-            name = facet;
-            value = selection.${facet};
-          })
-          watch);
-
-      mkWatchedContext = watch: selection: let
-        watchedSelection = mkSelectionSubset watch selection;
-      in {
-        selection = watchedSelection;
-        facets = resolvedFacets;
-        values = mkFacetValues watchedSelection;
+      mkWatchedContext = facet: variant: {
+        inherit variant;
+        value = resolvedFacets.${facet}.variants.${variant};
       };
 
       materializeFileValue = file: ruleHash: rawValue: let
@@ -664,57 +608,80 @@ in {
           }
         else normalizedValue;
 
+      dynamicFilesForFacet = facet:
+        lib.filter (file: lib.isFunction file.value && file.watch == facet) normalizedFiles;
+
+      writeVariantFile = facet: variant: file: let
+        rawValue = file.value (mkWatchedContext facet variant);
+        normalizedValue = materializeManifestValue rawValue;
+        escapedPath = lib.escapeShellArg file.path;
+      in
+        ''
+          target="$out"/${escapedPath}
+          mkdir -p "$(dirname "$target")"
+        ''
+        + (
+          if builtins.isString rawValue
+          then ''
+            printf '%s' ${lib.escapeShellArg (toString normalizedValue)} > "$target"
+          ''
+          else ''
+            ln -s ${lib.escapeShellArg (toString normalizedValue)} "$target"
+          ''
+        );
+
+      mkVariantRoot = facet: variant: files:
+        pkgs.runCommandLocal "sumi-${sanitizePath facet}-${sanitizePath variant}" {} ''
+          set -eu
+          mkdir -p "$out"
+          ${lib.concatMapStringsSep "\n" (writeVariantFile facet variant) files}
+        '';
+
+      dynamicFacetNames =
+        lib.filter
+        (facet: dynamicFilesForFacet facet != [])
+        facetNames;
+
+      variantRoots = lib.genAttrs dynamicFacetNames (facet:
+        lib.genAttrs facetVariantNames.${facet} (variant:
+          toString (mkVariantRoot facet variant (dynamicFilesForFacet facet))));
+
       mkStaticFileDispatch = file: {
-        kind = "static";
-        value = toString (materializeFileValue file "static" file.value);
+        source = {
+          kind = "static";
+          path = toString (materializeFileValue file "static" file.value);
+        };
       };
 
-      mkDynamicFileDispatch = file: let
-        comboSpace = cartesianProductOfSets (lib.genAttrs file.watch (facet: facetVariantNames.${facet}));
-      in {
-        kind = "select";
-        facets = file.watch;
-        cases =
-          map (combo: let
-            selectionForValue = resolvedDefaultSelection // combo;
-            variants = map (facet: combo.${facet}) file.watch;
-            ruleHash = builtins.substring 0 8 (builtins.hashString "sha256" (builtins.toJSON variants));
-            rawValue = file.value (mkWatchedContext file.watch selectionForValue);
-          in {
-            inherit variants;
-            value = toString (materializeFileValue file ruleHash rawValue);
-          })
-          comboSpace;
+      mkDynamicFileDispatch = file: {
+        source = {
+          kind = "facet";
+          facet = file.watch;
+        };
       };
 
-      compiledFiles =
-        map (file: {
+      compiledFiles = map (file:
+        {
           inherit (file) path;
-          dispatch =
-            if lib.isFunction file.value
-            then mkDynamicFileDispatch file
-            else mkStaticFileDispatch file;
-        })
-        normalizedFiles;
+        }
+        // (
+          if lib.isFunction file.value
+          then mkDynamicFileDispatch file
+          else mkStaticFileDispatch file
+        ))
+      normalizedFiles;
 
       mkStaticHookDispatch = hook: {
         kind = "static";
         value = hook.command;
       };
 
-      mkDynamicHookDispatch = hook: let
-        comboSpace = cartesianProductOfSets (lib.genAttrs hook.watch (facet: facetVariantNames.${facet}));
-      in {
-        kind = "select";
-        facets = hook.watch;
-        cases =
-          map (combo: let
-            selectionForCommand = resolvedDefaultSelection // combo;
-          in {
-            variants = map (facet: combo.${facet}) hook.watch;
-            value = hook.command (mkWatchedContext hook.watch selectionForCommand);
-          })
-          comboSpace;
+      mkDynamicHookDispatch = hook: {
+        kind = "facet";
+        facet = hook.watch;
+        variants =
+          lib.genAttrs facetVariantNames.${hook.watch} (variant:
+            hook.command (mkWatchedContext hook.watch variant));
       };
 
       compiledHooks =
@@ -724,7 +691,7 @@ in {
             name
             watch
             ;
-          dispatch =
+          command =
             if lib.isFunction hook.command
             then mkDynamicHookDispatch hook
             else mkStaticHookDispatch hook;
@@ -732,10 +699,11 @@ in {
         normalizedHooks;
 
       manifest = {
-        version = 2;
+        version = 3;
         home = resolvedHomeDirectory;
-        facets = resolvedFacets;
+        facets = manifestFacets;
         defaultSelection = resolvedDefaultSelection;
+        inherit variantRoots;
         files = compiledFiles;
         hooks = compiledHooks;
       };

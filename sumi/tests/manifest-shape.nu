@@ -1,30 +1,25 @@
-def canonicalize-dispatch [dispatch] {
-  let kind = ($dispatch | get kind)
-
-  if $kind == "static" {
-    $dispatch | reject value
+def canonicalize-file [file] {
+  if ($file.source.kind == "static") {
+    $file | upsert source ($file.source | reject path)
   } else {
-    let cases = (
-      $dispatch
-      | get cases
-      | each {|case|
-          if ("value" in ($case | columns)) {
-            $case | reject value
-          } else {
-            $case
-          }
-        }
-    )
-
-    $dispatch | merge {cases: $cases}
+    $file
   }
 }
 
-def canonicalize-file [file] {
-  if ("dispatch" in ($file | columns)) {
-    $file | merge {dispatch: (canonicalize-dispatch ($file | get dispatch))}
+def canonicalize-hook [hook] {
+  if ($hook.command.kind == "static") {
+    $hook
   } else {
-    $file
+    $hook | upsert command ($hook.command | upsert variants {})
+  }
+}
+
+def canonicalize-variant-roots [roots] {
+  $roots | transpose facet variants | each {|row|
+    {
+      facet: $row.facet
+      variants: ($row.variants | transpose variant path | each {|v| {variant: $v.variant, path: "<store>"}})
+    }
   }
 }
 
@@ -34,8 +29,14 @@ def canonicalize-manifest [manifest] {
     | get files
     | each {|file| canonicalize-file $file }
   )
+  let hooks = (
+    $manifest
+    | get hooks
+    | each {|hook| canonicalize-hook $hook }
+  )
+  let variant_roots = (canonicalize-variant-roots ($manifest | get variantRoots))
 
-  $manifest | merge {files: $files}
+  $manifest | merge {files: $files hooks: $hooks variantRoots: $variant_roots}
 }
 
 def main [manifest_path: string expected_json: string] {
