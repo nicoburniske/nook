@@ -1,0 +1,94 @@
+--- a/helix-term/src/commands/engine/steel/mod.rs
++++ b/helix-term/src/commands/engine/steel/mod.rs
+@@ -3203,12 +3203,9 @@
+     // to reset this back to what it was before.
+     cx.editor.editor_clipping = ClippingConfiguration::default();
+ 
+-    log::info!("Loading init.scm...");
+-
+     let helix_module_path = helix_module_file();
+     let helix_init_path = steel_init_file();
+ 
+-    // TODO: Report the error from requiring the file!
+     enter_engine(|guard| {
+         // Embed the configuration so we don't have to communicate over the refresh
+         // channel. The state is still stored within the `Application` struct, but
+@@ -3224,7 +3221,7 @@
+         );
+ 
+         if helix_module_path.exists() {
+-            log::info!("Loading helix.scm from context: {:?}", helix_init_path);
++            log::info!("Loading helix.scm: {:?}", helix_module_path);
+             let res = guard.run_with_reference_from_path(
+                 cx,
+                 CTX,
+@@ -3234,34 +3231,43 @@
+ 
+             // Present the error in the helix.scm loading
+             if let Err(e) = res {
++                log::error!("Failed to load helix.scm {:?}: {}", helix_module_path, e);
+                 present_error_inside_engine_context(cx, guard, e);
+                 return;
+             }
++            log::info!("Finished loading helix.scm: {:?}", helix_module_path);
+         } else {
+-            println!("Unable to find the `helix.scm` file, creating....");
++            log::info!("No helix.scm found, creating: {:?}", helix_module_path);
+             std::fs::write(helix_module_path, "").ok();
+         }
+ 
+         let helix_module_path = steel_init_file();
+ 
+         // These contents need to be registered with the path?
+-        if let Ok(contents) = std::fs::read_to_string(&helix_module_path) {
+-            let res = guard.run_with_reference_from_path::<Context, Context>(
+-                cx,
+-                CTX,
+-                &contents,
+-                helix_module_path,
+-            );
+-
+-            match res {
+-                Ok(_) => {}
+-                Err(e) => present_error_inside_engine_context(cx, guard, e),
++        match std::fs::read_to_string(&helix_module_path) {
++            Ok(contents) => {
++                log::info!("Loading init.scm: {:?}", helix_module_path);
++                let res = guard.run_with_reference_from_path::<Context, Context>(
++                    cx,
++                    CTX,
++                    &contents,
++                    helix_module_path.clone(),
++                );
++
++                match res {
++                    Ok(_) => {
++                        log::info!("Finished loading init.scm: {:?}", helix_module_path);
++                    }
++                    Err(e) => {
++                        log::error!("Failed to load init.scm {:?}: {}", helix_module_path, e);
++                        present_error_inside_engine_context(cx, guard, e);
++                    }
++                }
++            }
++            Err(e) => {
++                log::error!("Failed to read init.scm {:?}: {}", helix_module_path, e);
++                std::fs::write(helix_module_path, "").ok();
+             }
+-
+-            log::info!("Finished loading init.scm!")
+-        } else {
+-            log::info!("No init.scm found, skipping loading.");
+-            std::fs::write(helix_module_path, "").ok();
+         }
+     });
+ 
+@@ -4216,7 +4222,7 @@
+         SteelVal::IntV(engine.engine_id().as_usize() as _),
+     );
+ 
+-    configure_builtin_sources(&mut engine, true);
++    configure_builtin_sources(&mut engine, false);
+ 
+     // Hooks
+     engine.register_fn("register-hook!", register_hook);
