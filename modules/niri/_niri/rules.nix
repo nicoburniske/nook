@@ -11,7 +11,6 @@
     window-rule = [
       {match."app-id" = "^pavucontrol$";}
       {match."app-id" = "^nm-connection-editor$";}
-      {match."app-id" = "^blueman-manager$";}
       {open-floating = true;}
     ];
   }

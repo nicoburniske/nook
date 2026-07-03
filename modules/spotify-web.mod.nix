@@ -29,7 +29,7 @@
       spotifyDesktop
     ];
 
-    compositor.niri.rules = [
+    compositor.niri.config = [
       {
         window-rule = {
           match."app-id" = "^chrome-open\\.spotify\\.com__-Default$";

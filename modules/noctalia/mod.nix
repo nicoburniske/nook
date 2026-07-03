@@ -18,7 +18,7 @@
       "${noctalia} --daemon"
     ];
 
-    compositor.niri.rules = [
+    compositor.niri.config = [
       {
         layer-rule = {
           match.namespace = "^noctalia-wallpaper$";

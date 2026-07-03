@@ -17,7 +17,7 @@
       file-roller
     ];
 
-    compositor.niri.rules = [
+    compositor.niri.config = [
       {
         window-rule = {
           match."app-id" = "^org\\.gnome\\.FileRoller$";

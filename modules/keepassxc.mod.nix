@@ -2,7 +2,7 @@
   flake.mod.nixos.keepassxc = {pkgs, ...}: {
     environment.systemPackages = [pkgs.keepassxc];
 
-    compositor.niri.rules = [
+    compositor.niri.config = [
       {
         window-rule = {
           match."app-id" = "^org\\.keepassxc\\.KeePassXC$";

@@ -12,12 +12,11 @@
   baseConfig = import ./config.nix {
     inherit config;
   };
-  rules = (import ./rules.nix) ++ config.compositor.niri.rules;
   mkTheme = import ./theme.nix {inherit lib;};
   configKdl = lib.kdl.toKDL (
     baseConfig
     ++ config.compositor.niri.config
-    ++ rules
+    ++ (import ./rules.nix)
     ++ [
       {
         binds = keybinds;
@@ -28,7 +27,6 @@ in {
   sumi.configFile = {
     "niri/config.kdl".value = ''
       include "theme.kdl"
-
       ${configKdl}
     '';
 

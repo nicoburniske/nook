@@ -12,12 +12,6 @@
         default = [];
         description = "niri config KDL nodes";
       };
-
-      niri.rules = lib.mkOption {
-        type = lib.types.listOf lib.types.attrs;
-        default = [];
-        description = "niri rule KDL nodes";
-      };
     };
   };
 }

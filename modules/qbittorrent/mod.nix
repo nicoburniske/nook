@@ -17,7 +17,7 @@
       config.flake.mod.common.qbittorrent
     ];
 
-    compositor.niri.rules = [
+    compositor.niri.config = [
       {
         window-rule = {
           match = {
