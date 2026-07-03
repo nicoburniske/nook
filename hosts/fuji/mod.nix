@@ -52,6 +52,7 @@
         cargo
         yazi
         fonts
+        qbittorrent
       ])
       ++ (with modules; [
         sumi
