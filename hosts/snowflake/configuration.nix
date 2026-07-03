@@ -80,27 +80,6 @@
 
   virtualisation.libvirtd.enable = true;
 
-  users.users.${host.user} = {
-    isNormalUser = true;
-    home = host.homeDirectory;
-    extraGroups = [
-      "wheel"
-      "audio"
-      "video"
-      "render"
-      "input"
-      "networkmanager"
-      "users"
-      "kvm"
-      "adbusers"
-    ];
-    shell = pkgs.zsh;
-  };
-
-  programs = {
-    zsh.enable = true;
-  };
-
   environment.systemPackages = with pkgs; [
     git
   ];

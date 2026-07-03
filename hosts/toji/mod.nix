@@ -34,6 +34,7 @@
       ])
       ++ (with modules; [
         nix
+        user
         docker
         plugdev
         secrets

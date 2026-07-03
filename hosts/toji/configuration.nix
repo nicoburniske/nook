@@ -79,25 +79,6 @@
     ];
   };
 
-  programs = {
-    zsh.enable = true;
-  };
-
-  users.users.${host.user} = {
-    isNormalUser = true;
-    home = host.homeDirectory;
-    extraGroups = [
-      "wheel"
-      "audio"
-      "video"
-      "render"
-      "input"
-      "networkmanager"
-      "users"
-    ];
-    shell = pkgs.zsh;
-  };
-
   environment.systemPackages = with pkgs; [
     git
   ];

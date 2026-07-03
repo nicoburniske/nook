@@ -48,6 +48,7 @@
       ])
       ++ (with modules; [
         nix
+        user
         plugdev
         sumi
         fonts
