@@ -1,9 +1,13 @@
-{inputs, ...}: let
+{
+  config,
+  inputs,
+  ...
+}: let
   self = inputs.self;
   shortRev = self.shortRev or self.dirtyShortRev or "unknown";
 in {
   flake.mod.common.nix = {
-    nix.settings = (import "${self}/flake.nix").nixConfig;
+    nix.settings = config.nixConfig;
   };
 
   flake.mod.nixos.nix = {
