@@ -15,7 +15,7 @@
 
     helixSteelPackage =
       (inputs.helix-steel.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
-        includeGrammarIf = grammar: grammar.name != "go-format-string";
+        includeGrammarIf = _: false;
       }).overrideAttrs
       (prevAttrs: {
         patches =
@@ -42,6 +42,19 @@
             taplo
           ])
         }
+      '';
+    };
+
+    hxGrammar = pkgs.writeShellApplication {
+      name = "hx-grammar-refresh";
+      runtimeInputs = with pkgs; [
+        hx
+        git
+        stdenv.cc
+      ];
+      text = ''
+        hx --grammar fetch
+        hx --grammar build "$@"
       '';
     };
   in {
@@ -80,6 +93,7 @@
 
       environment.systemPackages = [
         hx
+        hxGrammar
       ];
 
       sumi.configFile =
