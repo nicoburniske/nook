@@ -42,6 +42,8 @@ in {
   wallpaper = {
     enabled = true;
     transition_duration = 500.0;
+    default.path = toString theme.image;
+    last.path = toString theme.image;
   };
   backdrop.enabled = false;
   dock = {
