@@ -4,8 +4,10 @@
     pkgs,
     ...
   }: {
-    environment.systemPackages = [pkgs.fzf];
-    environment.variables.FZF_DEFAULT_OPTS_FILE = "${config.lib.sumi.paths.config}/fzf/fzfrc";
+    environment = {
+      systemPackages = [pkgs.fzf];
+      variables.FZF_DEFAULT_OPTS_FILE = "${config.lib.sumi.paths.config}/fzf/fzfrc";
+    };
 
     sumi.configFile."fzf/fzfrc" = {
       watch = "theme";

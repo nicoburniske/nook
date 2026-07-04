@@ -12,11 +12,13 @@
 
   boot = {
     consoleLogLevel = 0;
-    loader.systemd-boot = {
-      enable = true;
-      configurationLimit = 5;
+    loader = {
+      systemd-boot = {
+        enable = true;
+        configurationLimit = 5;
+      };
+      efi.canTouchEfiVariables = false;
     };
-    loader.efi.canTouchEfiVariables = false;
     kernelParams = ["appledrm.show_notch=1"];
     # apple silicon uses 16K pages, so we are forcing it
     # nixpkgs currently falls back to the 4K-page max
@@ -31,10 +33,10 @@
     };
     graphics.enable = true;
 
-    bluetooth.enable = true;
-    bluetooth.powerOnBoot = true;
-    bluetooth.settings = {
-      General = {
+    bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+      settings.General = {
         Enable = "Source,Sink,Media,Socket";
         Experimental = true;
       };
@@ -51,30 +53,33 @@
     };
     networkmanager = {
       enable = true;
-      wifi.backend = "iwd";
-      wifi.powersave = true;
+      wifi = {
+        backend = "iwd";
+        powersave = true;
+      };
     };
   };
   time.timeZone = "America/New_York";
 
-  services.interception-tools = let
-    itools = pkgs.interception-tools;
-    itools-caps = pkgs.interception-tools-plugins.caps2esc;
-  in {
-    enable = true;
-    plugins = [itools-caps];
-    udevmonConfig = ''
-      - JOB: "${itools}/bin/intercept -g $DEVNODE | ${itools-caps}/bin/caps2esc -m 1 | ${itools}/bin/uinput -d $DEVNODE"
-        DEVICE:
-          EVENTS:
-            EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
-    '';
+  services = {
+    interception-tools = let
+      itools = pkgs.interception-tools;
+      itools-caps = pkgs.interception-tools-plugins.caps2esc;
+    in {
+      enable = true;
+      plugins = [itools-caps];
+      udevmonConfig = ''
+        - JOB: "${itools}/bin/intercept -g $DEVNODE | ${itools-caps}/bin/caps2esc -m 1 | ${itools}/bin/uinput -d $DEVNODE"
+          DEVICE:
+            EVENTS:
+              EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
+      '';
+    };
+    udisks2.enable = true;
+    gvfs.enable = true;
+    upower.enable = true;
+    power-profiles-daemon.enable = true;
   };
-
-  services.udisks2.enable = true;
-  services.gvfs.enable = true;
-  services.upower.enable = true;
-  services.power-profiles-daemon.enable = true;
 
   virtualisation.libvirtd.enable = true;
 

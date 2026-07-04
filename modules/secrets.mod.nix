@@ -1,9 +1,11 @@
 {inputs, ...}: {
   inputs.agenix = {
     url = "github:ryantm/agenix";
-    inputs.nixpkgs.follows = "nixpkgs";
-    inputs.home-manager.follows = "";
-    inputs.darwin.follows = "";
+    inputs = {
+      nixpkgs.follows = "nixpkgs";
+      home-manager.follows = "";
+      darwin.follows = "";
+    };
   };
 
   perSystem = {system, ...}: {

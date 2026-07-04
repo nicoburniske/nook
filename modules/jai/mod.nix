@@ -66,26 +66,26 @@ in {
       pkgs.jai
     ];
 
-    secrets."jai-linux" = {
-      file = ./jai-linux.age;
-      owner = host.user;
-      path = "/run/jai/bin/jai-linux";
-      mode = "0500";
-      symlink = false;
-    };
-
-    secrets."jai-lld-linux" = {
-      file = ./lld-linux.age;
-      owner = host.user;
-      path = "/run/jai/bin/lld-linux";
-      mode = "0500";
-      symlink = false;
-    };
-
-    secrets."jai-modules" = {
-      file = ./modules.tar.zst.age;
-      path = "/run/jai/modules.tar.zst";
-      symlink = false;
+    secrets = {
+      "jai-linux" = {
+        file = ./jai-linux.age;
+        owner = host.user;
+        path = "/run/jai/bin/jai-linux";
+        mode = "0500";
+        symlink = false;
+      };
+      "jai-lld-linux" = {
+        file = ./lld-linux.age;
+        owner = host.user;
+        path = "/run/jai/bin/lld-linux";
+        mode = "0500";
+        symlink = false;
+      };
+      "jai-modules" = {
+        file = ./modules.tar.zst.age;
+        path = "/run/jai/modules.tar.zst";
+        symlink = false;
+      };
     };
 
     systemd.services.jai-modules = {

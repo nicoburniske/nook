@@ -9,7 +9,9 @@
       '';
     };
 
-    users.groups.plugdev = {};
-    users.users.${host.user}.extraGroups = ["plugdev"];
+    users = {
+      groups.plugdev = {};
+      users.${host.user}.extraGroups = ["plugdev"];
+    };
   };
 }

@@ -29,38 +29,33 @@
           };
         };
 
-        config = {
-          sumi = {
-            enable = true;
-            homeDirectory = "/home/tester";
-            flakeRoot = "/tmp/sumi-tests";
+        config.sumi = {
+          enable = true;
+          homeDirectory = "/home/tester";
+          flakeRoot = "/tmp/sumi-tests";
 
-            facets.theme = {
-              default = "light";
-              variants = {
-                light = {
-                  tone = "light";
-                };
+          facets.theme = {
+            default = "light";
+            variants = {
+              light.tone = "light";
 
-                dark = {
-                  tone = "dark";
-                };
-              };
+              dark.tone = "dark";
             };
+          };
 
-            defaultSelection.theme = "light";
+          defaultSelection.theme = "light";
 
-            configFile."demo/app.conf" = {
-              watch = "theme";
-              value = ctx: "tone=${ctx.value.tone}";
-            };
+          configFile."demo/app.conf" = {
+            watch = "theme";
+            value = ctx: "tone=${ctx.value.tone}";
+          };
 
-            hook.demo = {
+          hook = {
+            demo = {
               watch = "theme";
               command = "echo reload";
             };
-
-            hook."demo-generated" = {
+            "demo-generated" = {
               watch = "theme";
               command = ctx: "echo tone=${ctx.value.tone}";
             };
@@ -77,20 +72,16 @@
     defaultSelection = {
       theme = "light";
     };
-    facets = {
-      theme = {
-        default = "light";
-        variants = {
-          dark = {};
-          light = {};
-        };
+    facets.theme = {
+      default = "light";
+      variants = {
+        dark = {};
+        light = {};
       };
     };
-    variantRoots = {
-      theme = {
-        dark = "<store>";
-        light = "<store>";
-      };
+    variantRoots.theme = {
+      dark = "<store>";
+      light = "<store>";
     };
     files = [
       {

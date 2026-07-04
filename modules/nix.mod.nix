@@ -23,19 +23,22 @@ in {
     };
   };
 
-  nixosModules.nix = {
-    system.configurationRevision = shortRev;
-    system.nixos.label = "${shortRev}-${self.lastModifiedDate}";
+  nixosModules = {
+    nix = {
+      system = {
+        configurationRevision = shortRev;
+        nixos.label = "${shortRev}-${self.lastModifiedDate}";
+      };
 
-    nix.gc = {
-      automatic = true;
-      dates = "daily";
-      options = "--delete-older-than +5";
+      nix.gc = {
+        automatic = true;
+        dates = "daily";
+        options = "--delete-older-than +5";
+      };
     };
-  };
-
-  nixosModules.nuke-default-packages = {
-    environment.defaultPackages = [];
-    environment.stub-ld.enable = false;
+    nuke-default-packages.environment = {
+      defaultPackages = [];
+      stub-ld.enable = false;
+    };
   };
 }

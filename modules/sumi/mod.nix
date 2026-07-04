@@ -20,35 +20,36 @@
         default = true;
       };
 
-      theme.default = lib.mkOption {
-        type = lib.types.str;
-        default = "gruvbox";
-        description = "default selected theme";
-      };
+      theme = {
+        default = lib.mkOption {
+          type = lib.types.str;
+          default = "gruvbox";
+          description = "default selected theme";
+        };
+        transparency = lib.mkOption {
+          type = lib.types.submodule {
+            options = {
+              light = lib.mkOption {
+                type = lib.types.float;
+                default = 0.90;
+                description = "opacity for light themes";
+              };
 
-      theme.transparency = lib.mkOption {
-        type = lib.types.submodule {
-          options = {
-            light = lib.mkOption {
-              type = lib.types.float;
-              default = 0.90;
-              description = "opacity for light themes";
-            };
+              dark = lib.mkOption {
+                type = lib.types.float;
+                default = 0.90;
+                description = "opacity for dark themes";
+              };
 
-            dark = lib.mkOption {
-              type = lib.types.float;
-              default = 0.90;
-              description = "opacity for dark themes";
-            };
-
-            darkOnLight = lib.mkOption {
-              type = lib.types.float;
-              default = 0.93;
-              description = "opacity for dark themes with light backgrounds";
+              darkOnLight = lib.mkOption {
+                type = lib.types.float;
+                default = 0.93;
+                description = "opacity for dark themes with light backgrounds";
+              };
             };
           };
+          default = {};
         };
-        default = {};
       };
     };
 

@@ -15,18 +15,18 @@
     }
   '';
 in {
-  options.inputs = lib.mkOption {
-    type = lib.types.attrsOf lib.types.anything;
-    default = {};
-  };
-
-  options.description = lib.mkOption {
-    type = lib.types.str;
-  };
-
-  options.nixConfig = lib.mkOption {
-    type = lib.types.attrsOf lib.types.anything;
-    default = {};
+  options = {
+    inputs = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = {};
+    };
+    description = lib.mkOption {
+      type = lib.types.str;
+    };
+    nixConfig = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = {};
+    };
   };
 
   config = {
@@ -66,15 +66,16 @@ in {
     in {
       formatter = pkgs.alejandra;
 
-      packages.nix-tidy = nixTidy;
-
-      packages.gen-flake = pkgs.writeShellApplication {
-        name = "gen-flake";
-        text = ''
-          install -m 0644 ${pkgs.writeText "flake.nix" flakeText} flake.nix
-          ${nixTidy}/bin/nix-tidy flake.nix
-          ${pkgs.alejandra}/bin/alejandra flake.nix >/dev/null 2>&1
-        '';
+      packages = {
+        nix-tidy = nixTidy;
+        gen-flake = pkgs.writeShellApplication {
+          name = "gen-flake";
+          text = ''
+            install -m 0644 ${pkgs.writeText "flake.nix" flakeText} flake.nix
+            ${nixTidy}/bin/nix-tidy flake.nix
+            ${pkgs.alejandra}/bin/alejandra flake.nix >/dev/null 2>&1
+          '';
+        };
       };
     };
   };

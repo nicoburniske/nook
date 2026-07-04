@@ -62,52 +62,47 @@
     programs.dconf.enable = true;
     environment.variables.GTK2_RC_FILES = "${configDir}/gtk-2.0/gtkrc";
 
-    sumi.configFile = {
-      "gtk-2.0/gtkrc" = {
-        watch = "theme";
-        value = ctx: mkGtkrc ctx.value;
+    sumi = {
+      configFile = {
+        "gtk-2.0/gtkrc" = {
+          watch = "theme";
+          value = ctx: mkGtkrc ctx.value;
+        };
+        "gtk-3.0/settings.ini" = {
+          watch = "theme";
+          value = ctx: mkGtkSettings 3 ctx.value;
+        };
+        "gtk-4.0/settings.ini" = {
+          watch = "theme";
+          value = ctx: mkGtkSettings 4 ctx.value;
+        };
+        "gtk-3.0/gtk.css" = {
+          watch = "theme";
+          value = ctx: mkGtkCss ctx.value;
+        };
+        "gtk-4.0/gtk.css" = {
+          watch = "theme";
+          value = ctx: mkGtkCss ctx.value;
+        };
       };
-      "gtk-3.0/settings.ini" = {
-        watch = "theme";
-        value = ctx: mkGtkSettings 3 ctx.value;
-      };
-      "gtk-4.0/settings.ini" = {
-        watch = "theme";
-        value = ctx: mkGtkSettings 4 ctx.value;
-      };
-      "gtk-3.0/gtk.css" = {
-        watch = "theme";
-        value = ctx: mkGtkCss ctx.value;
-      };
-      "gtk-4.0/gtk.css" = {
-        watch = "theme";
-        value = ctx: mkGtkCss ctx.value;
-      };
-    };
-
-    sumi.homeFile = {
-      ".themes/${gtkThemeName}" = {
+      homeFile.".themes/${gtkThemeName}" = {
         watch = "theme";
         value = ctx: mkFlattenedGtkTheme ctx.value;
       };
-    };
-
-    sumi.dataFile = {
-      "flatpak/overrides/global".value = ''
+      dataFile."flatpak/overrides/global".value = ''
         [Context]
         filesystems=${homeDir}/.themes/${gtkThemeName}:ro
 
         [Environment]
         GTK_THEME=${gtkThemeName}
       '';
-    };
-
-    sumi.hook.gtk = {
-      watch = "theme";
-      command = ctx:
-        if ctx.value.polarity == "dark"
-        then "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true"
-        else "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true";
+      hook.gtk = {
+        watch = "theme";
+        command = ctx:
+          if ctx.value.polarity == "dark"
+          then "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true"
+          else "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true";
+      };
     };
   };
 }

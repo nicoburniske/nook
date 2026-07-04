@@ -1,9 +1,7 @@
 {config, ...}: {
-  inputs = {
-    apple-silicon = {
-      url = "github:nix-community/nixos-apple-silicon";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+  inputs.apple-silicon = {
+    url = "github:nix-community/nixos-apple-silicon";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
 
   configurations.nixos.snowflake.module = {...}: let

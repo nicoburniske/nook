@@ -23,23 +23,24 @@
       steam-unwrapped
     ];
 
-    # https://github.com/NixOS/nixpkgs/issues/324875#issuecomment-2308355036
-    # systemctl --user restart pipewire
-    programs.steam = {
-      enable = true;
-      extest.enable = true;
-      remotePlay.openFirewall = true;
-      dedicatedServer.openFirewall = true;
-      extraPackages = [
-        pkgs.hidapi
-        pkgs.zlib
-      ];
-    };
-
-    programs.gamescope = {
-      enable = true;
-      enableWsi = true;
-      capSysNice = false;
+    programs = {
+      # https://github.com/NixOS/nixpkgs/issues/324875#issuecomment-2308355036
+      # systemctl --user restart pipewire
+      steam = {
+        enable = true;
+        extest.enable = true;
+        remotePlay.openFirewall = true;
+        dedicatedServer.openFirewall = true;
+        extraPackages = [
+          pkgs.hidapi
+          pkgs.zlib
+        ];
+      };
+      gamescope = {
+        enable = true;
+        enableWsi = true;
+        capSysNice = false;
+      };
     };
 
     environment.systemPackages = with pkgs; [

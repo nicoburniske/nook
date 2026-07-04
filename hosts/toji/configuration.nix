@@ -9,8 +9,10 @@
   ];
 
   boot = {
-    loader.systemd-boot.enable = true;
-    loader.efi.canTouchEfiVariables = true;
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
     kernelPackages = pkgs.linuxPackages_latest;
     initrd.kernelModules = ["amdgpu"];
   };
@@ -18,10 +20,10 @@
   hardware = {
     enableRedistributableFirmware = true;
     i2c.enable = true;
-    bluetooth.enable = true;
-    bluetooth.powerOnBoot = true;
-    bluetooth.settings = {
-      General = {
+    bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+      settings.General = {
         Enable = "Source,Sink,Media,Socket";
         Experimental = true;
       };
@@ -34,7 +36,24 @@
     keyboard.zsa.enable = true;
   };
 
-  services.xserver.videoDrivers = ["amdgpu"];
+  services = {
+    xserver.videoDrivers = ["amdgpu"];
+    pipewire = {
+      enable = true;
+      alsa = {
+        enable = true;
+        support32Bit = true;
+      };
+      pulse.enable = true;
+      wireplumber.enable = true;
+    };
+    printing.enable = true;
+    udisks2.enable = true;
+    gvfs.enable = true;
+    upower.enable = true;
+    power-profiles-daemon.enable = true;
+    lact.enable = true;
+  };
 
   swapDevices = [
     {
@@ -52,22 +71,6 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   security.rtkit.enable = true;
-
-  services = {
-    pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
-      pulse.enable = true;
-      wireplumber.enable = true;
-    };
-    printing.enable = true;
-    udisks2.enable = true;
-    gvfs.enable = true;
-    upower.enable = true;
-    power-profiles-daemon.enable = true;
-    lact.enable = true;
-  };
 
   xdg.portal = {
     enable = true;

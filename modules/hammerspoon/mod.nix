@@ -15,8 +15,14 @@
       hammerspoonLauncher
     ];
 
-    sumi.configFile = {
-      "hammerspoon".value = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/hammerspoon/config";
+    sumi = {
+      configFile."hammerspoon".value = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/hammerspoon/config";
+      hook.hammerspoon = {
+        watch = "theme";
+        command = ''
+          /Applications/Hammerspoon.app/Contents/Frameworks/hs/hs -A -c "hs.reload()"
+        '';
+      };
     };
 
     launchd.user.agents.hammerspoon = {
@@ -30,13 +36,6 @@
         StandardOutPath = "/tmp/hammerspoon.out.log";
         StandardErrorPath = "/tmp/hammerspoon.err.log";
       };
-    };
-
-    sumi.hook.hammerspoon = {
-      watch = "theme";
-      command = ''
-        /Applications/Hammerspoon.app/Contents/Frameworks/hs/hs -A -c "hs.reload()"
-      '';
     };
   };
 }

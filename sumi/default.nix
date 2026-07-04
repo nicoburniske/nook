@@ -249,12 +249,10 @@ in {
       description = "Runtime reload hooks keyed by hook name.";
     };
 
-    generated = {
-      manifest = lib.mkOption {
-        type = types.path;
-        readOnly = true;
-        internal = true;
-      };
+    generated.manifest = lib.mkOption {
+      type = types.path;
+      readOnly = true;
+      internal = true;
     };
 
     package = lib.mkOption {
@@ -267,66 +265,66 @@ in {
 
   config = lib.mkMerge [
     {
-      lib.sumi.mkOutOfStoreSymlink = path: let
-        pathStr = toString path;
-        drvName = lib.strings.sanitizeDerivationName "sumi-oos-${baseNameOf pathStr}";
-      in
-        pkgs.runCommandLocal drvName {} ''
-          ln -s ${lib.escapeShellArg pathStr} "$out"
-        '';
-
-      lib.sumi.flakePath = path: let
-        pathStr = stripLeadingDotSlash path;
-        errors = validateRelativePathKey pathStr;
-      in
-        if errors != []
-        then throw "sumi flake path errors: ${lib.concatStringsSep "; " errors}"
-        else "${config.lib.sumi.paths.flakeRootOrErr}/${pathStr}";
-
-      lib.sumi.renderBase16Mustache = {
-        theme,
-        template,
-      }: let
-        bases = [
-          "base00"
-          "base01"
-          "base02"
-          "base03"
-          "base04"
-          "base05"
-          "base06"
-          "base07"
-          "base08"
-          "base09"
-          "base0A"
-          "base0B"
-          "base0C"
-          "base0D"
-          "base0E"
-          "base0F"
-        ];
-        templateText =
-          if builtins.isPath template
-          then builtins.readFile template
-          else template;
-        c = theme.colors;
-        hexAt = idx: builtins.substring idx 2 c.base01;
-        placeholders =
-          (map (base: "{{${base}-hex}}") bases)
-          ++ [
-            "{{base01-dec-r}}"
-            "{{base01-dec-g}}"
-            "{{base01-dec-b}}"
+      lib.sumi = {
+        mkOutOfStoreSymlink = path: let
+          pathStr = toString path;
+          drvName = lib.strings.sanitizeDerivationName "sumi-oos-${baseNameOf pathStr}";
+        in
+          pkgs.runCommandLocal drvName {} ''
+            ln -s ${lib.escapeShellArg pathStr} "$out"
+          '';
+        flakePath = path: let
+          pathStr = stripLeadingDotSlash path;
+          errors = validateRelativePathKey pathStr;
+        in
+          if errors != []
+          then throw "sumi flake path errors: ${lib.concatStringsSep "; " errors}"
+          else "${config.lib.sumi.paths.flakeRootOrErr}/${pathStr}";
+        renderBase16Mustache = {
+          theme,
+          template,
+        }: let
+          bases = [
+            "base00"
+            "base01"
+            "base02"
+            "base03"
+            "base04"
+            "base05"
+            "base06"
+            "base07"
+            "base08"
+            "base09"
+            "base0A"
+            "base0B"
+            "base0C"
+            "base0D"
+            "base0E"
+            "base0F"
           ];
-        replacements =
-          (map (base: c.${base}) bases)
-          ++ [
-            (toString (lib.fromHexString (hexAt 0)))
-            (toString (lib.fromHexString (hexAt 2)))
-            (toString (lib.fromHexString (hexAt 4)))
-          ];
-      in
-        builtins.replaceStrings placeholders replacements templateText;
+          templateText =
+            if builtins.isPath template
+            then builtins.readFile template
+            else template;
+          c = theme.colors;
+          hexAt = idx: builtins.substring idx 2 c.base01;
+          placeholders =
+            (map (base: "{{${base}-hex}}") bases)
+            ++ [
+              "{{base01-dec-r}}"
+              "{{base01-dec-g}}"
+              "{{base01-dec-b}}"
+            ];
+          replacements =
+            (map (base: c.${base}) bases)
+            ++ [
+              (toString (lib.fromHexString (hexAt 0)))
+              (toString (lib.fromHexString (hexAt 2)))
+              (toString (lib.fromHexString (hexAt 4)))
+            ];
+        in
+          builtins.replaceStrings placeholders replacements templateText;
+      };
     }
 
     (lib.mkIf (cfg.enable or false) (let
@@ -818,27 +816,33 @@ in {
         }
       ];
 
-      lib.sumi.facets = cfg.facets;
-      lib.sumi.paths = {
-        home = resolvedHomeDirectory;
-        config = resolvedConfigHome;
-        cache = resolvedCacheHome;
-        data = resolvedDataHome;
-        state = resolvedStateHome;
-        sumiState = resolvedSumiStateDirectory;
-        flakeRoot = cfg.flakeRoot;
-        flakeRootOrErr =
-          if cfg.flakeRoot != null
-          then cfg.flakeRoot
-          else throw "sumi.flakeRoot must be set for modules that need repository-relative paths.";
+      lib.sumi = {
+        facets = cfg.facets;
+        paths = {
+          home = resolvedHomeDirectory;
+          config = resolvedConfigHome;
+          cache = resolvedCacheHome;
+          data = resolvedDataHome;
+          state = resolvedStateHome;
+          sumiState = resolvedSumiStateDirectory;
+          flakeRoot = cfg.flakeRoot;
+          flakeRootOrErr =
+            if cfg.flakeRoot != null
+            then cfg.flakeRoot
+            else throw "sumi.flakeRoot must be set for modules that need repository-relative paths.";
+        };
       };
 
-      environment.variables = lib.mapAttrs (_: value: lib.mkDefault value) xdgEnv;
-      environment.etc."sumi/manifest.json".source = manifestPath;
-      environment.systemPackages = [wrappedCli];
+      environment = {
+        variables = lib.mapAttrs (_: value: lib.mkDefault value) xdgEnv;
+        etc."sumi/manifest.json".source = manifestPath;
+        systemPackages = [wrappedCli];
+      };
 
-      sumi.generated.manifest = manifestPath;
-      sumi.package = wrappedCli;
+      sumi = {
+        generated.manifest = manifestPath;
+        package = wrappedCli;
+      };
     }))
   ];
 }

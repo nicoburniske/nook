@@ -30,38 +30,37 @@
           };
         };
 
-        config = {
-          sumi = {
-            enable = true;
-            homeDirectory = "/home/tester";
-            flakeRoot = "/tmp/sumi-tests";
+        config.sumi = {
+          enable = true;
+          homeDirectory = "/home/tester";
+          flakeRoot = "/tmp/sumi-tests";
 
-            facets.theme = {
-              default = "light";
-              variants = {
-                light = {
-                  asset = fixture;
-                  tone = "light";
-                };
+          facets.theme = {
+            default = "light";
+            variants = {
+              light = {
+                asset = fixture;
+                tone = "light";
+              };
 
-                dark = {
-                  asset = fixture;
-                  tone = "dark";
-                };
+              dark = {
+                asset = fixture;
+                tone = "dark";
               };
             };
+          };
 
-            configFile."demo/static-source.txt".value = fixture;
-
-            configFile."demo/asset-path.txt" = {
+          configFile = {
+            "demo/static-source.txt".value = fixture;
+            "demo/asset-path.txt" = {
               watch = "theme";
               value = ctx: "asset=${toString ctx.value.asset}";
             };
+          };
 
-            hook."asset-path" = {
-              watch = "theme";
-              command = ctx: "echo ${toString ctx.value.asset}";
-            };
+          hook."asset-path" = {
+            watch = "theme";
+            command = ctx: "echo ${toString ctx.value.asset}";
           };
         };
       })
