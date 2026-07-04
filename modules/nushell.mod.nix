@@ -1,5 +1,5 @@
 {
-  mod.common.nushell = {
+  commonModules.nushell = {
     config,
     pkgs,
     ...

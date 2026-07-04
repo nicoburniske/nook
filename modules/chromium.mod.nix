@@ -1,5 +1,5 @@
 {
-  mod.nixos.chromium = {pkgs, ...}: {
+  nixosModules.chromium = {pkgs, ...}: {
     nixpkgs.allowedUnfreePackages = with pkgs; [
       chromium
       chromium.browser

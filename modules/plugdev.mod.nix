@@ -1,5 +1,5 @@
 {
-  mod.nixos.plugdev = {host, ...}: {
+  nixosModules.plugdev = {host, ...}: {
     services.udev = {
       enable = true;
       extraRules = ''

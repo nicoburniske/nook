@@ -1,5 +1,5 @@
 {
-  mod.nixos.qt = {
+  nixosModules.qt = {
     config,
     lib,
     pkgs,

@@ -1,5 +1,5 @@
 {
-  mod.nixos.keepassxc = {pkgs, ...}: {
+  nixosModules.keepassxc = {pkgs, ...}: {
     environment.systemPackages = [pkgs.keepassxc];
 
     compositor.niri.config = [

@@ -8,7 +8,7 @@
   self = inputs.self;
   shortRev = self.shortRev or self.dirtyShortRev or "unknown";
 in {
-  mod.common.nix = {config, ...}: {
+  commonModules.nix = {config, ...}: {
     options.nixpkgs.allowedUnfreePackages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [];
@@ -23,7 +23,7 @@ in {
     };
   };
 
-  mod.nixos.nix = {
+  nixosModules.nix = {
     system.configurationRevision = shortRev;
     system.nixos.label = "${shortRev}-${self.lastModifiedDate}";
 
@@ -34,7 +34,7 @@ in {
     };
   };
 
-  mod.nixos.nuke-default-packages = {
+  nixosModules.nuke-default-packages = {
     environment.defaultPackages = [];
     environment.stub-ld.enable = false;
   };

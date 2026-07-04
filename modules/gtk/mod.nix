@@ -1,5 +1,5 @@
 {
-  mod.nixos.gtk = {
+  nixosModules.gtk = {
     config,
     lib,
     pkgs,

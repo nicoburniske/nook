@@ -1,5 +1,5 @@
 {
-  mod.nixos.lock = {pkgs, ...}: {
+  nixosModules.lock = {pkgs, ...}: {
     environment.systemPackages = [
       pkgs.hyprlock
     ];

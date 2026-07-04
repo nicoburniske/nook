@@ -1,5 +1,5 @@
 {
-  mod.common.tools = {pkgs, ...}: {
+  commonModules.tools = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       just
       tokei

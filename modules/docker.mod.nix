@@ -1,5 +1,5 @@
 {
-  mod.nixos.docker = {host, ...}: {
+  nixosModules.docker = {host, ...}: {
     virtualisation.docker = {
       enable = false;
 

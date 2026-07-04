@@ -1,5 +1,5 @@
 {
-  mod.common.git = {
+  commonModules.git = {
     lib,
     pkgs,
     ...

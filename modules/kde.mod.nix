@@ -1,5 +1,5 @@
 {
-  mod.nixos.kde = {lib, ...}: let
+  nixosModules.kde = {lib, ...}: let
     colorScheme = "Sumi";
 
     formatValue = value:

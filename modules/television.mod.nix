@@ -1,5 +1,5 @@
 {
-  mod.common.television = {pkgs, ...}: {
+  commonModules.television = {pkgs, ...}: {
     environment.systemPackages = [pkgs.television];
 
     sumi.configFile = {

@@ -1,5 +1,5 @@
 {
-  mod.common.yazi = {
+  commonModules.yazi = {
     lib,
     pkgs,
     ...

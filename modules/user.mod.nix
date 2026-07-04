@@ -1,5 +1,5 @@
 {
-  mod.nixos.user = {
+  nixosModules.user = {
     host,
     pkgs,
     ...

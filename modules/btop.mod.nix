@@ -1,5 +1,5 @@
 {
-  mod.common.btop = {pkgs, ...}: {
+  commonModules.btop = {pkgs, ...}: {
     environment.systemPackages = [pkgs.btop];
 
     sumi.configFile = {

@@ -1,5 +1,5 @@
 {
-  mod.nixos.shadps4 = {pkgs, ...}: let
+  nixosModules.shadps4 = {pkgs, ...}: let
     shadps4PkgExtractor = import ./_extractor.nix {inherit pkgs;};
     save = pkgs.writeNuScriptBin "bbsave" {
       source = ./save.nu;

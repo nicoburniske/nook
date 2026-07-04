@@ -1,5 +1,5 @@
 {
-  mod.common.bat = {
+  commonModules.bat = {
     config,
     lib,
     pkgs,

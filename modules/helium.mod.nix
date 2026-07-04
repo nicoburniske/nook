@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  mod.nixos.helium = {pkgs, ...}: {
+  nixosModules.helium = {pkgs, ...}: {
     nixpkgs.overlays = [
       (final: prev: {
         helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;

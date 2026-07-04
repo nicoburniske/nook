@@ -1,5 +1,5 @@
 {
-  mod.common.lib = {
+  commonModules.lib = {
     nixpkgs.overlays = [
       (final: prev: {
         writeChromiumApp = {

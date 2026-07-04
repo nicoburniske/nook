@@ -1,5 +1,5 @@
 {
-  mod.common.zsh = {
+  commonModules.zsh = {
     config,
     pkgs,
     ...
@@ -74,7 +74,7 @@
     };
   };
 
-  mod.nixos.zsh = {
+  nixosModules.zsh = {
     programs.zoxide = {
       enable = true;
       enableBashIntegration = true;
@@ -111,7 +111,7 @@
     };
   };
 
-  mod.darwin.zsh = {
+  darwinModules.zsh = {
     lib,
     pkgs,
     ...

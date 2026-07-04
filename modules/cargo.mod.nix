@@ -1,5 +1,5 @@
 {
-  mod.common.cargo = {config, ...}: {
+  commonModules.cargo = {config, ...}: {
     environment.variables.CARGO_HOME = "${config.lib.sumi.paths.data}/cargo";
 
     sumi.dataFile = {

@@ -8,60 +8,47 @@
   projectModules = common: platform:
     lib.zipAttrsWith (_: imports: {inherit imports;}) [common platform];
 in {
-  options.configurations = {
-    nixos = lib.mkOption {
-      type = lib.types.lazyAttrsOf (
-        lib.types.submodule {
-          options.module = lib.mkOption {
-            type = lib.types.deferredModule;
-          };
-        }
-      );
-      default = {};
-    };
+  options = {
+    configurations = {
+      nixos = lib.mkOption {
+        type = lib.types.lazyAttrsOf (
+          lib.types.submodule {
+            options.module = lib.mkOption {
+              type = lib.types.deferredModule;
+            };
+          }
+        );
+        default = {};
+      };
 
-    darwin = lib.mkOption {
-      type = lib.types.lazyAttrsOf (
-        lib.types.submodule {
-          options.module = lib.mkOption {
-            type = lib.types.deferredModule;
-          };
-        }
-      );
-      default = {};
-    };
-  };
-
-  options.mod = lib.mkOption {
-    type = lib.types.submodule {
-      options = {
-        common = lib.mkOption {
-          type = lib.types.lazyAttrsOf lib.types.deferredModule;
-          default = {};
-        };
-
-        nixos = lib.mkOption {
-          type = lib.types.lazyAttrsOf lib.types.deferredModule;
-          default = {};
-        };
-
-        darwin = lib.mkOption {
-          type = lib.types.lazyAttrsOf lib.types.deferredModule;
-          default = {};
-        };
+      darwin = lib.mkOption {
+        type = lib.types.lazyAttrsOf (
+          lib.types.submodule {
+            options.module = lib.mkOption {
+              type = lib.types.deferredModule;
+            };
+          }
+        );
+        default = {};
       };
     };
-    default = {};
-  };
-
-  options.flake.darwinModules = lib.mkOption {
-    type = lib.types.lazyAttrsOf lib.types.deferredModule;
-    default = {};
+    commonModules = lib.mkOption {
+      type = lib.types.lazyAttrsOf lib.types.deferredModule;
+      default = {};
+    };
+    nixosModules = lib.mkOption {
+      type = lib.types.lazyAttrsOf lib.types.deferredModule;
+      default = {};
+    };
+    darwinModules = lib.mkOption {
+      type = lib.types.lazyAttrsOf lib.types.deferredModule;
+      default = {};
+    };
   };
 
   config.flake = {
-    nixosModules = projectModules config.mod.common config.mod.nixos;
-    darwinModules = projectModules config.mod.common config.mod.darwin;
+    nixosModules = projectModules config.commonModules config.nixosModules;
+    darwinModules = projectModules config.commonModules config.darwinModules;
 
     nixosConfigurations =
       config.configurations.nixos

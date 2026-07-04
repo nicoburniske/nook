@@ -1,5 +1,5 @@
 {
-  mod.nixos.compositor = {lib, ...}: {
+  nixosModules.compositor = {lib, ...}: {
     options.compositor = {
       startupCommands = lib.mkOption {
         type = lib.types.listOf lib.types.str;

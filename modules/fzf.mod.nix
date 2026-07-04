@@ -1,5 +1,5 @@
 {
-  mod.common.fzf = {
+  commonModules.fzf = {
     config,
     pkgs,
     ...

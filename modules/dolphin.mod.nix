@@ -1,5 +1,5 @@
 {
-  mod.nixos.dolphin = {
+  nixosModules.dolphin = {
     lib,
     pkgs,
     ...

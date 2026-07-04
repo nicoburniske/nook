@@ -1,5 +1,5 @@
 {config, ...}: {
-  mod.nixos.roam-web = {
+  nixosModules.roam-web = {
     host,
     pkgs,
     ...

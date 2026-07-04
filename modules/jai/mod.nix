@@ -36,7 +36,7 @@ let
     '';
   };
 in {
-  mod.nixos.jai = {
+  nixosModules.jai = {
     config,
     host,
     pkgs,

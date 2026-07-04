@@ -10,7 +10,7 @@
     packages.agenix = inputs.agenix.packages.${system}.default;
   };
 
-  mod.nixos.secrets = {
+  nixosModules.secrets = {
     lib,
     pkgs,
     ...

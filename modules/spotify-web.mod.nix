@@ -1,5 +1,5 @@
 {config, ...}: {
-  mod.nixos.spotify-web = {
+  nixosModules.spotify-web = {
     host,
     pkgs,
     ...

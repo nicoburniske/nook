@@ -1,5 +1,5 @@
 {
-  mod.common.comically = {pkgs, ...}: let
+  commonModules.comically = {pkgs, ...}: let
     comically = pkgs.rustPlatform.buildRustPackage {
       pname = "comically";
       version = "0.1.6";

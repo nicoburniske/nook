@@ -1,5 +1,5 @@
 {
-  mod.nixos.nautilus = {pkgs, ...}: {
+  nixosModules.nautilus = {pkgs, ...}: {
     nixpkgs.overlays = [
       (final: prev: {
         nautilus = prev.nautilus.overrideAttrs (old: {

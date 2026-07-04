@@ -1,5 +1,5 @@
 {
-  mod.nixos.greet = {
+  nixosModules.greet = {
     config,
     host,
     pkgs,

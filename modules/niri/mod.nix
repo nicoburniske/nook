@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  mod.nixos.niri = {pkgs, ...}: {
+  nixosModules.niri = {pkgs, ...}: {
     imports = [
       ./_niri
       ./_niri/rofi.nix

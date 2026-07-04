@@ -1,5 +1,5 @@
 {lib, ...}: {
-  mod.common.lazygit = {pkgs, ...}: let
+  commonModules.lazygit = {pkgs, ...}: let
     yamlFormat = pkgs.formats.yaml {};
 
     sendToHelix = cmd:

@@ -1,5 +1,5 @@
 {
-  mod.common.fonts = {
+  commonModules.fonts = {
     config,
     pkgs,
     lib,
@@ -21,7 +21,7 @@
       |> lib.unique;
   };
 
-  mod.nixos.fonts = {
+  nixosModules.fonts = {
     config,
     lib,
     ...

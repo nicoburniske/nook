@@ -1,5 +1,5 @@
 {
-  mod.nixos.coolercontrol = {
+  nixosModules.coolercontrol = {
     lib,
     pkgs,
     ...

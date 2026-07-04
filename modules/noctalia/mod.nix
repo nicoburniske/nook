@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  mod.nixos.noctalia = {
+  nixosModules.noctalia = {
     lib,
     pkgs,
     ...

@@ -122,6 +122,6 @@ let
     ];
   };
 in {
-  mod.common.kitty = kitty;
-  mod.nixos.kitty = niriRulesModule;
+  commonModules.kitty = kitty;
+  nixosModules.kitty = niriRulesModule;
 }

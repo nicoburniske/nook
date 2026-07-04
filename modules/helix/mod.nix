@@ -4,7 +4,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  mod.common.helix = {
+  commonModules.helix = {
     config,
     lib,
     pkgs,

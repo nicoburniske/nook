@@ -1,5 +1,5 @@
 {
-  mod.darwin.hammerspoon = {
+  darwinModules.hammerspoon = {
     config,
     pkgs,
     ...
