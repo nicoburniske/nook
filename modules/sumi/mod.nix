@@ -7,7 +7,7 @@
     ...
   }: let
     cfg = config.nook.sumi;
-    themes = import ./_themes.nix {
+    themes = import ./themes.nix {
       inherit pkgs lib;
       transparency = cfg.theme.transparency;
     };

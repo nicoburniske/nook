@@ -65,7 +65,7 @@
       };
     };
 
-    mkTheme = import ./_theme.nix;
+    mkTheme = import ./theme.nix;
   in {
     environment.systemPackages = [pkgs.yazi];
 

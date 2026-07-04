@@ -9,7 +9,7 @@
   ...
 }: let
   # TODO: helix themes - voxed, seoul256-dark-hard, iroaseta, autumn, varua
-  berkeleyMono = import ./_berkeley-mono.nix {inherit pkgs;};
+  berkeleyMono = import ./berkeley-mono.nix {inherit pkgs;};
 
   mkTheme = base: let
     withHashtag = lib.mapAttrs (_: value: "#${value}") base.colors;

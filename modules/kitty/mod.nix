@@ -1,6 +1,6 @@
 let
   tabTitle = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
-  renderTheme = import ./_theme.nix;
+  renderTheme = import ./theme.nix;
   kitty = {pkgs, ...}: {
     environment.systemPackages = [pkgs.kitty];
 

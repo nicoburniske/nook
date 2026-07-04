@@ -11,8 +11,8 @@
   }: let
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
     noctalia = lib.getExe package;
-    settings = import ./_settings.nix;
-    colors = import ./_colors.nix;
+    settings = import ./settings.nix;
+    colors = import ./colors.nix;
   in {
     compositor = {
       startupCommands = [
