@@ -1,6 +1,13 @@
-let
-  jaiOverlay = final: _prev: let
-    jai = final.buildFHSEnv {
+{
+  nixosModules.jai = {
+    config,
+    host,
+    pkgs,
+    ...
+  }: let
+    treeSitterJaiRev = "073a0c64abecb9ff10b675cea601a0df72cec326";
+
+    jaiFhs = pkgs.buildFHSEnv {
       name = "jai";
       targetPkgs = pkgs:
         with pkgs; [
@@ -26,23 +33,12 @@ let
       ];
       runScript = "/run/jai/bin/jai-linux";
     };
-  in {
-    inherit jai;
 
-    jaiRoot = final.runCommandLocal "jai-root" {} ''
+    jaiRoot = pkgs.runCommandLocal "jai-root" {} ''
       mkdir -p "$out/share/jai/bin"
-      ln -s ${jai}/bin/jai "$out/share/jai/bin/jai-linux"
+      ln -s ${jaiFhs}/bin/jai "$out/share/jai/bin/jai-linux"
       ln -s /run/jai/modules "$out/share/jai/modules"
     '';
-  };
-in {
-  nixosModules.jai = {
-    config,
-    host,
-    pkgs,
-    ...
-  }: let
-    treeSitterJaiRev = "073a0c64abecb9ff10b675cea601a0df72cec326";
 
     jaiParser = let
       treeSitterJai = pkgs.tree-sitter.buildGrammar {
@@ -60,11 +56,11 @@ in {
         ln -s ${treeSitterJai}/parser "$out"
       '';
   in {
-    nixpkgs.overlays = [jaiOverlay];
-
     environment.systemPackages = [
-      pkgs.jai
+      jaiFhs
     ];
+
+    programs.nix-ld.enable = true;
 
     secrets = {
       "jai-linux" = {
@@ -132,7 +128,7 @@ in {
         command = "${config.lib.sumi.paths.home}/.local/bin/jails";
         args = [
           "-jai_path"
-          "${pkgs.jaiRoot}/share/jai"
+          "${jaiRoot}/share/jai"
         ];
       };
 
