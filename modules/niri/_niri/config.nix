@@ -41,6 +41,7 @@ in
           {
             xkb = [
               {layout = "us";}
+              {options = "caps:none";}
             ];
           }
           {repeat-delay = 225;}

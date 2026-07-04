@@ -33,7 +33,7 @@ in {
       nix.gc = {
         automatic = true;
         dates = "daily";
-        options = "--delete-older-than +5";
+        options = "--delete-older-than 5d";
       };
     };
     nuke-default-packages.environment = {
