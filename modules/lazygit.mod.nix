@@ -50,10 +50,12 @@
     };
   in {
     environment.systemPackages = [pkgs.lazygit];
-
-    sumi.configFile."lazygit/config.yml" = {
-      watch = "theme";
-      value = ctx: yamlFormat.generate "sumi-lazygit-${ctx.variant}.yml" (mkSettings ctx.value);
+    sumi = {
+      zsh.aliases.lg = "lazygit";
+      configFile."lazygit/config.yml" = {
+        watch = "theme";
+        value = ctx: yamlFormat.generate "sumi-lazygit-${ctx.variant}.yml" (mkSettings ctx.value);
+      };
     };
   };
 }

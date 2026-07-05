@@ -9,6 +9,10 @@
       variables.FZF_DEFAULT_OPTS_FILE = "${config.lib.sumi.paths.config}/fzf/fzfrc";
     };
 
+    nook.zsh.promptInit = ''
+      source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
+    '';
+
     sumi.configFile."fzf/fzfrc" = {
       watch = "theme";
       value = ctx: let

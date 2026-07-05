@@ -1,6 +1,14 @@
 {
-  commonModules.oh-my-posh = {pkgs, ...}: {
+  commonModules.oh-my-posh = {
+    config,
+    pkgs,
+    ...
+  }: {
     environment.systemPackages = [pkgs.oh-my-posh];
+
+    nook.zsh.promptInit = pkgs.lib.mkAfter ''
+      eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${config.lib.sumi.paths.config}/ohmyposh/config.json")"
+    '';
 
     sumi.configFile."ohmyposh/config.json" = {
       watch = "theme";

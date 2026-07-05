@@ -69,6 +69,17 @@
   in {
     environment.systemPackages = [pkgs.yazi];
 
+    nook.zsh.interactiveShellInit = ''
+      function yy() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+          cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+      }
+    '';
+
     sumi.configFile = {
       "yazi/yazi.toml".value = lib.toml.toTOML yaziSettings;
       "yazi/theme.toml" = {
