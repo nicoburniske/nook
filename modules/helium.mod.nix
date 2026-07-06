@@ -11,6 +11,14 @@
       })
     ];
 
+    sumi.xdg.mime.defaultApplications = {
+      "application/xhtml+xml" = ["helium.desktop"];
+      "text/html" = ["helium.desktop"];
+      "text/xml" = ["helium.desktop"];
+      "x-scheme-handler/http" = ["helium.desktop"];
+      "x-scheme-handler/https" = ["helium.desktop"];
+    };
+
     environment.systemPackages = [
       pkgs.helium
     ];

@@ -36,6 +36,7 @@
         user
         plugdev
         sumi
+        xdg
         fonts
         compositor
         niri

@@ -32,6 +32,7 @@
         plugdev
         secrets
         sumi
+        xdg
         fonts
         compositor
         niri
