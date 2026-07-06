@@ -11,6 +11,7 @@
     ...
   }: let
     mkOutOfStoreSymlink = config.lib.sumi.mkOutOfStoreSymlink;
+    helixRoot = "${config.lib.sumi.paths.flakeRootOrErr}/modules/helix";
 
     helixSteelPackage =
       (inputs.helix-steel.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
@@ -59,11 +60,6 @@
     };
   in {
     options.helix = {
-      root = lib.mkOption {
-        type = lib.types.path;
-        default = "${config.lib.sumi.paths.flakeRootOrErr}/modules/helix";
-      };
-
       grammars = lib.mkOption {
         type = lib.types.listOf lib.types.attrs;
         default = [];
@@ -75,7 +71,7 @@
       };
 
       languageServers = lib.mkOption {
-        type = lib.types.attrs;
+        type = lib.types.attrsOf lib.types.attrs;
         default = {};
       };
 
@@ -224,9 +220,13 @@
                 // config.helix.languageServers;
             };
 
-            "helix/plugins".value = mkOutOfStoreSymlink "${config.helix.root}/plugins";
+            "helix/plugins".value = mkOutOfStoreSymlink "${helixRoot}/plugins";
           }
-          // config.helix.runtimeFiles
+          // (config.helix.runtimeFiles
+            |> lib.mapAttrs' (path: value: {
+              name = "helix/runtime/${path}";
+              value.value = value;
+            }))
           // ([
               "modus"
               "melissa-light"
@@ -237,7 +237,7 @@
             ]
             |> map (name: {
               name = "helix/themes/${name}.toml";
-              value.value = mkOutOfStoreSymlink "${config.helix.root}/themes/${name}.toml";
+              value.value = mkOutOfStoreSymlink "${helixRoot}/themes/${name}.toml";
             })
             |> builtins.listToAttrs);
         hook.helix = {

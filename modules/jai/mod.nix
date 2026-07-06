@@ -133,8 +133,8 @@
       };
 
       runtimeFiles = {
-        "helix/runtime/grammars/jai.so".value = jaiParser;
-        "helix/runtime/queries/jai".value = with config.lib.sumi; mkOutOfStoreSymlink (flakePath "modules/jai/queries");
+        "grammars/jai.so" = jaiParser;
+        "queries/jai" = with config.lib.sumi; mkOutOfStoreSymlink (flakePath "modules/jai/queries");
       };
     };
   };
