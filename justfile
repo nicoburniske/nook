@@ -3,8 +3,8 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 age_key := "/etc/age/identity.txt"
 host := `hostname -s`
 system := `uname -s`
-nix_run := "nix run --inputs-from ."
-nix_shell := "nix shell --inputs-from ."
+nix_run := "nix run --no-warn-dirty --inputs-from ."
+nix_shell := "nix shell --no-warn-dirty --inputs-from ."
 
 gen:
     nix run .#gen-flake
@@ -13,13 +13,12 @@ fmt: fmt-nix fmt-scm
 
 fmt-nix:
     {{ nix_run }} .#nix-tidy -- .
-    {{ nix_run }} nixpkgs#alejandra -- -q .
 
 fmt-scm:
     #! /usr/bin/env -S {{ nix_shell }} nixpkgs#emacs-nox -c nu
     let files = glob modules/helix/plugins/**/*.scm
     for file in $files {
-        emacs --batch $file --eval '(indent-region (point-min) (point-max))' -f save-buffer
+        emacs --batch $file --eval '(let ((inhibit-message t)) (indent-region (point-min) (point-max)))' -f save-buffer
     }
 
 clean:
@@ -77,7 +76,7 @@ _rebuild action target:
         [Linux, switch] => {
             let pending = git status --porcelain --untracked-files=no
             if not ($pending | is-empty) {
-            error make {msg: "pending git changes"}
+                error make {msg: "pending git changes"}
             }
             sudo env $ssh_auth_sock nixos-rebuild switch --flake $flake
         }

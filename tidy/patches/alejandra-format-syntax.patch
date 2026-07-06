@@ -1,0 +1,40 @@
+diff --git a/src/alejandra/src/format.rs b/src/alejandra/src/format.rs
+index 4e9df33..7198d02 100644
+--- a/src/alejandra/src/format.rs
++++ b/src/alejandra/src/format.rs
+@@ -31,6 +31,17 @@ pub fn in_memory(
+         return (Status::Error(errors[0].to_string()), before);
+     }
+ 
++    let after = syntax(path, parsed.syntax().clone(), config);
++
++    if before == after {
++        (Status::Changed(false), after)
++    } else {
++        (Status::Changed(true), after)
++    }
++}
++
++/// Formats an already parsed Nix syntax tree in-memory.
++pub fn syntax(path: String, root: rnix::SyntaxNode, config: Config) -> String {
+     let mut build_ctx = crate::builder::BuildCtx {
+         config,
+         fitting_in_single_line_depth: 0,
+@@ -42,16 +53,7 @@ pub fn in_memory(
+         vertical: true,
+     };
+ 
+-    let root = parsed.syntax();
+-
+-    let after =
+-        crate::builder::build(&mut build_ctx, root.into()).unwrap().to_string();
+-
+-    if before == after {
+-        (Status::Changed(false), after)
+-    } else {
+-        (Status::Changed(true), after)
+-    }
++    crate::builder::build(&mut build_ctx, root.into()).unwrap().to_string()
+ }
+ 
+ /// Formats the file at `path`,

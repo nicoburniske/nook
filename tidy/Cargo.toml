@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap = { version = "4.5.0", default-features = false, features = ["error-context", "help", "std", "usage"] }
+alejandra = { git = "https://github.com/kamadorueda/alejandra", branch = "main" }
+clap = { version = "4.5.0", default-features = false, features = ["derive", "error-context", "help", "std", "usage"] }
+crossbeam-channel = "0.5.15"
 rnix = { version = "0.14.0", default-features = false }
+rowan = { version = "0.16.1", default-features = false }
