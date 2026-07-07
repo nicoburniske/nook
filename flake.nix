@@ -26,14 +26,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:mattwparas/helix/steel-event-system";
     };
-    homebrew-cask = {
-      flake = false;
-      url = "github:homebrew/homebrew-cask";
-    };
-    homebrew-core = {
-      flake = false;
-      url = "github:homebrew/homebrew-core";
-    };
     niri = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:niri-wm/niri";
@@ -42,7 +34,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:LnL7/nix-darwin";
     };
-    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     nix-tidy = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "path:./tidy";

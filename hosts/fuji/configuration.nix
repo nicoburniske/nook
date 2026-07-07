@@ -86,44 +86,6 @@ in {
     shells = [pkgs.zsh];
   };
 
-  homebrew = {
-    enable = true;
-
-    onActivation = {
-      cleanup = "zap";
-      upgrade = false;
-    };
-
-    taps = [
-      "homebrew/cask"
-    ];
-
-    casks = [
-      "raycast"
-      "coolterm"
-      "zed"
-      "docker-desktop"
-      "zen"
-      "iina"
-      "discord"
-      "roam"
-      "keepassxc"
-      "mullvad-vpn"
-      "sparrow"
-      "bitcoin-core"
-      "whatsapp"
-      "spotify"
-      "yacreader"
-      "linearmouse"
-      "flux-app"
-      "sf-symbols"
-      "hammerspoon"
-      "google-chrome"
-    ];
-
-    brews = [];
-  };
-
   security.pam.services.sudo_local = {
     enable = true;
     touchIdAuth = true;

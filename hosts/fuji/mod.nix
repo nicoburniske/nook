@@ -3,25 +3,10 @@
   inputs,
   ...
 }: {
-  inputs = {
-    nix-darwin = {
-      url = "github:LnL7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-
-    homebrew-core = {
-      url = "github:homebrew/homebrew-core";
-      flake = false;
-    };
-
-    homebrew-cask = {
-      url = "github:homebrew/homebrew-cask";
-      flake = false;
-    };
+  inputs.nix-darwin = {
+    url = "github:LnL7/nix-darwin";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
-
   configurations.darwin.fuji.module = {...}: let
     host = {
       name = "fuji";
@@ -55,19 +40,6 @@
         kitty
         zsh
         hammerspoon
-        inputs.nix-homebrew.darwinModules.nix-homebrew
-        {
-          nix-homebrew = {
-            enable = true;
-            enableRosetta = true;
-            user = host.user;
-            taps = {
-              "homebrew/homebrew-core" = inputs.homebrew-core;
-              "homebrew/homebrew-cask" = inputs.homebrew-cask;
-            };
-            mutableTaps = false;
-          };
-        }
       ]);
 
     _module.args.host = host;
