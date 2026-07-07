@@ -12,6 +12,7 @@
   }: let
     mkOutOfStoreSymlink = config.lib.sumi.mkOutOfStoreSymlink;
     helixRoot = "${config.lib.sumi.paths.flakeRootOrErr}/modules/helix";
+    nixTidy = inputs.nix-tidy.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
     helixSteelPackage =
       (inputs.helix-steel.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
@@ -35,13 +36,17 @@
         wrapProgram $out/bin/hx \
           --set HELIX_STEEL_CONFIG "${config.lib.sumi.paths.config}/helix/plugins" \
           --prefix PATH : ${
-          lib.makeBinPath (with pkgs; [
-            alejandra
-            marksman
-            nil
-            nixd
-            taplo
-          ])
+          lib.makeBinPath (
+            [
+              nixTidy
+            ]
+            ++ (with pkgs; [
+              marksman
+              nil
+              nixd
+              taplo
+            ])
+          )
         }
       '';
     };
@@ -171,8 +176,8 @@
                       "nixd"
                     ];
                     formatter = {
-                      command = "alejandra";
-                      args = ["-"];
+                      command = "nix-tidy";
+                      args = ["--quiet" "--threads" "1"];
                     };
                     auto-format = true;
                   }

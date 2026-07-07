@@ -64,7 +64,7 @@ in {
     }: let
       nixTidy = inputs.nix-tidy.packages.${system}.default;
     in {
-      formatter = pkgs.alejandra;
+      formatter = nixTidy;
 
       packages = {
         nix-tidy = nixTidy;
@@ -73,7 +73,6 @@ in {
           text = ''
             install -m 0644 ${pkgs.writeText "flake.nix" flakeText} flake.nix
             ${nixTidy}/bin/nix-tidy flake.nix
-            ${pkgs.alejandra}/bin/alejandra flake.nix >/dev/null 2>&1
           '';
         };
       };

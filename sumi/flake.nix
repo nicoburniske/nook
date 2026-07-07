@@ -64,8 +64,6 @@
       pkgs = nixpkgs.legacyPackages.${system};
       sumi = pkgs.callPackage ./cli/default.nix {};
     in {
-      formatter = pkgs.alejandra;
-
       packages = {
         default = sumi;
         inherit sumi;
