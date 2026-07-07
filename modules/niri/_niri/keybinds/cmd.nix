@@ -11,6 +11,7 @@ pkgs.writeNuScriptBin "niri-cmd" {
     pulseaudio
     procps
     rofi
+    systemd
     wlsunset
   ];
 }

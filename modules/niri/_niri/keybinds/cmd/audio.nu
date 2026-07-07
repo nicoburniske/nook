@@ -9,6 +9,7 @@ const actions = {
   profile: $"($prefix):profile"
   output: $"($prefix):output"
   volume: $"($prefix):volume"
+  restart: $"($prefix):restart"
 }
 
 export def entry [] {
@@ -19,6 +20,7 @@ export def entry [] {
       (action-row "profile" $actions.profiles)
       (action-row "output" $actions.outputs)
       (action-row "volume" $actions.volumes)
+      (action-row "restart audio services" $actions.restart)
     ] }
     handle: {|action| handle $action }
   }
@@ -93,6 +95,9 @@ def handle [action: record] {
     ^pactl set-sink-mute @DEFAULT_SINK@ 0
     ^pactl set-sink-volume @DEFAULT_SINK@ $"($action.volume)%"
     handle {kind: $actions.volumes}
+  } else if $action.kind == $actions.restart {
+    ^systemctl --user restart pipewire pipewire-pulse wireplumber
+    handle {kind: "module", module: $prefix}
   }
 }
 
