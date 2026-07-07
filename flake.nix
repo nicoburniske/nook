@@ -28,7 +28,7 @@
     };
     niri = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:niri-wm/niri";
+      url = "github:dividebysandwich/niri/main";
     };
     nix-darwin = {
       inputs.nixpkgs.follows = "nixpkgs";
@@ -44,6 +44,10 @@
       url = "github:noctalia-dev/noctalia";
     };
     self.lfs = true;
+    smithay = {
+      flake = false;
+      url = "github:dividebysandwich/smithay/master";
+    };
     sumi = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "path:./sumi";

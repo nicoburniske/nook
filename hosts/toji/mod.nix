@@ -77,7 +77,16 @@
             {mode = "5120x2880@165.058";}
             {scale = 2;}
             {variable-refresh-rate = {};}
-            {hdr = {};}
+            {
+              hdr = {
+                props.mode = "on";
+                children = [
+                  {reference-luminance = 500;}
+                  {sdr-saturation = 1.2;}
+                  {sdr-brightness = 1.2;}
+                ];
+              };
+            }
           ];
         };
       }

@@ -150,15 +150,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1781781064,
-        "narHash": "sha256-Ii/koEm/sRyg65qbAQWqEgboSEIhdH0EL4KglAc14p0=",
-        "owner": "niri-wm",
+        "lastModified": 1783630568,
+        "narHash": "sha256-Y8X2bTuboCAQ9E67ri9kTMkzBYU+1o3iCHCOVWctxLo=",
+        "owner": "dividebysandwich",
         "repo": "niri",
-        "rev": "49fc6117fd6c043adaa2ead316b82db5ed735d36",
+        "rev": "5fc4d8f8624941a72f74d20771d3170ecd9a1445",
         "type": "github"
       },
       "original": {
-        "owner": "niri-wm",
+        "owner": "dividebysandwich",
+        "ref": "main",
         "repo": "niri",
         "type": "github"
       }
@@ -247,6 +248,7 @@
         "nix-tidy": "nix-tidy",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
+        "smithay": "smithay",
         "sumi": "sumi"
       }
     },
@@ -268,6 +270,23 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "smithay": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783630533,
+        "narHash": "sha256-sYvo5fPPrf6y2vFI8TbgTfTfNxeVEmzTB+BrqGS7l8o=",
+        "owner": "dividebysandwich",
+        "repo": "smithay",
+        "rev": "a75110d271bb6d93c3a6577f24e91791c6d78e48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dividebysandwich",
+        "ref": "master",
+        "repo": "smithay",
         "type": "github"
       }
     },
