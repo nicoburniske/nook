@@ -7,7 +7,19 @@
   nixosModules.helium = {pkgs, ...}: {
     nixpkgs.overlays = [
       (final: prev: {
-        helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;
+        helium = let
+          helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;
+        in
+          final.symlinkJoin {
+            name = "helium";
+            paths = [helium];
+            nativeBuildInputs = [final.makeWrapper];
+            postBuild = ''
+              wrapProgram $out/bin/helium \
+                --add-flags "--disable-features=WaylandWpColorManagerV1"
+            '';
+            meta = helium.meta or {};
+          };
       })
     ];
 
