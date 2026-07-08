@@ -4,7 +4,7 @@
   ...
 }: let
   cmdDir =
-    "modules/niri/_niri/keybinds/cmd"
+    "modules/niri/keybinds/cmd"
     |> config.lib.sumi.flakePath
     |> config.lib.sumi.mkOutOfStoreSymlink;
 in
