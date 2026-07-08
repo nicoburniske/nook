@@ -1,47 +1,39 @@
-use ./lib.nu [action-row module-row render-menu]
+use ./lib.nu
 
 const prefix = "theme"
-
-const actions = {
-  apply: $"($prefix):apply"
-}
 
 export def entry [] {
   {
     prefix: $prefix
-    root-row: (module-row "theme" $prefix)
-    render: {|| render-menu "cmd > theme" (list-themes) }
-    handle: {|action| handle $action }
+    root-row: (lib page-row $prefix "theme" $prefix)
+    header: {|_state| {title: "cmd > theme", current: ""} }
+    rows: {|_state| rows }
+    apply: {|state, data| apply $state $data }
   }
 }
 
-def handle [action: record] {
-  if $action.kind == $actions.apply {
-    apply $action.theme
-  }
-}
-
-def list-themes [] {
-  let themes_result = do { ^sumi facets theme --json } | complete
-
-  if $themes_result.exit_code != 0 {
-    return []
+def rows [] {
+  let result = do { ^sumi facets theme --json } | complete
+  if $result.exit_code != 0 {
+    return [
+      (lib row "theme:none" "no themes found")
+    ]
   }
 
-  let theme_data = $themes_result.stdout | from json
-  let current_theme = $theme_data | get current
+  let data = $result.stdout | from json
+  let current = $data | get current
 
-  $theme_data
+  $data
   | get variants
   | sort
   | each {|theme|
-        let label = (if $theme == $current_theme { $"* ($theme)" } else { $"  ($theme)" })
-        action-row $label $actions.apply {theme: $theme}
-      }
+    lib apply-row $"theme:($theme)" $theme "theme" {theme: $theme} ($theme == $current)
+  }
 }
 
-def apply [theme: string] {
-  if $theme != "" {
-    ^sumi switch $"theme=($theme)" | ignore
+def apply [state: record, data: record] {
+  if ($data.kind? | default "") == "theme" and ($data.theme? | default "") != "" {
+    ^sumi switch $"theme=($data.theme)" | ignore
   }
+  $state
 }

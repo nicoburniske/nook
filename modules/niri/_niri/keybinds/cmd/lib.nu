@@ -1,51 +1,38 @@
-export def active-label [label: string, active: bool] {
-  if $active {
-    $"* ($label)"
-  } else {
-    $"  ($label)"
-  }
-}
-
-export def clean-field [fallback: string] {
-  let value = $in | default ""
-
-  if ($value | is-empty) {
-    $fallback
-  } else {
-    $value
-    | str replace --all "\t" " "
-    | str replace --all "\n" " "
-  }
-}
-
-export def rofi-header [prompt: string, data?: record] {
-  print $"(char nul)prompt(char unit_separator)($prompt)"
-  print $"(char nul)no-custom(char unit_separator)true"
-
-  if $data != null {
-    print $"(char nul)use-hot-keys(char unit_separator)true"
-    print $"(char nul)data(char unit_separator)($data | to json --raw)"
-  }
-}
-
-export def rofi-row [text: string, action: record] {
-  let encoded = $action | to json --raw
-  print $"($text)(char nul)info(char unit_separator)($encoded)"
-}
-
-export def action-row [text: string, kind: string, payload: record = {}] {
+export def row [
+  id: string
+  label: string
+  right: string = ""
+  action: string = "noop"
+  data: record = {}
+  active: bool = false
+] {
   {
-    text: $text
-    action: ({kind: $kind} | merge $payload)
+    id: $id
+    label: $label
+    right: $right
+    action: $action
+    data: $data
+    active: $active
   }
 }
 
-export def module-row [text: string, module: string] {
-  action-row $text "module" {module: $module}
+export def page-row [
+  id: string
+  label: string
+  page: string
+  right: string = ""
+  data: record = {}
+] {
+  row $id $label $right "page" {page: $page, data: $data}
 }
 
-export def render-menu [prompt: string, rows: list<any>, back?: record] {
-  let back_action = $back | default {kind: "root"}
-  rofi-header $prompt {back: $back_action}
-  $rows | each { rofi-row $in.text $in.action } | ignore
+export def apply-row [
+  id: string
+  label: string
+  kind: string
+  data: record = {}
+  active: bool = false
+  right: string = ""
+] {
+  row $id $label $right "apply" ({kind: $kind} | merge $data) $active
 }

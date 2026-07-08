@@ -9,10 +9,13 @@ nix_shell := "nix shell --no-warn-dirty --inputs-from ."
 gen:
     nix run .#gen-flake
 
-fmt: fmt-nix fmt-scm
+fmt: fmt-nix fmt-scm fmt-nu
 
 fmt-nix:
     {{ nix_run }} .#nix-tidy -- .
+
+fmt-nu:
+    {{ nix_run }} .#{{ host }}.nufmt -- .
 
 fmt-scm:
     #! /usr/bin/env -S {{ nix_shell }} nixpkgs#emacs-nox -c nu

@@ -1,28 +1,18 @@
-use ./lib.nu [action-row module-row render-menu]
+use ./lib.nu
 
 const prefix = "sunset"
-
-const actions = {
-  apply: $"($prefix):apply"
-}
 
 export def entry [] {
   {
     prefix: $prefix
-    root-row: (module-row "sunset" $prefix)
-    render: {|| render-menu "cmd > sunset" (list-presets) }
-    handle: {|action| handle $action }
+    root-row: (lib page-row $prefix "sunset" $prefix)
+    header: {|_state| {title: "cmd > sunset", current: ""} }
+    rows: {|_state| rows }
+    apply: {|state, data| apply $state $data }
   }
 }
 
-def handle [action: record] {
-  if $action.kind == $actions.apply {
-    apply $action.value
-    render-menu "cmd > sunset" (list-presets)
-  }
-}
-
-def list-presets [] {
+def rows [] {
   [
     {value: "off", label: "Off"}
     {value: "5000", label: "Light - 5000K"}
@@ -31,11 +21,18 @@ def list-presets [] {
     {value: "3500", label: "Deep - 3500K"}
   ]
   | each {|preset|
-      action-row $preset.label $actions.apply {value: $preset.value}
-    }
+    lib apply-row $"sunset:($preset.value)" $preset.label "preset" {value: $preset.value}
+  }
 }
 
-def apply [value: string] {
+def apply [state: record, data: record] {
+  if ($data.kind? | default "") == "preset" {
+    apply-preset $data.value
+  }
+  $state
+}
+
+def apply-preset [value: string] {
   ^pkill -x wlsunset err> /dev/null | complete | ignore
 
   if $value == "off" {
@@ -43,8 +40,7 @@ def apply [value: string] {
   }
 
   let high = ($value | into int) + 1
-
   ^sh -c '
-    wlsunset -T "$2" -t "$1" -S 23:59 -s 00:00 >/dev/null 2>&1 &
+    nohup wlsunset -T "$2" -t "$1" -S 23:59 -s 00:00 </dev/null >/dev/null 2>&1 &
   ' sh $value $high | ignore
 }

@@ -6,7 +6,7 @@
   ...
 }: let
   keybinds = import ./keybinds {
-    inherit inputs lib pkgs;
+    inherit config inputs lib pkgs;
   };
 
   baseConfig = import ./config.nix {

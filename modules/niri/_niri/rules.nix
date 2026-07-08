@@ -17,6 +17,16 @@
 
   {
     window-rule = [
+      {match."app-id" = "^niri-cmd$";}
+      {open-floating = true;}
+      {default-column-width = [{proportion = 0.35;}];}
+      {default-window-height = [{proportion = 0.45;}];}
+      {background-effect = [{blur = true;}];}
+    ];
+  }
+
+  {
+    window-rule = [
       {
         match = {
           app-id = "^xdg-desktop-portal-gtk$";

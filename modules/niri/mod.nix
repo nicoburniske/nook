@@ -12,7 +12,6 @@
   nixosModules.niri = {pkgs, ...}: {
     imports = [
       ./_niri
-      ./_niri/rofi.nix
     ];
 
     nixpkgs.overlays = [

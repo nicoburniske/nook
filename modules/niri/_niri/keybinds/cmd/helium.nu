@@ -1,64 +1,54 @@
-use ./lib.nu [action-row module-row render-menu]
+use ./lib.nu
 
 const prefix = "helium"
-
-const actions = {
-  profile: $"($prefix):profile"
-}
 
 export def entry [] {
   {
     prefix: $prefix
-    root-row: (module-row "helium" $prefix)
-    render: {|| render-menu "cmd > helium" (list-profiles) }
-    handle: {|action| handle $action }
+    root-row: (lib page-row $prefix "helium" $prefix)
+    header: {|_state| {title: "cmd > helium", current: ""} }
+    rows: {|_state| rows }
+    apply: {|state, data| apply $state $data }
   }
 }
 
-def handle [action: record] {
-  if $action.kind == $actions.profile {
-    run-profile $action.directory
-  }
-}
-
-def list-profiles [] {
-  let data_dir = data-dir
-  let local_state = [$data_dir "Local State"] | path join
-
+def rows [] {
+  let local_state = [
+    (data-dir)
+    "Local State"
+  ] | path join
   if not ($local_state | path exists) {
-    return []
+    return [
+      (lib row "helium:none" "no helium profiles found")
+    ]
   }
 
   let state = open --raw $local_state | from json
   let info_cache = ($state | get -o profile.info_cache) | default {}
-  let profiles = (
-    $info_cache
-      | transpose directory data
-      | each {|profile|
-          let name = $profile.data.name? | default $profile.directory
-          {
-            name: $name
-            directory: $profile.directory
-            sort_key: ($name | str downcase)
-          }
-        }
-      | where {|profile| $profile.directory != "System Profile" and $profile.name != "Your Helium" }
-      | sort-by sort_key
-      | select name directory
-      | each {|profile|
-          action-row $profile.name $actions.profile {directory: $profile.directory}
-        }
-  )
 
-  $profiles
+  $info_cache
+  | transpose directory data
+  | each {|profile|
+    let name = $profile.data.name? | default $profile.directory
+    {
+      name: $name
+      directory: $profile.directory
+      sort_key: ($name | str downcase)
+    }
+  }
+  | where {|profile| $profile.directory != "System Profile" and $profile.name != "Your Helium" }
+  | sort-by sort_key
+  | each {|profile|
+    lib apply-row $"helium:($profile.directory)" $profile.name "profile" {directory: $profile.directory} false $profile.directory
+  }
 }
 
-def run-profile [directory: string] {
-  if ($directory | is-empty) {
-    exit 0
+def apply [state: record, data: record] {
+  if ($data.kind? | default "") == "profile" and ($data.directory? | default "") != "" {
+    let dir = data-dir
+    ^sh -c 'setsid -f "$@" </dev/null >/dev/null 2>&1' sh helium $"--user-data-dir=($dir)" $"--profile-directory=($data.directory)"
   }
-  let data_dir = data-dir
-  ^sh -c '"$@" >/dev/null 2>&1 &' sh helium $"--user-data-dir=($data_dir)" $"--profile-directory=($directory)"
+  $state
 }
 
 def data-dir [] {
