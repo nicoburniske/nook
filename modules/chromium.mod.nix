@@ -9,6 +9,7 @@
       overlays = [
         (_: prev: {
           chromium = prev.chromium.override {
+            commandLineArgs = "--disable-features=WaylandWpColorManagerV1";
             enableWideVine = true;
           };
         })
