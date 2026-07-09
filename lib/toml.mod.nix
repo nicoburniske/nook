@@ -104,6 +104,11 @@
   toml = {
     inlineTable = attrs: attrs // {__tomlInline = true;};
 
+    toInlineTOML = attrs:
+      if isAttrs attrs && !lib.isDerivation attrs
+      then renderInlineTable attrs
+      else throw "Inline TOML value must be an attrset";
+
     toTOML = attrs:
       if isAttrs attrs && !lib.isDerivation attrs
       then renderTable false [] attrs + "\n"
