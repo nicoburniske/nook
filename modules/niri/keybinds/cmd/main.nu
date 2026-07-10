@@ -2,6 +2,7 @@ use ./audio.nu
 use ./helium.nu
 use ./lib.nu
 use ./monitor.nu
+use ./search.nu
 use ./sunset.nu
 use ./theme.nu
 
@@ -9,29 +10,54 @@ export def main [] {
   mut state = initial-state
   mut raw_rows = raw-rows $state
   mut current_header = header $state
+  mut search_state = search initial
 
   print -n (ansi cursor_off)
   try {
     loop {
-      draw $current_header $state $raw_rows
+      if $search_state.active {
+        let view = search view $search_state
+        draw $view.header $view.state $view.rows
+      } else {
+        draw $current_header $state $raw_rows
+      }
 
       let event = input listen --types [key resize]
       if $event.type == "resize" {
         continue
       }
 
-      let result = handle-key $state $raw_rows $event
-      $state = $result.state
-      if $result.quit {
-        break
-      }
+      let search_result = search handle-event $search_state $event {|| build-search-index }
+      $search_state = $search_result.search
 
-      if $result.reload {
-        $raw_rows = raw-rows $state
-        $current_header = header $state
-      }
+      if $search_result.handled {
+        if $search_result.jump != null {
+          $state = $search_result.jump.state
+          $raw_rows = raw-rows $state
+          $state.selected = (
+            $raw_rows
+            | enumerate
+            | where {|item| $item.item.id == $search_result.jump.row.id }
+            | get -o 0.index
+            | default $state.selected
+          )
+          $state = clamp-selection $state $raw_rows
+          $current_header = header $state
+        }
+      } else {
+        let result = handle-key $state $raw_rows $event
+        $state = $result.state
+        if $result.quit {
+          break
+        }
 
-      $state = clamp-selection $state $raw_rows
+        if $result.reload {
+          $raw_rows = raw-rows $state
+          $current_header = header $state
+        }
+
+        $state = clamp-selection $state $raw_rows
+      }
     }
   }
   print -n (ansi cursor_on)
@@ -59,7 +85,7 @@ def handle-key [state: record, rows: list<any>, event: record] {
       $next = pop $state
       $reload = true
     }
-  } else if $code in ["down" "j"] {
+  } else if $code == "down" {
     let count = $rows | length
     if $count > 0 {
       $next.selected = if $state.selected >= ($count - 1) {
@@ -68,7 +94,7 @@ def handle-key [state: record, rows: list<any>, event: record] {
         $state.selected + 1
       }
     }
-  } else if $code in ["up" "k"] {
+  } else if $code == "up" {
     let count = $rows | length
     if $count > 0 {
       $next.selected = if $state.selected <= 0 {
@@ -77,11 +103,17 @@ def handle-key [state: record, rows: list<any>, event: record] {
         $state.selected - 1
       }
     }
-  } else if $code == "r" {
+  } else if $code == "r" and "control" in ($event.modifiers? | default []) {
     $reload = true
   }
 
   {state: $next, quit: $quit, reload: $reload}
+}
+
+def build-search-index [] {
+  search build-index (initial-state) {|state| raw-rows $state } {|state, page, data|
+    goto $state $page $data
+  }
 }
 
 def raw-rows [state: record] {
@@ -182,7 +214,8 @@ def draw [header: record, state: record, rows: list<any>] {
   print $"(ansi attr_bold)($header.title)(ansi reset)"
   let current = $header.current? | default ""
   if not ($current | is-empty) {
-    print $"(ansi attr_dimmed)current: ($current)(ansi reset)"
+    let current_label = $header.current-label? | default "current"
+    print $"(ansi attr_dimmed)($current_label): ($current)(ansi reset)"
   }
   print ""
 
@@ -194,8 +227,14 @@ def draw [header: record, state: record, rows: list<any>] {
       let selected = $item.index == $state.selected
       let marker = if ($row.active? | default false) { "*" } else { " " }
       let prefix = if $selected { ">" } else { " " }
-      let label = pad-right $"($marker) ($row.label)" 34
-      let line = pad-right $"($prefix) ($label) ($row.right? | default "")" $width
+      let right = $row.right? | default ""
+      let label_width = if ($row.wide? | default false) {
+        [($width - ($right | str length) - 4) 1] | math max
+      } else {
+        34
+      }
+      let label = pad-right $"($marker) ($row.label)" $label_width
+      let line = pad-right $"($prefix) ($label) ($right)" $width
 
       if $selected {
         print $"(ansi attr_bold)(ansi attr_reverse)($line)(ansi reset)"
