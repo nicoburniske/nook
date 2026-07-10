@@ -1,10 +1,18 @@
 {inputs, ...}: {
-  inputs.noctalia = {
-    url = "github:noctalia-dev/noctalia";
-    inputs.nixpkgs.follows = "nixpkgs";
+  inputs = {
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    noctalia-greeter = {
+      url = "github:noctalia-dev/noctalia-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixosModules.noctalia = {
+    config,
+    host,
     lib,
     pkgs,
     ...
@@ -14,6 +22,36 @@
     settings = import ./settings.nix;
     colors = import ./colors.nix;
   in {
+    imports = [inputs.noctalia-greeter.nixosModules.default];
+
+    programs.noctalia-greeter = {
+      enable = true;
+      settings = {
+        session.default = "niri";
+        user.default = host.user;
+      };
+    };
+
+    security.polkit = {
+      enable = true;
+      enablePkexecWrapper = true;
+      extraConfig = let
+        program = "${config.programs.noctalia-greeter.package}/bin/noctalia-greeter-apply-appearance";
+      in ''
+        polkit.addRule(function(action, subject) {
+          if (
+            action.id == "org.freedesktop.policykit.exec" &&
+            action.lookup("program") == "${program}" &&
+            subject.user == "${host.user}" &&
+            subject.local &&
+            subject.active
+          ) {
+            return polkit.Result.YES;
+          }
+        });
+      '';
+    };
+
     compositor = {
       startupCommands = [
         "${noctalia} --daemon"

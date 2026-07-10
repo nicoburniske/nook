@@ -43,6 +43,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:noctalia-dev/noctalia";
     };
+    noctalia-greeter = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:noctalia-dev/noctalia-greeter";
+    };
     self.lfs = true;
     smithay = {
       flake = false;

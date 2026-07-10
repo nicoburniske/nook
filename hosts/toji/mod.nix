@@ -36,7 +36,6 @@
         fonts
         compositor
         niri
-        greet
         kitty
         keepassxc
         nautilus

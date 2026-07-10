@@ -40,7 +40,6 @@
         fonts
         compositor
         niri
-        greet
         kitty
         keepassxc
         fuzzel

@@ -13,6 +13,15 @@ in {
     clipboard_enabled = false;
     settings_show_advanced = false;
 
+    # handle desktop privilege prompts, including greeter sync
+    polkit_agent = true;
+
+    # copy wallpaper, palette, session actions, and output layout after authorization
+    greeter_sync = {
+      auto_sync = true;
+      privilege_command = "pkexec";
+    };
+
     animation = {
       enabled = true;
       speed = 2.0;
@@ -122,7 +131,15 @@ in {
 
   notification = {
     enable_daemon = true;
+    position = "top_center";
     background_opacity = 1.0;
+    filters = [
+      {
+        name = "shorter notifications";
+        match_content = ".*";
+        override_duration = 4000;
+      }
+    ];
   };
 
   brightness = {
