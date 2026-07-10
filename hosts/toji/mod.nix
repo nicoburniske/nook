@@ -70,6 +70,11 @@
 
     compositor.niri.config = [
       {
+        debug = [
+          {render-drm-device = "/dev/dri/by-path/pci-0000:03:00.0-render";}
+        ];
+      }
+      {
         output = {
           args = ["DP-3"];
           children = [
