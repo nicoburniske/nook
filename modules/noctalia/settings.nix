@@ -58,9 +58,66 @@ in {
   weather.enabled = false;
   nightlight.enabled = false;
 
+  lockscreen = {
+    enabled = true;
+    blur_intensity = 0.3;
+    tint_intensity = 0.3;
+  };
+
+  lockscreen_widgets = {
+    enabled = true;
+    schema_version = 2;
+    widget_order = ["time" "date"];
+    widget = {
+      time = {
+        type = "clock";
+        cx = 1180.0;
+        cy = 500.0;
+        box_width = 700.0;
+        box_height = 180.0;
+        settings = {
+          background = false;
+          center_text = true;
+          color = "on_surface";
+          font_family = theme.fonts.serif.name;
+          format = "{:%H:%M}";
+          shadow = true;
+        };
+      };
+      date = {
+        type = "clock";
+        cx = 1180.0;
+        cy = 630.0;
+        box_width = 500.0;
+        box_height = 64.0;
+        settings = {
+          background = false;
+          center_text = true;
+          color = "on_surface";
+          font_family = theme.fonts.serif.name;
+          format = "{:%a %b %d}";
+          shadow = true;
+        };
+      };
+    };
+  };
+
   idle.behavior = {
-    lock.enabled = false;
-    screen-off.enabled = false;
+    lock = {
+      action = "lock";
+      enabled = true;
+      timeout = 600;
+    };
+    screen-off = {
+      action = "screen_off";
+      enabled = true;
+      timeout = 660;
+    };
+    "lock-and-suspend" = {
+      action = "lock_and_suspend";
+      enabled = true;
+      timeout = 3600;
+    };
   };
 
   notification = {

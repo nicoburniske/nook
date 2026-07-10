@@ -40,7 +40,6 @@
         fonts
         compositor
         niri
-        lock
         greet
         kitty
         keepassxc

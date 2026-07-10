@@ -77,7 +77,7 @@ in [
       allow-inhibiting = false;
       hotkey-overlay-title = "Lock screen";
     };
-    action = spawn ["hyprlock"];
+    action = spawn ["noctalia" "msg" "session" "lock"];
   })
   (bind {
     key = "Ctrl+Alt+Super+Q";
