@@ -52,26 +52,33 @@
       '';
     };
 
-    compositor = {
-      startupCommands = [
-        "${noctalia} --daemon"
-      ];
-      niri.config = [
-        {
-          layer-rule = {
-            match.namespace = "^noctalia-wallpaper$";
-            place-within-backdrop = true;
-          };
-        }
-
-        {
-          layer-rule = {
-            match.namespace = "^noctalia-bar-";
-            background-effect = [{blur = false;}];
-          };
-        }
-      ];
+    systemd.user.services.noctalia = {
+      description = "Noctalia desktop shell";
+      wantedBy = ["graphical-session.target"];
+      partOf = ["graphical-session.target"];
+      after = ["graphical-session.target"];
+      enableDefaultPath = false;
+      serviceConfig = {
+        ExecStart = noctalia;
+        Restart = "on-failure";
+      };
     };
+
+    compositor.niri.config = [
+      {
+        layer-rule = {
+          match.namespace = "^noctalia-wallpaper$";
+          place-within-backdrop = true;
+        };
+      }
+
+      {
+        layer-rule = {
+          match.namespace = "^noctalia-bar-";
+          background-effect = [{blur = false;}];
+        };
+      }
+    ];
 
     environment.systemPackages = [
       pkgs.ddcutil

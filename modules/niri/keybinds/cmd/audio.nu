@@ -130,7 +130,10 @@ def run-action [data: record] {
       ^pactl set-sink-mute @DEFAULT_SINK@ 0
       ^pactl set-sink-volume @DEFAULT_SINK@ $"($data.volume)%"
     }
-    "restart" => { ^systemctl --user restart pipewire pipewire-pulse wireplumber }
+    "restart" => {
+      ^systemctl --user restart pipewire pipewire-pulse wireplumber
+      ^systemctl --user restart noctalia
+    }
     _ => { }
   }
 }
