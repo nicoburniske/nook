@@ -44,6 +44,7 @@
               marksman
               nil
               nixd
+              rumdl
               taplo
             ])
           )
@@ -168,6 +169,24 @@
                   {
                     name = "markdown";
                     language-servers = ["marksman"];
+                    formatter = {
+                      command = "rumdl";
+                      args = [
+                        "fmt"
+                        "--config"
+                        (pkgs.writeText "rumdl.toml" ''
+                          [global]
+                          enable = ["MD060"]
+
+                          [MD060]
+                          style = "aligned"
+                          max-width = 0
+                        '')
+                        "--silent"
+                        "-"
+                      ];
+                    };
+                    auto-format = true;
                   }
                   {
                     name = "nix";
