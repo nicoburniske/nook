@@ -10,6 +10,7 @@
       ncdu
       fastfetch
       usbutils
+      ripgrep
     ];
   };
 }
