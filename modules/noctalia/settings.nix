@@ -3,8 +3,9 @@ theme: let
   uiFontScale = desktopFontSize / 11;
   barFontScale = desktopFontSize / 10;
 in {
+  accessibility.ui_scale = uiFontScale;
+
   shell = {
-    ui_scale = uiFontScale;
     corner_radius_scale = 0.18;
     font_family = theme.fonts.sansSerif.name;
     time_format = "{:%H:%M}";
@@ -12,6 +13,7 @@ in {
     telemetry_enabled = false;
     clipboard_enabled = false;
     settings_show_advanced = false;
+    launcher.fetch_exchange_rates = false;
 
     # handle desktop privilege prompts, including greeter sync
     polkit_agent = true;
@@ -30,9 +32,9 @@ in {
     panel = {
       transparency_mode = "solid";
       borders = true;
-      shadow = false;
+      shadow = true;
       clipboard_placement = "attached";
-      control_center_placement = "attached";
+      control_center_placement = "floating";
       wallpaper_placement = "attached";
       session_placement = "attached";
       open_near_click_clipboard = true;
@@ -133,13 +135,10 @@ in {
     enable_daemon = true;
     position = "top_center";
     background_opacity = 1.0;
-    filters = [
-      {
-        name = "shorter notifications";
-        match_content = ".*";
-        override_duration = 4000;
-      }
-    ];
+    filter."shorter notifications" = {
+      match_content = ".*";
+      override_duration = 4000;
+    };
   };
 
   brightness = {
@@ -164,7 +163,7 @@ in {
     padding = 14;
     widget_spacing = 7;
     scale = barFontScale;
-    shadow = false;
+    shadow = true;
     reserve_space = true;
     capsule = true;
     capsule_fill = "surface";
@@ -194,7 +193,6 @@ in {
       focused_color = "primary";
       occupied_color = "secondary";
       empty_color = "secondary";
-      pill_scale = 0.7;
     };
 
     battery.show_label = true;
