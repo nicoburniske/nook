@@ -58,15 +58,18 @@
         qbittorrent
         jai
       ]);
-
     _module.args.host = host;
-
-    nook.sumi.theme.transparency = {
-      light = 1.0;
-      dark = 1.0;
-      darkOnLight = 1.0;
+    nook = {
+      sumi.theme.transparency = {
+        light = 1.0;
+        dark = 1.0;
+        darkOnLight = 1.0;
+      };
+      noctalia.lockscreen = {
+        output = "DP-3";
+        logicalWidth = 2560;
+      };
     };
-
     compositor.niri.config = [
       {
         debug = [

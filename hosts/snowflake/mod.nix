@@ -60,6 +60,11 @@
 
     _module.args.host = host;
 
+    nook.noctalia.lockscreen = {
+      output = "eDP-1";
+      logicalWidth = 2160;
+    };
+
     compositor.niri.config = [
       {
         output = {

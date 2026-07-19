@@ -1,4 +1,7 @@
-theme: let
+{
+  theme,
+  lockscreen,
+}: let
   desktopFontSize = theme.fonts.sizes.desktop;
   uiFontScale = desktopFontSize / 11;
   barFontScale = desktopFontSize / 10;
@@ -82,7 +85,8 @@ in {
     widget = {
       time = {
         type = "clock";
-        cx = 1180.0;
+        output = lockscreen.output;
+        cx = lockscreen.logicalWidth / 2.0;
         cy = 500.0;
         box_width = 700.0;
         box_height = 180.0;
@@ -97,7 +101,8 @@ in {
       };
       date = {
         type = "clock";
-        cx = 1180.0;
+        output = lockscreen.output;
+        cx = lockscreen.logicalWidth / 2.0;
         cy = 630.0;
         box_width = 500.0;
         box_height = 64.0;
