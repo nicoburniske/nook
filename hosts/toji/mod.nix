@@ -30,6 +30,7 @@
         user
         docker
         plugdev
+        android-webcam
         secrets
         sumi
         xdg
