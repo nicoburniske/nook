@@ -69,6 +69,7 @@ def handle-key [state: record, rows: list<any>, event: record] {
   mut quit = false
   mut reload = false
   let code = $event.code? | default ""
+  let mods = $event.modifiers? | default []
 
   if $code == "esc" {
     $quit = true
@@ -85,7 +86,7 @@ def handle-key [state: record, rows: list<any>, event: record] {
       $next = pop $state
       $reload = true
     }
-  } else if $code == "down" {
+  } else if $code == "down" or ($code == "j" and "control" in $mods) {
     let count = $rows | length
     if $count > 0 {
       $next.selected = if $state.selected >= ($count - 1) {
@@ -94,7 +95,7 @@ def handle-key [state: record, rows: list<any>, event: record] {
         $state.selected + 1
       }
     }
-  } else if $code == "up" {
+  } else if $code == "up" or ($code == "k" and "control" in $mods) {
     let count = $rows | length
     if $count > 0 {
       $next.selected = if $state.selected <= 0 {
@@ -103,7 +104,7 @@ def handle-key [state: record, rows: list<any>, event: record] {
         $state.selected - 1
       }
     }
-  } else if $code == "r" and "control" in ($event.modifiers? | default []) {
+  } else if $code == "r" and "control" in $mods {
     $reload = true
   }
 
