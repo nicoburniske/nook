@@ -21,6 +21,7 @@
           "--camera-ar=16:9"
           "--camera-fps=30"
           "--v4l2-sink=/dev/video20"
+          "--capture-orientation=@90"
           "--no-audio"
           "--no-window"
         ];
