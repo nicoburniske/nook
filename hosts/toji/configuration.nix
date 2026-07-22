@@ -27,6 +27,11 @@
         Enable = "Source,Sink,Media,Socket";
         Experimental = true;
       };
+      settings.LE = {
+        MinConnectionInterval = 6;
+        MaxConnectionInterval = 6;
+        ConnectionLatency = 0;
+      };
     };
     graphics = {
       enable = true;
