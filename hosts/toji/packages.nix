@@ -3,6 +3,5 @@
     brightnessctl
     chromium
     pavucontrol
-    opencode
   ];
 }

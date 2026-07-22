@@ -20,6 +20,15 @@
     codexFlags = with lib.toml;
       [
         "developer_instructions=${builtins.toJSON systemPrompt}"
+        ''model_provider="openai-http"''
+        "model_providers.openai-http=${toInlineTOML {
+          name = "OpenAI HTTP";
+          wire_api = "responses";
+          requires_openai_auth = true;
+          supports_websockets = false;
+          stream_idle_timeout_ms = 30000;
+          stream_max_retries = 2;
+        }}"
         ''default_permissions="nix"''
         ''permissions.nix.extends=":workspace"''
         "permissions.nix.filesystem=${toInlineTOML {
