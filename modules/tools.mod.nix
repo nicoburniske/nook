@@ -1,16 +1,17 @@
 {
   commonModules.tools = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
-      just
-      tokei
-      gh
-      unzip
-      zip
-      ffmpeg
-      ncdu
+      cheese
       fastfetch
-      usbutils
+      ffmpeg
+      gh
+      just
+      ncdu
       ripgrep
+      tokei
+      unzip
+      usbutils
+      zip
     ];
   };
 }
