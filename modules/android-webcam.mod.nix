@@ -19,7 +19,7 @@
           "--camera-facing=back"
           "--max-size=1920"
           "--camera-ar=16:9"
-          "--camera-fps=30"
+          "--camera-fps=60"
           "--v4l2-sink=/dev/video20"
           "--capture-orientation=@90"
           "--no-audio"
@@ -35,14 +35,8 @@
       extraModulePackages = [config.boot.kernelPackages.v4l2loopback];
       kernelModules = ["v4l2loopback"];
       extraModprobeConfig = ''
-        options v4l2loopback devices=1 video_nr=20 card_label="Android Webcam" exclusive_caps=1
+        options v4l2loopback devices=1 video_nr=20 card_label="Android Webcam"
       '';
     };
-
-    environment.systemPackages = with pkgs; [
-      android-tools
-      scrcpy
-      v4l-utils
-    ];
   };
 }
