@@ -15,7 +15,7 @@ fmt-nix:
     {{ nix_run }} .#nix-tidy -- .
 
 fmt-nu:
-    {{ nix_run }} .#{{ host }}.nufmt -- .
+    {{ nix_run }} nixpkgs#nufmt -- .
 
 fmt-scm:
     #! /usr/bin/env -S {{ nix_shell }} nixpkgs#emacs-nox -c nu

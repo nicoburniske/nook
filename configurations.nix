@@ -44,46 +44,34 @@ in {
       default = {};
     };
   };
-  config = {
-    perSystem = {system, ...}: {
-      legacyPackages =
-        (config.flake.nixosConfigurations // config.flake.darwinConfigurations)
-        |> lib.filterAttrs (_: host: host.config.nixpkgs.hostPlatform.system == system)
-        |> lib.mapAttrs' (hostName: host:
-          host.config.environment.systemPackages
-          |> map (package: lib.nameValuePair (lib.getName package) package)
-          |> lib.listToAttrs
-          |> lib.nameValuePair hostName);
-    };
-    flake = {
-      nixosModules = projectModules config.commonModules config.nixosModules;
-      darwinModules = projectModules config.commonModules config.darwinModules;
-      nixosConfigurations =
-        config.configurations.nixos
-        |> lib.mapAttrs (_: host:
-          inputs.nixpkgs.lib.nixosSystem {
-            modules = [
-              config.flake.nixosModules.lib
-              host.module
-            ];
-            specialArgs = {
-              inherit inputs;
-              lib = hostLib;
-            };
-          });
-      darwinConfigurations =
-        config.configurations.darwin
-        |> lib.mapAttrs (_: host:
-          inputs.nix-darwin.lib.darwinSystem {
-            modules = [
-              config.flake.darwinModules.lib
-              host.module
-            ];
-            specialArgs = {
-              inherit inputs;
-              lib = hostLib;
-            };
-          });
-    };
+  config.flake = {
+    nixosModules = projectModules config.commonModules config.nixosModules;
+    darwinModules = projectModules config.commonModules config.darwinModules;
+    nixosConfigurations =
+      config.configurations.nixos
+      |> lib.mapAttrs (_: host:
+        inputs.nixpkgs.lib.nixosSystem {
+          modules = [
+            config.flake.nixosModules.lib
+            host.module
+          ];
+          specialArgs = {
+            inherit inputs;
+            lib = hostLib;
+          };
+        });
+    darwinConfigurations =
+      config.configurations.darwin
+      |> lib.mapAttrs (_: host:
+        inputs.nix-darwin.lib.darwinSystem {
+          modules = [
+            config.flake.darwinModules.lib
+            host.module
+          ];
+          specialArgs = {
+            inherit inputs;
+            lib = hostLib;
+          };
+        });
   };
 }
