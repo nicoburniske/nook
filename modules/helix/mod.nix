@@ -52,18 +52,11 @@
       '';
     };
 
-    hxGrammar = pkgs.writeShellApplication {
-      name = "hx-grammar-refresh";
-      runtimeInputs = with pkgs; [
-        hx
-        git
-        stdenv.cc
-      ];
-      text = ''
-        hx --grammar fetch
-        hx --grammar build "$@"
-      '';
-    };
+    hxGrammar = pkgs.writeShellScriptBin "hx-grammar-refresh" ''
+      export PATH=${lib.makeBinPath (with pkgs; [hx git stdenv.cc])}:$PATH
+      hx --grammar fetch
+      hx --grammar build "$@"
+    '';
   in {
     options.helix = {
       grammars = lib.mkOption {

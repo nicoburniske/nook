@@ -68,13 +68,10 @@ in {
 
       packages = {
         nix-tidy = nixTidy;
-        gen-flake = pkgs.writeShellApplication {
-          name = "gen-flake";
-          text = ''
-            install -m 0644 ${pkgs.writeText "flake.nix" flakeText} flake.nix
-            ${nixTidy}/bin/nix-tidy flake.nix
-          '';
-        };
+        gen-flake = pkgs.writeShellScriptBin "gen-flake" ''
+          install -m 0644 ${pkgs.writeText "flake.nix" flakeText} flake.nix
+          ${nixTidy}/bin/nix-tidy flake.nix
+        '';
       };
     };
   };
