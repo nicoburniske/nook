@@ -7,6 +7,7 @@
         darwin.follows = "";
         home-manager.follows = "";
         nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
       };
       url = "github:ryantm/agenix";
     };
@@ -19,7 +20,10 @@
       url = "github:hercules-ci/flake-parts";
     };
     helium-nix = {
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        utils.inputs.systems.follows = "systems";
+      };
       url = "github:schembriaiden/helium-browser-nix-flake";
     };
     helix-steel = {
@@ -56,6 +60,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "path:./sumi";
     };
+    systems.url = "github:nix-systems/default";
   };
   nixConfig = {experimental-features = ["nix-command" "flakes" "pipe-operators"];};
   outputs = inputs: import ./flake.output.nix inputs;

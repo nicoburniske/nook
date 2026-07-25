@@ -5,6 +5,7 @@
       nixpkgs.follows = "nixpkgs";
       home-manager.follows = "";
       darwin.follows = "";
+      systems.follows = "systems";
     };
   };
 

@@ -41,6 +41,7 @@ in {
     inputs = {
       self.lfs = true;
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+      systems.url = "github:nix-systems/default";
       nix-tidy = {
         url = "path:./tidy";
         inputs.nixpkgs.follows = "nixpkgs";
