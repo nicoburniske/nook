@@ -52,10 +52,34 @@
 
     compositor.niri.config = [
       {
-        window-rule = {
-          match."app-id" = "^steam$";
-          open-on-workspace = "5";
-        };
+        window-rule = [
+          {match."app-id" = "^steam$";}
+          {exclude.title = "^Steam Input On-screen Keyboard$";}
+          {open-on-workspace = "5";}
+        ];
+      }
+      {
+        window-rule = [
+          {
+            match = {
+              app-id = "^steam$";
+              title = "^Steam Input On-screen Keyboard$";
+            };
+          }
+          {open-focused = false;}
+          {open-floating = true;}
+          {min-width = 1280;}
+          {max-width = 1280;}
+          {min-height = 360;}
+          {max-height = 360;}
+          {
+            default-floating-position = {
+              x = 0;
+              y = 0;
+              relative-to = "bottom";
+            };
+          }
+        ];
       }
       {
         window-rule = {

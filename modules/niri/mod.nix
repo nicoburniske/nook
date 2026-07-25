@@ -62,6 +62,10 @@
               ./patches/hdr-sdr-controls.patch
             ];
         });
+
+        xwayland-satellite = prev.xwayland-satellite.overrideAttrs (old: {
+          patches = (old.patches or []) ++ [./patches/steam-osk-toplevel.patch];
+        });
       })
     ];
 

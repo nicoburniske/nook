@@ -1,0 +1,28 @@
+diff --git a/src/xstate/mod.rs b/src/xstate/mod.rs
+index 33b17b7..6229628 100644
+--- a/src/xstate/mod.rs
++++ b/src/xstate/mod.rs
+@@ -631,6 +631,9 @@ impl XState {
+         if title.is_none() {
+             title = self.get_wm_name(window).resolve()?;
+         }
++        let force_toplevel = title
++            .as_ref()
++            .is_some_and(|name| name.name() == "Steam Input On-screen Keyboard");
+ 
+         if let Some(name) = title {
+             server_state.set_win_title(window, name);
+@@ -659,8 +662,11 @@ impl XState {
+             .resolve()?
+             .flatten();
+ 
+-        let is_popup =
+-            self.guess_is_popup(window, motif_hints, wmhints, transient_for.is_some())?;
++        let is_popup = if force_toplevel {
++            false
++        } else {
++            self.guess_is_popup(window, motif_hints, wmhints, transient_for.is_some())?
++        };
+         server_state.set_popup(window, is_popup);
+         if let Some(parent) = transient_for.and_then(|t| (!is_popup).then_some(t)) {
+             server_state.set_transient_for(window, parent);
