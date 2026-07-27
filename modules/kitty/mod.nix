@@ -52,9 +52,14 @@ let
 
           map --mode unlocked ctrl+w new_window_with_cwd
           map --mode unlocked ctrl+h neighboring_window left
+          map --mode unlocked ctrl+left neighboring_window left
           map --mode unlocked ctrl+j neighboring_window down
+          map --mode unlocked ctrl+down neighboring_window down
           map --mode unlocked ctrl+k neighboring_window up
+          map --mode unlocked ctrl+up neighboring_window up
           map --mode unlocked ctrl+l neighboring_window right
+          map --mode unlocked ctrl+right neighboring_window right
+
 
           map --mode unlocked shift+h move_window left
           map --mode unlocked shift+j move_window down
