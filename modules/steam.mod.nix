@@ -102,12 +102,5 @@
         ];
       }
     ];
-
-    services.udev.extraRules = ''
-      # Steam Controller / Triton firmware updater bootloader access.
-      SUBSYSTEMS=="usb", ATTRS{idVendor}=="28de", MODE="0666", TAG+="uaccess"
-      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="28de", MODE="0666", TAG+="uaccess"
-      SUBSYSTEM=="tty", ATTRS{idVendor}=="28de", MODE="0666", TAG+="uaccess"
-    '';
   };
 }

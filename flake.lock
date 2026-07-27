@@ -250,6 +250,7 @@
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
         "noctalia-greeter": "noctalia-greeter",
+        "scd": "scd",
         "smithay": "smithay",
         "sumi": "sumi",
         "systems": "systems"
@@ -273,6 +274,27 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "scd": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785191116,
+        "narHash": "sha256-yv3H688yXvmOFj/sCPhM5L9D511kSCu7oHyPJRelJUQ=",
+        "owner": "nicoburniske",
+        "repo": "steam-controller-daemon",
+        "rev": "ece8e05bbaf09e469b98ed97dcfaf3373249d2cd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nicoburniske",
+        "ref": "master",
+        "repo": "steam-controller-daemon",
         "type": "github"
       }
     },

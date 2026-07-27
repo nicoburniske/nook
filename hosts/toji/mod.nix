@@ -51,6 +51,7 @@
         roam-web
         shadps4
         steam
+        scd
         eden
         bitdo-controller
         kanto-ora

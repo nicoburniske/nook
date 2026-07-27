@@ -28,16 +28,19 @@
       monospace = {
         package = berkeleyMono;
         name = "Berkeley Mono";
+        file = berkeleyMono.faces.Regular;
       };
 
       sansSerif = {
         package = berkeleyMono;
         name = "Berkeley Mono";
+        file = berkeleyMono.faces.SemiBold;
       };
 
       serif = {
         package = berkeleyMono;
         name = "Berkeley Mono";
+        file = berkeleyMono.faces.Regular;
       };
 
       emoji = {

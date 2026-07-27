@@ -1,0 +1,238 @@
+version = 1
+default_mode = "desktop"
+
+[trackpads]
+click_pressure = 25
+
+[osk.bindings]
+l4 = "super"
+l5 = "shift"
+r4 = "control"
+r5 = "alt"
+left-trigger-click = "shift"
+right-trigger-click = "enter"
+x = "backspace"
+y = "space"
+dpad-up = "up"
+dpad-down = "down"
+dpad-left = "left"
+dpad-right = "right"
+
+[[global.bindings]]
+chord = ["steam", "x"]
+action = { type = "keyboard-toggle" }
+
+[[global.bindings]]
+chord = ["steam", "quick-access"]
+action = { type = "mode-next" }
+
+[modes.desktop]
+
+[[modes.desktop.bindings]]
+input = "l4"
+action = { type = "key", key = "super" }
+
+[[modes.desktop.bindings]]
+input = "r4"
+action = { type = "key", key = "control" }
+
+[[modes.desktop.bindings]]
+input = "l5"
+action = { type = "key", key = "shift" }
+
+[[modes.desktop.bindings]]
+input = "r5"
+action = { type = "key", key = "alt" }
+
+[[modes.desktop.bindings]]
+input = "dpad-up"
+action = { type = "key", key = "up" }
+
+[[modes.desktop.bindings]]
+input = "dpad-down"
+action = { type = "key", key = "down" }
+
+[[modes.desktop.bindings]]
+input = "dpad-left"
+action = { type = "key", key = "left" }
+
+[[modes.desktop.bindings]]
+input = "dpad-right"
+action = { type = "key", key = "right" }
+
+[[modes.desktop.bindings]]
+input = "left-trigger-click"
+action = { type = "mouse", button = "right" }
+
+[[modes.desktop.bindings]]
+input = "right-trigger-click"
+action = { type = "mouse", button = "left" }
+
+[[modes.desktop.bindings]]
+input = "right-pad-click"
+action = { type = "mouse", button = "left" }
+
+[[modes.desktop.bindings]]
+input = "left-pad-click"
+action = { type = "mouse", button = "middle" }
+
+[[modes.desktop.bindings]]
+input = "a"
+action = { type = "key", key = "enter" }
+
+[[modes.desktop.bindings]]
+input = "b"
+action = { type = "key", key = "escape" }
+
+[[modes.desktop.bindings]]
+input = "x"
+action = { type = "key", key = "g" }
+
+[[modes.desktop.bindings]]
+input = "y"
+action = { type = "key", key = "space" }
+
+[[modes.desktop.bindings]]
+input = "menu"
+action = { type = "key", key = "tab" }
+
+[[modes.desktop.bindings]]
+input = "view"
+action = { type = "mouse", button = "back" }
+
+[modes.desktop.layers.apps]
+hold = "left-bumper"
+
+[[modes.desktop.layers.apps.bindings]]
+input = "b"
+action = { type = "key", key = "q" }
+
+[[modes.desktop.layers.apps.bindings]]
+input = "x"
+action = { type = "key", key = "t" }
+
+[[modes.desktop.layers.apps.bindings]]
+input = "y"
+action = { type = "key", key = "o" }
+
+[[modes.desktop.axes]]
+source = "right-pad"
+target = "mouse-motion"
+sensitivity = 150.0
+acceleration = 1.75
+deadzone = 0.0015
+
+[[modes.desktop.axes]]
+source = "left-pad"
+target = "scroll"
+sensitivity = 5.0
+invert_y = true
+
+[modes.game]
+
+[[modes.game.bindings]]
+input = "a"
+action = { type = "gamepad", button = "south" }
+
+[[modes.game.bindings]]
+input = "b"
+action = { type = "gamepad", button = "east" }
+
+[[modes.game.bindings]]
+input = "x"
+action = { type = "gamepad", button = "west" }
+
+[[modes.game.bindings]]
+input = "y"
+action = { type = "gamepad", button = "north" }
+
+[[modes.game.bindings]]
+input = "left-bumper"
+action = { type = "gamepad", button = "left-bumper" }
+
+[[modes.game.bindings]]
+input = "right-bumper"
+action = { type = "gamepad", button = "right-bumper" }
+
+[[modes.game.bindings]]
+input = "view"
+action = { type = "gamepad", button = "select" }
+
+[[modes.game.bindings]]
+input = "menu"
+action = { type = "gamepad", button = "start" }
+
+[[modes.game.bindings]]
+input = "left-stick-click"
+action = { type = "gamepad", button = "left-stick" }
+
+[[modes.game.bindings]]
+input = "right-stick-click"
+action = { type = "gamepad", button = "right-stick" }
+
+[[modes.game.bindings]]
+input = "dpad-up"
+action = { type = "gamepad", button = "dpad-up" }
+
+[[modes.game.bindings]]
+input = "dpad-down"
+action = { type = "gamepad", button = "dpad-down" }
+
+[[modes.game.bindings]]
+input = "dpad-left"
+action = { type = "gamepad", button = "dpad-left" }
+
+[[modes.game.bindings]]
+input = "dpad-right"
+action = { type = "gamepad", button = "dpad-right" }
+
+[[modes.game.bindings]]
+input = "l4"
+action = { type = "gamepad", button = "west" }
+
+[[modes.game.bindings]]
+input = "l5"
+action = { type = "gamepad", button = "south" }
+
+[[modes.game.bindings]]
+input = "r4"
+action = { type = "gamepad", button = "north" }
+
+[[modes.game.bindings]]
+input = "r5"
+action = { type = "gamepad", button = "east" }
+
+[[modes.game.axes]]
+source = "left-stick"
+target = "gamepad-left-stick"
+deadzone = 0.12
+
+[[modes.game.axes]]
+source = "right-stick"
+target = "gamepad-right-stick"
+deadzone = 0.12
+
+[[modes.game.axes]]
+source = "right-pad"
+target = "mouse-motion"
+sensitivity = 250.0
+acceleration = 5.0
+deadzone = 0.0015
+
+[[modes.game.axes]]
+source = "gyro"
+target = "mouse-motion"
+activation = { all = ["left-grip-touch", "right-grip-touch"] }
+components = ["y", "x"]
+deadzone = 0.02
+sensitivity = 600.0
+invert_x = true
+invert_y = true
+
+[[modes.game.axes]]
+source = "left-trigger"
+target = "gamepad-left-trigger"
+
+[[modes.game.axes]]
+source = "right-trigger"
+target = "gamepad-right-trigger"

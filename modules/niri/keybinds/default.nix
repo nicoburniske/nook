@@ -121,9 +121,9 @@ in [
   (simple "Mod+Alt+J" "move-window-down")
   (simple "Mod+Alt+Down" "move-window-down")
   (simple "Mod+Alt+K" "move-window-up")
-  (simple "Mod+Alt+Up" "move-window-down")
+  (simple "Mod+Alt+Up" "move-window-up")
   (simple "Mod+Alt+L" "move-column-right")
-  (simple "Mod+Alt+Right" "move-window-down")
+  (simple "Mod+Alt+Right" "move-column-right")
 
   (simple "Mod+Shift+Left" "focus-monitor-left")
   (simple "Mod+Shift+Down" "focus-monitor-down")

@@ -51,6 +51,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:noctalia-dev/noctalia-greeter";
     };
+    scd = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nicoburniske/steam-controller-daemon/master";
+    };
     self.lfs = true;
     smithay = {
       flake = false;
