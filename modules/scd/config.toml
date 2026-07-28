@@ -27,6 +27,7 @@ chord = ["steam", "quick-access"]
 action = { type = "mode-next" }
 
 [modes.desktop]
+gamepad = "none"
 
 [[modes.desktop.bindings]]
 input = "l4"
@@ -129,6 +130,7 @@ sensitivity = 5.0
 invert_y = true
 
 [modes.game]
+gamepad = "xbox"
 
 [[modes.game.bindings]]
 input = "a"
