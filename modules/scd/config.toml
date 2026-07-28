@@ -1,5 +1,6 @@
 version = 1
 default_mode = "desktop"
+mode_switch_haptic = { type = "sweep", start_frequency = 400, end_frequency = 850, duration_ms = 65, gain = 0 }
 
 [trackpads]
 click_pressure = 25

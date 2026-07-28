@@ -284,11 +284,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785240303,
-        "narHash": "sha256-PHa9uJIFIuKm/Fzlu4My3qs8NYiiUF0JEYJ+OCu/Iz8=",
+        "lastModified": 1785241091,
+        "narHash": "sha256-0dfMIWoc6MlrsWBQhrXJBhm7mi5Gq1pf0/91DIp0+hs=",
         "owner": "nicoburniske",
         "repo": "steam-controller-daemon",
-        "rev": "5fc064c883d61ecde65ac9e66224e4d764b0c147",
+        "rev": "c778d9c80c377416d81443049a76806701cf05ff",
         "type": "github"
       },
       "original": {
