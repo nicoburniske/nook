@@ -219,15 +219,15 @@ sensitivity = 250.0
 acceleration = 5.0
 deadzone = 0.0015
 
-[[modes.game.axes]]
-source = "gyro"
-target = "mouse-motion"
-activation = { all = ["left-grip-touch", "right-grip-touch"] }
-components = ["y", "x"]
-deadzone = 0.02
-sensitivity = 600.0
-invert_x = true
-invert_y = true
+# [[modes.game.axes]]
+# source = "gyro"
+# target = "mouse-motion"
+# activation = { all = ["left-grip-touch", "right-grip-touch"] }
+# components = ["y", "x"]
+# deadzone = 0.02
+# sensitivity = 600.0
+# invert_x = true
+# invert_y = true
 
 [[modes.game.axes]]
 source = "left-trigger"
