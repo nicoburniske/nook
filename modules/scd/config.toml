@@ -27,6 +27,18 @@ action = { type = "keyboard-toggle" }
 chord = ["steam", "quick-access"]
 action = { type = "mode-next" }
 
+[[global.bind]]
+chord = ["steam", "dpad-left"]
+action = { type = "mode-set", name = "xbox" }
+
+[[global.bind]]
+chord = ["steam", "dpad-up"]
+action = { type = "mode-set", name = "desktop" }
+
+[[global.bind]]
+chord = ["steam", "dpad-right"]
+action = { type = "mode-set", name = "dualshock" }
+
 [mode.desktop]
 gamepad = "none"
 
@@ -130,99 +142,99 @@ target = "scroll"
 sensitivity = 5.0
 invert_y = true
 
-[mode.game]
+[mode.xbox]
 gamepad = "xbox"
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "a"
 action = { type = "gamepad", button = "south" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "b"
 action = { type = "gamepad", button = "east" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "x"
 action = { type = "gamepad", button = "west" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "y"
 action = { type = "gamepad", button = "north" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "left-bumper"
 action = { type = "gamepad", button = "left-bumper" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "right-bumper"
 action = { type = "gamepad", button = "right-bumper" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "view"
 action = { type = "gamepad", button = "select" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "menu"
 action = { type = "gamepad", button = "start" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "l3"
 action = { type = "gamepad", button = "left-stick" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "r3"
 action = { type = "gamepad", button = "right-stick" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "dpad-up"
 action = { type = "gamepad", button = "dpad-up" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "dpad-down"
 action = { type = "gamepad", button = "dpad-down" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "dpad-left"
 action = { type = "gamepad", button = "dpad-left" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "dpad-right"
 action = { type = "gamepad", button = "dpad-right" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "l4"
 action = { type = "gamepad", button = "west" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "l5"
 action = { type = "gamepad", button = "south" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "r4"
 action = { type = "gamepad", button = "north" }
 
-[[mode.game.bind]]
+[[mode.xbox.bind]]
 input = "r5"
 action = { type = "gamepad", button = "east" }
 
-[[mode.game.axis]]
+[[mode.xbox.axis]]
 source = "left-stick"
 target = "gamepad-left-stick"
 deadzone = 0.12
 
-[[mode.game.axis]]
+[[mode.xbox.axis]]
 source = "right-stick"
 target = "gamepad-right-stick"
 deadzone = 0.12
 
-[[mode.game.axis]]
+[[mode.xbox.axis]]
 source = "right-pad"
 target = "mouse-motion"
 sensitivity = 250.0
 acceleration = 5.0
 deadzone = 0.0015
 
-# [[mode.game.axis]]
+# [[mode.xbox.axis]]
 # source = "gyro"
 # target = "mouse-motion"
 # activation = { all = ["left-grip-touch", "right-grip-touch"] }
@@ -232,10 +244,121 @@ deadzone = 0.0015
 # invert_x = true
 # invert_y = true
 
-[[mode.game.axis]]
+[[mode.xbox.axis]]
 source = "left-trigger"
 target = "gamepad-left-trigger"
 
-[[mode.game.axis]]
+[[mode.xbox.axis]]
+source = "right-trigger"
+target = "gamepad-right-trigger"
+
+[mode.dualshock]
+gamepad = "dualshock4"
+gamepad_touchpad = "left"
+
+[[mode.dualshock.bind]]
+input = "a"
+action = { type = "gamepad", button = "south" }
+
+[[mode.dualshock.bind]]
+input = "b"
+action = { type = "gamepad", button = "east" }
+
+[[mode.dualshock.bind]]
+input = "x"
+action = { type = "gamepad", button = "west" }
+
+[[mode.dualshock.bind]]
+input = "y"
+action = { type = "gamepad", button = "north" }
+
+[[mode.dualshock.bind]]
+input = "left-bumper"
+action = { type = "gamepad", button = "left-bumper" }
+
+[[mode.dualshock.bind]]
+input = "right-bumper"
+action = { type = "gamepad", button = "right-bumper" }
+
+[[mode.dualshock.bind]]
+input = "view"
+action = { type = "gamepad", button = "select" }
+
+[[mode.dualshock.bind]]
+input = "menu"
+action = { type = "gamepad", button = "start" }
+
+[[mode.dualshock.bind]]
+input = "l3"
+action = { type = "gamepad", button = "left-stick" }
+
+[[mode.dualshock.bind]]
+input = "r3"
+action = { type = "gamepad", button = "right-stick" }
+
+[[mode.dualshock.bind]]
+input = "dpad-up"
+action = { type = "gamepad", button = "dpad-up" }
+
+[[mode.dualshock.bind]]
+input = "dpad-down"
+action = { type = "gamepad", button = "dpad-down" }
+
+[[mode.dualshock.bind]]
+input = "dpad-left"
+action = { type = "gamepad", button = "dpad-left" }
+
+[[mode.dualshock.bind]]
+input = "dpad-right"
+action = { type = "gamepad", button = "dpad-right" }
+
+[[mode.dualshock.bind]]
+input = "l4"
+action = { type = "gamepad", button = "west" }
+
+[[mode.dualshock.bind]]
+input = "l5"
+action = { type = "gamepad", button = "south" }
+
+[[mode.dualshock.bind]]
+input = "r4"
+action = { type = "gamepad", button = "north" }
+
+[[mode.dualshock.bind]]
+input = "r5"
+action = { type = "gamepad", button = "east" }
+
+[[mode.dualshock.axis]]
+source = "left-stick"
+target = "gamepad-left-stick"
+deadzone = 0.12
+
+[[mode.dualshock.axis]]
+source = "right-stick"
+target = "gamepad-right-stick"
+deadzone = 0.12
+
+[[mode.dualshock.axis]]
+source = "right-pad"
+target = "mouse-motion"
+sensitivity = 250.0
+acceleration = 5.0
+deadzone = 0.0015
+
+# [[mode.dualshock.axis]]
+# source = "gyro"
+# target = "mouse-motion"
+# activation = { all = ["left-grip-touch", "right-grip-touch"] }
+# components = ["y", "x"]
+# deadzone = 0.02
+# sensitivity = 600.0
+# invert_x = true
+# invert_y = true
+
+[[mode.dualshock.axis]]
+source = "left-trigger"
+target = "gamepad-left-trigger"
+
+[[mode.dualshock.axis]]
 source = "right-trigger"
 target = "gamepad-right-trigger"
