@@ -56,6 +56,7 @@
         roam-web
         mullvad
         qbittorrent
+        scd
       ]);
 
     _module.args.host = host;
