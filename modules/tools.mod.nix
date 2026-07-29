@@ -12,6 +12,7 @@
       unzip
       usbutils
       zip
+      bluetui
     ];
   };
 }
