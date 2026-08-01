@@ -26,6 +26,13 @@ export def main [] {
       if $event.type == "resize" {
         continue
       }
+      let event = $event | update modifiers {
+        each {|modifier|
+          $modifier
+          | str replace "keymodifiers(" ""
+          | str trim --right --char ")"
+        }
+      }
 
       let search_result = search handle-event $search_state $event {|| build-search-index }
       $search_state = $search_result.search
