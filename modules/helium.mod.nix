@@ -1,29 +1,36 @@
 {inputs, ...}: {
   inputs.helium-nix = {
     url = "github:schembriaiden/helium-browser-nix-flake";
-    inputs.nixpkgs.follows = "nixpkgs";
-    inputs.utils.inputs.systems.follows = "systems";
+    inputs = {
+      nixpkgs.follows = "nixpkgs";
+      nixpkgs-darwin.follows = "nixpkgs";
+      utils.inputs.systems.follows = "systems";
+    };
   };
-
-  nixosModules.helium = {pkgs, ...}: {
+  commonModules.helium = {pkgs, ...}: {
     nixpkgs.overlays = [
-      (final: prev: {
-        helium = let
-          helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;
-        in
-          final.symlinkJoin {
-            name = "helium";
-            paths = [helium];
-            nativeBuildInputs = [final.makeWrapper];
-            postBuild = ''
-              wrapProgram $out/bin/helium \
-                --add-flags "--disable-features=WaylandWpColorManagerV1"
-            '';
-            meta = helium.meta or {};
-          };
+      (final: _: {
+        helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;
       })
     ];
 
+    environment.systemPackages = [pkgs.helium];
+  };
+  nixosModules.helium = {
+    nixpkgs.overlays = [
+      (final: prev: {
+        helium = final.symlinkJoin {
+          name = "helium";
+          paths = [prev.helium];
+          nativeBuildInputs = [final.makeWrapper];
+          postBuild = ''
+            wrapProgram $out/bin/helium \
+              --add-flags "--disable-features=WaylandWpColorManagerV1"
+          '';
+          meta = prev.helium.meta or {};
+        };
+      })
+    ];
     sumi.xdg.mime.defaultApplications = {
       "application/xhtml+xml" = ["helium.desktop"];
       "text/html" = ["helium.desktop"];
@@ -31,9 +38,5 @@
       "x-scheme-handler/http" = ["helium.desktop"];
       "x-scheme-handler/https" = ["helium.desktop"];
     };
-
-    environment.systemPackages = [
-      pkgs.helium
-    ];
   };
 }

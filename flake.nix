@@ -22,6 +22,7 @@
     helium-nix = {
       inputs = {
         nixpkgs.follows = "nixpkgs";
+        nixpkgs-darwin.follows = "nixpkgs";
         utils.inputs.systems.follows = "systems";
       };
       url = "github:schembriaiden/helium-browser-nix-flake";

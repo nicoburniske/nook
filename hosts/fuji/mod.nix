@@ -38,6 +38,7 @@
         qbittorrent
         sumi
         kitty
+        helium
         zsh
         hammerspoon
       ]);
