@@ -14,8 +14,30 @@
       - comments should be minimal
       - rust code should not have any intermediary allocations (e.g. collecting all map keys into a vec for no reason) unless absolutely necessary
       - use nushell for scripting. use `nix shell` for missing tools. no python or perl
+      - never install or configure tools globally. use nix shells and workspace-local state
       - prefer visibility on rust modules over their members. within a private module, members should be pub or private
     '';
+
+    forbiddenCommands = [
+      "cargo install"
+      "nix profile"
+      "nix-channel"
+      "nix-env"
+      "rustup"
+
+      "find /nix/store"
+      "find /nix/store/"
+      "du /nix/store"
+      "du /nix/store/"
+
+      "gh pr close"
+      "gh pr merge"
+      "gh pr review"
+      "gh release delete"
+      "gh repo delete"
+      "gh run cancel"
+      "gh workflow run"
+    ];
 
     codexFlags = with lib.toml;
       [
@@ -147,5 +169,15 @@
       }) {};
   in {
     environment.systemPackages = [codex];
+
+    sumi.homeFile.".codex/rules/default.rules".value =
+      forbiddenCommands
+      |> map (command: ''
+        prefix_rule(
+            pattern = ${builtins.toJSON (lib.splitString " " command)},
+            decision = "forbidden",
+        )
+      '')
+      |> lib.concatStringsSep "\n";
   };
 }
