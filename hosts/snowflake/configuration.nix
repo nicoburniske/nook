@@ -3,7 +3,14 @@
   inputs,
   pkgs,
   ...
-}: {
+}: let
+  asahiFirmware = pkgs.requireFile {
+    name = "vendorfw";
+    hashMode = "recursive";
+    hash = "sha256-PVDXMsHBzZ+lW+toZRFaObs760mcWw4CJTcXm2mVcsE=";
+    message = "run 'nix-store --add-fixed sha256 --recursive /boot/vendorfw' to add the Asahi firmware";
+  };
+in {
   imports = [
     ./hardware-configuration.nix
     ./packages.nix
@@ -29,7 +36,8 @@
 
   hardware = {
     asahi = {
-      peripheralFirmwareDirectory = ./firmware;
+      enable = true;
+      peripheralFirmwareDirectory = asahiFirmware;
       setupAsahiSound = true;
     };
     graphics.enable = true;
@@ -84,9 +92,14 @@
 
   virtualisation.libvirtd.enable = true;
 
+  nixpkgs.allowedUnfreePackages = [asahiFirmware];
+
   environment.systemPackages = with pkgs; [
     git
   ];
 
-  system.stateVersion = "25.11";
+  system = {
+    extraDependencies = [asahiFirmware];
+    stateVersion = "25.11";
+  };
 }
