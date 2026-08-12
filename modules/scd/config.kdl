@@ -1,0 +1,233 @@
+version 1
+default-mode "desktop"
+mode-switch-haptic {
+    sweep start-frequency=400 end-frequency=850 duration-ms=65 gain=0
+}
+trackpad click-pressure=25
+
+osk {
+    bind "l4" "super"
+    bind "l5" "shift"
+    bind "r4" "control"
+    bind "r5" "alt"
+    bind "left-trigger-click" "shift"
+    bind "right-trigger-click" "enter"
+    bind "x" "backspace"
+    bind "y" "space"
+    bind "dpad-up" "up"
+    bind "dpad-down" "down"
+    bind "dpad-left" "left"
+    bind "dpad-right" "right"
+}
+
+global {
+    bind "steam" "x" {
+        keyboard-toggle 
+    }
+    bind "steam" "quick-access" {
+        mode-next 
+    }
+    bind "steam" "dpad-left" {
+        mode-set "xbox"
+    }
+    bind "steam" "dpad-up" {
+        mode-set "desktop"
+    }
+    bind "steam" "dpad-right" {
+        mode-set "dualshock"
+    }
+}
+
+mode "desktop" gamepad="none" {
+    bind "l4" {
+        key "super"
+    }
+    bind "r4" {
+        key "control"
+    }
+    bind "l5" {
+        key "shift"
+    }
+    bind "r5" {
+        key "alt"
+    }
+    bind "dpad-up" {
+        key "up"
+    }
+    bind "dpad-down" {
+        key "down"
+    }
+    bind "dpad-left" {
+        key "left"
+    }
+    bind "dpad-right" {
+        key "right"
+    }
+    bind "left-trigger-click" {
+        mouse "right"
+    }
+    bind "right-trigger-click" {
+        mouse "left"
+    }
+    bind "right-pad-click" {
+        mouse "left"
+    }
+    bind "left-pad-click" {
+        mouse "middle"
+    }
+    bind "a" {
+        key "enter"
+    }
+    bind "b" {
+        key "escape"
+    }
+    bind "x" {
+        key "g"
+    }
+    bind "y" {
+        key "space"
+    }
+    bind "menu" {
+        key "tab"
+    }
+    bind "view" {
+        mouse "back"
+    }
+    layer "apps" hold="left-bumper" {
+        bind "b" {
+            key "q"
+        }
+        bind "x" {
+            key "t"
+        }
+        bind "y" {
+            key "o"
+        }
+    }
+    axis "right-pad" "mouse-motion" sensitivity=150.0 acceleration=1.75 deadzone=0.0015
+    axis "left-pad" "scroll" sensitivity=5.0 invert-y=#true
+}
+
+mode "xbox" gamepad="xbox" {
+    bind "a" {
+        gamepad "south"
+    }
+    bind "b" {
+        gamepad "east"
+    }
+    bind "x" {
+        gamepad "west"
+    }
+    bind "y" {
+        gamepad "north"
+    }
+    bind "left-bumper" {
+        gamepad "left-bumper"
+    }
+    bind "right-bumper" {
+        gamepad "right-bumper"
+    }
+    bind "view" {
+        gamepad "select"
+    }
+    bind "menu" {
+        gamepad "start"
+    }
+    bind "l3" {
+        gamepad "left-stick"
+    }
+    bind "r3" {
+        gamepad "right-stick"
+    }
+    bind "dpad-up" {
+        gamepad "dpad-up"
+    }
+    bind "dpad-down" {
+        gamepad "dpad-down"
+    }
+    bind "dpad-left" {
+        gamepad "dpad-left"
+    }
+    bind "dpad-right" {
+        gamepad "dpad-right"
+    }
+    bind "l4" {
+        gamepad "west"
+    }
+    bind "l5" {
+        gamepad "south"
+    }
+    bind "r4" {
+        gamepad "north"
+    }
+    bind "r5" {
+        gamepad "east"
+    }
+    axis "left-stick" "gamepad-left-stick" deadzone=0.12
+    axis "right-stick" "gamepad-right-stick" deadzone=0.12
+    axis "right-pad" "mouse-motion" sensitivity=250.0 acceleration=5.0 deadzone=0.0015
+    axis "left-trigger" "gamepad-left-trigger" 
+    axis "right-trigger" "gamepad-right-trigger" 
+}
+
+mode "dualshock" gamepad="dualshock4" touchpad="left" {
+    bind "a" {
+        gamepad "south"
+    }
+    bind "b" {
+        gamepad "east"
+    }
+    bind "x" {
+        gamepad "west"
+    }
+    bind "y" {
+        gamepad "north"
+    }
+    bind "left-bumper" {
+        gamepad "left-bumper"
+    }
+    bind "right-bumper" {
+        gamepad "right-bumper"
+    }
+    bind "view" {
+        gamepad "select"
+    }
+    bind "menu" {
+        gamepad "start"
+    }
+    bind "l3" {
+        gamepad "left-stick"
+    }
+    bind "r3" {
+        gamepad "right-stick"
+    }
+    bind "dpad-up" {
+        gamepad "dpad-up"
+    }
+    bind "dpad-down" {
+        gamepad "dpad-down"
+    }
+    bind "dpad-left" {
+        gamepad "dpad-left"
+    }
+    bind "dpad-right" {
+        gamepad "dpad-right"
+    }
+    bind "l4" {
+        gamepad "west"
+    }
+    bind "l5" {
+        gamepad "south"
+    }
+    bind "r4" {
+        gamepad "north"
+    }
+    bind "r5" {
+        gamepad "east"
+    }
+    axis "left-stick" "gamepad-left-stick" deadzone=0.12
+    axis "right-stick" "gamepad-right-stick" deadzone=0.12
+    axis "right-pad" "mouse-motion" sensitivity=250.0 acceleration=5.0 deadzone=0.0015
+    axis "left-trigger" "gamepad-left-trigger" 
+    axis "right-trigger" "gamepad-right-trigger" 
+}
