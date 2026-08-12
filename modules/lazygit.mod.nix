@@ -19,8 +19,11 @@
       };
 
       git = {
-        pagers = [
-          {externalDiffCommand = "difft --color=always --background=${theme.polarity}";}
+        diffRenderers = [
+          {
+            command = "difft --color=always --background=${theme.polarity}";
+            type = "extDiff";
+          }
         ];
         overrideGpg = true;
       };
