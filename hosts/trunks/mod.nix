@@ -55,6 +55,8 @@
         spotify-web
         roam-web
         mullvad
+        tailscale
+        moonlight
         qbittorrent
         scd
       ]);

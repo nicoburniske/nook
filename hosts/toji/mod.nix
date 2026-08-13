@@ -57,6 +57,8 @@
         kanto-ora
         coolercontrol
         mullvad
+        tailscale
+        sunshine
         qbittorrent
         jai
       ]);
