@@ -4,9 +4,9 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  configurations.nixos.snowflake.module = {...}: let
+  configurations.nixos.trunks.module = {...}: let
     host = {
-      name = "snowflake";
+      name = "trunks";
       user = "nico";
       homeDirectory = "/home/nico";
       flakeRoot = "/home/nico/nook";
