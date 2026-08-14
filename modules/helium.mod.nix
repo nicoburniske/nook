@@ -16,8 +16,8 @@
 
     environment.systemPackages = [pkgs.helium];
   };
-  nixosModules.helium = {
-    nixpkgs.overlays = [
+  nixosModules.helium = {lib, ...}: {
+    nixpkgs.overlays = lib.mkAfter [
       (final: prev: {
         helium = final.symlinkJoin {
           name = "helium";
