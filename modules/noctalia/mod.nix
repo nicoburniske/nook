@@ -131,14 +131,16 @@
       };
     };
 
-    effect.noctalia = {
+    effect.noctalia = let
+      reload = pkgs.writers.writeNu "seni-noctalia" ''
+        def main [wallpaper: string] {
+          ^${noctalia} msg config-reload
+          ^${noctalia} msg wallpaper-set $wallpaper
+        }
+      '';
+    in {
       on = ["theme"];
-      exec = {theme}: [
-        (pkgs.writeShellScript "seni-noctalia" ''
-          ${noctalia} msg config-reload
-          ${noctalia} msg wallpaper-set ${lib.escapeShellArg (toString theme.value.image)}
-        '')
-      ];
+      exec = {theme}: [reload theme.value.image];
       ignoreFailure = true;
     };
   };

@@ -69,9 +69,9 @@ in {
 
       packages = {
         nix-tidy = nixTidy;
-        gen-flake = pkgs.writeShellScriptBin "gen-flake" ''
-          install -m 0644 ${pkgs.writeText "flake.nix" flakeText} flake.nix
-          ${nixTidy}/bin/nix-tidy flake.nix
+        gen-flake = pkgs.writers.writeNuBin "gen-flake" ''
+          open --raw ${pkgs.writeText "flake.nix" flakeText} | save --force flake.nix
+          ${lib.getExe nixTidy} flake.nix
         '';
       };
     };

@@ -46,10 +46,10 @@
     effect.scd-osk = {
       on = ["theme"];
       exec = [
-        (pkgs.writeShellScript "seni-scd-osk" ''
-          ${pkgs.systemd}/bin/systemctl --user reset-failed scd-osk.service
-          ${pkgs.systemd}/bin/systemctl --user restart scd-osk.service
-        '')
+        "${pkgs.systemd}/bin/systemctl"
+        "--user"
+        "restart"
+        "scd-osk.service"
       ];
       ignoreFailure = true;
     };
