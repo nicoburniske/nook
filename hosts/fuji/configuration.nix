@@ -26,8 +26,8 @@ in {
 
         persistent-apps = [
           "/System/Applications/Messages.app"
-          "/Applications/Nix Apps/kitty.app"
-          "/Applications/Zen.app"
+          "${homeDir}/Applications/Seni Apps/kitty.app"
+          "${homeDir}/Applications/Seni Apps/Helium.app"
           "/Applications/Roam.app"
           "/System/Applications/Passwords.app"
           "/System/Applications/System Settings.app"

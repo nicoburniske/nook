@@ -107,9 +107,42 @@
       seni = {
         existingFileStrategy = "clobber";
         specialArgs = {inherit host;};
-        users.${host.user}.facet.theme = {
-          default = cfg.theme.default;
-          variants = themes;
+        users.${host.user} = {
+          facet.theme = {
+            default = cfg.theme.default;
+            variants = themes;
+          };
+
+          effect.wallpaper = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+            on = ["theme"];
+            exec = {theme}: [
+              (pkgs.writeShellScript "seni-darwin-wallpaper" ''
+                set -eu
+
+                store="$HOME/Library/Application Support/com.apple.wallpaper/Store/Index.plist"
+
+                if ! /usr/bin/plutil -extract AllSpacesAndDisplays raw -expect dictionary "$store" >/dev/null 2>&1; then
+                  system_default="$(/usr/bin/plutil -extract SystemDefault xml1 -o - "$store")"
+                  /usr/bin/plutil -replace AllSpacesAndDisplays -xml "$system_default" "$store"
+                  /usr/bin/plutil -replace Spaces -json '{}' "$store"
+                  /usr/bin/plutil -replace Displays -json '{}' "$store"
+                fi
+
+                configuration="$(
+                    /usr/bin/plutil -create binary1 - |
+                    /usr/bin/plutil -insert type -string imageFile -o - - |
+                    /usr/bin/plutil -insert url -dictionary -o - - |
+                    /usr/bin/plutil -insert url.relative -string "file://$1" -o - - |
+                    /usr/bin/base64 -b 0
+                )"
+
+                /usr/bin/plutil -replace AllSpacesAndDisplays.Desktop.Content.Choices.0.Configuration -data "$configuration" "$store"
+
+                /usr/bin/killall WallpaperAgent >/dev/null 2>&1 || true
+              '')
+              (toString theme.value.image)
+            ];
+          };
         };
       };
     };

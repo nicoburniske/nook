@@ -107,15 +107,23 @@ let
     };
     effect.kitty = {
       on = ["theme"];
-      exec = [
-        (
-          if pkgs.stdenv.isDarwin
-          then "/usr/bin/pkill"
-          else "${pkgs.procps}/bin/pkill"
-        )
-        "-USR1"
-        ".kitty-wrapped"
-      ];
+      exec =
+        if pkgs.stdenv.isDarwin
+        then [
+          (pkgs.writers.writeNu "seni-kitty-reload" ''
+            glob /tmp/kitty-*
+            | where { ($in | path type) == socket }
+            | each {|socket|
+                ^${pkgs.kitty}/bin/kitty @ --to $"unix:($socket)" load-config | complete
+              }
+            | ignore
+          '')
+        ]
+        else [
+          "${pkgs.procps}/bin/pkill"
+          "-USR1"
+          ".kitty-wrapped"
+        ];
       ignoreFailure = true;
     };
   };
