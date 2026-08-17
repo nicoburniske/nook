@@ -1,18 +1,25 @@
 {
-  homeModules.tools = {pkgs, ...}: {
-    packages = with pkgs; [
-      cheese
-      fastfetch
-      ffmpeg
-      gh
-      just
-      ncdu
-      ripgrep
-      tokei
-      unzip
-      usbutils
-      zip
-      bluetui
-    ];
+  homeModules.tools = {
+    lib,
+    pkgs,
+    ...
+  }: {
+    packages =
+      (with pkgs; [
+        fastfetch
+        ffmpeg
+        gh
+        just
+        ncdu
+        ripgrep
+        tokei
+        unzip
+        zip
+      ])
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+        bluetui
+        cheese
+        usbutils
+      ]);
   };
 }

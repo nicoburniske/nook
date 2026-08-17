@@ -41,6 +41,7 @@
         helium
         zsh
         hammerspoon
+        tools
       ]);
 
     _module.args.host = host;
