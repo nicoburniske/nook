@@ -1,13 +1,11 @@
 {
-  commonModules.cargo = {config, ...}: {
-    environment.variables = {
-      CARGO_HOME = "${config.lib.sumi.paths.data}/cargo";
-      # block global installs with a read-only root
-      CARGO_INSTALL_ROOT = "/nix/store";
+  homeModules.cargo = {config, ...}: {
+    environment.sessionVariables = {
+      CARGO_HOME = "${config.path.data}/cargo";
+      CARGO_INSTALL_ROOT = "/nix/store"; # block global installs with a read-only root
     };
-
-    sumi.dataFile = {
-      "cargo/config.toml".value = ''
+    file.data."cargo/config.toml" = {
+      value = ''
         [net]
         git-fetch-with-cli = true
       '';

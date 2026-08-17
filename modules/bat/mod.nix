@@ -1,31 +1,28 @@
 {
-  commonModules.bat = {
-    config,
+  homeModules.bat = {
     lib,
     pkgs,
     ...
   }: {
-    environment.systemPackages = [pkgs.bat];
+    packages = [pkgs.bat];
 
-    sumi = {
-      configFile = {
-        "bat/config".value = "--theme=base16-sumi\n";
+    file.config = {
+      "bat/config".value = "--theme=base16-seni\n";
 
-        "bat/themes/base16-sumi.tmTheme" = {
-          watch = "theme";
-          value = ctx: let
-            theme = ctx.value;
-          in
-            config.lib.sumi.renderBase16Mustache {
-              inherit theme;
-              template = ./base16-sumi.mustache;
-            };
-        };
+      "bat/themes/base16-seni.tmTheme" = {
+        facet = "theme";
+        value = facets: let
+          theme = facets.theme.value;
+        in
+          lib.seni.renderBase16Mustache {
+            inherit theme;
+            template = ./base16-seni.mustache;
+          };
       };
-      hook.bat = {
-        watch = "theme";
-        command = "${lib.getExe pkgs.bat} cache --build";
-      };
+    };
+    effect.bat = {
+      on = ["theme"];
+      exec = [(lib.getExe pkgs.bat) "cache" "--build"];
     };
   };
 }

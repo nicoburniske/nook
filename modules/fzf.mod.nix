@@ -1,22 +1,20 @@
 {
-  commonModules.fzf = {
+  homeModules.fzf = {
     config,
     pkgs,
     ...
   }: {
-    environment = {
-      systemPackages = [pkgs.fzf];
-      variables.FZF_DEFAULT_OPTS_FILE = "${config.lib.sumi.paths.config}/fzf/fzfrc";
-    };
+    packages = [pkgs.fzf];
+    environment.sessionVariables.FZF_DEFAULT_OPTS_FILE = "${config.path.config}/fzf/fzfrc";
 
-    nook.zsh.promptInit = ''
+    zsh.promptInit = ''
       source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
     '';
 
-    sumi.configFile."fzf/fzfrc" = {
-      watch = "theme";
-      value = ctx: let
-        theme = ctx.value;
+    file.config."fzf/fzfrc" = {
+      facet = "theme";
+      value = facets: let
+        theme = facets.theme.value;
         colors = with theme.colors.withHashtag; {
           bg = base00;
           "bg+" = base01;

@@ -1,9 +1,8 @@
 {
-  commonModules.television = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.television];
-
-    sumi.configFile = {
-      "television/cable/just.toml".value = ''
+  homeModules.television = {pkgs, ...}: {
+    packages = [pkgs.television];
+    file.config."television/cable/just.toml" = {
+      value = ''
         [metadata]
         name = "just"
         description = "A channel to select recipes from Justfiles"

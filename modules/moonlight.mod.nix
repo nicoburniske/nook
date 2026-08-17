@@ -1,5 +1,5 @@
 {
-  nixosModules.moonlight = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.moonlight-qt];
+  homeModules.moonlight = {pkgs, ...}: {
+    packages = [pkgs.moonlight-qt];
   };
 }

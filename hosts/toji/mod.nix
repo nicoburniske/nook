@@ -32,8 +32,7 @@
         plugdev
         android-webcam
         secrets
-        sumi
-        xdg
+        seni
         fonts
         compositor
         niri
@@ -64,7 +63,7 @@
       ]);
     _module.args.host = host;
     nook = {
-      sumi.theme.transparency = {
+      seni.theme.transparency = {
         light = 1.0;
         dark = 1.0;
         darkOnLight = 1.0;

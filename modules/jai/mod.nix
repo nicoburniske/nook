@@ -1,65 +1,9 @@
 {
   nixosModules.jai = {
-    config,
     host,
     pkgs,
     ...
-  }: let
-    treeSitterJaiRev = "073a0c64abecb9ff10b675cea601a0df72cec326";
-
-    jaiFhs = pkgs.buildFHSEnv {
-      name = "jai";
-      targetPkgs = pkgs:
-        with pkgs; [
-          glibc
-          stdenv.cc.cc.lib
-          zlib
-        ];
-      extraBwrapArgs = [
-        "--tmpfs"
-        "/run"
-        "--dir"
-        "/run/jai"
-        "--dir"
-        "/run/jai/bin"
-        "--ro-bind"
-        "/run/jai/bin"
-        "/run/jai/bin"
-        "--dir"
-        "/run/jai/modules"
-        "--ro-bind"
-        "/run/jai/modules"
-        "/run/jai/modules"
-      ];
-      runScript = "/run/jai/bin/jai-linux";
-    };
-
-    jaiRoot = pkgs.runCommandLocal "jai-root" {} ''
-      mkdir -p "$out/share/jai/bin"
-      ln -s ${jaiFhs}/bin/jai "$out/share/jai/bin/jai-linux"
-      ln -s /run/jai/modules "$out/share/jai/modules"
-    '';
-
-    jaiParser = let
-      treeSitterJai = pkgs.tree-sitter.buildGrammar {
-        language = "jai";
-        version = "073a0c64";
-        src = pkgs.fetchFromGitHub {
-          owner = "constantitus";
-          repo = "tree-sitter-jai";
-          rev = treeSitterJaiRev;
-          hash = "sha256-eOV8Xasab3iJRKcatBc2Pv5JElF0/yUCS38K1jDcauw=";
-        };
-      };
-    in
-      pkgs.runCommandLocal "tree-sitter-jai-parser" {} ''
-        ln -s ${treeSitterJai}/parser "$out"
-      '';
-  in {
-    environment.systemPackages = [
-      jaiFhs
-    ];
-
+  }: {
     programs.nix-ld.enable = true;
 
     secrets = {
@@ -102,6 +46,63 @@
         chmod -R u=rwX,go=rX /run/jai/modules
       '';
     };
+  };
+
+  homeModules.jai = {
+    config,
+    host,
+    pkgs,
+    ...
+  }: let
+    treeSitterJaiRev = "073a0c64abecb9ff10b675cea601a0df72cec326";
+    jaiFhs = pkgs.buildFHSEnv {
+      name = "jai";
+      targetPkgs = pkgs:
+        with pkgs; [
+          glibc
+          stdenv.cc.cc.lib
+          zlib
+        ];
+      extraBwrapArgs = [
+        "--tmpfs"
+        "/run"
+        "--dir"
+        "/run/jai"
+        "--dir"
+        "/run/jai/bin"
+        "--ro-bind"
+        "/run/jai/bin"
+        "/run/jai/bin"
+        "--dir"
+        "/run/jai/modules"
+        "--ro-bind"
+        "/run/jai/modules"
+        "/run/jai/modules"
+      ];
+      runScript = "/run/jai/bin/jai-linux";
+    };
+    jaiRoot = pkgs.runCommandLocal "jai-root" {} ''
+      mkdir -p "$out/share/jai/bin"
+      ln -s ${jaiFhs}/bin/jai "$out/share/jai/bin/jai-linux"
+      ln -s /run/jai/modules "$out/share/jai/modules"
+    '';
+    jaiParser = let
+      treeSitterJai = pkgs.tree-sitter.buildGrammar {
+        language = "jai";
+        version = "073a0c64";
+        src = pkgs.fetchFromGitHub {
+          owner = "constantitus";
+          repo = "tree-sitter-jai";
+          rev = treeSitterJaiRev;
+          hash = "sha256-eOV8Xasab3iJRKcatBc2Pv5JElF0/yUCS38K1jDcauw=";
+        };
+      };
+    in
+      pkgs.runCommandLocal "tree-sitter-jai-parser" {} ''
+        ln -s ${treeSitterJai}/parser "$out"
+      '';
+  in {
+    packages = [jaiFhs];
 
     helix = {
       grammars = [
@@ -125,7 +126,7 @@
       ];
 
       languageServers.jails = {
-        command = "${config.lib.sumi.paths.home}/.local/bin/jails";
+        command = "${config.path.home}/.local/bin/jails";
         args = [
           "-jai_path"
           "${jaiRoot}/share/jai"
@@ -134,7 +135,7 @@
 
       runtimeFiles = {
         "grammars/jai.so" = jaiParser;
-        "queries/jai" = with config.lib.sumi; mkOutOfStoreSymlink (flakePath "modules/jai/queries");
+        "queries/jai" = pkgs.mkOutOfStoreSymlink "${host.flakeRoot}/modules/jai/queries";
       };
     };
   };

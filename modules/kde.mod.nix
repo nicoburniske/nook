@@ -1,6 +1,6 @@
 {
-  nixosModules.kde = {lib, ...}: let
-    colorScheme = "Sumi";
+  homeModules.kde = {lib, ...}: let
+    colorScheme = "Seni";
 
     formatValue = value:
       if lib.isBool value
@@ -143,14 +143,14 @@
       };
     };
   in {
-    sumi = {
-      configFile."kdeglobals" = {
-        watch = "theme";
-        value = ctx: formatConfig (mkKdeGlobals ctx.value);
+    file = {
+      config."kdeglobals" = {
+        facet = "theme";
+        value = {theme}: formatConfig (mkKdeGlobals theme.value);
       };
-      dataFile."color-schemes/${colorScheme}.colors" = {
-        watch = "theme";
-        value = ctx: formatConfig (mkColorScheme ctx.value);
+      data."color-schemes/${colorScheme}.colors" = {
+        facet = "theme";
+        value = {theme}: formatConfig (mkColorScheme theme.value);
       };
     };
   };

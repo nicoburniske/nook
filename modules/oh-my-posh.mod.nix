@@ -1,19 +1,19 @@
 {
-  commonModules.oh-my-posh = {
+  homeModules.oh-my-posh = {
     config,
     pkgs,
     ...
   }: {
-    environment.systemPackages = [pkgs.oh-my-posh];
+    packages = [pkgs.oh-my-posh];
 
-    nook.zsh.promptInit = pkgs.lib.mkAfter ''
-      eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${config.lib.sumi.paths.config}/ohmyposh/config.json")"
+    zsh.promptInit = pkgs.lib.mkAfter ''
+      eval "$(${pkgs.oh-my-posh}/bin/oh-my-posh init zsh --config "${config.path.config}/ohmyposh/config.json")"
     '';
 
-    sumi.configFile."ohmyposh/config.json" = {
-      watch = "theme";
-      value = ctx: let
-        theme = ctx.value;
+    file.config."ohmyposh/config.json" = {
+      facet = "theme";
+      value = facets: let
+        theme = facets.theme.value;
       in
         builtins.toJSON {
           "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";

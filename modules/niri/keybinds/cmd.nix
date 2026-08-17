@@ -1,12 +1,9 @@
 {
-  config,
+  host,
   pkgs,
   ...
 }: let
-  cmdDir =
-    "modules/niri/keybinds/cmd"
-    |> config.lib.sumi.flakePath
-    |> config.lib.sumi.mkOutOfStoreSymlink;
+  cmdDir = pkgs.mkOutOfStoreSymlink "${host.flakeRoot}/modules/niri/keybinds/cmd";
 in
   pkgs.writeNuScriptBin "niri-cmd" {
     runtimeInputs = with pkgs; [

@@ -8,7 +8,7 @@
          toast-success
          toast-error)
 
-(define TOAST-COMPONENT-NAME "sumi-toast-stack")
+(define TOAST-COMPONENT-NAME "seni-toast-stack")
 (define TOAST-MAX-COUNT 6)
 (define TOAST-SUCCESS-MS 1800)
 (define TOAST-ERROR-MS 2600)

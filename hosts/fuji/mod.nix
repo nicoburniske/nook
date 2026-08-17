@@ -36,7 +36,7 @@
         yazi
         fonts
         qbittorrent
-        sumi
+        seni
         kitty
         helium
         zsh
@@ -45,7 +45,7 @@
 
     _module.args.host = host;
 
-    nook.sumi.theme.transparency = {
+    nook.seni.theme.transparency = {
       light = 1.0;
       dark = 1.0;
       darkOnLight = 1.0;

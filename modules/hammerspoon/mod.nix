@@ -4,10 +4,9 @@
     pkgs,
     ...
   }: let
-    hammerspoonConfigDir = "${config.lib.sumi.paths.config}/hammerspoon";
-    hammerspoonLauncher = pkgs.writeShellScriptBin "sumi-hammerspoon-launch" ''
+    hammerspoonLauncher = pkgs.writeShellScriptBin "seni-hammerspoon-launch" ''
       set -eu
-      /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile "${hammerspoonConfigDir}/init.lua"
+      /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile "$HOME/.config/hammerspoon/init.lua"
       exec /Applications/Hammerspoon.app/Contents/MacOS/Hammerspoon -n
     '';
   in {
@@ -15,27 +14,35 @@
       hammerspoonLauncher
     ];
 
-    sumi = {
-      configFile."hammerspoon".value = config.lib.sumi.mkOutOfStoreSymlink "${config.lib.sumi.paths.flakeRootOrErr}/modules/hammerspoon/config";
-      hook.hammerspoon = {
-        watch = "theme";
-        command = ''
-          /Applications/Hammerspoon.app/Contents/Frameworks/hs/hs -A -c "hs.reload()"
-        '';
-      };
-    };
-
-    launchd.user.agents.hammerspoon = {
+    launchd.agents.hammerspoon = {
       path = [config.environment.systemPath];
       serviceConfig = {
         ProgramArguments = [
-          "${hammerspoonLauncher}/bin/sumi-hammerspoon-launch"
+          "${hammerspoonLauncher}/bin/seni-hammerspoon-launch"
         ];
         RunAtLoad = true;
         KeepAlive = true;
         StandardOutPath = "/tmp/hammerspoon.out.log";
         StandardErrorPath = "/tmp/hammerspoon.err.log";
       };
+    };
+  };
+
+  homeModules.hammerspoon = {
+    host,
+    pkgs,
+    ...
+  }: {
+    file.config."hammerspoon".value = pkgs.mkOutOfStoreSymlink "${host.flakeRoot}/modules/hammerspoon/config";
+    effect.hammerspoon = {
+      on = ["theme"];
+      exec = [
+        "/Applications/Hammerspoon.app/Contents/Frameworks/hs/hs"
+        "-A"
+        "-c"
+        "hs.reload()"
+      ];
+      ignoreFailure = true;
     };
   };
 }

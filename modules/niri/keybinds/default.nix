@@ -1,13 +1,12 @@
 {
-  config,
-  inputs,
+  host,
   lib,
   pkgs,
 }: let
   inherit (lib.kdl) node;
 
   cmd = import ./cmd.nix {
-    inherit config inputs pkgs;
+    inherit host pkgs;
   };
   focusVertical = pkgs.writeNuScriptBin "focus-vertical" {
     runtimeInputs = [pkgs.niri];

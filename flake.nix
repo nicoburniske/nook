@@ -57,13 +57,16 @@
       url = "github:nicoburniske/steam-controller-daemon/master";
     };
     self.lfs = true;
+    seni = {
+      inputs = {
+        nix-darwin.follows = "nix-darwin";
+        nixpkgs.follows = "nixpkgs";
+      };
+      url = "github:nicoburniske/seni";
+    };
     smithay = {
       flake = false;
       url = "github:dividebysandwich/smithay/master";
-    };
-    sumi = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "path:./sumi";
     };
     systems.url = "github:nix-systems/default";
   };

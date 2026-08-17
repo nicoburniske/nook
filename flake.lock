@@ -254,8 +254,8 @@
         "noctalia": "noctalia",
         "noctalia-greeter": "noctalia-greeter",
         "scd": "scd",
+        "seni": "seni",
         "smithay": "smithay",
-        "sumi": "sumi",
         "systems": "systems"
       }
     },
@@ -301,6 +301,29 @@
         "type": "github"
       }
     },
+    "seni": {
+      "inputs": {
+        "nix-darwin": [
+          "nix-darwin"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786926938,
+        "narHash": "sha256-XReBtH32lmQxacajGhsSSEW3O8wMJf1OnjtibGJGLO0=",
+        "owner": "nicoburniske",
+        "repo": "seni",
+        "rev": "a702c3c7ec9538f4bc835e5fed5da16b69ed2f7e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nicoburniske",
+        "repo": "seni",
+        "type": "github"
+      }
+    },
     "smithay": {
       "flake": false,
       "locked": {
@@ -317,22 +340,6 @@
         "repo": "smithay",
         "type": "github"
       }
-    },
-    "sumi": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "path": "./sumi",
-        "type": "path"
-      },
-      "original": {
-        "path": "./sumi",
-        "type": "path"
-      },
-      "parent": []
     },
     "systems": {
       "locked": {

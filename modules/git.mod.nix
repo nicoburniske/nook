@@ -1,17 +1,16 @@
 {
-  commonModules.git = {
+  homeModules.git = {
     lib,
     pkgs,
     ...
   }: {
-    environment.systemPackages = with pkgs; [
+    packages = with pkgs; [
       git
       git-lfs
       difftastic
     ];
-
-    sumi.configFile = {
-      "git/config".value = lib.generators.toGitINI {
+    file.config."git/config" = {
+      value = lib.generators.toGitINI {
         user = {
           name = "Nico Burniske";
           email = "nicoburniske@gmail.com";

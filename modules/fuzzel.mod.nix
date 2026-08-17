@@ -1,5 +1,5 @@
 {
-  nixosModules.fuzzel = {pkgs, ...}: let
+  homeModules.fuzzel = {pkgs, ...}: let
     mkHexByte = value: let
       digits = "0123456789abcdef";
       bounded =
@@ -13,15 +13,15 @@
       digit = idx: builtins.substring idx 1 digits;
     in "${digit hi}${digit lo}";
   in {
-    environment.systemPackages = [
+    packages = [
       pkgs.fuzzel
       pkgs.numix-icon-theme-circle
     ];
 
-    sumi.configFile."fuzzel/fuzzel.ini" = {
-      watch = "theme";
-      value = ctx: let
-        theme = ctx.value;
+    file.config."fuzzel/fuzzel.ini" = {
+      facet = "theme";
+      value = facets: let
+        theme = facets.theme.value;
         c = theme.colors;
         opacity = theme.opacity.popups or theme.opacity.terminal or 1.0;
         opacityHex = mkHexByte (builtins.ceil (opacity * 255.0));

@@ -82,7 +82,6 @@ in {
   };
 
   environment = {
-    variables.XDG_CONFIG_HOME = "${homeDir}/.config";
     shells = [pkgs.zsh];
   };
 

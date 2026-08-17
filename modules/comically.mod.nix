@@ -1,5 +1,5 @@
 {
-  commonModules.comically = {pkgs, ...}: let
+  homeModules.comically = {pkgs, ...}: let
     comically = pkgs.rustPlatform.buildRustPackage {
       pname = "comically";
       version = "0.1.6";
@@ -21,6 +21,6 @@
       };
     };
   in {
-    environment.systemPackages = [comically];
+    packages = [comically];
   };
 }

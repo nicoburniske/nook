@@ -1,24 +1,5 @@
 {
-  nixosModules.steam = {pkgs, ...}: let
-    gamescopeProfiles = {
-      "2k" = ["-W" "2560" "-H" "1440" "-w" "2560" "-h" "1440" "-r" "165" "-f" "--hdr-enabled" "--hdr-debug-force-output"];
-      "4k" = ["-W" "5120" "-H" "2880" "-w" "3840" "-h" "2160" "-r" "165" "-f" "--hdr-enabled" "--hdr-debug-force-output"];
-      "5k" = ["-W" "5120" "-H" "2880" "-w" "5120" "-h" "2880" "-r" "165" "-f" "--hdr-enabled" "--hdr-debug-force-output"];
-    };
-    gamescopeWrapper = pkgs.writeNuScriptBin "gs" {
-      runtimeInputs = [pkgs.gamescope];
-      source = ''
-        def --wrapped main [profile: string, ...argv: string] {
-          let base_args = (${builtins.toJSON gamescopeProfiles} | get $profile)
-          let sep = ($argv | enumerate | where item == "--" | get index | first | default ($argv | length))
-          let gamescope_args = ($argv | take $sep)
-          let game_args = ($argv | skip ($sep + 1))
-          let ld_preload = ($env.LD_PRELOAD? | default "")
-          ^env -u LD_PRELOAD gamescope ...$base_args ...$gamescope_args -- env $"LD_PRELOAD=($ld_preload)" ENABLE_GAMESCOPE_WSI=1 DXVK_HDR=1 PROTON_ENABLE_HDR=1 ...$game_args
-        }
-      '';
-    };
-  in {
+  nixosModules.steam = {pkgs, ...}: {
     nixpkgs.allowedUnfreePackages = with pkgs; [
       steam
       steam-unwrapped
@@ -43,12 +24,6 @@
         capSysNice = false;
       };
     };
-
-    environment.systemPackages = with pkgs; [
-      gamescopeWrapper
-      hidapi
-      mangohud
-    ];
 
     compositor.niri.config = [
       {
@@ -101,6 +76,33 @@
           {open-fullscreen = true;}
         ];
       }
+    ];
+  };
+
+  homeModules.steam = {pkgs, ...}: let
+    gamescopeProfiles = {
+      "2k" = ["-W" "2560" "-H" "1440" "-w" "2560" "-h" "1440" "-r" "165" "-f" "--hdr-enabled" "--hdr-debug-force-output"];
+      "4k" = ["-W" "5120" "-H" "2880" "-w" "3840" "-h" "2160" "-r" "165" "-f" "--hdr-enabled" "--hdr-debug-force-output"];
+      "5k" = ["-W" "5120" "-H" "2880" "-w" "5120" "-h" "2880" "-r" "165" "-f" "--hdr-enabled" "--hdr-debug-force-output"];
+    };
+    gamescopeWrapper = pkgs.writeNuScriptBin "gs" {
+      runtimeInputs = [pkgs.gamescope];
+      source = ''
+        def --wrapped main [profile: string, ...argv: string] {
+          let base_args = (${builtins.toJSON gamescopeProfiles} | get $profile)
+          let sep = ($argv | enumerate | where item == "--" | get index | first | default ($argv | length))
+          let gamescope_args = ($argv | take $sep)
+          let game_args = ($argv | skip ($sep + 1))
+          let ld_preload = ($env.LD_PRELOAD? | default "")
+          ^env -u LD_PRELOAD gamescope ...$base_args ...$gamescope_args -- env $"LD_PRELOAD=($ld_preload)" ENABLE_GAMESCOPE_WSI=1 DXVK_HDR=1 PROTON_ENABLE_HDR=1 ...$game_args
+        }
+      '';
+    };
+  in {
+    packages = with pkgs; [
+      gamescopeWrapper
+      hidapi
+      mangohud
     ];
   };
 }

@@ -1,5 +1,5 @@
 {
-  commonModules.yazi = {
+  homeModules.yazi = {
     lib,
     pkgs,
     ...
@@ -67,9 +67,9 @@
 
     mkTheme = import ./theme.nix;
   in {
-    environment.systemPackages = [pkgs.yazi];
+    packages = [pkgs.yazi];
 
-    nook.zsh.interactiveShellInit = ''
+    zsh.interactiveShellInit = ''
       function yy() {
         local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
         yazi "$@" --cwd-file="$tmp"
@@ -80,11 +80,11 @@
       }
     '';
 
-    sumi.configFile = {
+    file.config = {
       "yazi/yazi.toml".value = lib.toml.toTOML yaziSettings;
       "yazi/theme.toml" = {
-        watch = "theme";
-        value = ctx: lib.toml.toTOML (mkTheme ctx.value);
+        facet = "theme";
+        value = {theme}: lib.toml.toTOML (mkTheme theme.value);
       };
     };
   };

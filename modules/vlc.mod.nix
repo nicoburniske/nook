@@ -1,6 +1,6 @@
 {
-  nixosModules.vlc = {pkgs, ...}: {
-    environment.systemPackages = [
+  homeModules.vlc = {pkgs, ...}: {
+    packages = [
       pkgs.vlc
     ];
   };

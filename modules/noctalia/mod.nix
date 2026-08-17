@@ -17,11 +17,8 @@
     pkgs,
     ...
   }: let
-    cfg = config.nook.noctalia;
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
     noctalia = lib.getExe package;
-    settings = import ./settings.nix;
-    colors = import ./colors.nix;
   in {
     imports = [inputs.noctalia-greeter.nixosModules.default];
 
@@ -93,44 +90,56 @@
           };
         }
       ];
+    };
+  };
 
-      environment.systemPackages = [
-        pkgs.ddcutil
-        package
-      ];
+  homeModules.noctalia = {
+    lib,
+    osConfig,
+    pkgs,
+    ...
+  }: let
+    package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    noctalia = lib.getExe package;
+    settings = import ./settings.nix;
+    colors = import ./colors.nix;
+  in {
+    packages = [
+      pkgs.ddcutil
+      package
+    ];
 
-      sumi = {
-        configFile = {
-          "noctalia/config.toml" = {
-            watch = "theme";
-            value = ctx:
-              lib.toml.toTOML (settings {
-                theme = ctx.value;
-                lockscreen = cfg.lockscreen;
-              });
-          };
-
-          "noctalia/palettes/Nook.json" = {
-            watch = "theme";
-            value = ctx: let
-              palette = colors ctx.value;
-            in
-              builtins.toJSON {
-                dark = palette;
-                light = palette;
-              };
-          };
-        };
-        hook.noctalia = {
-          watch = "theme";
-          command = ctx: let
-            wallpaper = lib.escapeShellArg (toString ctx.value.image);
-          in ''
-            ${noctalia} msg config-reload || true
-            ${noctalia} msg wallpaper-set ${wallpaper} || true
-          '';
-        };
+    file.config = {
+      "noctalia/config.toml" = {
+        facet = "theme";
+        value = {theme}:
+          lib.toml.toTOML (settings {
+            theme = theme.value;
+            lockscreen = osConfig.nook.noctalia.lockscreen;
+          });
       };
+
+      "noctalia/palettes/Nook.json" = {
+        facet = "theme";
+        value = {theme}: let
+          palette = colors theme.value;
+        in
+          builtins.toJSON {
+            dark = palette;
+            light = palette;
+          };
+      };
+    };
+
+    effect.noctalia = {
+      on = ["theme"];
+      exec = {theme}: [
+        (pkgs.writeShellScript "seni-noctalia" ''
+          ${noctalia} msg config-reload
+          ${noctalia} msg wallpaper-set ${lib.escapeShellArg (toString theme.value.image)}
+        '')
+      ];
+      ignoreFailure = true;
     };
   };
 }

@@ -13,7 +13,7 @@ export def entry [] {
 }
 
 def rows [] {
-  let result = do { ^sumi facets theme --json } | complete
+  let result = do { ^seni facets theme --json } | complete
   if $result.exit_code != 0 {
     return [
       (lib row "theme:none" "no themes found")
@@ -33,7 +33,7 @@ def rows [] {
 
 def apply [state: record, data: record] {
   if ($data.kind? | default "") == "theme" and ($data.theme? | default "") != "" {
-    ^sumi switch $"theme=($data.theme)" | ignore
+    ^seni switch $"theme=($data.theme)" | ignore
   }
   $state
 }

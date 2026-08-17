@@ -1,5 +1,5 @@
 {lib, ...}: {
-  commonModules.lazygit = {pkgs, ...}: let
+  homeModules.lazygit = {pkgs, ...}: let
     yamlFormat = pkgs.formats.yaml {};
 
     sendToHelix = cmd:
@@ -52,13 +52,11 @@
       };
     };
   in {
-    environment.systemPackages = [pkgs.lazygit];
-    sumi = {
-      zsh.aliases.lg = "lazygit";
-      configFile."lazygit/config.yml" = {
-        watch = "theme";
-        value = ctx: yamlFormat.generate "sumi-lazygit-${ctx.variant}.yml" (mkSettings ctx.value);
-      };
+    packages = [pkgs.lazygit];
+    zsh.aliases.lg = "lazygit";
+    file.config."lazygit/config.yml" = {
+      facet = "theme";
+      value = {theme}: yamlFormat.generate "seni-lazygit-${theme.variant}.yml" (mkSettings theme.value);
     };
   };
 }

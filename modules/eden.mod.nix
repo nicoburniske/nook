@@ -1,5 +1,5 @@
 {
-  nixosModules.eden = {pkgs, ...}: let
+  homeModules.eden = {pkgs, ...}: let
     nx-optimizer-src = pkgs.fetchurl {
       url = "https://github.com/MaxLastBreath/nx-optimizer/releases/download/manager-3.2.0/NX.Optimizer.3.2.0.AppImage";
       hash = "sha256-a29nCz9KbGFd2vhrMMMUUycKrWqIPCBEO7tFoyaxdNg=";
@@ -39,7 +39,7 @@
       runScript = "${nx-optimizer-run}";
     };
   in {
-    environment.systemPackages = [
+    packages = [
       pkgs.eden
       nx-optimizer
     ];

@@ -9,43 +9,8 @@
       flake = false;
     };
   };
+
   nixosModules.niri = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    keybinds = import ./keybinds {
-      inherit config inputs lib pkgs;
-    };
-
-    baseConfig = import ./config.nix {
-      inherit config;
-    };
-    mkTheme = import ./theme.nix {inherit lib;};
-    configKdl = lib.kdl.toKDL (
-      baseConfig
-      ++ config.compositor.niri.config
-      ++ (import ./rules.nix)
-      ++ [
-        {
-          binds = keybinds;
-        }
-      ]
-    );
-  in {
-    sumi.configFile = {
-      "niri/config.kdl".value = ''
-        include "theme.kdl"
-        ${configKdl}
-      '';
-
-      "niri/theme.kdl" = {
-        watch = "theme";
-        value = ctx: lib.kdl.toKDL (mkTheme ctx.value);
-      };
-    };
-
     nixpkgs.overlays = [
       (final: prev: {
         niri = inputs.niri.packages.${final.stdenv.hostPlatform.system}.niri.overrideAttrs (old: {
@@ -66,14 +31,44 @@
     ];
 
     hardware.i2c.enable = true;
-
     programs.niri.enable = true;
+  };
 
-    environment.systemPackages = with pkgs; [
+  homeModules.niri = {
+    host,
+    lib,
+    osConfig,
+    pkgs,
+    ...
+  }: let
+    keybinds = import ./keybinds {
+      inherit host lib pkgs;
+    };
+    configKdl = lib.kdl.toKDL (
+      (import ./config.nix {config = osConfig;})
+      ++ osConfig.compositor.niri.config
+      ++ (import ./rules.nix)
+      ++ [{binds = keybinds;}]
+    );
+    mkTheme = import ./theme.nix {inherit lib;};
+  in {
+    packages = with pkgs; [
       phinger-cursors
       playerctl
       wl-clipboard
       xwayland-satellite
     ];
+
+    file.config = {
+      "niri/config.kdl".value = ''
+        include "theme.kdl"
+        ${configKdl}
+      '';
+
+      "niri/theme.kdl" = {
+        facet = "theme";
+        value = {theme}: lib.kdl.toKDL (mkTheme theme.value);
+      };
+    };
   };
 }

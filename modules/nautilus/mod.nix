@@ -1,5 +1,5 @@
 {
-  nixosModules.nautilus = {pkgs, ...}: {
+  nixosModules.nautilus = {
     nixpkgs.overlays = [
       (final: prev: {
         nautilus = prev.nautilus.overrideAttrs (old: {
@@ -10,11 +10,6 @@
             ];
         });
       })
-    ];
-
-    environment.systemPackages = with pkgs; [
-      nautilus
-      file-roller
     ];
 
     compositor.niri.config = [
@@ -32,6 +27,13 @@
           background-effect = [{blur = true;}];
         };
       }
+    ];
+  };
+
+  homeModules.nautilus = {pkgs, ...}: {
+    packages = with pkgs; [
+      nautilus
+      file-roller
     ];
   };
 }

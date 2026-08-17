@@ -1,15 +1,15 @@
 {
-  nixosModules.gtk = {
+  nixosModules.gtk.programs.dconf.enable = true;
+
+  homeModules.gtk = {
     config,
     lib,
     pkgs,
     ...
   }: let
-    configDir = config.lib.sumi.paths.config;
-    homeDir = config.lib.sumi.paths.home;
     gtkThemeName = "adw-gtk3";
     mkGtkCss = theme:
-      config.lib.sumi.renderBase16Mustache {
+      lib.seni.renderBase16Mustache {
         inherit theme;
         template = ./gtk.css.mustache;
       };
@@ -49,60 +49,67 @@
 
     mkFlattenedGtkTheme = theme: let
       css = mkGtkCss theme;
-      cssFile = pkgs.writeText "sumi-gtk.css" css;
+      cssFile = pkgs.writeText "seni-gtk.css" css;
       suffix = builtins.substring 0 8 theme.colors.base00;
     in
-      pkgs.runCommandLocal "sumi-${gtkThemeName}-${suffix}" {} ''
+      pkgs.runCommandLocal "seni-${gtkThemeName}-${suffix}" {} ''
         cp --recursive "${pkgs.adw-gtk3}/share/themes/${gtkThemeName}" "$out"
         chmod -R u+w "$out"
         cat "${cssFile}" >> "$out/gtk-3.0/gtk.css"
         cat "${cssFile}" >> "$out/gtk-4.0/gtk.css"
       '';
   in {
-    programs.dconf.enable = true;
-    environment.variables.GTK2_RC_FILES = "${configDir}/gtk-2.0/gtkrc";
+    environment.sessionVariables.GTK2_RC_FILES = "${config.path.config}/gtk-2.0/gtkrc";
 
-    sumi = {
-      configFile = {
+    file = {
+      config = {
         "gtk-2.0/gtkrc" = {
-          watch = "theme";
-          value = ctx: mkGtkrc ctx.value;
+          facet = "theme";
+          value = {theme}: mkGtkrc theme.value;
         };
         "gtk-3.0/settings.ini" = {
-          watch = "theme";
-          value = ctx: mkGtkSettings 3 ctx.value;
+          facet = "theme";
+          value = {theme}: mkGtkSettings 3 theme.value;
         };
         "gtk-4.0/settings.ini" = {
-          watch = "theme";
-          value = ctx: mkGtkSettings 4 ctx.value;
+          facet = "theme";
+          value = {theme}: mkGtkSettings 4 theme.value;
         };
         "gtk-3.0/gtk.css" = {
-          watch = "theme";
-          value = ctx: mkGtkCss ctx.value;
+          facet = "theme";
+          value = {theme}: mkGtkCss theme.value;
         };
         "gtk-4.0/gtk.css" = {
-          watch = "theme";
-          value = ctx: mkGtkCss ctx.value;
+          facet = "theme";
+          value = {theme}: mkGtkCss theme.value;
         };
       };
-      homeFile.".themes/${gtkThemeName}" = {
-        watch = "theme";
-        value = ctx: mkFlattenedGtkTheme ctx.value;
+      home.".themes/${gtkThemeName}" = {
+        facet = "theme";
+        value = {theme}: mkFlattenedGtkTheme theme.value;
       };
-      dataFile."flatpak/overrides/global".value = ''
+      data."flatpak/overrides/global".value = ''
         [Context]
-        filesystems=${homeDir}/.themes/${gtkThemeName}:ro
+        filesystems=${config.path.home}/.themes/${gtkThemeName}:ro
 
         [Environment]
         GTK_THEME=${gtkThemeName}
       '';
-      hook.gtk = {
-        watch = "theme";
-        command = ctx:
-          if ctx.value.polarity == "dark"
-          then "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'prefer-dark'\" || true"
-          else "${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme \"'default'\" || true";
-      };
+    };
+
+    effect.gtk = {
+      on = ["theme"];
+      exec = {theme}: [
+        "${pkgs.dconf}/bin/dconf"
+        "write"
+        "/org/gnome/desktop/interface/color-scheme"
+        (
+          if theme.value.polarity == "dark"
+          then "'prefer-dark'"
+          else "'default'"
+        )
+      ];
+      ignoreFailure = true;
     };
   };
 }

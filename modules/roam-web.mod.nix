@@ -1,6 +1,10 @@
 {config, ...}: {
   nixosModules.roam-web = {
-    host,
+    imports = [config.flake.nixosModules.chromium];
+  };
+
+  homeModules.roam-web = {
+    config,
     pkgs,
     ...
   }: let
@@ -9,15 +13,13 @@
       hash = "sha256-OKuc2QgcgG7grvI4xsVrKW6+t4NG5ma1kXTAIQtdR9Q=";
     };
   in {
-    imports = [config.flake.nixosModules.chromium];
-
-    environment.systemPackages = pkgs.writeChromiumApp {
+    packages = pkgs.writeChromiumApp {
       name = "roam-web";
       url = "https://ro.am/r/#";
       desktopName = "Roam";
       icon = "${roamIcon}";
       categories = ["Office"];
-      userDataDir = "${host.homeDirectory}/.config/roam-web";
+      userDataDir = "${config.path.config}/roam-web";
     };
   };
 }

@@ -5,8 +5,9 @@
   ...
 }: let
   hostLib = lib.extend (_: _: config.flake.lib);
+  homeModules = lib.mapAttrs (_: module: {seni.extraModules = [module];}) config.homeModules;
   projectModules = common: platform:
-    lib.zipAttrsWith (_: imports: {inherit imports;}) [common platform];
+    lib.zipAttrsWith (_: imports: {inherit imports;}) [common platform homeModules];
 in {
   options = {
     configurations = {
@@ -35,6 +36,10 @@ in {
       type = lib.types.lazyAttrsOf lib.types.deferredModule;
       default = {};
     };
+    homeModules = lib.mkOption {
+      type = lib.types.lazyAttrsOf lib.types.deferredModule;
+      default = {};
+    };
     nixosModules = lib.mkOption {
       type = lib.types.lazyAttrsOf lib.types.deferredModule;
       default = {};
@@ -45,6 +50,7 @@ in {
     };
   };
   config.flake = {
+    homeModules = config.homeModules;
     nixosModules = projectModules config.commonModules config.nixosModules;
     darwinModules = projectModules config.commonModules config.darwinModules;
     nixosConfigurations =

@@ -1,6 +1,6 @@
 {
-  commonModules.tools = {pkgs, ...}: {
-    environment.systemPackages = with pkgs; [
+  homeModules.tools = {pkgs, ...}: {
+    packages = with pkgs; [
       cheese
       fastfetch
       ffmpeg

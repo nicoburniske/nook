@@ -1,16 +1,16 @@
 {
-  commonModules.btop = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.btop];
+  homeModules.btop = {pkgs, ...}: {
+    packages = [pkgs.btop];
 
-    sumi.configFile = {
+    file.config = {
       "btop/btop.conf".value = ''
-        color_theme = "sumi"
+        color_theme = "seni"
       '';
 
-      "btop/themes/sumi.theme" = {
-        watch = "theme";
-        value = ctx: let
-          theme = ctx.value;
+      "btop/themes/seni.theme" = {
+        facet = "theme";
+        value = facets: let
+          theme = facets.theme.value;
         in
           with theme.colors.withHashtag; ''
             theme[main_bg]="${base00}"

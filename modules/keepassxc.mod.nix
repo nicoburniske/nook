@@ -1,7 +1,5 @@
 {
-  nixosModules.keepassxc = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.keepassxc];
-
+  nixosModules.keepassxc = {
     compositor.niri.config = [
       {
         window-rule = {
@@ -10,5 +8,9 @@
         };
       }
     ];
+  };
+
+  homeModules.keepassxc = {pkgs, ...}: {
+    packages = [pkgs.keepassxc];
   };
 }

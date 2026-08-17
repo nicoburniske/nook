@@ -1,13 +1,19 @@
-{
+let
+  themeValues = lib: config:
+    config.seni.users
+    |> lib.filterAttrs (_: user: user.enable)
+    |> builtins.attrValues
+    |> lib.concatMap (user: builtins.attrValues user.facet.theme.variants);
+in {
   commonModules.fonts = {
     config,
     pkgs,
     lib,
     ...
   }: let
-    themeValues = builtins.attrValues config.sumi.facets.theme.variants;
+    themes = themeValues lib config;
     rolePackages = role:
-      themeValues
+      themes
       |> map (theme: theme.fonts.${role}.package or null)
       |> lib.filter (p: p != null)
       |> lib.unique;
@@ -26,9 +32,9 @@
     lib,
     ...
   }: let
-    themeValues = builtins.attrValues config.sumi.facets.theme.variants;
+    themes = themeValues lib config;
     roleNames = role:
-      themeValues
+      themes
       |> map (theme: theme.fonts.${role}.name or null)
       |> lib.filter (name: name != null)
       |> lib.unique;

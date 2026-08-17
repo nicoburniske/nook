@@ -1,5 +1,5 @@
 {
-  commonModules.codex = {
+  homeModules.codex = {
     lib,
     pkgs,
     ...
@@ -168,16 +168,17 @@
         };
       }) {};
   in {
-    environment.systemPackages = [codex];
-
-    sumi.homeFile.".codex/rules/default.rules".value =
-      forbiddenCommands
-      |> map (command: ''
-        prefix_rule(
-            pattern = ${builtins.toJSON (lib.splitString " " command)},
-            decision = "forbidden",
-        )
-      '')
-      |> lib.concatStringsSep "\n";
+    packages = [codex];
+    file.home.".codex/rules/default.rules" = {
+      value =
+        forbiddenCommands
+        |> map (command: ''
+          prefix_rule(
+              pattern = ${builtins.toJSON (lib.splitString " " command)},
+              decision = "forbidden",
+          )
+        '')
+        |> lib.concatStringsSep "\n";
+    };
   };
 }

@@ -1,10 +1,10 @@
 {
-  commonModules.nushell = {
+  homeModules.nushell = {
     config,
     pkgs,
     ...
   }: let
-    nufmtConfig = "${config.lib.sumi.paths.config}/nufmt/nufmt.nuon";
+    nufmtConfig = "${config.path.config}/nufmt/nufmt.nuon";
     nufmt = pkgs.symlinkJoin {
       name = "nufmt";
       paths = [pkgs.nufmt];
@@ -14,17 +14,17 @@
       '';
     };
   in {
-    environment.systemPackages = [
+    packages = [
       pkgs.nushell
       nufmt
     ];
-
-    sumi.configFile."nufmt/nufmt.nuon".value = ''
-      {
-        indent: 2
-      }
-    '';
-
+    file.config."nufmt/nufmt.nuon" = {
+      value = ''
+        {
+          indent: 2
+        }
+      '';
+    };
     helix.languages = [
       {
         name = "nu";

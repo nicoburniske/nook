@@ -1,20 +1,6 @@
 {config, ...}: {
   nixosModules.spotify-web = {
-    host,
-    pkgs,
-    ...
-  }: {
     imports = [config.flake.nixosModules.chromium];
-
-    environment.systemPackages = pkgs.writeChromiumApp {
-      name = "spotify-web";
-      url = "https://open.spotify.com";
-      desktopName = "Spotify";
-      icon = "spotify";
-      categories = ["Audio" "Music" "Player"];
-      userDataDir = "${host.homeDirectory}/.config/spotify-web";
-    };
-
     compositor.niri.config = [
       {
         window-rule = {
@@ -24,5 +10,20 @@
         };
       }
     ];
+  };
+
+  homeModules.spotify-web = {
+    config,
+    pkgs,
+    ...
+  }: {
+    packages = pkgs.writeChromiumApp {
+      name = "spotify-web";
+      url = "https://open.spotify.com";
+      desktopName = "Spotify";
+      icon = "spotify";
+      categories = ["Audio" "Music" "Player"];
+      userDataDir = "${config.path.config}/spotify-web";
+    };
   };
 }

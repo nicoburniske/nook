@@ -35,8 +35,7 @@
         nuke-default-packages
         user
         plugdev
-        sumi
-        xdg
+        seni
         fonts
         compositor
         niri

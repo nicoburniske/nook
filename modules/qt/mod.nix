@@ -1,6 +1,10 @@
 {
-  nixosModules.qt = {
-    config,
+  nixosModules.qt.qt = {
+    enable = true;
+    platformTheme = "qt5ct";
+    style = "kvantum";
+  };
+  homeModules.qt = {
     lib,
     pkgs,
     ...
@@ -20,36 +24,28 @@
     '';
 
     mkKvantumConfig = theme:
-      config.lib.sumi.renderBase16Mustache {
+      lib.seni.renderBase16Mustache {
         inherit theme;
         template = ./kvconfig.mustache;
       };
 
     mkKvantumSvg = theme:
-      config.lib.sumi.renderBase16Mustache {
+      lib.seni.renderBase16Mustache {
         inherit theme;
         template = ./kvantum.svg.mustache;
       };
   in {
-    qt = {
-      enable = true;
-      platformTheme = "qt5ct";
-      style = "kvantum";
-    };
+    packages = [pkgs.numix-icon-theme-circle];
 
-    environment.systemPackages = [
-      pkgs.numix-icon-theme-circle
-    ];
-
-    sumi.configFile = {
+    file.config = {
       "qt5ct/qt5ct.conf" = {
-        watch = "theme";
-        value = ctx: mkQtctSettings ctx.value;
+        facet = "theme";
+        value = {theme}: mkQtctSettings theme.value;
       };
 
       "qt6ct/qt6ct.conf" = {
-        watch = "theme";
-        value = ctx: mkQtctSettings ctx.value;
+        facet = "theme";
+        value = {theme}: mkQtctSettings theme.value;
       };
 
       "Kvantum/kvantum.kvconfig".value = ''
@@ -58,13 +54,13 @@
       '';
 
       "Kvantum/Base16Kvantum/Base16Kvantum.kvconfig" = {
-        watch = "theme";
-        value = ctx: mkKvantumConfig ctx.value;
+        facet = "theme";
+        value = {theme}: mkKvantumConfig theme.value;
       };
 
       "Kvantum/Base16Kvantum/Base16Kvantum.svg" = {
-        watch = "theme";
-        value = ctx: mkKvantumSvg ctx.value;
+        facet = "theme";
+        value = {theme}: mkKvantumSvg theme.value;
       };
     };
   };

@@ -1,20 +1,19 @@
 {
-  nixosModules.dolphin = {
+  homeModules.dolphin = {
     lib,
     pkgs,
     ...
   }: {
-    environment.systemPackages = [
+    packages = [
       pkgs.kdePackages.dolphin
     ];
-
-    sumi = {
-      configFile."dolphinrc".value = lib.generators.toINI {} {
+    file = {
+      config."dolphinrc".value = lib.generators.toINI {} {
         General = {
           GlobalViewProps = true;
         };
       };
-      dataFile."dolphin/view_properties/global/.directory".value = lib.generators.toINI {} {
+      data."dolphin/view_properties/global/.directory".value = lib.generators.toINI {} {
         Dolphin = {
           ViewMode = 1;
         };

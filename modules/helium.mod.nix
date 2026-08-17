@@ -13,8 +13,24 @@
         helium = inputs.helium-nix.packages.${final.stdenv.hostPlatform.system}.helium;
       })
     ];
-
-    environment.systemPackages = [pkgs.helium];
+  };
+  homeModules.helium = {
+    lib,
+    pkgs,
+    ...
+  }: {
+    config = lib.mkMerge [
+      {packages = [pkgs.helium];}
+      (lib.mkIf pkgs.stdenv.isLinux {
+        xdg.mime.defaultApplications = {
+          "application/xhtml+xml" = ["helium.desktop"];
+          "text/html" = ["helium.desktop"];
+          "text/xml" = ["helium.desktop"];
+          "x-scheme-handler/http" = ["helium.desktop"];
+          "x-scheme-handler/https" = ["helium.desktop"];
+        };
+      })
+    ];
   };
   nixosModules.helium = {lib, ...}: {
     nixpkgs.overlays = lib.mkAfter [
@@ -31,12 +47,5 @@
         };
       })
     ];
-    sumi.xdg.mime.defaultApplications = {
-      "application/xhtml+xml" = ["helium.desktop"];
-      "text/html" = ["helium.desktop"];
-      "text/xml" = ["helium.desktop"];
-      "x-scheme-handler/http" = ["helium.desktop"];
-      "x-scheme-handler/https" = ["helium.desktop"];
-    };
   };
 }
