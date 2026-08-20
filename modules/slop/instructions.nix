@@ -8,6 +8,7 @@
     - comments do not contain uppercase UNLESS it's for something formal like a type name
     - comments should be minimal
     - rust code should not have any intermediary allocations (e.g. collecting all map keys into a vec for no reason) unless absolutely necessary
+    - avoid test bloat. temporary implementation tests are fine, but only critical behavior and regression tests should remain
     - use nushell for scripting. use `nix shell` for missing tools. no python or perl
     - never install or configure tools globally. use nix shells and workspace-local state
     - prefer visibility on rust modules over their members. within a private module, members should be pub or private
