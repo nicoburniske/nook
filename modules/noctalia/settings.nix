@@ -129,11 +129,11 @@ in {
       enabled = true;
       timeout = 660;
     };
-    "lock-and-suspend" = {
-      action = "lock_and_suspend";
-      enabled = true;
-      timeout = 3600;
-    };
+    # "lock-and-suspend" = {
+    #   action = "lock_and_suspend";
+    #   enabled = true;
+    #   timeout = 3600;
+    # };
   };
 
   notification = {
