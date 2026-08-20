@@ -16,6 +16,7 @@
         nushell
         helix
         codex
+        pi
         fzf
         oh-my-posh
         lazygit
