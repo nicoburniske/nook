@@ -114,6 +114,7 @@
           "git reset --hard *" = "ask";
           "nixos-rebuild switch *" = "ask";
           "rm -rf *" = "ask";
+          "rm -rf /tmp/" = "allow";
           "sudo *" = "ask";
         }
         // builtins.listToAttrs (map (command: {
