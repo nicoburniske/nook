@@ -34,6 +34,7 @@
 
     packages = [
       "npm:@gotgenes/pi-permission-system@26.3.1"
+      "npm:pi-codex-fast-mode@0.2.0"
       "npm:pi-mcp-adapter@2.26.1"
       "npm:pi-web-access@0.24.0"
     ];
