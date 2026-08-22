@@ -7,7 +7,6 @@
     ./hardware-configuration.nix
     ./packages.nix
   ];
-
   boot = {
     loader = {
       systemd-boot.enable = true;
@@ -16,7 +15,6 @@
     kernelPackages = pkgs.linuxPackages_latest;
     initrd.kernelModules = ["amdgpu"];
   };
-
   hardware = {
     enableRedistributableFirmware = true;
     i2c.enable = true;
@@ -40,7 +38,6 @@
     amdgpu.overdrive.enable = true;
     keyboard.zsa.enable = true;
   };
-
   services = {
     xserver.videoDrivers = ["amdgpu"];
     pipewire = {
@@ -59,24 +56,19 @@
     power-profiles-daemon.enable = true;
     lact.enable = true;
   };
-
   swapDevices = [
     {
       device = "/var/lib/swapfile";
       size = 32768;
     }
   ];
-
   networking = {
     hostName = host.name;
     networkmanager.enable = true;
   };
-
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
-
   security.rtkit.enable = true;
-
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -84,6 +76,5 @@
       xdg-desktop-portal-gnome
     ];
   };
-
   system.stateVersion = "25.11";
 }

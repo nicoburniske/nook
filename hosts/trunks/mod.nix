@@ -47,6 +47,7 @@
         vlc
         dolphin
         nautilus
+        papers
         kde
         qt
         gtk

@@ -40,6 +40,7 @@
         kitty
         keepassxc
         nautilus
+        papers
         vlc
         fuzzel
         noctalia
