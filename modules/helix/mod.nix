@@ -13,34 +13,31 @@
   }: let
     mkOutOfStoreSymlink = pkgs.mkOutOfStoreSymlink;
     helixRoot = "${host.flakeRoot}/modules/helix";
-    nixTidy = inputs.nix-tidy.packages.${pkgs.stdenv.hostPlatform.system}.default;
-
-    helixSteelPackage =
-      (inputs.helix-steel.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
-        includeGrammarIf = _: false;
-      }).overrideAttrs
-      (prevAttrs: {
-        patches =
-          (prevAttrs.patches or [])
-          ++ [
-            ./patches/search-in-directory.patch
-            ./patches/steel-fixes.patch
-          ];
-        cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
-      });
-
-    hx = pkgs.symlinkJoin {
-      name = "hx";
-      paths = [helixSteelPackage];
-      nativeBuildInputs = [pkgs.makeWrapper];
-      postBuild = ''
-        wrapProgram $out/bin/hx \
-          --set HELIX_STEEL_CONFIG "${config.path.config}/helix/plugins" \
-          --prefix PATH : ${
-          lib.makeBinPath (
-            [
-              nixTidy
-            ]
+    hx = let
+      helixSteelPackage =
+        (inputs.helix-steel.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
+          # grammars stay separate to avoid costly helix package rebuilds
+          # their rpath uses the compiler runtime retained by hxGrammar
+          includeGrammarIf = _: false;
+        }).overrideAttrs
+        (prevAttrs: {
+          patches =
+            (prevAttrs.patches or [])
+            ++ [
+              ./patches/search-in-directory.patch
+              ./patches/steel-fixes.patch
+            ];
+          cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
+        });
+    in
+      pkgs.symlinkJoin {
+        name = "hx";
+        paths = [helixSteelPackage];
+        nativeBuildInputs = [pkgs.makeWrapper];
+        postBuild = let
+          nixTidy = inputs.nix-tidy.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          runtimePath =
+            [nixTidy]
             ++ (with pkgs; [
               marksman
               nil
@@ -48,20 +45,31 @@
               rumdl
               taplo
             ])
-          )
-        }
-      '';
-    };
+            |> lib.makeBinPath;
+        in ''
+          wrapProgram $out/bin/hx \
+            --set HELIX_STEEL_CONFIG "${config.path.config}/helix/plugins" \
+            --prefix PATH : ${runtimePath}
+        '';
+      };
 
-    hxGrammar = pkgs.writeNuScriptBin "hx-grammar-refresh" {
-      runtimeInputs = with pkgs; [hx git stdenv.cc];
-      source = ''
-        def main [...argv: string] {
-          hx --grammar fetch
-          hx --grammar build ...$argv
-        }
-      '';
-    };
+    hxGrammar = let
+      grammarLibrary = pkgs.stdenv.cc.cc.lib;
+    in
+      pkgs.writeNuScriptBin "hx-grammar-refresh" {
+        runtimeInputs = with pkgs; [hx git stdenv.cc];
+        source = ''
+          def main [...argv: string] {
+            hx --grammar fetch
+            hx --grammar build ...$argv
+            ${lib.optionalString pkgs.stdenv.isLinux ''
+              glob '${config.path.config}/helix/runtime/grammars/*.so'
+              | each {|grammar| ^${pkgs.patchelf}/bin/patchelf --set-rpath '${grammarLibrary}/lib' $grammar }
+              | ignore
+            ''}
+          }
+        '';
+      };
   in {
     options.helix = {
       grammars = lib.mkOption {
