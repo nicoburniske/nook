@@ -41,8 +41,8 @@
             ++ (with pkgs; [
               marksman
               nil
+              dprint
               nixd
-              rumdl
               taplo
             ])
             |> lib.makeBinPath;
@@ -172,21 +172,18 @@
                 {
                   name = "markdown";
                   language-servers = ["marksman"];
-                  formatter = {
-                    command = "rumdl";
+                  formatter = let
+                    dprintConfig = pkgs.writeText "dprint-markdown.json" (builtins.toJSON {
+                      plugins = ["${pkgs.dprint-plugins.dprint-plugin-markdown}/plugin.wasm"];
+                    });
+                  in {
+                    command = "dprint";
                     args = [
                       "fmt"
                       "--config"
-                      (pkgs.writeText "rumdl.toml" ''
-                        [global]
-                        enable = ["MD060"]
-
-                        [MD060]
-                        style = "aligned"
-                        max-width = 0
-                      '')
-                      "--silent"
-                      "-"
+                      dprintConfig
+                      "--stdin"
+                      "file.md"
                     ];
                   };
                   auto-format = true;
