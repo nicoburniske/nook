@@ -81,9 +81,10 @@
           export ZSH_AUTOSUGGEST_STRATEGY=(history)
 
           nix() {
-            if [[ $1 == "develop" ]]; then
+            # preserve explicit commands
+            if [[ $1 == "develop" && ''${@[(I)-c]} == 0 && ''${@[(I)--command]} == 0 ]]; then
               shift
-              command nix develop -c $SHELL "$@"
+              command nix develop "$@" -c "$SHELL"
             else
               command nix "$@"
             fi
