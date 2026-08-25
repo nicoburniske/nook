@@ -21,10 +21,7 @@
     bluetooth = {
       enable = true;
       powerOnBoot = true;
-      settings.General = {
-        Enable = "Source,Sink,Media,Socket";
-        Experimental = true;
-      };
+      settings.General.Experimental = true;
       settings.LE = {
         MinConnectionInterval = 6;
         MaxConnectionInterval = 6;
