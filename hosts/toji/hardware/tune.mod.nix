@@ -1,11 +1,49 @@
-{
-  nixosModules.coolercontrol = {
+let
+  lact = {pkgs, ...}: let
+    configFile = pkgs.writeText "lact-config.yaml" ''
+      version: 6
+      daemon:
+        log_level: info
+        admin_group: wheel
+        disable_clocks_cleanup: false
+      apply_settings_timer: 5
+      gpus:
+        1002:7550-148C:2436-0000:03:00.0:
+          fan_control_enabled: true
+          fan_control_settings:
+            mode: curve
+            static_speed: 0.28
+            temperature_key: edge
+            interval_ms: 500
+            curve:
+              40: 0.3
+              60: 0.35
+              70: 0.5
+              80: 0.7
+              90: 0.9
+            spindown_delay_ms: 5000
+            change_threshold: 2
+          pmfw_options:
+            zero_rpm: true
+          power_cap: 220.0
+          performance_level: auto
+          voltage_offset: -100
+      current_profile: null
+      auto_switch_profiles: false
+    '';
+  in {
+    services.lact.enable = true;
+    environment.etc."lact/config.yaml".source = configFile;
+    systemd.services.lactd.restartTriggers = [configFile];
+  };
+
+  coolercontrol = {
     lib,
     pkgs,
     ...
   }: let
-    profileUid = name: builtins.hashString "sha256" "coolercontrol-profile:${name}";
-    profile.case = profileUid "quiet case";
+    profile.case = builtins.hashString "sha256" "coolercontrol-profile:quiet case";
+    function.case = builtins.hashString "sha256" "coolercontrol-function:smooth case";
     nct6799Uid = "00a4da18625f56275c89e2fcd25a83c08c5ad3326452fa7e252fcc8a89c92493";
     cpuUid = "9378f45b621719636560170d30c952878cd910cc15c883d07647dd9f96577a54";
     gpuUid = "97910386cac9bfce54b2c224e4aaef42cd953440cb57f1ff5ff46ac183bf338e";
@@ -16,15 +54,16 @@
       uid = profile.case;
       name = "quiet case";
       p_type = "Graph";
-      function_uid = "0";
+      function_uid = function.case;
       member_profile_uids = [];
       offset_profile = [];
       speed_profile = [
         [0.0 0]
         [30.0 15]
-        [50.0 30]
-        [70.0 50]
-        [85.0 70]
+        [50.0 25]
+        [70.0 40]
+        [85.0 55]
+        [95.0 70]
         [100.0 100]
       ];
       temp_min = 0.0;
@@ -91,6 +130,14 @@
           name = "Default Function";
           f_type = "Identity";
         }
+        {
+          uid = function.case;
+          name = "smooth case";
+          f_type = "ExponentialMovingAvg";
+          duty_minimum = 2;
+          duty_maximum = 5;
+          sample_window = 8;
+        }
       ];
 
       settings = {
@@ -112,11 +159,14 @@
       (lib.toml.toTOML settings);
   in {
     boot.kernelModules = ["nct6775"];
-
     programs.coolercontrol.enable = true;
-
     systemd.services.coolercontrold.preStart = ''
       ${pkgs.coreutils}/bin/install -D -m 0644 ${configFile} /etc/coolercontrol/config.toml
     '';
   };
+in {
+  configurations.nixos.toji.module.imports = [
+    lact
+    coolercontrol
+  ];
 }

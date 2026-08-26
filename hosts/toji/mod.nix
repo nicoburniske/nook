@@ -56,7 +56,6 @@
         eden
         bitdo-controller
         kanto-ora
-        coolercontrol
         mullvad
         tailscale
         sunshine

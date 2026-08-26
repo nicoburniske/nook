@@ -21,11 +21,13 @@
     bluetooth = {
       enable = true;
       powerOnBoot = true;
-      settings.General.Experimental = true;
-      settings.LE = {
-        MinConnectionInterval = 6;
-        MaxConnectionInterval = 6;
-        ConnectionLatency = 0;
+      settings = {
+        General.Experimental = true;
+        LE = {
+          MinConnectionInterval = 6;
+          MaxConnectionInterval = 6;
+          ConnectionLatency = 0;
+        };
       };
     };
     graphics = {
@@ -51,7 +53,6 @@
     gvfs.enable = true;
     upower.enable = true;
     power-profiles-daemon.enable = true;
-    lact.enable = true;
   };
   swapDevices = [
     {
