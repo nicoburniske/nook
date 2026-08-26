@@ -77,6 +77,7 @@ let
 
         # search with scrollback
         map --mode unlocked ctrl+/ combine | launch --stdin-source=@last_cmd_output --type=overlay hx | pop_keyboard_mode
+        map --mode unlocked y combine | launch --type=clipboard --stdin-source=@last_cmd_output | pop_keyboard_mode
 
         map --mode unlocked ctrl+1 goto_tab 1
         map --mode unlocked ctrl+2 goto_tab 2
