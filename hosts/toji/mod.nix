@@ -31,7 +31,6 @@
         user
         docker
         plugdev
-        android-webcam
         secrets
         seni
         fonts
