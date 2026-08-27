@@ -24,9 +24,10 @@
       settings = {
         General.Experimental = true;
         LE = {
-          MinConnectionInterval = 6;
-          MaxConnectionInterval = 6;
+          MinConnectionInterval = 12;
+          MaxConnectionInterval = 12;
           ConnectionLatency = 0;
+          ConnectionSupervisionTimeout = 500;
         };
       };
     };
