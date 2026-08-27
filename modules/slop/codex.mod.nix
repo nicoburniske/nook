@@ -49,7 +49,7 @@
       libz,
       bubblewrap,
     }: let
-      version = "0.144.0";
+      version = "0.150.0";
 
       platformMap = {
         "aarch64-darwin" = "aarch64-apple-darwin";
@@ -61,17 +61,17 @@
       platform = platformMap.${stdenv.hostPlatform.system};
 
       nativeHashes = {
-        "aarch64-apple-darwin" = "114jnik61p2x10ilgplr70bq4q2wslwa2v4pg18l4qi41cr65q0h";
-        "x86_64-apple-darwin" = "0c935n87iqm5p0fihwiq240pn3v48jlhrabkggfmyxbsrz0li5xx";
-        "x86_64-unknown-linux-musl" = "1fy80pxm1fancrd33xzr71i22b6iyvns1ai9503z6jmb43y86n3j";
-        "aarch64-unknown-linux-musl" = "0lbbrkn857nk5zlzy3lp271yfbpcqdx5zfzm8g3mbddxa1wlmi67";
+        "aarch64-apple-darwin" = "120m36hq6wd7bm20jwv7asnklhxxldji07v7z0gdg7k5r8788abd";
+        "x86_64-apple-darwin" = "0mg48b8gr9mlbrka701bf94q90ss59d6yyf154ifsgzjhffpskbg";
+        "x86_64-unknown-linux-musl" = "1ckgcxcxb0b37gwqzbjk5dvmd959g059ssa3jw02mr0ffh54172y";
+        "aarch64-unknown-linux-musl" = "0cl4j14q6nq73q61hza0pnr2f05j5ydp6vxs98llwgf3hqb2ddqf";
       };
 
       codeModeHostHashes = {
-        "aarch64-apple-darwin" = "0im248hb4vb7wd0k4fkg87chszsac022ijy7d49m9zmy60j2iybc";
-        "x86_64-apple-darwin" = "07rdypzbqvmq9z6mx6q61jf00n4f6xyp3nj7s2f0vy9pjwfv5lkg";
-        "x86_64-unknown-linux-musl" = "0gcr30mf1mgfwqfpiqhmvjb0qyq23vwgfgjii7s2nz4lb9fcdn96";
-        "aarch64-unknown-linux-musl" = "0sniqrhxcff3rghai6nsx59fm5zil4i56hk7wiqkmhhsysamdcia";
+        "aarch64-apple-darwin" = "0pskvvkrdnq030815amm1j6gbw6m7464ggyh9cgakazzl40xyvxa";
+        "x86_64-apple-darwin" = "012pgq3nkh0c6hpji0wyppgvp9w21hglcj6fv8jsy7m1fxcgc9cg";
+        "x86_64-unknown-linux-musl" = "085r0hqx9s28729yakakdyj5vqw32isfx793jlp0q1xw66gsvyvi";
+        "aarch64-unknown-linux-musl" = "12cqv0pcdjh61v1xs99wycx0949zfyrxxblwxlxq8s8r3whb40i0";
       };
 
       nativeBinary = fetchurl {
