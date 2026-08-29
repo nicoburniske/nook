@@ -3,5 +3,7 @@
     brightnessctl
     chromium
     pavucontrol
+    obs-studio
+    signal-desktop
   ];
 }
