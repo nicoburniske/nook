@@ -64,9 +64,9 @@
     _module.args.host = host;
     nook = {
       seni.theme.transparency = {
-        light = 1.0;
-        dark = 1.0;
-        darkOnLight = 1.0;
+        light = 0.95;
+        dark = 0.95;
+        darkOnLight = 0.95;
       };
       noctalia.lockscreen = {
         output = "DP-3";
