@@ -6,7 +6,7 @@
       - if a fn must exist, and is called once (e.g. recursion), declare it locally to the fn body
     - code is organized MOST to LEAST important from TOP to BOTTOM
     - comments do not contain uppercase UNLESS it's for something formal like a type name
-    - comments should be minimal
+    - comments should be minimal. no semicolons or hyphens. try and match the density of nearby comments.
     - rust code should not have any intermediary allocations (e.g. collecting all map keys into a vec for no reason) unless absolutely necessary
     - avoid test bloat. temporary implementation tests are fine, but only critical behavior and regression tests should remain
     - use nushell for scripting. use `nix shell` for missing tools. no python or perl
