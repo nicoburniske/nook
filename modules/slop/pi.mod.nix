@@ -143,8 +143,7 @@
         "/nix/var/nix/daemon-socket/*" = "allow";
         "/tmp/*" = "allow";
         "~/.cache/nix/*" = "allow";
-        "~/.cargo/git/checkouts/*" = "allow";
-        "~/.cargo/registry/*" = "allow";
+        "~/.local/share/cargo/*" = "allow";
         "~/code/*" = "allow";
         "~/nook/*" = "allow";
       };
