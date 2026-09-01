@@ -90,25 +90,6 @@
             fi
           }
 
-          function set_terminal_title_precmd() {
-            local dir="''${PWD##*/}"
-            [[ "$dir" == "" ]] && dir="/"
-            [[ "$HOME" == "$PWD" ]] && dir="~"
-            echo -ne "\033]0;''${dir}\007"
-          }
-
-          function set_terminal_title_preexec() {
-            local dir="''${PWD##*/}"
-            [[ "$dir" == "" ]] && dir="/"
-            [[ "$HOME" == "$PWD" ]] && dir="~"
-            local cmd="''${1%% *}"
-            echo -ne "\033]0;''${dir} [''${cmd}]\007"
-          }
-
-          autoload -Uz add-zsh-hook
-          add-zsh-hook precmd set_terminal_title_precmd
-          add-zsh-hook preexec set_terminal_title_preexec
-
           export ZSH="${pkgs.oh-my-zsh}/share/oh-my-zsh"
           ZSH_CUSTOM="${pkgs.zsh-autosuggestions}/share/zsh"
           DISABLE_AUTO_TITLE=true

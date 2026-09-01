@@ -7,10 +7,8 @@
 
 (keymap (global)
         (normal (C-f create-file-tree)
-                (C-g lazygit)
                 (space
                  (g
-                  (g lazygit)
                   (s lazygit-stash)
                   (b lazygit-blame-current-file))
                  (l

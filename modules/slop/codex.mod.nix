@@ -121,6 +121,7 @@
           cp build/codex-code-mode-host $out/bin/codex-code-mode-host
           chmod +x $out/bin/codex-code-mode-host
           makeWrapper "$out/bin/codex-raw" "$out/bin/codex" \
+            --argv0 codex \
             --run 'export CODEX_EXECUTABLE_PATH="$HOME/.local/bin/codex"' \
             --set DISABLE_AUTOUPDATER 1 \
             --add-flags ${codexFlags} \

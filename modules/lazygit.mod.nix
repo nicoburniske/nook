@@ -1,21 +1,15 @@
-{lib, ...}: {
+{...}: {
   homeModules.lazygit = {pkgs, ...}: let
     yamlFormat = pkgs.formats.yaml {};
 
-    sendToHelix = cmd:
-      lib.concatStringsSep " && " [
-        "kitty @ send-text --match 'state:overlay_parent' '\\x1b'"
-        "kitty @ send-text --match 'state:overlay_parent' \"${cmd}\""
-        "kitty @ send-text --match 'state:overlay_parent' '\\r'"
-        "kitten @ close-window --match state:self"
-      ];
+    openInHelix = args: "kitten @ kitten --match id:\"$KITTY_WINDOW_ID\" workspace.py open ${args}";
 
     mkSettings = theme: let
       colors = theme.colors.withHashtag;
     in {
       os = {
-        edit = sendToHelix ":open {{filename}}";
-        editAtLine = sendToHelix ":open {{filename}}:{{line}}";
+        edit = openInHelix "{{filename}}";
+        editAtLine = openInHelix "{{filename}} {{line}}";
       };
 
       git = {
@@ -29,6 +23,7 @@
       };
 
       notARepository = "skip";
+      promptToReturnFromSubprocess = false;
 
       gui = {
         sidePanelWidth = 0.25;

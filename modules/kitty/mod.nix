@@ -1,5 +1,8 @@
 let
-  tabTitle = "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}{title}";
+  tabTitle = builtins.concatStringsSep "" [
+    "{'  ' if layout_name == 'stack' and num_windows > 1 else ''}"
+    "{custom}"
+  ];
   renderTheme = import ./theme.nix;
   kitty = {pkgs, ...}: {
     packages = [pkgs.kitty];
@@ -39,6 +42,11 @@ let
         map ctrl+minus change_font_size all -2.0
         map ctrl+shift+, load_config_file
 
+        map ctrl+1 kitten workspace.py 1
+        map ctrl+2 kitten workspace.py 2
+        map ctrl+3 kitten workspace.py 3
+        map ctrl+4 kitten workspace.py 4
+
         map --new-mode unlocked ctrl+space
 
         # === UNLOCKED ===
@@ -58,7 +66,6 @@ let
         map --mode unlocked ctrl+up neighboring_window up
         map --mode unlocked ctrl+l neighboring_window right
         map --mode unlocked ctrl+right neighboring_window right
-
 
         map --mode unlocked shift+h move_window left
         map --mode unlocked shift+j move_window down
@@ -98,6 +105,7 @@ let
         value = {theme}: renderTheme theme.value;
       };
       "kitty/tab_bar.py".value = ./tab_bar.py;
+      "kitty/workspace.py".value = ./workspace.py;
 
       "kitty/quick-access-terminal.conf".value = ''
         edge center-sized
