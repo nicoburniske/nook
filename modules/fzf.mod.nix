@@ -9,6 +9,7 @@
 
     zsh.promptInit = ''
       source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
+      source "${./fzf/file-picker.zsh}"
     '';
 
     file.config."fzf/fzfrc" = {
