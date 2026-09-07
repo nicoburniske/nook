@@ -1,5 +1,3 @@
-;; Shared state + behavior for file-tree components.
-
 (require "helix/components.scm")
 (require "helix/misc.scm")
 
@@ -36,16 +34,12 @@
          tree-directory-folded?
          tree-ensure-window!
          tree-current-entry
+         tree-list-index-of-path
          tree-selected-base-path
          tree-refresh-when
          path-descendant-or-same?
-         tree-event-plain-char?
          tree-text-cursor-clamped
-         tree-text-remove-at
-         tree-text-backspace!
-         tree-text-delete-forward!
-         tree-text-append-char!
-         tree-text-move-cursor!
+         tree-text-event-handler
          tree-text-visible-state
          shell-escape
          path-parent
@@ -53,48 +47,29 @@
          path-clean
          path=?)
 
-;;; -----------------------------------------------------------------
-;;; Merge two lists of numbers which are already in increasing order
+(struct FileTreeState
+        (root
+         entries
+         directories
+         cursor
+         window-start
+         max-length
+         center-next-render
+         show-hidden-directories
+         delete-confirm-path
+         transfer-path
+         transfer-kind
+         search-visible
+         search-focused
+         search-query
+         search-cursor
+         search-matches
+         search-active-index))
 
-(define merge-lists
-  (lambda (l1 l2 comparator)
-    (if (null? l1)
-        l2
-        (if (null? l2)
-            l1
-            (if (comparator (car l1) (car l2))
-                (cons (car l1) (merge-lists (cdr l1) l2 comparator))
-                (cons (car l2) (merge-lists (cdr l2) l1 comparator)))))))
-
-;;; -------------------------------------------------------------------
-;;; Given list l, output those tokens of l which are in even positions
-
-(define even-numbers
-  (lambda (l)
-    (if (null? l) '() (if (null? (cdr l)) '() (cons (car (cdr l)) (even-numbers (cdr (cdr l))))))))
-
-;;; -------------------------------------------------------------------
-;;; Given list l, output those tokens of l which are in odd positions
-
-(define odd-numbers
-  (lambda (l)
-    (if (null? l)
-        '()
-        (if (null? (cdr l)) (list (car l)) (cons (car l) (odd-numbers (cdr (cdr l))))))))
-
-;;; ---------------------------------------------------------------------
-;;; Use the procedures above to create a simple and efficient merge-sort
-
-(define (merge-sort l #:comparator [comparator <])
-  (if (null? l)
-      l
-      (if (null? (cdr l))
-          l
-          (merge-lists (merge-sort (odd-numbers l) #:comparator comparator)
-                       (merge-sort (even-numbers l) #:comparator comparator)
-                       comparator))))
-
-(define *ignore-set* (hashset "target"))
+(struct TreeEntry
+        (path
+         directory
+         display))
 
 (define *extension-map*
   (hash "bash" " "
@@ -146,16 +121,13 @@
             clean
             (path-clean (trim-end-matches clean name))))))
 
-(define (entry-name path)
-  (file-name path))
-
 (define (path-sort<? left right)
   (define left-dir? (is-dir? left))
   (define right-dir? (is-dir? right))
   (cond
    [(and left-dir? (not right-dir?)) #t]
    [(and (not left-dir?) right-dir?) #f]
-   [else (string<? (entry-name left) (entry-name right))]))
+   [else (string<? (file-name left) (file-name right))]))
 
 (define (path->symbol path)
   (let ([extension (path->extension path)])
@@ -173,36 +145,6 @@
      [(char=? ch #\`) "\\`"]
      [else (string ch)]))
   (apply string-append (map escape-char (string->list path))))
-
-(struct FileTreeState
-        (root
-            entries
-          directories
-          cursor
-          window-start
-          max-length
-          center-next-render
-          show-hidden-directories
-          delete-confirm-path
-          transfer-path
-          transfer-kind
-          search-visible
-          search-focused
-          search-query
-          search-cursor
-          search-matches
-          search-active-index))
-
-(struct TreeEntry
-        (path
-         directory
-         display))
-
-(define (tree-valid-entry? entry)
-  (and (TreeEntry? entry)
-       (string? (TreeEntry-path entry))
-       (boolean? (TreeEntry-directory entry))
-       (string? (TreeEntry-display entry))))
 
 (define (tree-truncate text max-length)
   (if (<= max-length 0)
@@ -224,54 +166,45 @@
                  (equal? (substring child 0 (string-length child-prefix)) child-prefix))))
       #f))
 
-(define (tree-event-plain-char? event)
-  (define char (key-event-char event))
-  (define modifier (key-event-modifier event))
-  (and (char? char)
-       (not (equal? modifier key-modifier-ctrl))
-       (not (equal? modifier key-modifier-alt))
-       (not (equal? modifier key-modifier-super))))
-
 (define (tree-text-cursor-clamped input-box cursor-box)
   (tree-clamp (unbox cursor-box) 0 (string-length (unbox input-box))))
 
-(define (tree-text-remove-at value index)
-  (if (or (< index 0) (>= index (string-length value)))
-      value
-      (string-append (substring value 0 index)
-                     (substring value (+ index 1) (string-length value)))))
-
-(define (tree-text-backspace! input-box cursor-box)
+(define (tree-text-event-handler input-box cursor-box event)
   (define input (unbox input-box))
   (define cursor (tree-text-cursor-clamped input-box cursor-box))
-  (set-box! cursor-box cursor)
-  (when (> cursor 0)
-    (set-box! input-box (tree-text-remove-at input (- cursor 1)))
-    (set-box! cursor-box (- cursor 1))))
-
-(define (tree-text-delete-forward! input-box cursor-box)
-  (define input (unbox input-box))
-  (define cursor (tree-text-cursor-clamped input-box cursor-box))
-  (set-box! cursor-box cursor)
-  (when (< cursor (string-length input))
-    (set-box! input-box (tree-text-remove-at input cursor))))
-
-(define (tree-text-append-char! input-box cursor-box ch)
-  (define input (unbox input-box))
-  (define cursor (tree-text-cursor-clamped input-box cursor-box))
-  (set-box! cursor-box cursor)
-  (set-box! input-box
-            (string-append (substring input 0 cursor)
-                           (string ch)
-                           (substring input cursor (string-length input))))
-  (set-box! cursor-box (+ cursor 1)))
-
-(define (tree-text-move-cursor! input-box cursor-box delta)
-  (define max-cursor (string-length (unbox input-box)))
-  (set-box! cursor-box
-            (tree-clamp (+ (tree-text-cursor-clamped input-box cursor-box) delta)
-                        0
-                        max-cursor)))
+  (define char (key-event-char event))
+  (define modifier (key-event-modifier event))
+  (cond
+   [(or (key-event-backspace? event) (key-event-delete? event))
+    (define index (if (key-event-backspace? event) (- cursor 1) cursor))
+    (when (and (>= index 0) (< index (string-length input)))
+      (set-box! input-box
+                (string-append (substring input 0 index)
+                               (substring input (+ index 1) (string-length input)))))
+    (set-box! cursor-box (max 0 index))
+    event-result/consume]
+   [(or (key-event-left? event) (key-event-right? event)
+        (key-event-home? event) (key-event-end? event))
+    (set-box! cursor-box
+              (tree-clamp (cond
+                           [(key-event-left? event) (- cursor 1)]
+                           [(key-event-right? event) (+ cursor 1)]
+                           [(key-event-home? event) 0]
+                           [else (string-length input)])
+                          0
+                          (string-length input)))
+    event-result/consume]
+   [(and (char? char)
+         (not (equal? modifier key-modifier-ctrl))
+         (not (equal? modifier key-modifier-alt))
+         (not (equal? modifier key-modifier-super)))
+    (set-box! input-box
+              (string-append (substring input 0 cursor)
+                             (string char)
+                             (substring input cursor (string-length input))))
+    (set-box! cursor-box (+ cursor 1))
+    event-result/consume]
+   [else event-result/consume-without-rerender]))
 
 (define (tree-text-visible-state input-box cursor-box max-width)
   (if (<= max-width 0)
@@ -316,11 +249,6 @@
         (set-box! directories-box (hash-insert directories directory #t))
         #t)))
 
-(define (tree-format-dir state directory)
-  (if (tree-directory-folded? state directory)
-      " "
-      " "))
-
 (define (hidden-directory-name? name)
   (and (string? name)
        (> (string-length name) 0)
@@ -338,29 +266,28 @@
   (define (tree-rec path padding)
     (define name (file-name path))
 
-    (if (or (hashset-contains? *ignore-set* name)
-            (and (is-dir? path)
-                 (not (unbox (FileTreeState-show-hidden-directories state)))
-                 (hidden-directory-name? name)))
+    (if (and (is-dir? path)
+             (not (unbox (FileTreeState-show-hidden-directories state)))
+             (hidden-directory-name? name))
         '()
         (cond
          [(is-file? path)
           (list (TreeEntry path #f (string-append padding (path->symbol path) name)))]
          [(is-dir? path)
           (define folded? (tree-directory-folded? state path))
-          (define entry (TreeEntry path #t (string-append padding (tree-format-dir state path) name)))
+          (define entry (TreeEntry path #t (string-append padding (if folded? " " " ") name)))
           (if folded?
               (list entry)
               (cons entry
                     (tree-concat-map
                      (fn (x) (tree-rec x (string-append padding "    ")))
-                     (merge-sort (read-dir path) #:comparator path-sort<?))))]
+                     (sort (read-dir path) path-sort<?))))]
          [else '()])))
 
   (if (is-dir? root)
       (tree-concat-map
        (fn (x) (tree-rec x ""))
-       (merge-sort (read-dir root) #:comparator path-sort<?))
+       (sort (read-dir root) path-sort<?))
       (tree-rec root "")))
 
 (define (tree-list-index-of-path entries path)
@@ -402,24 +329,17 @@
 
 (define (tree-refresh! state focus-path)
   (define root (unbox (FileTreeState-root state)))
-  (define raw-entries
+  (define entries
     (if (and (string? root) (path-exists? root))
-        (transduce (tree-build state root) (into-list))
+        (tree-build state root)
         '()))
-
-  (define entries (filter tree-valid-entry? raw-entries))
 
   (set-box! (FileTreeState-entries state) entries)
 
-  (if (null? entries)
-      (begin
-        (set-box! (FileTreeState-cursor state) 0)
-        (set-box! (FileTreeState-window-start state) 0))
-      (begin
-        (define idx (tree-list-index-of-path entries focus-path))
-        (when idx
-          (set-box! (FileTreeState-cursor state) idx))
-        (tree-ensure-window! state))))
+  (define idx (tree-list-index-of-path entries focus-path))
+  (when idx
+    (set-box! (FileTreeState-cursor state) idx))
+  (tree-ensure-window! state))
 
 (define (tree-current-entry state)
   (define entries (unbox (FileTreeState-entries state)))

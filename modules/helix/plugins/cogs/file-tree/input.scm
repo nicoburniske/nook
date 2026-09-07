@@ -50,11 +50,6 @@
 
   event-result/consume)
 
-(define (tree-input-modal-action-label modal)
-  (if (equal? (FileTreeInputModalState-kind modal) 'rename)
-      "rename"
-      "create"))
-
 (define (tree-open-create-input! state)
   (define base-path (tree-selected-base-path state))
   (tree-open-input-modal! state 'create "create" (ensure-trailing-slash base-path) "" #f #f))
@@ -144,14 +139,7 @@
                                 (not (path-exists? source))))
                          destination))))
 
-(define (tree-submit-input-modal! modal)
-  (define state (FileTreeInputModalState-tree-state modal))
-  (if (equal? (FileTreeInputModalState-kind modal) 'rename)
-      (tree-submit-rename-input! state modal)
-      (tree-submit-create-input! state modal)))
-
 (define (file-tree-input-modal-event-handler modal event)
-  (define char (key-event-char event))
   (define input-box (FileTreeInputModalState-input modal))
   (define cursor-box (FileTreeInputModalState-cursor modal))
   (cond
@@ -159,38 +147,13 @@
     event-result/close]
 
    [(key-event-enter? event)
-    (tree-submit-input-modal! modal)
+    (define state (FileTreeInputModalState-tree-state modal))
+    (if (equal? (FileTreeInputModalState-kind modal) 'rename)
+        (tree-submit-rename-input! state modal)
+        (tree-submit-create-input! state modal))
     event-result/close]
 
-   [(key-event-backspace? event)
-    (tree-text-backspace! input-box cursor-box)
-    event-result/consume]
-
-   [(key-event-delete? event)
-    (tree-text-delete-forward! input-box cursor-box)
-    event-result/consume]
-
-   [(key-event-left? event)
-    (tree-text-move-cursor! input-box cursor-box -1)
-    event-result/consume]
-
-   [(key-event-right? event)
-    (tree-text-move-cursor! input-box cursor-box 1)
-    event-result/consume]
-
-   [(key-event-home? event)
-    (set-box! cursor-box 0)
-    event-result/consume]
-
-   [(key-event-end? event)
-    (set-box! cursor-box (string-length (unbox input-box)))
-    event-result/consume]
-
-   [(tree-event-plain-char? event)
-    (tree-text-append-char! input-box cursor-box char)
-    event-result/consume]
-
-   [else event-result/consume-without-rerender]))
+   [else (tree-text-event-handler input-box cursor-box event)]))
 
 (define (file-tree-input-modal-render modal rect frame)
   (define tree-area (tree-popup-area rect))
@@ -210,7 +173,7 @@
   (define input-title
     (tree-truncate (FileTreeInputModalState-title modal)
                    (max 1 (- inner-width 8))))
-  (define action (tree-input-modal-action-label modal))
+  (define action (FileTreeInputModalState-title modal))
   (define footer-text (tree-truncate (string-append "[Enter] " action " [Esc] cancel") inner-width))
   (define input-box-x (+ modal-x 2))
   (define input-box-y (+ modal-y 1))
@@ -233,8 +196,6 @@
   (define titled-border (tree-truncate (string-append " " input-title " ")
                                        (max 1 (- input-box-width 4))))
   (define border-title-x (+ input-box-x 2))
-  (define (centered-col text)
-    (tree-center-x (+ modal-x 1) inner-width (string-length text)))
 
   (buffer/clear-with frame modal-area tree-style)
 
@@ -244,4 +205,8 @@
   (frame-set-string! frame input-x input-y input-content input-text-style)
   (frame-set-string! frame (+ input-x cursor-col) input-y cursor-glyph input-cursor-style)
 
-  (frame-set-string! frame (centered-col footer-text) (+ modal-y 4) footer-text row-style))
+  (frame-set-string! frame
+                     (tree-center-x (+ modal-x 1) inner-width (string-length footer-text))
+                     (+ modal-y 4)
+                     footer-text
+                     row-style))

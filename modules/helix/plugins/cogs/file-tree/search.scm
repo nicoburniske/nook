@@ -5,8 +5,7 @@
          tree-search-input-focused?
          tree-search-open!
          tree-search-clear!
-         tree-search-jump-next!
-         tree-search-jump-prev!
+         tree-search-jump!
          tree-search-input-event-handler
          tree-search-match-path?
          tree-search-render-overlay!)
@@ -14,45 +13,13 @@
 (define (string-downcase* value)
   (list->string (map char-downcase (string->list value))))
 
-(define (string-contains? haystack needle)
-  (define haystack-length (string-length haystack))
-  (define needle-length (string-length needle))
-  (cond
-   [(= needle-length 0) #t]
-   [(< haystack-length needle-length) #f]
-   [else
-    (let loop ([index 0])
-      (if (> (+ index needle-length) haystack-length)
-          #f
-          (if (equal? (substring haystack index (+ index needle-length)) needle)
-              #t
-              (loop (+ index 1)))))]))
-
-(define (tree-search-entry-matches? entry query-lower)
-  (if (= (string-length query-lower) 0)
-      #f
-      (let* ([entry-name (file-name (TreeEntry-path entry))]
-             [name-lower (string-downcase* entry-name)])
-        (string-contains? name-lower query-lower))))
-
-(define (tree-search-list-index-of-path paths target-path)
-  (define (loop index rest)
-    (cond
-     [(null? rest) #f]
-     [(path=? (car rest) target-path) index]
-     [else (loop (+ index 1) (cdr rest))]))
-  (if (string? target-path)
-      (loop 0 paths)
-      #f))
-
 (define (tree-search-focus-active! state)
   (define matches (unbox (FileTreeState-search-matches state)))
   (define active-index (unbox (FileTreeState-search-active-index state)))
   (when (and (>= active-index 0) (< active-index (length matches)))
     (define focus-path (list-ref matches active-index))
     (define entries (unbox (FileTreeState-entries state)))
-    (define entry-paths (map TreeEntry-path entries))
-    (define cursor-index (tree-search-list-index-of-path entry-paths focus-path))
+    (define cursor-index (tree-list-index-of-path entries focus-path))
     (when (number? cursor-index)
       (set-box! (FileTreeState-cursor state) cursor-index)
       (tree-ensure-window! state))))
@@ -60,15 +27,14 @@
 (define (tree-search-commit! state)
   (define query-lower (string-downcase* (unbox (FileTreeState-search-query state))))
   (define entries (unbox (FileTreeState-entries state)))
-  (define matches-reversed
-    (let loop ([rest entries] [acc '()])
-      (if (null? rest)
-          acc
-          (let ([entry (car rest)])
-            (if (tree-search-entry-matches? entry query-lower)
-                (loop (cdr rest) (cons (TreeEntry-path entry) acc))
-                (loop (cdr rest) acc))))))
-  (define matches (reverse matches-reversed))
+  (define matches
+    (transduce entries
+               (filtering (lambda (entry)
+                            (and (not (equal? query-lower ""))
+                                 (string-contains? (string-downcase* (file-name (TreeEntry-path entry)))
+                                                   query-lower))))
+               (mapping TreeEntry-path)
+               (into-list)))
   (set-box! (FileTreeState-search-matches state) matches)
   (if (null? matches)
       (set-box! (FileTreeState-search-active-index state) -1)
@@ -117,14 +83,7 @@
   (set-box! (FileTreeState-search-matches state) '())
   (set-box! (FileTreeState-search-active-index state) -1))
 
-(define (tree-search-jump-next! state)
-  (tree-search-jump! state 1))
-
-(define (tree-search-jump-prev! state)
-  (tree-search-jump! state -1))
-
 (define (tree-search-input-event-handler state event)
-  (define char (key-event-char event))
   (define query-box (FileTreeState-search-query state))
   (define cursor-box (FileTreeState-search-cursor state))
   (cond
@@ -132,35 +91,7 @@
     (tree-search-commit! state)
     event-result/consume]
 
-   [(key-event-backspace? event)
-    (tree-text-backspace! query-box cursor-box)
-    event-result/consume]
-
-   [(key-event-delete? event)
-    (tree-text-delete-forward! query-box cursor-box)
-    event-result/consume]
-
-   [(key-event-left? event)
-    (tree-text-move-cursor! query-box cursor-box -1)
-    event-result/consume]
-
-   [(key-event-right? event)
-    (tree-text-move-cursor! query-box cursor-box 1)
-    event-result/consume]
-
-   [(key-event-home? event)
-    (set-box! cursor-box 0)
-    event-result/consume]
-
-   [(key-event-end? event)
-    (set-box! cursor-box (string-length (unbox query-box)))
-    event-result/consume]
-
-   [(tree-event-plain-char? event)
-    (tree-text-append-char! query-box cursor-box char)
-    event-result/consume]
-
-   [else event-result/consume-without-rerender]))
+   [else (tree-text-event-handler query-box cursor-box event)]))
 
 (define (tree-search-match-path? state path)
   (define matches (unbox (FileTreeState-search-matches state)))
@@ -182,10 +113,9 @@
       (if (tree-search-input-focused? state)
           (style-with-bold (style-fg row-style Color/LightBlue))
           row-style))
-    (define search-ratio (tree-search-ratio state))
     (define search-prefix "/ ")
     (define inner-width (max 1 (- overlay-width 2)))
-    (define search-status search-ratio)
+    (define search-status (tree-search-ratio state))
     (define query-width (max 1 (- inner-width (string-length search-prefix) (string-length search-status) 1)))
     (define query-box (FileTreeState-search-query state))
     (define cursor-box (FileTreeState-search-cursor state))
