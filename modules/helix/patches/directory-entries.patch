@@ -8,11 +8,11 @@
          .register_fn_with_ctx(CTX, "hx.cx->pos", cx_pos_within_text)
          .register_fn_with_ctx(CTX, "cursor-position", cx_pos_within_text)
          .register_fn("mode-switch-old", OnModeSwitchEvent::get_old_mode)
-@@ -4047,6 +4048,52 @@
+@@ -4047,6 +4048,59 @@
      engine.register_module(module);
  }
  
-+/// list immediate children as (path, is_directory) pairs, sorted directories first
++/// list immediate children as (path, is_directory) pairs
 +/// git ignore rules are optional and dotfiles remain visible
 +fn directory_entries(
 +    directory: SteelString,
@@ -29,7 +29,7 @@
 +        .git_ignore(respect_gitignore)
 +        .git_global(respect_gitignore)
 +        .git_exclude(respect_gitignore)
-+        .follow_links(true)
++        .follow_links(false)
 +        .max_depth(Some(1))
 +        .build()
 +    {
@@ -43,6 +43,14 @@
 +        let Some(kind) = entry.file_type() else {
 +            continue;
 +        };
++        let kind = if kind.is_symlink() {
++            match entry.path().metadata() {
++                Ok(metadata) => metadata.file_type(),
++                Err(_) => continue,
++            }
++        } else {
++            kind
++        };
 +        if !kind.is_dir() && !kind.is_file() {
 +            continue;
 +        }
@@ -54,7 +62,6 @@
 +        })?;
 +        entries.push((path.to_owned(), kind.is_dir()));
 +    }
-+    entries.sort_unstable_by(|left, right| (!left.1, &left.0).cmp(&(!right.1, &right.0)));
 +    Ok(entries)
 +}
 +

@@ -1,5 +1,6 @@
 (require "helix/components.scm")
 (require "helix/misc.scm")
+(require-builtin steel/time)
 (require-builtin helix/core/misc as fs.)
 
 (provide FileTreeState
@@ -12,8 +13,11 @@
          FileTreeState-max-length
          FileTreeState-center-next-render
          FileTreeState-show-all
+         FileTreeState-sort-key
+         FileTreeState-sort-pending
          FileTreeState-delete-confirm-path
-         FileTreeState-transfer-path
+         FileTreeState-selected-paths
+         FileTreeState-transfer-paths
          FileTreeState-transfer-kind
          FileTreeState-search-visible
          FileTreeState-search-focused
@@ -58,14 +62,17 @@
          center-next-render
          show-all
          delete-confirm-path
-         transfer-path
+         selected-paths
+         transfer-paths
          transfer-kind
          search-visible
          search-focused
          search-query
          search-cursor
          search-matches
-         search-active-index))
+         search-active-index
+         sort-key
+         sort-pending))
 
 (struct TreeEntry
         (path
@@ -250,6 +257,48 @@
 
 (define (tree-build state root)
   (define filtered? (not (unbox (FileTreeState-show-all state))))
+  (define sort-key (unbox (FileTreeState-sort-key state)))
+  (define by-time? (member sort-key '(#\m #\M)))
+  (define descending? (member sort-key '(#\N #\M)))
+  (define (directory-entries path)
+    (sort
+     (map (lambda (entry)
+            (append entry
+                    (list (if by-time?
+                              (fs-metadata-modified (file-metadata (car entry)))
+                              (let loop ([chars (string->list (string-downcase (file-name (car entry))))]
+                                         [number #f]
+                                         [parts '()])
+                                (cond
+                                 [(null? chars) (reverse (if number (cons number parts) parts))]
+                                 [(and (char>=? (car chars) #\0) (char<=? (car chars) #\9))
+                                  (loop (cdr chars)
+                                        (+ (* (or number 0) 10) (- (char->integer (car chars)) 48))
+                                        parts)]
+                                 [else
+                                  (loop (cdr chars) #f
+                                        (cons (string (car chars))
+                                              (if number (cons number parts) parts)))]))))))
+          (fs.directory-entries path filtered?))
+     (lambda (left right)
+       (if (not (equal? (list-ref left 1) (list-ref right 1)))
+           (list-ref left 1)
+           (let* ([a (if descending? right left)]
+                  [b (if descending? left right)]
+                  [a-key (list-ref a 2)]
+                  [b-key (list-ref b 2)])
+             (cond
+              [(equal? a-key b-key) (string<? (car a) (car b))]
+              [by-time? (system-time<? a-key b-key)]
+              [else
+               (let loop ([a a-key] [b b-key])
+                 (cond
+                  [(null? a) (not (null? b))]
+                  [(null? b) #f]
+                  [(equal? (car a) (car b)) (loop (cdr a) (cdr b))]
+                  [(and (number? (car a)) (number? (car b))) (< (car a) (car b))]
+                  [else (string<? (if (number? (car a)) "0" (car a))
+                                  (if (number? (car b)) "0" (car b)))]))]))))))
   (define (tree-rec item padding)
     (define path (list-ref item 0))
     (define directory? (list-ref item 1))
@@ -270,12 +319,12 @@
               (cons entry
                     (tree-concat-map
                      (fn (x) (tree-rec x (string-append padding "    ")))
-                     (fs.directory-entries path filtered?))))])))
+                     (directory-entries path))))])))
 
   (if (is-dir? root)
       (tree-concat-map
        (fn (x) (tree-rec x ""))
-       (fs.directory-entries root filtered?))
+       (directory-entries root))
       (if (is-file? root) (tree-rec (list root #f) "") '())))
 
 (define (tree-list-index-of-path entries path)

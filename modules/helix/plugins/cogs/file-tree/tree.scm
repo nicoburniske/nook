@@ -1,5 +1,8 @@
 (require (prefix-in helix. "helix/commands.scm"))
 (require "helix/components.scm")
+(require "helix/ext.scm")
+(require "steel/result")
+(require-builtin steel/process)
 (require "../toast.scm")
 (require "./core.scm")
 (require "./delete.scm")
@@ -9,22 +12,45 @@
 (provide file-tree-event-handler
          file-tree-render)
 
+(define *sort-labels*
+  (hash #\n " NATURAL ↑ " #\N " NATURAL ↓ " #\m " TIME ↑ " #\M " TIME ↓ "))
+
 (define (file-tree-event-handler state event)
   (define char (key-event-char event))
   (define modifier (key-event-modifier event))
 
   (cond
+   [(unbox (FileTreeState-sort-pending state))
+    (set-box! (FileTreeState-sort-pending state) #f)
+    (when (member char '(#\n #\N #\m #\M))
+      (define entry (tree-current-entry state))
+      (set-box! (FileTreeState-sort-key state) char)
+      (tree-refresh! state (if entry (TreeEntry-path entry) #f))
+      (define matches (unbox (FileTreeState-search-matches state)))
+      (define active (unbox (FileTreeState-search-active-index state)))
+      (define active-path (if (and (>= active 0) (< active (length matches)))
+                              (list-ref matches active)
+                              #f))
+      (define matching-entries
+        (filter (lambda (entry) (member (TreeEntry-path entry) matches))
+                (unbox (FileTreeState-entries state))))
+      (set-box! (FileTreeState-search-matches state) (map TreeEntry-path matching-entries))
+      (set-box! (FileTreeState-search-active-index state)
+                (or (tree-list-index-of-path matching-entries active-path) -1)))
+    event-result/consume]
+
    [(key-event-escape? event)
-    (if (tree-search-input-visible? state)
-        (begin
-          (tree-search-clear! state)
-          (tree-clear-transfer! state)
-          event-result/consume)
-        (if (tree-transfer-active? state)
-            (begin
-              (tree-clear-transfer! state)
-              event-result/consume)
-            event-result/close))]
+    (cond
+     [(tree-search-input-visible? state)
+      (tree-search-clear! state)
+      event-result/consume]
+     [(not (null? (unbox (FileTreeState-selected-paths state))))
+      (set-box! (FileTreeState-selected-paths state) '())
+      event-result/consume]
+     [(tree-transfer-active? state)
+      (tree-clear-transfer! state)
+      event-result/consume]
+     [else event-result/close])]
 
    [(and (char? char) (equal? char #\/))
     (tree-search-open! state)
@@ -32,6 +58,10 @@
 
    [(tree-search-input-focused? state)
     (tree-search-input-event-handler state event)]
+
+   [(and (char? char) (equal? char #\,))
+    (set-box! (FileTreeState-sort-pending state) #t)
+    event-result/consume]
 
    [(and (char? char)
          (equal? char #\n)
@@ -82,22 +112,42 @@
     (tree-open-or-enter-selection! state)]
 
    [(key-event-tab? event)
-    (if (equal? (key-event-modifier event) key-modifier-shift)
-        (tree-move-cursor! state -1)
-        (tree-move-cursor! state 1))
+    (tree-move-cursor! state (if (equal? modifier key-modifier-shift) -1 1))
     event-result/consume]
 
    [(key-event-enter? event)
     (tree-open-selection! state)]
 
-   [(and (char? char) (equal? char #\a))
+   [(and (char? char) (equal? char #\c))
     (tree-open-create-input! state)]
+
+   [(and (char? char) (equal? char #\a))
+    (define paths (map TreeEntry-path (unbox (FileTreeState-entries state))))
+    (define selected-box (FileTreeState-selected-paths state))
+    (define selected (unbox selected-box))
+    (set-box! selected-box
+              (if (findf (lambda (path) (not (member path selected))) paths)
+                  paths
+                  '()))
+    event-result/consume]
 
    [(and (char? char) (equal? char #\r))
     (tree-open-rename-input! state)]
 
    [(and (char? char) (equal? char #\y))
     (tree-select-transfer! state 'copy)]
+
+   [(and (char? char) (equal? char #\space))
+    (define entry (tree-current-entry state))
+    (when entry
+      (define path (TreeEntry-path entry))
+      (define selected-box (FileTreeState-selected-paths state))
+      (define selected (unbox selected-box))
+      (set-box! selected-box
+                (if (member path selected)
+                    (filter (lambda (item) (not (path=? item path))) selected)
+                    (append selected (list path)))))
+    event-result/consume]
 
    [(and (char? char) (equal? char #\x))
     (tree-select-transfer! state 'move)]
@@ -176,17 +226,23 @@
          (define entry (car rest))
          (define row (+ content-start-y index))
          (define selected? (= index selected-index))
+         (define marked? (member (TreeEntry-path entry) (unbox (FileTreeState-selected-paths state))))
          (define match? (tree-search-match-path? state (TreeEntry-path entry)))
-         (define transfer-kind (tree-transfer-kind-for-entry state (TreeEntry-path entry)))
+         (define transfer-kind
+           (if (member (TreeEntry-path entry) (unbox (FileTreeState-transfer-paths state)))
+               (unbox (FileTreeState-transfer-kind state))
+               #f))
          (define row-style-base (if selected? selected-style row-style))
          (define row-style*
-           (cond
-            [(and match? (not selected?)) match-style]
-            [(equal? transfer-kind 'move) (style-with-bold (style-fg row-style-base Color/LightCyan))]
-            [(equal? transfer-kind 'copy) (style-with-bold (style-fg row-style-base Color/LightYellow))]
-            [else row-style-base]))
+           (let ([base
+                  (cond
+                   [(and match? (not selected?)) match-style]
+                   [(equal? transfer-kind 'move) (style-with-bold (style-fg row-style-base Color/LightCyan))]
+                   [(equal? transfer-kind 'copy) (style-with-bold (style-fg row-style-base Color/LightYellow))]
+                   [else row-style-base])])
+             (if marked? (style-with-reversed base) base)))
          (define text (tree-truncate (TreeEntry-display entry) content-width))
-         (when (or selected? match?)
+         (when (or selected? marked? match?)
            (frame-set-string! frame content-x row blank-line row-style*))
          (frame-set-string! frame content-x row text row-style*)
          (loop (cdr rest) (+ index 1)))))
@@ -198,23 +254,31 @@
         (unbox (FileTreeState-transfer-kind state))
         #f))
   (define ribbon-text
-    (cond
-     [(equal? transfer-kind 'copy) " COPY "]
-     [(equal? transfer-kind 'move) " MOVE "]
-     [(not (unbox (FileTreeState-show-all state))) " FILTERED "]
-     [else #f]))
+    (if (unbox (FileTreeState-sort-pending state))
+        " n natural ↑  N natural ↓  m time ↑  M time ↓ "
+        (string-append
+         (hash-get *sort-labels* (unbox (FileTreeState-sort-key state)))
+         (if (null? (unbox (FileTreeState-selected-paths state)))
+             ""
+             (string-append " SELECTED "
+                            (number->string (length (unbox (FileTreeState-selected-paths state))))
+                            " "))
+         (if transfer-kind
+             (string-append (if (equal? transfer-kind 'copy) " COPY " " MOVE ")
+                            (number->string (length (unbox (FileTreeState-transfer-paths state))))
+                            " ")
+             "")
+         (if (unbox (FileTreeState-show-all state)) "" " FILTERED "))))
   (define ribbon-style
     (cond
      [(equal? transfer-kind 'copy) copy-ribbon-style]
      [(equal? transfer-kind 'move) move-ribbon-style]
      [else tree-style]))
 
-  (frame-set-string! frame content-x ribbon-y blank-line tree-style)
-  (when ribbon-text
-    (define centered-text (tree-truncate ribbon-text content-width))
-    (define ribbon-x (tree-center-x content-x content-width (string-length centered-text)))
-    (frame-set-string! frame content-x ribbon-y blank-line ribbon-style)
-    (frame-set-string! frame ribbon-x ribbon-y centered-text ribbon-style)))
+  (define centered-text (tree-truncate ribbon-text content-width))
+  (define ribbon-x (tree-center-x content-x content-width (string-length centered-text)))
+  (frame-set-string! frame content-x ribbon-y blank-line ribbon-style)
+  (frame-set-string! frame ribbon-x ribbon-y centered-text ribbon-style))
 
 (define (tree-center-cursor-window! state)
   (define entries (unbox (FileTreeState-entries state)))
@@ -314,102 +378,90 @@
       event-result/consume))
 
 (define (tree-clear-transfer! state)
-  (set-box! (FileTreeState-transfer-path state) #f)
+  (set-box! (FileTreeState-transfer-paths state) '())
   (set-box! (FileTreeState-transfer-kind state) #f))
 
 (define (tree-transfer-active? state)
-  (and (string? (unbox (FileTreeState-transfer-path state)))
-       (symbol? (unbox (FileTreeState-transfer-kind state)))))
-
-(define (tree-transfer-kind-for-entry state entry-path)
-  (define transfer-path (unbox (FileTreeState-transfer-path state)))
-  (define transfer-kind (unbox (FileTreeState-transfer-kind state)))
-  (if (and (string? transfer-path)
-           (symbol? transfer-kind)
-           (path=? transfer-path entry-path))
-      transfer-kind
-      #f))
+  (not (null? (unbox (FileTreeState-transfer-paths state)))))
 
 (define (tree-select-transfer! state transfer-kind)
   (define entry (tree-current-entry state))
-  (when entry
-    (set-box! (FileTreeState-transfer-path state) (TreeEntry-path entry))
-    (set-box! (FileTreeState-transfer-kind state) transfer-kind))
+  (define selected (unbox (FileTreeState-selected-paths state)))
+  (define paths (if (null? selected) (if entry (list (TreeEntry-path entry)) '()) selected))
+  (unless (null? paths)
+    (set-box! (FileTreeState-transfer-paths state)
+              (filter
+               (lambda (path)
+                 (not (findf (lambda (parent)
+                               (and (not (path=? path parent))
+                                    (path-descendant-or-same? path parent)))
+                             paths)))
+               paths))
+    (set-box! (FileTreeState-transfer-kind state) transfer-kind)
+    (set-box! (FileTreeState-selected-paths state) '()))
   event-result/consume)
 
-(define (tree-transfer-valid? source transfer-kind)
-  (and (string? source)
-       (symbol? transfer-kind)
-       (path-exists? source)))
-
-(define (tree-paste-destination-directory state)
-  (define destination-base (tree-selected-base-path state))
-  (cond
-   [(and (string? destination-base) (is-dir? destination-base)) destination-base]
-   [(string? destination-base) (file-directory destination-base)]
-   [else (unbox (FileTreeState-root state))]))
-
-(define (tree-run-transfer! transfer-kind source destination)
-  (define quoted-source (string-append "\"" (shell-escape source) "\""))
-  (define quoted-destination (string-append "\"" (shell-escape destination) "\""))
-  (if (equal? transfer-kind 'move)
-      (helix.run-shell-command (string-append "mv " quoted-source " " quoted-destination))
-      (if (is-dir? source)
-          (helix.run-shell-command (string-append "cp -R " quoted-source " " quoted-destination))
-          (helix.run-shell-command (string-append "cp " quoted-source " " quoted-destination)))))
-
-(define (tree-post-transfer-refresh! state transfer-kind source target-path)
-  (set-box! (FileTreeState-directories state)
-            (tree-unfold-path-to-target
-             (unbox (FileTreeState-directories state))
-             (unbox (FileTreeState-root state))
-             target-path))
-
-  (tree-clear-transfer! state)
-
-  (if (equal? transfer-kind 'move)
-      (tree-refresh-when state
-                         source
-                         (lambda (path)
-                           (and (not (path-exists? path))
-                                (path-exists? target-path)))
-                         target-path)
-      (tree-refresh-when state target-path path-exists? target-path)))
-
 (define (tree-paste-transfer! state)
-  (define source (unbox (FileTreeState-transfer-path state)))
-  (define transfer-kind (unbox (FileTreeState-transfer-kind state)))
+  (when (tree-transfer-active? state)
+    (define sources (unbox (FileTreeState-transfer-paths state)))
+    (define transfer-kind (unbox (FileTreeState-transfer-kind state)))
+    (define destination (tree-selected-base-path state))
+    (define target-path (string-append destination "/" (file-name (car sources))))
+    (tree-clear-transfer! state)
+    (spawn-native-thread
+     (lambda ()
+       (define diagnostic
+         (with-handler (lambda (err) (to-string err))
+           (define destination-real (canonicalize-path destination))
+           (unless (is-dir? destination-real) (error "Invalid paste destination"))
+           (define sources-normalized
+             (map (lambda (source)
+                    (string-append (trim-end-matches (canonicalize-path (path-parent source)) "/")
+                                   "/" (file-name source)))
+                  sources))
+           (define sources-real (map canonicalize-path sources-normalized))
+           (define protected-sources (append sources-normalized sources-real))
+           (define targets
+             (map (lambda (source)
+                    (string-append (trim-end-matches destination-real "/") "/" (file-name source)))
+                  sources))
+           (for-each
+            (lambda (source)
+              (when (and (is-dir? source) (path-descendant-or-same? destination-real source))
+                (error (string-append "Cannot paste a directory into itself: " source))))
+            sources-real)
+           (for-each
+            (lambda (target)
+              (when (findf (lambda (source) (path-descendant-or-same? source target))
+                           protected-sources)
+                (error (string-append "Cannot replace a transfer source: " target))))
+            targets)
+           (let loop ([sources sources-normalized] [targets targets])
+             (unless (null? sources)
+               (tree-run-command! "rm" (list "-rf" "--" (car targets)))
+               (tree-run-command! (if (equal? transfer-kind 'move) "mv" "cp")
+                                  (list (if (equal? transfer-kind 'move) "-T" "-aT")
+                                        "--" (car sources) (car targets)))
+               (loop (cdr sources) (cdr targets))))
+           ""))
+       (hx.with-context
+        (lambda ()
+          (set-box! (FileTreeState-directories state)
+                    (tree-unfold-path-to-target
+                     (unbox (FileTreeState-directories state))
+                     (unbox (FileTreeState-root state))
+                     target-path))
+          (tree-refresh! state target-path)
+          (unless (equal? diagnostic "")
+            (log::error! diagnostic)
+            (toast-error diagnostic)))))))
+  event-result/consume)
 
-  (if (not (tree-transfer-valid? source transfer-kind))
-      (begin
-        (tree-clear-transfer! state)
-        (toast-error "Transfer source is no longer available")
-        event-result/consume)
-      (let* ([source-clean (path-clean source)]
-             [destination (tree-paste-destination-directory state)]
-             [target-path (path-clean (string-append destination "/" (file-name source-clean)))])
-
-        (cond
-         [(not (and (string? destination) (is-dir? destination)))
-          (toast-error "Invalid paste destination")
-          event-result/consume]
-
-         [(and (is-dir? source-clean)
-               (path-descendant-or-same? destination source-clean))
-          (toast-error "Cannot paste a directory into itself")
-          event-result/consume]
-
-         [(path-exists? target-path)
-          (toast-error "Paste target already exists")
-          event-result/consume]
-
-         [(path=? target-path source-clean)
-          event-result/consume]
-
-         [else
-          (tree-run-transfer! transfer-kind source-clean destination)
-          (tree-post-transfer-refresh! state transfer-kind source-clean target-path)
-          event-result/consume]))))
+(define (tree-run-command! executable args)
+  (define child (unwrap-ok (spawn-process (with-stderr-piped (command executable args)))))
+  (define diagnostic (read-port-to-string (child-stderr child)))
+  (unless (equal? (unwrap-ok (wait child)) 0)
+    (error (if (equal? diagnostic "") (string-append executable " failed") diagnostic))))
 
 (define (tree-set-all-folded! state folded?)
   (set-box! (FileTreeState-directories state)
