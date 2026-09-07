@@ -1,0 +1,63 @@
+--- a/helix-term/src/commands/engine/steel/mod.rs
++++ b/helix-term/src/commands/engine/steel/mod.rs
+@@ -3994,6 +3994,7 @@
+     let builtin_misc_module = include_str!("misc.scm").to_string();
+ 
+     module
++        .register_fn("directory-entries", directory_entries)
+         .register_fn_with_ctx(CTX, "hx.cx->pos", cx_pos_within_text)
+         .register_fn_with_ctx(CTX, "cursor-position", cx_pos_within_text)
+         .register_fn("mode-switch-old", OnModeSwitchEvent::get_old_mode)
+@@ -4047,6 +4048,52 @@
+     engine.register_module(module);
+ }
+ 
++/// list immediate children as (path, is_directory) pairs, sorted directories first
++/// git ignore rules are optional and dotfiles remain visible
++fn directory_entries(
++    directory: SteelString,
++    respect_gitignore: bool,
++) -> steel::rvals::Result<Vec<(String, bool)>> {
++    if !std::fs::metadata(directory.as_str())?.is_dir() {
++        steel::stop!(Io => "directory-entries expected a directory: {}", directory);
++    }
++
++    let mut entries = Vec::new();
++    for entry in ignore::WalkBuilder::new(directory.as_str())
++        .standard_filters(false)
++        .parents(true)
++        .git_ignore(respect_gitignore)
++        .git_global(respect_gitignore)
++        .git_exclude(respect_gitignore)
++        .follow_links(true)
++        .max_depth(Some(1))
++        .build()
++    {
++        let entry = entry.map_err(|error| SteelErr::new(ErrorKind::Io, error.to_string()))?;
++        if let Some(error) = entry.error() {
++            return Err(SteelErr::new(ErrorKind::Io, error.to_string()));
++        }
++        if entry.depth() == 0 {
++            continue;
++        }
++        let Some(kind) = entry.file_type() else {
++            continue;
++        };
++        if !kind.is_dir() && !kind.is_file() {
++            continue;
++        }
++        let path = entry.path().to_str().ok_or_else(|| {
++            SteelErr::new(
++                ErrorKind::Io,
++                format!("non unicode path: {}", entry.path().display()),
++            )
++        })?;
++        entries.push((path.to_owned(), kind.is_dir()));
++    }
++    entries.sort_unstable_by(|left, right| (!left.1, &left.0).cmp(&(!right.1, &right.0)));
++    Ok(entries)
++}
++
+ // TODO: Generate sources into the cogs directory, so that the
+ // LSP can go find it. When it comes to loading though, it'll look
+ // up internally.

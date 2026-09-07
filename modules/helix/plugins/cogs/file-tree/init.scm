@@ -65,7 +65,7 @@
                                (box 0)
                                (box 1)
                                (box #t)
-                               (box #f)
+                               (box #t)
                                (box #f)
                                (box #f)
                                (box #f)

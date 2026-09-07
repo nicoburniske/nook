@@ -112,7 +112,12 @@
     (tree-search-selected-directory! state)]
 
    [(and (char? char) (equal? char #\.))
-    (tree-toggle-hidden-directories! state)]
+    (define current-entry (tree-current-entry state))
+    (define focus-path (if current-entry (TreeEntry-path current-entry) #f))
+    (define flag (FileTreeState-show-all state))
+    (set-box! flag (not (unbox flag)))
+    (tree-refresh! state focus-path)
+    event-result/consume]
 
    [(and (char? char) (equal? char #\F))
     (tree-set-all-folded! state #t)]
@@ -196,6 +201,7 @@
     (cond
      [(equal? transfer-kind 'copy) " COPY "]
      [(equal? transfer-kind 'move) " MOVE "]
+     [(not (unbox (FileTreeState-show-all state))) " FILTERED "]
      [else #f]))
   (define ribbon-style
     (cond
@@ -306,14 +312,6 @@
         (helix.search-in-directory (TreeEntry-path entry))
         event-result/close)
       event-result/consume))
-
-(define (tree-toggle-hidden-directories! state)
-  (define current-entry (tree-current-entry state))
-  (define focus-path (if current-entry (TreeEntry-path current-entry) #f))
-  (define show-hidden-box (FileTreeState-show-hidden-directories state))
-  (set-box! show-hidden-box (not (unbox show-hidden-box)))
-  (tree-refresh! state focus-path)
-  event-result/consume)
 
 (define (tree-clear-transfer! state)
   (set-box! (FileTreeState-transfer-path state) #f)

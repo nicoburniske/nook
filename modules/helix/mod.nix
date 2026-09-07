@@ -26,6 +26,7 @@
             ++ [
               ./patches/search-in-directory.patch
               ./patches/steel-fixes.patch
+              ./patches/directory-entries.patch
             ];
           cargoBuildFeatures = (prevAttrs.cargoBuildFeatures or []) ++ ["steel"];
         });

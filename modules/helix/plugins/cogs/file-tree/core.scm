@@ -1,5 +1,6 @@
 (require "helix/components.scm")
 (require "helix/misc.scm")
+(require-builtin helix/core/misc as fs.)
 
 (provide FileTreeState
          FileTreeState?
@@ -10,7 +11,7 @@
          FileTreeState-window-start
          FileTreeState-max-length
          FileTreeState-center-next-render
-         FileTreeState-show-hidden-directories
+         FileTreeState-show-all
          FileTreeState-delete-confirm-path
          FileTreeState-transfer-path
          FileTreeState-transfer-kind
@@ -55,7 +56,7 @@
          window-start
          max-length
          center-next-render
-         show-hidden-directories
+         show-all
          delete-confirm-path
          transfer-path
          transfer-kind
@@ -120,14 +121,6 @@
         (if (or (equal? clean "/") (equal? name "") (equal? name clean))
             clean
             (path-clean (trim-end-matches clean name))))))
-
-(define (path-sort<? left right)
-  (define left-dir? (is-dir? left))
-  (define right-dir? (is-dir? right))
-  (cond
-   [(and left-dir? (not right-dir?)) #t]
-   [(and (not left-dir?) right-dir?) #f]
-   [else (string<? (file-name left) (file-name right))]))
 
 (define (path->symbol path)
   (let ([extension (path->extension path)])
@@ -249,13 +242,6 @@
         (set-box! directories-box (hash-insert directories directory #t))
         #t)))
 
-(define (hidden-directory-name? name)
-  (and (string? name)
-       (> (string-length name) 0)
-       (equal? (substring name 0 1) ".")
-       (not (equal? name "."))
-       (not (equal? name ".."))))
-
 (define (tree-concat-map func lst)
   (if (null? lst)
       '()
@@ -263,17 +249,20 @@
               (tree-concat-map func (cdr lst)))))
 
 (define (tree-build state root)
-  (define (tree-rec path padding)
+  (define filtered? (not (unbox (FileTreeState-show-all state))))
+  (define (tree-rec item padding)
+    (define path (list-ref item 0))
+    (define directory? (list-ref item 1))
     (define name (file-name path))
 
-    (if (and (is-dir? path)
-             (not (unbox (FileTreeState-show-hidden-directories state)))
-             (hidden-directory-name? name))
+    (if (and filtered?
+             (> (string-length name) 0)
+             (equal? (substring name 0 1) "."))
         '()
         (cond
-         [(is-file? path)
+         [(not directory?)
           (list (TreeEntry path #f (string-append padding (path->symbol path) name)))]
-         [(is-dir? path)
+         [else
           (define folded? (tree-directory-folded? state path))
           (define entry (TreeEntry path #t (string-append padding (if folded? " " " ") name)))
           (if folded?
@@ -281,14 +270,13 @@
               (cons entry
                     (tree-concat-map
                      (fn (x) (tree-rec x (string-append padding "    ")))
-                     (sort (read-dir path) path-sort<?))))]
-         [else '()])))
+                     (fs.directory-entries path filtered?))))])))
 
   (if (is-dir? root)
       (tree-concat-map
        (fn (x) (tree-rec x ""))
-       (sort (read-dir root) path-sort<?))
-      (tree-rec root "")))
+       (fs.directory-entries root filtered?))
+      (if (is-file? root) (tree-rec (list root #f) "") '())))
 
 (define (tree-list-index-of-path entries path)
   (if (not (string? path))
