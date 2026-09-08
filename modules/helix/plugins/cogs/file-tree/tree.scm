@@ -13,7 +13,7 @@
          file-tree-render)
 
 (define *sort-labels*
-  (hash #\n " NATURAL ↑ " #\N " NATURAL ↓ " #\m " TIME ↑ " #\M " TIME ↓ "))
+  (hash #\n "natural ↑" #\N "natural ↓" #\m "modified ↑" #\M "modified ↓"))
 
 (define (file-tree-event-handler state event)
   (define char (key-event-char event))
@@ -185,7 +185,7 @@
   (define y (area-y tree-area))
   (define content-x (+ x 2))
   (define content-y (+ y 1))
-  (define ribbon-y (+ y (- tree-height 2)))
+  (define status-y (+ y (- tree-height 2)))
   (define content-width (max 1 (- tree-width 4)))
 
   (define visible-count (max 1 (- tree-height 3)))
@@ -203,10 +203,6 @@
   (define selected-style (theme-scope "ui.menu.selected"))
   (define match-style (theme-scope "ui.menu"))
   (define tree-style (style))
-  (define copy-ribbon-style
-    (style-with-bold (style-bg (style-fg row-style Color/Black) Color/LightYellow)))
-  (define move-ribbon-style
-    (style-with-bold (style-bg (style-fg row-style Color/Black) Color/LightCyan)))
 
   (buffer/clear-with frame tree-area tree-style)
   (block/render frame tree-area (make-block tree-style border-style "all" "rounded"))
@@ -215,7 +211,7 @@
   (define start (unbox (FileTreeState-window-start state)))
   (define cursor (unbox (FileTreeState-cursor state)))
   (define visible-entries (slice entries start visible-count))
-  (define selected-index (- cursor start))
+  (define cursor-index (- cursor start))
   (define blank-line (make-string content-width #\space))
   (define content-start-y content-y)
 
@@ -225,24 +221,24 @@
        (unless (null? rest)
          (define entry (car rest))
          (define row (+ content-start-y index))
-         (define selected? (= index selected-index))
+         (define cursor? (= index cursor-index))
          (define marked? (member (TreeEntry-path entry) (unbox (FileTreeState-selected-paths state))))
          (define match? (tree-search-match-path? state (TreeEntry-path entry)))
          (define transfer-kind
            (if (member (TreeEntry-path entry) (unbox (FileTreeState-transfer-paths state)))
                (unbox (FileTreeState-transfer-kind state))
                #f))
-         (define row-style-base (if selected? selected-style row-style))
+         (define row-style-base (if marked? selected-style row-style))
          (define row-style*
            (let ([base
                   (cond
-                   [(and match? (not selected?)) match-style]
+                   [(and match? (not (or cursor? marked?))) match-style]
                    [(equal? transfer-kind 'move) (style-with-bold (style-fg row-style-base Color/LightCyan))]
                    [(equal? transfer-kind 'copy) (style-with-bold (style-fg row-style-base Color/LightYellow))]
                    [else row-style-base])])
-             (if marked? (style-with-reversed base) base)))
+             (if cursor? (style-with-reversed base) base)))
          (define text (tree-truncate (TreeEntry-display entry) content-width))
-         (when (or selected? marked? match?)
+         (when (or cursor? marked? match?)
            (frame-set-string! frame content-x row blank-line row-style*))
          (frame-set-string! frame content-x row text row-style*)
          (loop (cdr rest) (+ index 1)))))
@@ -253,32 +249,42 @@
     (if (tree-transfer-active? state)
         (unbox (FileTreeState-transfer-kind state))
         #f))
-  (define ribbon-text
+  (define status-text
     (if (unbox (FileTreeState-sort-pending state))
-        " n natural ↑  N natural ↓  m time ↑  M time ↓ "
-        (string-append
-         (hash-get *sort-labels* (unbox (FileTreeState-sort-key state)))
-         (if (null? (unbox (FileTreeState-selected-paths state)))
-             ""
-             (string-append " SELECTED "
-                            (number->string (length (unbox (FileTreeState-selected-paths state))))
-                            " "))
-         (if transfer-kind
-             (string-append (if (equal? transfer-kind 'copy) " COPY " " MOVE ")
-                            (number->string (length (unbox (FileTreeState-transfer-paths state))))
-                            " ")
-             "")
-         (if (unbox (FileTreeState-show-all state)) "" " FILTERED "))))
-  (define ribbon-style
-    (cond
-     [(equal? transfer-kind 'copy) copy-ribbon-style]
-     [(equal? transfer-kind 'move) move-ribbon-style]
-     [else tree-style]))
+        "n↑ N↓ natural  m↑ M↓ time"
+        (string-join
+         (filter (lambda (text) (not (equal? text "")))
+                 (list
+                  (if (null? (unbox (FileTreeState-selected-paths state)))
+                      ""
+                      (string-append (number->string (length (unbox (FileTreeState-selected-paths state))))
+                                     " selected"))
+                  (if transfer-kind
+                      (string-append (if (equal? transfer-kind 'copy) "copy " "move ")
+                                     (number->string (length (unbox (FileTreeState-transfer-paths state)))))
+                      "")))
+         " · ")))
+  (define bar-style (theme-scope "ui.statusline"))
+  (define status-style
+    (if (and transfer-kind (not (unbox (FileTreeState-sort-pending state))))
+        (style-bg (style-fg tree-style Color/Black)
+                  (if (equal? transfer-kind 'copy) Color/LightYellow Color/LightCyan))
+        bar-style))
+  (define sort-style (style-bg (style-fg tree-style Color/Black) Color/LightBlue))
+  (define middle-x (+ x 13))
+  (define middle-width (- tree-width 24))
+  (define middle-text (string-append " " (tree-truncate status-text (- middle-width 2)) " "))
+  (define filter-text (if (unbox (FileTreeState-show-all state)) "all" "filtered"))
 
-  (define centered-text (tree-truncate ribbon-text content-width))
-  (define ribbon-x (tree-center-x content-x content-width (string-length centered-text)))
-  (frame-set-string! frame content-x ribbon-y blank-line ribbon-style)
-  (frame-set-string! frame ribbon-x ribbon-y centered-text ribbon-style))
+  (frame-set-string! frame (+ x 1) status-y (make-string (- tree-width 2) #\space) bar-style)
+  (frame-set-string! frame (+ x 1) status-y (make-string 12 #\space) sort-style)
+  (frame-set-string! frame content-x status-y
+                     (hash-get *sort-labels* (unbox (FileTreeState-sort-key state)))
+                     sort-style)
+  (frame-set-string! frame (tree-center-x middle-x middle-width (string-length middle-text))
+                     status-y middle-text status-style)
+  (frame-set-string! frame (tree-center-x (+ middle-x middle-width) 10 (string-length filter-text))
+                     status-y filter-text bar-style))
 
 (define (tree-center-cursor-window! state)
   (define entries (unbox (FileTreeState-entries state)))
