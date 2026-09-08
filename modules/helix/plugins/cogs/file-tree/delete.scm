@@ -27,6 +27,8 @@
 (define (tree-delete-confirm-event-handler state event)
   (define char (key-event-char event))
   (cond
+   [(not (key-event? event)) event-result/consume]
+
    [(key-event-escape? event)
     (tree-close-delete-confirm! state)
     event-result/close]

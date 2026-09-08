@@ -20,6 +20,8 @@
   (define modifier (key-event-modifier event))
 
   (cond
+   [(not (key-event? event)) event-result/consume]
+
    [(unbox (FileTreeState-sort-pending state))
     (set-box! (FileTreeState-sort-pending state) #f)
     (when (member char '(#\n #\N #\m #\M))

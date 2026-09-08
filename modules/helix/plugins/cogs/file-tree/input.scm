@@ -143,6 +143,8 @@
   (define input-box (FileTreeInputModalState-input modal))
   (define cursor-box (FileTreeInputModalState-cursor modal))
   (cond
+   [(not (key-event? event)) event-result/consume]
+
    [(key-event-escape? event)
     event-result/close]
 
