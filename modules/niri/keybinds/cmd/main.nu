@@ -49,6 +49,9 @@ export def main [] {
             | default $state.selected
           )
           $state = clamp-selection $state $raw_rows
+          $state = accept $state $search_result.jump.row
+          $raw_rows = raw-rows $state
+          $state = clamp-selection $state $raw_rows
           $current_header = header $state
         }
       } else {

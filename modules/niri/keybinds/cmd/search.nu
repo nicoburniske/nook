@@ -13,7 +13,7 @@ export def handle-event [search: record, event: record, build_index: closure] {
   }
 
   mut next = $search
-  mut jump = null
+  mut jump: any = null
   let code = $event.code? | default ""
   let mods = $event.modifiers? | default []
 
