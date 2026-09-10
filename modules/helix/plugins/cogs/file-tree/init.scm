@@ -7,6 +7,8 @@
 
 (provide create-file-tree)
 
+(define *show-all* (box #f))
+
 (define (current-doc-id)
   (let* ([focus (editor-focus)])
     (editor->doc-id focus)))
@@ -65,7 +67,7 @@
                                (box 0)
                                (box 1)
                                (box #t)
-                               (box #t)
+                               *show-all*
                                (box #f)
                                (box '())
                                (box '())
