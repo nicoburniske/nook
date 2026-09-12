@@ -40,6 +40,7 @@
         fonts
         compositor
         niri
+        handy
         kitty
         keepassxc
         fuzzel

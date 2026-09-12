@@ -48,7 +48,7 @@
       (import ./config.nix {config = osConfig;})
       ++ osConfig.compositor.niri.config
       ++ (import ./rules.nix)
-      ++ [{binds = keybinds;}]
+      ++ [{binds = keybinds ++ osConfig.compositor.niri.binds;}]
     );
     mkTheme = import ./theme.nix {inherit lib;};
   in {

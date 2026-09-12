@@ -36,6 +36,7 @@
         fonts
         compositor
         niri
+        handy
         kitty
         keepassxc
         nautilus

@@ -6,11 +6,17 @@
         default = [];
         description = "shell commands started by the active compositor";
       };
-
-      niri.config = lib.mkOption {
-        type = lib.types.listOf lib.types.attrs;
-        default = [];
-        description = "niri config KDL nodes";
+      niri = {
+        config = lib.mkOption {
+          type = lib.types.listOf lib.types.attrs;
+          default = [];
+          description = "niri config KDL nodes";
+        };
+        binds = lib.mkOption {
+          type = lib.types.listOf lib.types.attrs;
+          default = [];
+          description = "niri keybind KDL nodes";
+        };
       };
     };
   };

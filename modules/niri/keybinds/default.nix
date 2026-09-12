@@ -69,7 +69,6 @@ in [
     };
     action = spawn ["${cmd}/bin/niri-cmd"];
   })
-
   (bind {
     key = "Ctrl+Alt+Super+L";
     props = {
