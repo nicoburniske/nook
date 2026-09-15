@@ -86,7 +86,10 @@
         {
           layer-rule = {
             match.namespace = "^noctalia-bar-";
-            background-effect = [{blur = false;}];
+            background-effect = [
+              {blur = true;}
+              {xray = false;}
+            ];
           };
         }
       ];

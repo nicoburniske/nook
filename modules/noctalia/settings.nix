@@ -4,7 +4,6 @@
 }: let
   desktopFontSize = theme.fonts.sizes.desktop;
   uiFontScale = desktopFontSize / 11;
-  barFontScale = desktopFontSize / 10;
 in {
   accessibility.ui_scale = uiFontScale;
 
@@ -154,9 +153,9 @@ in {
   audio.enable_sounds = false;
 
   bar.main = {
-    position = "top";
-    thickness = 34;
-    background_opacity = 0.0;
+    position = "left";
+    thickness = 28;
+    background_opacity = 0.18;
     radius = 0;
     radius_top_left = 0;
     radius_top_right = 0;
@@ -165,9 +164,10 @@ in {
     margin_ends = 0;
     margin_edge = 0;
     margin_opposite_edge = 0;
-    padding = 14;
-    widget_spacing = 7;
-    scale = barFontScale;
+    padding = 8;
+    widget_spacing = 4;
+    capsule_thickness = 1.0;
+    scale = 1.0;
     shadow = true;
     reserve_space = true;
     capsule = true;
@@ -200,13 +200,14 @@ in {
       empty_color = "secondary";
     };
 
-    battery.show_label = true;
+    battery.show_label = false;
     volume.show_label = false;
     bluetooth.show_label = false;
     brightness.show_label = false;
 
     clock = {
       format = "{:%H:%M}";
+      vertical_format = "{:%H\n%M}";
       tooltip_format = "{:%H:%M %a, %b %d}";
     };
   };

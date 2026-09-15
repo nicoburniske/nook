@@ -75,7 +75,7 @@ in
         default-column-width = [{proportion = 1.0;}];
         struts = [
           {top = 10;}
-          {left = 20;}
+          {left = 0;}
           {right = 20;}
           {bottom = 20;}
         ];
