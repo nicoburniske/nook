@@ -1,10 +1,26 @@
 {
   nixosModules.steam = {pkgs, ...}: {
-    nixpkgs.allowedUnfreePackages = with pkgs; [
-      steam
-      steam-unwrapped
-    ];
-
+    nixpkgs = {
+      overlays = [
+        (final: prev: {
+          xwayland-satellite = prev.xwayland-satellite.overrideAttrs (old: {
+            patches =
+              (old.patches or [])
+              ++ [
+                # todo: remove when the packaged release includes https://github.com/Supreeeme/xwayland-satellite/pull/494
+                (final.fetchurl {
+                  url = "https://github.com/Supreeeme/xwayland-satellite/commit/add2795134593faafce60e404a0a75df68e9ee0c.patch";
+                  hash = "sha256-XD93f8m8h0o0Vs3QcmWkHGGi5mZwf9wkx9qEiq6sjnw=";
+                })
+              ];
+          });
+        })
+      ];
+      allowedUnfreePackages = with pkgs; [
+        steam
+        steam-unwrapped
+      ];
+    };
     programs = {
       # https://github.com/NixOS/nixpkgs/issues/324875#issuecomment-2308355036
       # systemctl --user restart pipewire
@@ -24,7 +40,6 @@
         capSysNice = false;
       };
     };
-
     compositor.niri.config = [
       {
         window-rule = [
