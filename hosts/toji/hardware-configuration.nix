@@ -16,24 +16,40 @@
     initrd = {
       availableKernelModules = ["nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod"];
       kernelModules = [];
+      luks.devices."luks-09d96497-3b92-48a5-a388-d6281959fa83".device =
+        "/dev/disk/by-uuid/09d96497-3b92-48a5-a388-d6281959fa83";
     };
     kernelModules = ["kvm-amd"];
     extraModulePackages = [];
   };
 
   fileSystems = {
-    "/" = {
+    "/data" = {
       device = "/dev/disk/by-uuid/3d968542-ab19-4cad-80f7-8e487cb7a033";
       fsType = "ext4";
+      options = ["nofail"];
+    };
+    "/" = {
+      device = "/dev/mapper/luks-09d96497-3b92-48a5-a388-d6281959fa83";
+      fsType = "btrfs";
+      options = ["compress=zstd:1"];
+    };
+    "/home" = {
+      device = "/dev/mapper/luks-09d96497-3b92-48a5-a388-d6281959fa83";
+      fsType = "btrfs";
+      options = ["subvol=home" "compress=zstd:1"];
+    };
+    "/nix" = {
+      device = "/dev/mapper/luks-09d96497-3b92-48a5-a388-d6281959fa83";
+      fsType = "btrfs";
+      options = ["subvol=nix" "compress=zstd:1"];
     };
     "/boot" = {
-      device = "/dev/disk/by-uuid/C132-0F21";
+      device = "/dev/disk/by-uuid/0F81-DFF2";
       fsType = "vfat";
       options = ["fmask=0077" "dmask=0077"];
     };
   };
-
-  swapDevices = [];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
