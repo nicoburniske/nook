@@ -1,10 +1,23 @@
 {
-  homeModules.btop = {pkgs, ...}: {
-    packages = [pkgs.btop];
+  nixosModules.btop = {host, ...}: {
+    # let btop read cpu energy usage
+    systemd.tmpfiles.rules = [
+      "z /sys/class/powercap/intel-rapl:0/energy_uj 0400 ${host.user} root -"
+    ];
+  };
+
+  homeModules.btop = {pkgs, ...}: let
+    isLinux =
+      pkgs.stdenv.hostPlatform.isLinux;
+  in {
+    packages = [
+      (pkgs.btop.override {rocmSupport = isLinux;})
+    ];
 
     file.config = {
       "btop/btop.conf".value = ''
         color_theme = "seni"
+        ${pkgs.lib.optionalString isLinux ''shown_boxes = "cpu mem net proc gpu0"''}
       '';
 
       "btop/themes/seni.theme" = {
