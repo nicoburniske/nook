@@ -124,12 +124,12 @@ in {
         terminal = transparency.light;
       };
       colors = {
-        base00 = "fbf7f0";
-        base01 = "f1d5d0";
-        base02 = "efe9dd";
-        base03 = "9f9690";
-        base04 = "595959";
-        base05 = "000000";
+        base00 = "f3eadc";
+        base01 = "e7dac8";
+        base02 = "d8c8b5";
+        base03 = "a99a8b";
+        base04 = "625a52";
+        base05 = "211f1c";
         base06 = "193668";
         base07 = "000000";
         base08 = "a0132f";
@@ -140,6 +140,35 @@ in {
         base0D = "3546c2";
         base0E = "531ab6";
         base0F = "894000";
+      };
+    }
+  );
+
+  eva = mkTheme (
+    sharedTheme
+    // {
+      polarity = "dark";
+      image = ../../assets/wallpapers/dark-evangelion.png;
+      meta = {
+        helix = "voxed";
+      };
+      colors = {
+        base00 = "1f1f21";
+        base01 = "29272a";
+        base02 = "383338";
+        base03 = "59454f";
+        base04 = "998b97";
+        base05 = "d8cfdc";
+        base06 = "e9e0ec";
+        base07 = "f7f0f8";
+        base08 = "e43d3d";
+        base09 = "ee7418";
+        base0A = "d79a28";
+        base0B = "8fa36a";
+        base0C = "aa7d91";
+        base0D = "9187b8";
+        base0E = "d76178";
+        base0F = "8b552e";
       };
     }
   );

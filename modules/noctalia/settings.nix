@@ -47,7 +47,7 @@ in {
   };
 
   theme = {
-    mode = "dark";
+    mode = theme.polarity;
     source = "custom";
     custom_palette = "Nook";
   };
