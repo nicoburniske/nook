@@ -9,6 +9,11 @@
         show_hidden = true;
       };
 
+      preview = {
+        max_width = 3840;
+        max_height = 2160;
+      };
+
       opener = {
         edit = [
           {
