@@ -1,17 +1,16 @@
 {inputs, ...}: {
   inputs = {
     noctalia = {
-      url = "github:noctalia-dev/noctalia";
+      url = "github:noctalia-dev/noctalia/v5.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     noctalia-greeter = {
-      url = "github:noctalia-dev/noctalia-greeter";
+      url = "github:noctalia-dev/noctalia-greeter/v1.5.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   nixosModules.noctalia = {
-    config,
     host,
     lib,
     pkgs,
@@ -27,40 +26,16 @@
         type = lib.types.str;
         description = "output containing the lock screen widgets";
       };
-
-      logicalWidth = lib.mkOption {
-        type = lib.types.ints.positive;
-        description = "logical width used to center lock screen widgets";
-      };
     };
 
     config = {
       programs.noctalia-greeter = {
         enable = true;
+        passwordless-sync-users = [host.user];
         settings = {
           session.default = "niri";
           user.default = host.user;
         };
-      };
-
-      security.polkit = {
-        enable = true;
-        enablePkexecWrapper = true;
-        extraConfig = let
-          program = "${config.programs.noctalia-greeter.package}/bin/noctalia-greeter-apply-appearance";
-        in ''
-          polkit.addRule(function(action, subject) {
-            if (
-              action.id == "org.freedesktop.policykit.exec" &&
-              action.lookup("program") == "${program}" &&
-              subject.user == "${host.user}" &&
-              subject.local &&
-              subject.active
-            ) {
-              return polkit.Result.YES;
-            }
-          });
-        '';
       };
 
       systemd.user.services.noctalia = {

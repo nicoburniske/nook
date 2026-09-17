@@ -85,8 +85,10 @@ in {
       time = {
         type = "clock";
         output = lockscreen.output;
-        cx = lockscreen.logicalWidth / 2.0;
-        cy = 500.0;
+        cx = 0.5;
+        cy = 0.35;
+        placement_width = 1.0;
+        placement_height = 1.0;
         box_width = 700.0;
         box_height = 180.0;
         settings = {
@@ -101,8 +103,10 @@ in {
       date = {
         type = "clock";
         output = lockscreen.output;
-        cx = lockscreen.logicalWidth / 2.0;
-        cy = 630.0;
+        cx = 0.5;
+        cy = 0.44;
+        placement_width = 1.0;
+        placement_height = 1.0;
         box_width = 500.0;
         box_height = 64.0;
         settings = {
@@ -192,7 +196,7 @@ in {
 
   widget = {
     workspaces = {
-      display = "id";
+      label_source = "id";
       hide_when_empty = true;
       labels_only_when_occupied = true;
       focused_color = "primary";

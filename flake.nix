@@ -46,11 +46,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     noctalia = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:noctalia-dev/noctalia";
+      url = "github:noctalia-dev/noctalia/v5.1.0";
     };
     noctalia-greeter = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:noctalia-dev/noctalia-greeter";
+      url = "github:noctalia-dev/noctalia-greeter/v1.5.0";
     };
     scd = {
       inputs.nixpkgs.follows = "nixpkgs";

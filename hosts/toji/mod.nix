@@ -69,10 +69,7 @@
         dark = 0.95;
         darkOnLight = 0.95;
       };
-      noctalia.lockscreen = {
-        output = "DP-3";
-        logicalWidth = 2560;
-      };
+      noctalia.lockscreen.output = "DP-3";
     };
     compositor.niri.config = [
       {
