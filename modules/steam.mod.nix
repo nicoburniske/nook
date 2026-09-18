@@ -58,6 +58,8 @@
           {match."app-id" = "^steam$";}
           {exclude.title = "^Steam Input On-screen Keyboard$";}
           {open-on-workspace = "5";}
+          {opacity = 0.9;}
+          {background-effect = [{blur = true;}];}
         ];
       }
       {
