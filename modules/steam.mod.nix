@@ -29,6 +29,18 @@
         extest.enable = true;
         remotePlay.openFirewall = true;
         dedicatedServer.openFirewall = true;
+        package = pkgs.steam.override {
+          extraEnv = {
+            XCURSOR_PATH = pkgs.lib.makeSearchPath "share/icons" [
+              (pkgs.writeTextDir "share/icons/default/index.theme" ''
+                [Icon Theme]
+                Inherits=phinger-cursors-light
+              '')
+              pkgs.phinger-cursors
+            ];
+            XCURSOR_THEME = "default";
+          };
+        };
         extraPackages = [
           pkgs.hidapi
           pkgs.zlib
