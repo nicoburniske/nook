@@ -20,14 +20,22 @@
     noctalia = lib.getExe package;
   in {
     imports = [inputs.noctalia-greeter.nixosModules.default];
-
-    options.nook.noctalia.lockscreen = {
-      output = lib.mkOption {
+    options.nook.noctalia = {
+      bar = {
+        position = lib.mkOption {
+          type = lib.types.enum ["top" "bottom" "left" "right"];
+          default = "left";
+        };
+        thickness = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 28;
+        };
+      };
+      lockscreen.output = lib.mkOption {
         type = lib.types.str;
         description = "output containing the lock screen widgets";
       };
     };
-
     config = {
       programs.noctalia-greeter = {
         enable = true;
@@ -37,7 +45,6 @@
           user.default = host.user;
         };
       };
-
       systemd.user.services.noctalia = {
         description = "Noctalia desktop shell";
         wantedBy = ["graphical-session.target"];
@@ -49,7 +56,6 @@
           Restart = "on-failure";
         };
       };
-
       compositor.niri.config = [
         {
           layer-rule = {
@@ -93,6 +99,7 @@
         value = {theme}:
           lib.toml.toTOML (settings {
             theme = theme.value;
+            bar = osConfig.nook.noctalia.bar;
             lockscreen = osConfig.nook.noctalia.lockscreen;
           });
       };

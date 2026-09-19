@@ -65,8 +65,12 @@
 
     _module.args.host = host;
 
-    nook.noctalia.lockscreen = {
-      output = "eDP-1";
+    nook.noctalia = {
+      bar = {
+        position = "top";
+        thickness = 40;
+      };
+      lockscreen.output = "eDP-1";
     };
 
     compositor.niri.config = [

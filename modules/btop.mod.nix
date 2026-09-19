@@ -11,7 +11,7 @@
       pkgs.stdenv.hostPlatform.isLinux;
   in {
     packages = [
-      (pkgs.btop.override {rocmSupport = isLinux;})
+      (pkgs.btop.override {rocmSupport = pkgs.stdenv.hostPlatform.system == "x86_64-linux";})
     ];
 
     file.config = {

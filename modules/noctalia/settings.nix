@@ -1,6 +1,7 @@
 {
   theme,
   lockscreen,
+  bar,
 }: let
   desktopFontSize = theme.fonts.sizes.desktop;
   uiFontScale = desktopFontSize / 11;
@@ -157,8 +158,8 @@ in {
   audio.enable_sounds = false;
 
   bar.main = {
-    position = "left";
-    thickness = 28;
+    position = bar.position;
+    thickness = bar.thickness;
     background_opacity = 0.18;
     radius = 0;
     radius_top_left = 0;
