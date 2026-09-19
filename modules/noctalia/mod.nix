@@ -21,15 +21,9 @@
   in {
     imports = [inputs.noctalia-greeter.nixosModules.default];
     options.nook.noctalia = {
-      bar = {
-        position = lib.mkOption {
-          type = lib.types.enum ["top" "bottom" "left" "right"];
-          default = "left";
-        };
-        thickness = lib.mkOption {
-          type = lib.types.ints.positive;
-          default = 28;
-        };
+      bar = lib.mkOption {
+        type = lib.types.enum ["left" "top"];
+        default = "left";
       };
       lockscreen.output = lib.mkOption {
         type = lib.types.str;

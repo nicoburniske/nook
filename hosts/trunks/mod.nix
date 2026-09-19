@@ -66,10 +66,7 @@
     _module.args.host = host;
 
     nook.noctalia = {
-      bar = {
-        position = "top";
-        thickness = 40;
-      };
+      bar = "top";
       lockscreen.output = "eDP-1";
     };
 

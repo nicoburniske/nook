@@ -5,6 +5,24 @@
 }: let
   desktopFontSize = theme.fonts.sizes.desktop;
   uiFontScale = desktopFontSize / 11;
+  barLayout = {
+    left = {
+      position = "left";
+      thickness = 28;
+      background_opacity = 0.18;
+      padding = 8;
+      widget_spacing = 4;
+      scale = 1.0;
+    };
+    top = {
+      position = "top";
+      thickness = 34;
+      background_opacity = 0.0;
+      padding = 14;
+      widget_spacing = 7;
+      scale = desktopFontSize / 10;
+    };
+  };
 in {
   accessibility.ui_scale = uiFontScale;
 
@@ -157,43 +175,39 @@ in {
 
   audio.enable_sounds = false;
 
-  bar.main = {
-    position = bar.position;
-    thickness = bar.thickness;
-    background_opacity = 0.18;
-    radius = 0;
-    radius_top_left = 0;
-    radius_top_right = 0;
-    radius_bottom_left = 0;
-    radius_bottom_right = 0;
-    margin_ends = 0;
-    margin_edge = 0;
-    margin_opposite_edge = 0;
-    padding = 8;
-    widget_spacing = 4;
-    capsule_thickness = 1.0;
-    scale = 1.0;
-    shadow = true;
-    reserve_space = true;
-    capsule = true;
-    capsule_fill = "surface";
-    capsule_radius = 0.0;
-    capsule_opacity = 1.0;
-    capsule_border = "outline";
+  bar.main =
+    {
+      radius = 0;
+      radius_top_left = 0;
+      radius_top_right = 0;
+      radius_bottom_left = 0;
+      radius_bottom_right = 0;
+      margin_ends = 0;
+      margin_edge = 0;
+      margin_opposite_edge = 0;
+      capsule_thickness = 1.0;
+      shadow = true;
+      reserve_space = true;
+      capsule = true;
+      capsule_fill = "surface";
+      capsule_radius = 0.0;
+      capsule_opacity = 1.0;
+      capsule_border = "outline";
 
-    start = ["workspaces"];
-    center = [];
-    end = [
-      "tray"
-      "notifications"
-      "battery"
-      "volume"
-      "bluetooth"
-      "brightness"
-      "clock"
-      "control-center"
-    ];
-  };
+      start = ["workspaces"];
+      center = [];
+      end = [
+        "tray"
+        "notifications"
+        "battery"
+        "volume"
+        "bluetooth"
+        "brightness"
+        "clock"
+        "control-center"
+      ];
+    }
+    // barLayout.${bar};
 
   widget = {
     workspaces = {
