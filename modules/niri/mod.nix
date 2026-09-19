@@ -50,7 +50,6 @@
       ++ (import ./rules.nix)
       ++ [{binds = keybinds ++ osConfig.compositor.niri.binds;}]
     );
-    mkTheme = import ./theme.nix {inherit lib;};
   in {
     packages = with pkgs; [
       phinger-cursors
@@ -67,7 +66,11 @@
 
       "niri/theme.kdl" = {
         facet = "theme";
-        value = {theme}: lib.kdl.toKDL (mkTheme theme.value);
+        value = {theme}:
+          lib.kdl.toKDL (
+            (import ./theme.nix {inherit lib;} theme.value)
+            ++ map (render: render theme.value) osConfig.compositor.niri.themedConfig
+          );
       };
     };
   };

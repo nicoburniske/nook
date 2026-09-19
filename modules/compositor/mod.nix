@@ -12,6 +12,11 @@
           default = [];
           description = "niri config KDL nodes";
         };
+        themedConfig = lib.mkOption {
+          type = lib.types.listOf (lib.types.functionTo lib.types.attrs);
+          default = [];
+          description = "niri config KDL nodes rendered with the active theme";
+        };
         binds = lib.mkOption {
           type = lib.types.listOf lib.types.attrs;
           default = [];

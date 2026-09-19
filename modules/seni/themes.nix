@@ -17,6 +17,7 @@
     base
     // {
       colors = base.colors // {inherit withHashtag;};
+      opacity = {apps = 0.9;} // base.opacity;
     };
 
   sharedTheme = {

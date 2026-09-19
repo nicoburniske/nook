@@ -1,14 +1,14 @@
 {config, ...}: {
   nixosModules.spotify-web = {
     imports = [config.flake.nixosModules.chromium];
-    compositor.niri.config = [
-      {
+    compositor.niri.themedConfig = [
+      (theme: {
         window-rule = {
           match."app-id" = "^chrome-open\\.spotify\\.com__-Default$";
-          opacity = 0.9;
+          opacity = theme.opacity.apps;
           background-effect = [{blur = true;}];
         };
-      }
+      })
     ];
   };
 

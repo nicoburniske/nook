@@ -52,60 +52,64 @@
         capSysNice = false;
       };
     };
-    compositor.niri.config = [
-      {
-        window-rule = [
-          {match."app-id" = "^steam$";}
-          {exclude.title = "^Steam Input On-screen Keyboard$";}
-          {open-on-workspace = "5";}
-          {opacity = 0.9;}
-          {background-effect = [{blur = true;}];}
-        ];
-      }
-      {
-        window-rule = [
-          {
-            match = {
-              app-id = "^steam$";
-              title = "^Steam Input On-screen Keyboard$";
-            };
-          }
-          {open-focused = false;}
-          {open-floating = true;}
-          {min-width = 1280;}
-          {max-width = 1280;}
-          {min-height = 360;}
-          {max-height = 360;}
-          {
-            default-floating-position = {
-              x = 0;
-              y = 0;
-              relative-to = "bottom";
-            };
-          }
-        ];
-      }
-      {
-        window-rule = {
-          match."app-id" = "^steam_app_[0-9]+$";
-          open-on-workspace = "5";
-          open-fullscreen = true;
-        };
-      }
-      {
-        window-rule = [
-          {match."app-id" = "^gamescope$";}
-          {
-            match = {
-              app-id = "^$";
-              title = "^Gamescope$";
-            };
-          }
-          {open-on-workspace = "5";}
-          {open-fullscreen = true;}
-        ];
-      }
-    ];
+    compositor.niri = {
+      themedConfig = [
+        (theme: {
+          window-rule = [
+            {match."app-id" = "^steam$";}
+            {exclude.title = "^Steam Input On-screen Keyboard$";}
+            {open-on-workspace = "5";}
+            {opacity = theme.opacity.apps;}
+            {background-effect = [{blur = true;}];}
+          ];
+        })
+      ];
+      config = [
+        {
+          window-rule = [
+            {
+              match = {
+                app-id = "^steam$";
+                title = "^Steam Input On-screen Keyboard$";
+              };
+            }
+            {open-focused = false;}
+            {open-floating = true;}
+            {min-width = 1280;}
+            {max-width = 1280;}
+            {min-height = 360;}
+            {max-height = 360;}
+            {
+              default-floating-position = {
+                x = 0;
+                y = 0;
+                relative-to = "bottom";
+              };
+            }
+          ];
+        }
+        {
+          window-rule = {
+            match."app-id" = "^steam_app_[0-9]+$";
+            open-on-workspace = "5";
+            open-fullscreen = true;
+          };
+        }
+        {
+          window-rule = [
+            {match."app-id" = "^gamescope$";}
+            {
+              match = {
+                app-id = "^$";
+                title = "^Gamescope$";
+              };
+            }
+            {open-on-workspace = "5";}
+            {open-fullscreen = true;}
+          ];
+        }
+      ];
+    };
   };
 
   homeModules.steam = {pkgs, ...}: let
