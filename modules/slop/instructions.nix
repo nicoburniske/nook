@@ -14,6 +14,30 @@
     - prefer visibility on rust modules over their members. within a private module, members should be pub or private
   '';
 
+  allowedCommands = [
+    "git add"
+    "git branch -m"
+    "git cherry-pick"
+    "git commit"
+    "git fetch"
+    "git lfs fetch"
+    "git lfs pull"
+    "git merge"
+    "git mv"
+    "git pull"
+    "git rebase"
+    "git restore --staged"
+    "git revert"
+    "git stash apply"
+    "git stash pop"
+    "git stash push"
+    "git submodule sync"
+    "git submodule update"
+    "git switch"
+    "git tag"
+    "git worktree add"
+  ];
+
   forbiddenCommands = [
     "cargo install"
     "nix profile"

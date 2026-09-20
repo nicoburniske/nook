@@ -5,8 +5,19 @@
     ...
   }: let
     agentPolicy = import ./instructions.nix;
-    inherit (agentPolicy) forbiddenCommands;
+    inherit (agentPolicy) allowedCommands forbiddenCommands;
     systemPrompt = agentPolicy.instructions;
+
+    commandRules = [
+      {
+        commands = allowedCommands;
+        decision = "allow";
+      }
+      {
+        commands = forbiddenCommands;
+        decision = "forbidden";
+      }
+    ];
 
     codexFlags = with lib.toml;
       [
@@ -31,7 +42,10 @@
         }}"
         ''permissions.nix.network.enabled=true''
         "permissions.nix.network.domains=${toInlineTOML {"*" = "allow";}}"
-        "permissions.nix.network.unix_sockets=${toInlineTOML {"/nix/var/nix/daemon-socket/socket" = "allow";}}"
+        "permissions.nix.network.unix_sockets=${toInlineTOML {
+          "/nix/var/nix/daemon-socket/socket" = "allow";
+          "/run/user/1000/gcr/ssh" = "allow";
+        }}"
       ]
       |> map (value: lib.escapeShellArgs ["--config" value])
       |> lib.concatStringsSep " "
@@ -141,13 +155,18 @@
     packages = [codex];
     file.home.".codex/rules/default.rules" = {
       value =
-        forbiddenCommands
-        |> map (command: ''
-          prefix_rule(
-              pattern = ${builtins.toJSON (lib.splitString " " command)},
-              decision = "forbidden",
-          )
-        '')
+        commandRules
+        |> lib.concatMap ({
+          commands,
+          decision,
+        }:
+          commands
+          |> map (command: ''
+            prefix_rule(
+                pattern = ${builtins.toJSON (lib.splitString " " command)},
+                decision = ${builtins.toJSON decision},
+            )
+          ''))
         |> lib.concatStringsSep "\n";
     };
   };
