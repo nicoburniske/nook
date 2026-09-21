@@ -39,6 +39,7 @@
     keyboard.zsa.enable = true;
   };
   services = {
+    tailscale.extraSetFlags = ["--ssh"];
     xserver.videoDrivers = ["amdgpu"];
     pipewire = {
       enable = true;
