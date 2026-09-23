@@ -30,7 +30,11 @@
         wantedBy = ["graphical-session.target"];
         partOf = ["graphical-session.target"];
         after = ["graphical-session.target"];
-        path = [pkgs.wtype];
+        path = [
+          pkgs.which
+          pkgs.wl-clipboard
+          pkgs.wtype
+        ];
         serviceConfig = {
           ExecStart = "${handy} --start-hidden";
           Restart = "on-failure";
