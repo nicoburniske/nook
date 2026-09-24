@@ -274,6 +274,7 @@
             else "${pkgs.procps}/bin/pkill"
           )
           "-USR1"
+          "-x"
           "hx"
         ];
         ignoreFailure = true;
