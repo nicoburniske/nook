@@ -116,23 +116,22 @@ let
     };
     effect.kitty = {
       on = ["theme"];
-      exec =
-        if pkgs.stdenv.isDarwin
-        then [
-          (pkgs.writers.writeNu "seni-kitty-reload" ''
-            glob /tmp/kitty-*
-            | where { ($in | path type) == socket }
-            | each {|socket|
-                ^${pkgs.kitty}/bin/kitty @ --to $"unix:($socket)" load-config | complete
+      exec = {theme}: [
+        (pkgs.writers.writeNu "seni-kitty-reload" ''
+          let colors = r#'${renderTheme theme.value}'#
+          glob /tmp/kitty-*
+          | where { ($in | path type) == socket }
+          | each {|socket|
+              let target = $"unix:($socket)"
+              let reload = (^${pkgs.kitty}/bin/kitty @ --to $target load-config | complete)
+              if $reload.exit_code == 0 {
+                # config reload preserves colors set by applications in individual windows
+                $colors | ^${pkgs.kitty}/bin/kitty @ --to $target set-colors --all --configured /dev/stdin | complete | ignore
               }
-            | ignore
-          '')
-        ]
-        else [
-          "${pkgs.procps}/bin/pkill"
-          "-USR1"
-          ".kitty-wrapped"
-        ];
+            }
+          | ignore
+        '')
+      ];
       ignoreFailure = true;
     };
   };
