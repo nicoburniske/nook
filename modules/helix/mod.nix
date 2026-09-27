@@ -275,7 +275,7 @@
           )
           "-USR1"
           "-x"
-          "hx"
+          "hx|[.]hx-wrapped"
         ];
         ignoreFailure = true;
       };
