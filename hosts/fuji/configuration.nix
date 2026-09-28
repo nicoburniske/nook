@@ -23,6 +23,7 @@ in {
         tilesize = 48;
         orientation = "left";
         minimize-to-application = true;
+        showMissionControlGestureEnabled = true;
 
         persistent-apps = [
           "/System/Applications/Messages.app"
@@ -60,7 +61,8 @@ in {
       trackpad = {
         Clicking = true;
         TrackpadRightClick = true;
-        TrackpadThreeFingerDrag = true;
+        TrackpadThreeFingerDrag = false;
+        TrackpadThreeFingerVertSwipeGesture = 2;
       };
 
       loginwindow.GuestEnabled = false;
