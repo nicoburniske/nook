@@ -25,7 +25,6 @@
         lazygit
         codex
         pi
-        opencode-remote
         television
         bat
         btop
@@ -66,12 +65,9 @@
 
     _module.args.host = host;
 
-    nook = {
-      opencodeRemote.client.enable = true;
-      noctalia = {
-        bar = "top";
-        lockscreen.output = "eDP-1";
-      };
+    nook.noctalia = {
+      bar = "top";
+      lockscreen.output = "eDP-1";
     };
 
     compositor.niri.config = [

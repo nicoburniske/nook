@@ -17,7 +17,6 @@
         helix
         codex
         pi
-        opencode-remote
         fzf
         oh-my-posh
         lazygit
@@ -65,7 +64,6 @@
       ]);
     _module.args.host = host;
     nook = {
-      opencodeRemote.server.enable = true;
       seni.theme.transparency = {
         light = 0.95;
         dark = 0.95;
