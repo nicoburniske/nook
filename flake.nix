@@ -52,6 +52,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:noctalia-dev/noctalia-greeter/v1.5.0";
     };
+    opencode-v2 = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:anomalyco/opencode/v2.0.19";
+    };
     scd = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nicoburniske/steam-controller-daemon/master";

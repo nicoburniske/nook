@@ -242,6 +242,27 @@
         "type": "github"
       }
     },
+    "opencode-v2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790656255,
+        "narHash": "sha256-jUctriDwlHJtoqVkvZvmqLroKOaCRQ20zh3HpHKGaBE=",
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "rev": "1fd016ef32286de9489b7b24f1029f52c49a27b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anomalyco",
+        "ref": "v2.0.19",
+        "repo": "opencode",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -255,6 +276,7 @@
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
         "noctalia-greeter": "noctalia-greeter",
+        "opencode-v2": "opencode-v2",
         "scd": "scd",
         "seni": "seni",
         "smithay": "smithay",

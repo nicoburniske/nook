@@ -1,4 +1,9 @@
 {config, ...}: {
+  inputs.opencode-v2 = {
+    url = "github:anomalyco/opencode/v2.0.19";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   configurations.nixos.toji.module = {...}: let
     host = {
       name = "toji";
