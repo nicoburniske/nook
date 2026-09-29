@@ -34,6 +34,7 @@
         ''default_permissions="nix"''
         ''permissions.nix.extends=":workspace"''
         "permissions.nix.filesystem=${toInlineTOML {
+          ":workspace_roots" = inlineTable {".git" = "write";};
           "/etc/profiles" = "read";
           "/nix/store" = "read";
           "/nix/var/nix/daemon-socket" = "read";
