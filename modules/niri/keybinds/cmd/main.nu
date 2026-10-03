@@ -220,20 +220,27 @@ def pop [state: record] {
 }
 
 def draw [header: record, state: record, rows: list<any>] {
-  print -n $"(ansi cls)(ansi home)"
-  let width = (term size).columns - 1
-  print $"(ansi attr_bold)($header.title)(ansi reset)"
+  let size = term size
+  let width = $size.columns - 1
   let current = $header.current? | default ""
-  if not ($current | is-empty) {
-    let current_label = $header.current-label? | default "current"
-    print $"(ansi attr_dimmed)($current_label): ($current)(ansi reset)"
-  }
-  print ""
+  let heading = [$"(ansi attr_bold)(pad-right $header.title $width)(ansi reset)"]
+  | append (
+    if ($current | is-empty) { [] } else {
+      let current_label = $header.current-label? | default "current"
+      [$"(ansi attr_dimmed)(pad-right $'($current_label): ($current)' $width)(ansi reset)"]
+    }
+  )
+  | append ""
+  | first ($size.rows - 1)
 
-  if ($rows | is-empty) {
-    print "(no rows)"
+  let height = $size.rows - ($heading | length)
+  let start = if $state.selected >= $height { $state.selected - $height + 1 } else { 0 }
+  let lines = if ($rows | is-empty) {
+    [
+      (pad-right "(no rows)" $width)
+    ]
   } else {
-    $rows | enumerate | each {|item|
+    $rows | enumerate | skip $start | first $height | each {|item|
       let row = $item.item
       let selected = $item.index == $state.selected
       let marker = if ($row.active? | default false) { "*" } else { " " }
@@ -248,12 +255,13 @@ def draw [header: record, state: record, rows: list<any>] {
       let line = pad-right $"($prefix) ($label) ($right)" $width
 
       if $selected {
-        print $"(ansi attr_bold)(ansi attr_reverse)($line)(ansi reset)"
+        $"(ansi attr_bold)(ansi attr_reverse)($line)(ansi reset)"
       } else {
-        print $line
+        $line
       }
-    } | ignore
+    }
   }
+  print -n $"(ansi cls)(ansi home)($heading | append $lines | str join (char nl))"
 }
 
 def clamp-selection [state: record, rows: list<any>] {
@@ -284,6 +292,7 @@ def is-back-key [event: record] {
 }
 
 def pad-right [text: string, width: int] {
+  if $width <= 0 { return "" }
   let size = $text | str length
   if $size >= $width {
     $text | str substring 0..($width - 1)

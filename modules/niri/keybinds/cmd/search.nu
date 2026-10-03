@@ -149,16 +149,7 @@ def move-selection [selected: int, count: int, delta: int] {
 }
 
 export def view [search: record] {
-  let max_rows = [
-    ((term size).rows - 4)
-    1
-  ] | math max
-  let start = if $search.selected >= $max_rows {
-    $search.selected - $max_rows + 1
-  } else {
-    0
-  }
-  let rows = results $search | skip $start | first $max_rows | each {|result|
+  let rows = results $search | each {|result|
     {
       label: $result.path
       right: ($result.row.right? | default "")
@@ -168,9 +159,7 @@ export def view [search: record] {
   }
   {
     header: {title: "cmd > search", current: $search.query, current-label: "query"}
-    state: {
-      selected: ($search.selected - $start)
-    }
+    state: {selected: $search.selected}
     rows: $rows
   }
 }
