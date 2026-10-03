@@ -70,7 +70,7 @@ in [
     action = spawn ["${cmd}/bin/niri-cmd"];
   })
   (bind {
-    key = "Ctrl+Alt+Super+L";
+    key = "Mod+Alt+Ctrl+Q";
     props = {
       allow-inhibiting = false;
       hotkey-overlay-title = "Lock screen";
@@ -78,7 +78,7 @@ in [
     action = spawn ["noctalia" "msg" "session" "lock"];
   })
   (bind {
-    key = "Ctrl+Alt+Super+Q";
+    key = "Mod+Alt+Ctrl+Shift+Q";
     props.hotkey-overlay-title = "Exit niri";
     action = node "quit" null [] {skip-confirmation = true;} [];
   })
@@ -127,6 +127,11 @@ in [
   (simple "Mod+Shift+Down" "focus-monitor-down")
   (simple "Mod+Shift+Up" "focus-monitor-up")
   (simple "Mod+Shift+Right" "focus-monitor-right")
+
+  (simple "Mod+Alt+Ctrl+Left" "move-window-to-monitor-left")
+  (simple "Mod+Alt+Ctrl+Down" "move-window-to-monitor-down")
+  (simple "Mod+Alt+Ctrl+Up" "move-window-to-monitor-up")
+  (simple "Mod+Alt+Ctrl+Right" "move-window-to-monitor-right")
 
   (simple "Mod+BracketLeft" "consume-or-expel-window-left")
   (simple "Mod+BracketRight" "consume-or-expel-window-right")
