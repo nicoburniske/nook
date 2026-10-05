@@ -165,7 +165,6 @@ mode "xbox" gamepad="xbox" {
     }
     axis "left-stick" "gamepad-left-stick" deadzone=0.12
     axis "right-stick" "gamepad-right-stick" deadzone=0.12
-    axis "right-pad" "mouse-motion" sensitivity=250.0 acceleration=5.0 deadzone=0.0015
     axis "left-trigger" "gamepad-left-trigger" 
     axis "right-trigger" "gamepad-right-trigger" 
 }
