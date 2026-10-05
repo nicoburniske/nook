@@ -17,6 +17,7 @@ in
       procps
       systemd
       util-linux
+      wl-mirror
       wlsunset
     ];
     source = ''

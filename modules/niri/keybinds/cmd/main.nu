@@ -1,6 +1,7 @@
 use ./audio.nu
 use ./helium.nu
 use ./lib.nu
+use ./mirror.nu
 use ./monitor.nu
 use ./search.nu
 use ./sunset.nu
@@ -173,6 +174,7 @@ def modules [] {
     (theme entry)
     (helium entry)
     (monitor entry)
+    (mirror entry)
     (audio entry)
     (sunset entry)
   ]
