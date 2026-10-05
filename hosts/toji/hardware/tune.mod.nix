@@ -93,14 +93,14 @@ let
                 device_uid = cpuUid;
                 temp_name = "temp1";
               };
-              weight = 75;
+              weight = 90;
             }
             {
               temp_source = inlineTable {
                 device_uid = gpuUid;
                 temp_name = "temp1";
               };
-              weight = 25;
+              weight = 10;
             }
           ];
         }
