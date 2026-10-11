@@ -129,9 +129,13 @@ in
     (simple "Mod+Alt+Right" "move-column-right")
 
     (simple "Mod+Alt+Ctrl+H" "move-window-to-monitor-left")
+    (simple "Mod+Alt+Ctrl+Left" "move-window-to-monitor-left")
     (simple "Mod+Alt+Ctrl+J" "move-window-to-monitor-down")
+    (simple "Mod+Alt+Ctrl+Down" "move-window-to-monitor-down")
     (simple "Mod+Alt+Ctrl+K" "move-window-to-monitor-up")
+    (simple "Mod+Alt+Ctrl+Up" "move-window-to-monitor-up")
     (simple "Mod+Alt+Ctrl+L" "move-window-to-monitor-right")
+    (simple "Mod+Alt+Ctrl+Right" "move-window-to-monitor-right")
   ]
   ++ (lib.range 1 9
     |> lib.concatMap (index: [
