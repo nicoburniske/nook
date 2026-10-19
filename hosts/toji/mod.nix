@@ -20,6 +20,7 @@
         nix
         nushell
         helix
+        claude
         codex
         pi
         fzf
