@@ -48,6 +48,7 @@
         nautilus
         papers
         vlc
+        haruna
         fuzzel
         noctalia
         qt
