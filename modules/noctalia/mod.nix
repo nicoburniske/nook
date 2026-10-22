@@ -16,7 +16,9 @@
     pkgs,
     ...
   }: let
-    package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+      patches = (old.patches or []) ++ [./patches/niri-workspace-coordinates.patch];
+    });
     noctalia = lib.getExe package;
   in {
     imports = [inputs.noctalia-greeter.nixosModules.default];
@@ -77,7 +79,9 @@
     pkgs,
     ...
   }: let
-    package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+      patches = (old.patches or []) ++ [./patches/niri-workspace-coordinates.patch];
+    });
     noctalia = lib.getExe package;
     settings = import ./settings.nix;
     colors = import ./colors.nix;

@@ -1,0 +1,60 @@
+--- a/src/compositors/niri/niri_workspace_backend.cpp
++++ b/src/compositors/niri/niri_workspace_backend.cpp
+@@ -141,7 +141,6 @@
+   std::unordered_map<std::uint64_t, bool> used;
+ 
+   for (std::size_t i = 0; i < workspaces.size(); ++i) {
+-    const auto parsedId = parseUnsigned(workspaces[i].id);
+     std::optional<std::size_t> parsedIndex = parseLeadingNumber(workspaces[i].id);
+     if (!parsedIndex.has_value()) {
+       parsedIndex = parseLeadingNumber(workspaces[i].name);
+@@ -158,8 +157,11 @@
+       return nullptr;
+     };
+ 
+-    if (parsedId.has_value()) {
+-      matches[i] = pickCandidate([&](const WorkspaceState& candidate) { return candidate.id == *parsedId; });
++    if (workspaces[i].coordinates.size() >= 2) {
++      matches[i] = pickCandidate([&](const WorkspaceState& candidate) {
++        return static_cast<std::size_t>(candidate.idx)
++            == static_cast<std::size_t>(workspaces[i].coordinates[1]) + 1;
++      });
+     }
+     if (matches[i] == nullptr && !workspaces[i].name.empty()) {
+       matches[i] = pickCandidate([&](const WorkspaceState& candidate) { return candidate.name == workspaces[i].name; });
+--- a/tests/niri_workspace_backend_test.cpp
++++ b/tests/niri_workspace_backend_test.cpp
+@@ -138,6 +138,33 @@
+   ok &= check(nlohmann::json::parse(request) == expectedRequest, "request payload mismatch");
+   ok &= check(!backend.closeWindowById("not-an-id"), "closeWindowById with bad id should fail");
+ 
++  backend.handleEvent(
++      "WorkspacesChanged",
++      {{"workspaces",
++        {
++            {{"id", 70}, {"idx", 1}, {"name", "1"}, {"output", "DP-1"}},
++            {{"id", 1}, {"idx", 2}, {"output", "DP-1"}},
++            {{"id", 2}, {"idx", 3}, {"name", "2"}, {"output", "DP-1"}},
++        }}}
++  );
++  backend.handleEvent(
++      "WindowsChanged", {{"windows", {{{"id", 41}, {"workspace_id", 70}, {"app_id", "kitty"}}}}}
++  );
++  std::vector<Workspace> workspaces{
++      {.id = "1", .name = "1", .coordinates = {0, 0}},
++      {.name = "2", .coordinates = {0, 1}},
++      {.id = "2", .name = "2", .coordinates = {0, 2}},
++  };
++  backend.apply(workspaces, "DP-1");
++  ok &= check(
++      workspaces[0].index == 1 && workspaces[1].index == 2 && workspaces[2].index == 3,
++      "numeric workspace names must not match IPC ids or unnamed workspace labels"
++  );
++  ok &= check(
++      workspaces[0].occupied && !workspaces[1].occupied && !workspaces[2].occupied,
++      "occupancy must follow the workspace coordinates"
++  );
++
+   ::close(listener);
+   ::unlink(socketPath.c_str());
+   return ok ? 0 : 1;
