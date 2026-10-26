@@ -64,8 +64,6 @@
         bitdo-controller
         kanto-ora
         mullvad
-        tailscale
-        sunshine
         qbittorrent
         jai
       ]);

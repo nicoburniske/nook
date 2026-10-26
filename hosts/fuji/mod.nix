@@ -43,7 +43,6 @@
         hammerspoon
         tools
         codex
-        tailscale
       ]);
 
     _module.args.host = host;
