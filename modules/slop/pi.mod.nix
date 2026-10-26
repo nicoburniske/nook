@@ -30,6 +30,28 @@
         url = "https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-${version}.tgz";
         hash = "sha512-6MzsrYIYNVlE7SfpbL2yYb67Qo58p/7Q+xWG1RZvoX1P80aRCHSod2/13aFpxkow1lPO2LEh3c495J0Gwmyjig==";
       };
+
+      postInstall =
+        ''
+          local nm="$out/lib/node_modules/pi-monorepo/node_modules"
+          for ws in @earendil-works/pi-ai:packages/ai \
+                    @earendil-works/pi-agent-core:packages/agent \
+                    @earendil-works/pi-client:packages/client \
+                    @earendil-works/pi-protocol:packages/protocol \
+                    @earendil-works/pi-telemetry:packages/telemetry \
+                    @earendil-works/pi-tui:packages/tui; do
+            IFS=: read -r pkg src <<< "$ws"
+            rm "$nm/$pkg"
+            cp -r "$src" "$nm/$pkg"
+          done
+          find "$nm" -type l -lname '*/packages/*' -delete
+          find "$nm/.bin" -xtype l -delete
+        ''
+        + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+          rm -rf \
+            "$nm/@anthropic-ai/sandbox-runtime/dist/vendor/seccomp" \
+            "$nm/@anthropic-ai/sandbox-runtime/vendor/seccomp"
+        '';
     });
 
     packages = [

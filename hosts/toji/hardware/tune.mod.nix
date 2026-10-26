@@ -1,7 +1,7 @@
 let
   lact = {pkgs, ...}: let
     configFile = pkgs.writeText "lact-config.yaml" ''
-      version: 6
+      version: 7
       daemon:
         log_level: info
         admin_group: wheel
@@ -33,8 +33,13 @@ let
     '';
   in {
     services.lact.enable = true;
-    environment.etc."lact/config.yaml".source = configFile;
-    systemd.services.lactd.restartTriggers = [configFile];
+    systemd.services.lactd = {
+      restartTriggers = [configFile];
+      preStart = ''
+        ${pkgs.coreutils}/bin/rm -f /run/lactd.sock
+        ${pkgs.coreutils}/bin/install -D -m 0644 ${configFile} /etc/lact/config.yaml
+      '';
+    };
   };
 
   coolercontrol = {
