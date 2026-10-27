@@ -59,6 +59,7 @@
         roam-web
         shadps4
         steam
+        balatro
         scd
         eden
         bitdo-controller
