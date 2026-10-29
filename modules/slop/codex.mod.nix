@@ -22,6 +22,7 @@
     codexFlags = with lib.toml;
       [
         "developer_instructions=${builtins.toJSON systemPrompt}"
+        ''mcp_servers.linear.url="https://mcp.linear.app/mcp"''
         ''model_provider="openai-http"''
         "model_providers.openai-http=${toInlineTOML {
           name = "OpenAI HTTP";
