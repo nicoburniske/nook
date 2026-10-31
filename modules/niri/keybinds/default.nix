@@ -180,16 +180,20 @@ in
         if workspace == 10
         then "0"
         else toString workspace;
+      reference =
+        if workspace <= 5
+        then toString workspace
+        else workspace;
     in [
       (bind {
         key = "Mod+${key}";
         props.repeat = false;
-        action = action "focus-workspace" [workspace];
+        action = action "focus-workspace" [reference];
       })
       (bind {
         key = "Mod+Alt+${key}";
         props.repeat = false;
-        action = action "move-window-to-workspace" [workspace];
+        action = action "move-window-to-workspace" [reference];
       })
     ]))
   ++ [

@@ -9,7 +9,15 @@
       ];
     });
 
-  workspace = name: {workspace = name;};
+  workspace = name: {
+    workspace = {
+      args = [name];
+      children =
+        if config.compositor.niri.workspaceOutput == null
+        then []
+        else [{open-on-output = config.compositor.niri.workspaceOutput;}];
+    };
+  };
 
   spring = damping-ratio: stiffness: {
     props = {
@@ -57,7 +65,6 @@ in
           {accel-speed = 0.2;}
         ];
         focus-follows-mouse.props.max-scroll-amount = "0%";
-        workspace-auto-back-and-forth = {};
       };
     }
 

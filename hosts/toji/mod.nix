@@ -77,6 +77,7 @@
       };
       noctalia.lockscreen.output = "DP-3";
     };
+    compositor.niri.workspaceOutput = "DP-3";
     compositor.niri.config = [
       {
         debug = [
@@ -87,6 +88,7 @@
         output = {
           args = ["DP-3"];
           children = [
+            {focus-at-startup = {};}
             {mode = "5120x2880@165.058";}
             {scale = 2;}
             {variable-refresh-rate = {};}

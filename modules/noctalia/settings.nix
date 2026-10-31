@@ -211,7 +211,7 @@ in {
 
   widget = {
     workspaces = {
-      label_source = "id";
+      label_source = "name";
       hide_when_empty = true;
       labels_only_when_occupied = true;
       focused_color = "primary";

@@ -7,6 +7,11 @@
         description = "shell commands started by the active compositor";
       };
       niri = {
+        workspaceOutput = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "home output for named workspaces";
+        };
         config = lib.mkOption {
           type = lib.types.listOf lib.types.attrs;
           default = [];
