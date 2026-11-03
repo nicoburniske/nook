@@ -31,6 +31,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:mattwparas/helix/steel-event-system";
     };
+    hex = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:anomalyco/hex/v3.3.0";
+    };
     niri = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:dividebysandwich/niri/main";

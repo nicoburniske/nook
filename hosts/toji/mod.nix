@@ -42,7 +42,7 @@
         fonts
         compositor
         niri
-        handy
+        hex
         kitty
         keepassxc
         nautilus
