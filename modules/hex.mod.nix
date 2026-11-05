@@ -12,7 +12,10 @@
   }: let
     inherit (lib.kdl) node;
     cfg = config.nook.hex;
-    hex = lib.getExe config.programs.hex.package;
+    package = lib.meta.addMetaAttrs {
+      platforms = ["x86_64-linux" "aarch64-linux"];
+    } (pkgs.callPackage "${inputs.hex}/nix/package.nix" {});
+    hex = lib.getExe package;
     waitForSession = pkgs.writeShellApplication {
       name = "hex-wait-for-session";
       runtimeInputs = [
@@ -23,14 +26,13 @@
       text = builtins.readFile "${inputs.hex}/nix/wait-for-session.sh";
     };
   in {
-    imports = [inputs.hex.nixosModules.hex];
     options.nook.hex.keybind = lib.mkOption {
       type = lib.types.str;
       default = "Mod+R";
       description = "niri keybind used to toggle local dictation";
     };
     config = {
-      programs.hex.enable = true;
+      environment.systemPackages = [package];
       compositor.niri.binds = [
         (node cfg.keybind null [] {
             repeat = false;
