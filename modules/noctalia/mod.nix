@@ -17,7 +17,7 @@
     ...
   }: let
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
-      patches = (old.patches or []) ++ [./patches/niri-workspace-coordinates.patch];
+      patches = (old.patches or []) ++ [./patches/niri-workspace-coordinates.patch ./patches/wallpaper-all-monitors.patch];
     });
     noctalia = lib.getExe package;
   in {
@@ -80,7 +80,7 @@
     ...
   }: let
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
-      patches = (old.patches or []) ++ [./patches/niri-workspace-coordinates.patch];
+      patches = (old.patches or []) ++ [./patches/niri-workspace-coordinates.patch ./patches/wallpaper-all-monitors.patch];
     });
     noctalia = lib.getExe package;
     settings = import ./settings.nix;
