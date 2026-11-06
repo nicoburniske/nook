@@ -33,11 +33,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785426242,
-        "narHash": "sha256-QHAP8KsJQmI+dpNS/wfWAtEBQ0Zby+B0Ty+qZIO/U2w=",
+        "lastModified": 1793951909,
+        "narHash": "sha256-mA17MzIYFxeoo6mOyuspry6WIm7/f8m7gDAcy3o/jj4=",
         "owner": "nix-community",
         "repo": "nixos-apple-silicon",
-        "rev": "66d8dd2c27f99bd5420c99938b60695aac1785c4",
+        "rev": "73301d52f114946d53e62902692c36b0fea0c904",
         "type": "github"
       },
       "original": {
@@ -92,11 +92,11 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1792837770,
-        "narHash": "sha256-w+RBDqPqRpbVEkSs3yUWcptVdurJYBPpdc08v9oWl34=",
+        "lastModified": 1793895218,
+        "narHash": "sha256-Ca0He88cg3qSX7MVTcwbgw74RuwmcA+ZwzVjqX72JAs=",
         "owner": "schembriaiden",
         "repo": "helium-browser-nix-flake",
-        "rev": "ebac6e7f4af50aa48200ae77ea6606061e2d3e84",
+        "rev": "ef91010a4fcc551b5cb24f52608dc8d45c527d9d",
         "type": "github"
       },
       "original": {
@@ -229,17 +229,17 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1792773339,
-        "narHash": "sha256-rZLrzrC6i+jnTAlvPZHogKDulY7WWDEv9hJeHieO7Zw=",
+        "lastModified": 1793821670,
+        "narHash": "sha256-WlsILJeLh/YHQ3MtcxfELtD1k05WK9us508L76RlegE=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "3ec636362e1816bc2f0888fa0fa2c69f1bc9e504",
+        "rev": "c399e1b7fb90789e3e032784ef8ad98ba9907169",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-unstable",
         "repo": "nixpkgs",
+        "rev": "c399e1b7fb90789e3e032784ef8ad98ba9907169",
         "type": "github"
       }
     },
@@ -285,27 +285,6 @@
         "type": "github"
       }
     },
-    "opencode-v2": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1790656255,
-        "narHash": "sha256-jUctriDwlHJtoqVkvZvmqLroKOaCRQ20zh3HpHKGaBE=",
-        "owner": "anomalyco",
-        "repo": "opencode",
-        "rev": "1fd016ef32286de9489b7b24f1029f52c49a27b3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "anomalyco",
-        "ref": "v2.0.19",
-        "repo": "opencode",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -320,7 +299,6 @@
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
         "noctalia-greeter": "noctalia-greeter",
-        "opencode-v2": "opencode-v2",
         "scd": "scd",
         "seni": "seni",
         "smithay": "smithay",

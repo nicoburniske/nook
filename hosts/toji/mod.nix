@@ -1,9 +1,4 @@
 {config, ...}: {
-  inputs.opencode-v2 = {
-    url = "github:anomalyco/opencode/v2.0.19";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-
   configurations.nixos.toji.module = {...}: let
     host = {
       name = "toji";
@@ -77,34 +72,36 @@
       };
       noctalia.lockscreen.output = "DP-3";
     };
-    compositor.niri.workspaceOutput = "DP-3";
-    compositor.niri.config = [
-      {
-        debug = [
-          {render-drm-device = "/dev/dri/by-path/pci-0000:03:00.0-render";}
-        ];
-      }
-      {
-        output = {
-          args = ["DP-3"];
-          children = [
-            {focus-at-startup = {};}
-            {mode = "5120x2880@165.058";}
-            {scale = 2;}
-            {variable-refresh-rate = {};}
-            {
-              hdr = {
-                props.mode = "on";
-                children = [
-                  {reference-luminance = 500;}
-                  {sdr-saturation = 1.2;}
-                  {sdr-brightness = 1.2;}
-                ];
-              };
-            }
+    compositor.niri = {
+      workspaceOutput = "DP-3";
+      config = [
+        {
+          debug = [
+            {render-drm-device = "/dev/dri/by-path/pci-0000:03:00.0-render";}
           ];
-        };
-      }
-    ];
+        }
+        {
+          output = {
+            args = ["DP-3"];
+            children = [
+              {focus-at-startup = {};}
+              {mode = "5120x2880@165.058";}
+              {scale = 2;}
+              {variable-refresh-rate = {};}
+              {
+                hdr = {
+                  props.mode = "on";
+                  children = [
+                    {reference-luminance = 500;}
+                    {sdr-saturation = 1.2;}
+                    {sdr-brightness = 1.2;}
+                  ];
+                };
+              }
+            ];
+          };
+        }
+      ];
+    };
   };
 }

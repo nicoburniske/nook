@@ -47,7 +47,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "path:./tidy";
     };
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/c399e1b7fb90789e3e032784ef8ad98ba9907169";
     noctalia = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:noctalia-dev/noctalia/v5.1.0";
@@ -55,10 +55,6 @@
     noctalia-greeter = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:noctalia-dev/noctalia-greeter/v1.5.0";
-    };
-    opencode-v2 = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:anomalyco/opencode/v2.0.19";
     };
     scd = {
       inputs.nixpkgs.follows = "nixpkgs";
