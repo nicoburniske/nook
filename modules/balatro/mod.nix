@@ -8,6 +8,10 @@
       url = "https://github.com/stupxd/Cartomancer/releases/download/v.4.17e/Cartomancer.zip";
       hash = "sha256-8Be0cqUfJJE5iX2I9739kRPCBtZRJ9KH35GsrsbHXGs=";
     };
+    handy = pkgs.fetchzip {
+      url = "https://github.com/SleepyG11/HandyBalatro/archive/refs/tags/v2.0.7.tar.gz";
+      hash = "sha256-Ekl/Y0RfpaVpBBB176jXrvXVhG5ZIYxUcMRE8Wmr4mk=";
+    };
     jokerDisplay = pkgs.fetchzip {
       url = "https://github.com/nh6574/JokerDisplay/archive/refs/tags/v2.0.8.tar.gz";
       hash = "sha256-oEKxXf8Mj+MwVFkBfppb9h/U13SwDwM4wX7PuzKjW7g=";
@@ -39,6 +43,7 @@
     ];
     file.data = {
       "Balatro/Mods/Cartomancer".value = cartomancer;
+      "Balatro/Mods/HandyBalatro".value = handy;
       "Balatro/Mods/JokerDisplay".value = jokerDisplay;
     };
   };
