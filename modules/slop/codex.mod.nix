@@ -65,7 +65,7 @@
       libz,
       bubblewrap,
     }: let
-      version = "0.167.0";
+      version = "0.170.0";
 
       platformMap = {
         "aarch64-darwin" = "aarch64-apple-darwin";
@@ -77,17 +77,17 @@
       platform = platformMap.${stdenv.hostPlatform.system};
 
       nativeHashes = {
-        "aarch64-apple-darwin" = "sha256-SyKiqXG+J5HD4x+RLz53qI69ZKZYEqconMumXdZCX+k=";
-        "x86_64-apple-darwin" = "sha256-2OtKhloLFzGc3hA0dSPlurCXjQFyWzn0pjn0CQXgEiE=";
-        "x86_64-unknown-linux-musl" = "sha256-nWSDYQbVs3TpDuRFTH683nynEGVYvX5Bo0ufJuvaJRo=";
-        "aarch64-unknown-linux-musl" = "sha256-hDSJrLTUsQeXRcNrA8WWO4h7gxVa8gj9U1hOM+6OsoE=";
+        "aarch64-apple-darwin" = "sha256-fJ8h1cuuSGDRSzef3PcJ/zmc6HT9cUtYeD4bQZnCuak=";
+        "x86_64-apple-darwin" = "sha256-yFi7AUmwA6jPiEChFDxNlT8YvqI7puqGHV/fC14ppaM=";
+        "x86_64-unknown-linux-musl" = "sha256-0FSRbM0opTggN2uNL3yHUYTKj0D81Eu6vrjuJAziR/U=";
+        "aarch64-unknown-linux-musl" = "sha256-DaawYfa1IjkBpac+hBvRRmWW4u9iDWiCM2D+vtL/frw=";
       };
 
       codeModeHostHashes = {
-        "aarch64-apple-darwin" = "sha256-h2o+JjNI7w7a6uXPW8UqXBIRQc79FRV6sO7KMF8+tWM=";
-        "x86_64-apple-darwin" = "sha256-YS0Nwscxb78F7pInlvTXQKKFt2pV1MeOG5RrpiG9zJE=";
-        "x86_64-unknown-linux-musl" = "sha256-tQdNXdZGQ7LAc5J+SUpYjv8xwfWifxLB4sRfmmzwfdQ=";
-        "aarch64-unknown-linux-musl" = "sha256-bpmUj6IMqBagHyIqVq+iYbMh4Ay+1hHXa7ksdl/RHsY=";
+        "aarch64-apple-darwin" = "sha256-b6SMAjtEW/xS638CanE/WSpY5F0x5H02pUmNdbvW+8o=";
+        "x86_64-apple-darwin" = "sha256-JwkqI1UWdz24iSfHQTu9VOcDDMXZbWYViFFDjvkFx0E=";
+        "x86_64-unknown-linux-musl" = "sha256-GKsp2XBYaJAIXD66HVUGj9ZiYhVIVeUaVPNwhSL6TcU=";
+        "aarch64-unknown-linux-musl" = "sha256-iuhxxdSUqlhC//N627rJylhrDIr0DYDZD+uNHhD4alk=";
       };
 
       nativeBinary = fetchurl {
