@@ -24,8 +24,33 @@
     };
   };
 
-  homeModules.claude = {pkgs, ...}: {
-    packages = [pkgs.claude-code];
+  homeModules.claude = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    mcpServers = import ./mcp.nix;
+    mcpConfig =
+      {
+        mcpServers =
+          mcpServers
+          |> lib.mapAttrs (_: {url}: {
+            type = "http";
+            inherit url;
+          });
+      }
+      |> builtins.toJSON
+      |> pkgs.writeText "claude-mcp-config.json";
+    claude = pkgs.symlinkJoin {
+      name = "claude-code-wrapped";
+      paths = [pkgs.claude-code];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram $out/bin/claude --add-flags "--mcp-config ${mcpConfig}"
+      '';
+    };
+  in {
+    packages = [claude];
     file.home.".claude/CLAUDE.md".value = (import ./instructions.nix).instructions;
   };
 }

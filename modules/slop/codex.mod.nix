@@ -5,6 +5,7 @@
     ...
   }: let
     agentPolicy = import ./instructions.nix;
+    mcpServers = import ./mcp.nix;
     inherit (agentPolicy) allowedCommands forbiddenCommands;
     systemPrompt = agentPolicy.instructions;
 
@@ -20,10 +21,16 @@
     ];
 
     codexFlags = with lib.toml;
-      [
-        "developer_instructions=${builtins.toJSON systemPrompt}"
-        ''mcp_servers.linear.url="https://mcp.linear.app/mcp"''
-        ''model_provider="openai-http"''
+      (
+        [
+          "developer_instructions=${builtins.toJSON systemPrompt}"
+        ]
+        ++ (
+          mcpServers
+          |> lib.mapAttrsToList (name: {url}: "mcp_servers.${name}.url=${builtins.toJSON url}")
+        )
+        ++ [
+          ''model_provider="openai-http"''
         "model_providers.openai-http=${toInlineTOML {
           name = "OpenAI HTTP";
           wire_api = "responses";
@@ -48,7 +55,8 @@
           "/nix/var/nix/daemon-socket/socket" = "allow";
           "/run/user/1000/gcr/ssh" = "allow";
         }}"
-      ]
+        ]
+      )
       |> map (value: lib.escapeShellArgs ["--config" value])
       |> lib.concatStringsSep " "
       |> lib.escapeShellArg;
