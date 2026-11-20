@@ -24,7 +24,7 @@
         oh-my-posh
         lazygit
         codex
-        pi
+        antigravity
         television
         bat
         btop

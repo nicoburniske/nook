@@ -17,7 +17,7 @@
         helix
         claude
         codex
-        pi
+        antigravity
         fzf
         oh-my-posh
         lazygit
