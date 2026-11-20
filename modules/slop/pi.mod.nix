@@ -6,59 +6,45 @@
     pkgs,
     ...
   }: let
-    version = "0.84.2";
-    rev = "914cf1472e715297caa30db4b9535d534a9eb718";
+    version = "1.6.0";
+    npmDepsHash = "sha256-V7fRy44X50tqfFewWQ/k5UjvUt+AoMOZkTw/v0bib6o=";
     agentPolicy = import ./instructions.nix;
     piSource = pkgs.fetchFromGitHub {
       owner = "earendil-works";
       repo = "pi";
-      inherit rev;
-      hash = "sha256-d29ft9otYxdHRWYIAX8KMHPpppToX9ME5LbPb1rPcYo=";
+      tag = "v${version}";
+      hash = "sha256-UVQnOMYikjxi7JREcxPZh/Uamy0l4rBvhawHR/MZZgo=";
     };
 
-    pi = pkgs.pi-coding-agent.overrideAttrs (_: {
-      inherit version;
+    pi = pkgs.pi-coding-agent.overrideAttrs (old: {
+      inherit version npmDepsHash;
       src = piSource;
 
       npmDeps = pkgs.fetchNpmDeps {
         src = piSource;
-        hash = "sha256-6J5Efe+6ptCuR3VZojwYPZO8BBnnZsOQ4OAeB64uYOY=";
+        hash = npmDepsHash;
       };
-      npmDepsHash = "sha256-6J5Efe+6ptCuR3VZojwYPZO8BBnnZsOQ4OAeB64uYOY=";
 
       modelData = pkgs.fetchurl {
         url = "https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-${version}.tgz";
-        hash = "sha512-6MzsrYIYNVlE7SfpbL2yYb67Qo58p/7Q+xWG1RZvoX1P80aRCHSod2/13aFpxkow1lPO2LEh3c495J0Gwmyjig==";
+        hash = "sha512-9hL+eygFDEiFp//cydeUfmFsKmEqpmvsNPb10Y1W8+m5K9O+sx1hMStfu6nukrBD5sl6mP4RykCYBBNEgsVLfw==";
       };
 
       postInstall =
         ''
-          local nm="$out/lib/node_modules/pi-monorepo/node_modules"
-          for ws in @earendil-works/pi-ai:packages/ai \
-                    @earendil-works/pi-agent-core:packages/agent \
-                    @earendil-works/pi-client:packages/client \
-                    @earendil-works/pi-protocol:packages/protocol \
-                    @earendil-works/pi-telemetry:packages/telemetry \
-                    @earendil-works/pi-tui:packages/tui; do
-            IFS=: read -r pkg src <<< "$ws"
-            rm "$nm/$pkg"
-            cp -r "$src" "$nm/$pkg"
-          done
-          find "$nm" -type l -lname '*/packages/*' -delete
-          find "$nm/.bin" -xtype l -delete
+        local modules="$out/lib/node_modules/pi-monorepo/node_modules"
+        rm "$modules/@earendil-works/pi-schema" "$modules/@earendil-works/p3" "$modules/p2"
+        cp -r packages/schema "$modules/@earendil-works/pi-schema"
         ''
-        + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
-          rm -rf \
-            "$nm/@anthropic-ai/sandbox-runtime/dist/vendor/seccomp" \
-            "$nm/@anthropic-ai/sandbox-runtime/vendor/seccomp"
-        '';
+        + old.postInstall;
     });
 
     packages = [
       "npm:@gotgenes/pi-permission-system@26.3.1"
+      "npm:pi-antigravity@0.14.0"
       "npm:pi-codex-fast-mode@0.2.0"
       "npm:pi-mcp-adapter@2.26.1"
-      "npm:pi-web-access@0.24.0"
+      "npm:pi-web-access@0.48.0"
     ];
 
     configSource = pkgs.writeText "pi-config.json" (builtins.toJSON {
@@ -98,11 +84,16 @@
         let mcp_path = $target | path join "mcp.json"
         let settings = try { open $settings_path } catch { {} }
         let mcp = try { open $mcp_path } catch { {} }
+        let extensions = $settings.extensions?
+          | default []
+          | where $it not-in ["builtin:mcp" "+builtin:mcp" "-builtin:mcp"]
+          | append "-builtin:mcp"
 
         mkdir $target
         $managed.settings.defaults
           | merge $settings
           | merge $managed.settings.enforced
+          | upsert extensions $extensions
           | to json
           | save --force $settings_path
         $managed.mcp
