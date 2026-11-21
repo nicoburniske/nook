@@ -33,7 +33,7 @@
     };
     hex = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:anomalyco/hex/v3.3.0";
+      url = "github:anomalyco/hex/v3.4.0";
     };
     niri = {
       inputs.nixpkgs.follows = "nixpkgs";
